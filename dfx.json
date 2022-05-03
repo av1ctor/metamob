@@ -1,7 +1,7 @@
 {
   "canisters": {
     "dchanges": {
-      "main": "src/dchanges/main.mo",
+      "main": "src/dchanges/facade.mo",
       "type": "motoko"
     },
     "dchanges_assets": {
@@ -21,7 +21,7 @@
   "defaults": {
     "build": {
       "args": "",
-      "packtool": ""
+      "packtool": "vessel sources"
     }
   },
   "dfx": "0.9.3",

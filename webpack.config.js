@@ -48,7 +48,7 @@ module.exports = {
   entry: {
     // The frontend.entrypoint points to the HTML file for this build, so we need
     // to replace the extension to `.js`.
-    index: path.join(__dirname, asset_entry).replace(/\.html$/, ".js"),
+    index: path.join(__dirname, asset_entry).replace(/\.html$/, ".jsx"),
   },
   devtool: isDevelopment ? "source-map" : false,
   optimization: {
@@ -69,18 +69,13 @@ module.exports = {
     filename: "index.js",
     path: path.join(__dirname, "dist", frontendDirectory),
   },
-
-  // Depending in the language or framework you are using for
-  // front-end development, add module loaders to the default
-  // webpack configuration. For example, if you are using React
-  // modules and CSS as described in the "Adding a stylesheet"
-  // tutorial, uncomment the following lines:
-  // module: {
-  //  rules: [
-  //    { test: /\.(ts|tsx|jsx)$/, loader: "ts-loader" },
-  //    { test: /\.css$/, use: ['style-loader','css-loader'] }
-  //  ]
-  // },
+  module: {
+    rules: [
+      { test: /\.(js|ts)x?$/, loader: "ts-loader" },
+      { test: /\.css$/, use: ['style-loader','css-loader'] },
+      { test: /\.s[ac]ss$/i, use: ["style-loader","css-loader","sass-loader"] }
+    ]
+  },  
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, asset_entry),
