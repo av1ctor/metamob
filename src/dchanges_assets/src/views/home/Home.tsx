@@ -29,21 +29,28 @@ export const Home = () => {
 
     }    
     return (
-        <section className="section">
-            <div className="container">
-                <h1 className="title">
-                    D-Changes
-                </h1>
-                <p className="subtitle">
-                    Together we can transform the world!
-                </p>
-            </div>
-            <div>
-                <Routes>
-                    <Route path="/p/:id" element={<Petition />} />
-                    <Route path="/" element={<Petitions />} />
-                </Routes>
-            </div>
-        </section>      
+        <>
+            <section className="section">
+                <div className="container has-text-centered">
+                    <h1 className="title">
+                        D-Changes
+                    </h1>
+                    <p className="subtitle">
+                        Together we can transform the world!
+                    </p>
+                </div>
+                <div className="container">
+                    <Routes>
+                        <Route path="/p/:id" element={<Petition />} />
+                        <Route path="/" element={<Petitions />} />
+                    </Routes>
+                </div>
+            </section>
+            <footer className="footer">
+                <div className="content has-text-centered">
+                    D-Changes (c) 2022 by av1ctor
+                </div>
+            </footer>
+        </>            
     );
 }

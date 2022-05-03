@@ -51,67 +51,51 @@ const EditForm = (props: Props) => {
     }, [form]);
 
     return (
-        <>
-            <Grid container>
-                <Grid>
-                    <TextField 
-                        label="Title" 
-                        name="title"
-                        value={form.title || ''}
-                        onChange={changeForm}
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <TextAreaField
-                        label="Body"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        onChange={changeForm}
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <SelectField
-                        label="Category"
-                        name="categoryId"
-                        value={form.categoryId || ''}
-                        options={props.categories.map((category) => ({name: category.name, value: category._id}))}
-                        onChange={changeForm}
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <TextField 
-                        label="Tags"
-                        name="tags"
-                        value={form.tags.join(',')}
-                        onChange={changeTags} 
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
+        <Grid container>
+            <TextField 
+                label="Title" 
+                name="title"
+                value={form.title || ''}
+                onChange={changeForm}
+            />
+            <TextAreaField
+                label="Body"
+                name="body"
+                value={form.body || ''}
+                rows={6}
+                onChange={changeForm}
+            />
+            <SelectField
+                label="Category"
+                name="categoryId"
+                value={form.categoryId || ''}
+                options={props.categories.map((category) => ({name: category.name, value: category._id}))}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Tags"
+                name="tags"
+                value={form.tags.join(',')}
+                onChange={changeTags} 
+            />
+            <div className="field is-grouped mt-2">
+                <div className="control">
                     <Button
                         onClick={props.onCancel}
                     >
                         Cancel
                     </Button>
-                </Grid>
-                <Grid>
+                </div>
+                <div className="control">
                     <Button
                         onClick={handleUpdate}
                         disabled={updateMut.isLoading}
                     >
                         Update
                     </Button>
-                </Grid>
-            </Grid>
-        </>
+                </div>
+            </div>
+        </Grid>
     );
 };
 

@@ -9,15 +9,9 @@ interface Props {
 
 const Card = (props: Props) => {
     return (
-        <div
-            className="relative border rounded-xl m-2 mt-4 p-2"
-        >
+        <nav className="panel">
             {props.label &&
-                <div 
-                    className="absolute left-4 px-1 text-xs font-bold hide-label-line cursor-pointer" 
-                    style={{top: '-0.55rem'}}
-                    onClick={props.onToggle}
-                >
+                <p className="panel-heading">
                     {props.label}
                     {props.onToggle &&
                         <span
@@ -25,10 +19,15 @@ const Card = (props: Props) => {
                             <i className={`las la-caret-${!props.collapsed? 'up': 'down'}`} />
                         </span>
                     }
-                </div>
+                </p>
             }
-            {props.collapsed? null: props.children}
-        </div>
+            {props.collapsed? 
+                null: 
+                <a className="panel-block is-active">
+                    {props.children}
+                </a>
+            }
+        </nav>
     );
 };
 

@@ -52,21 +52,23 @@ const CreateForm = (props: Props) => {
                 </Grid>
             </Grid>
             <Grid container>
-                <Grid>
-                    <Button
-                        onClick={props.onCancel}
-                    >
-                        Cancel
-                    </Button>
-                </Grid>
-                <Grid>
-                    <Button
-                        onClick={handleCreate}
-                        disabled={createMut.isLoading}
-                    >
-                        Create
-                    </Button>
-                </Grid>
+                <div className="field is-grouped mt-2">
+                    <div className="control">
+                        <Button
+                            onClick={props.onCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                    <div className="control">
+                        <Button
+                            onClick={handleCreate}
+                            disabled={createMut.isLoading}
+                        >
+                            Create
+                        </Button>
+                    </div>
+                </div>
             </Grid>
         </>
     );

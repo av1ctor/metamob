@@ -10,7 +10,7 @@ import TimeFromNow from "../../../components/TimeFromNow";
 import Comments from "../../comments/Comments";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
-import ReplyForm from "../../comments/comment/Create";
+import CommentForm from "../../comments/comment/Create";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 
@@ -37,7 +37,7 @@ const Petition = () => {
         });
     }, [modals]);
 
-    const toggleReply = useCallback(() => {
+    const toggleComment = useCallback(() => {
         setModals({
             ...modals,
             reply: !modals.reply
@@ -60,7 +60,7 @@ const Petition = () => {
                 {petition &&
                     <>
                         <div className="pb-1">
-                            <div className="text-2xl font-bold">
+                            <div className="is-size-2">
                                 {petition.title}
                             </div>
                             <div>
@@ -72,7 +72,7 @@ const Petition = () => {
                                     <Avatar id={petition.createdBy} size='lg' />
                                 </div>
                                 <div className="flex-1"></div>
-                                <div className="flex-none w-8 text-gray-400">
+                                <div className="flex-none w-8 has-text-grey-light">
                                     <TimeFromNow 
                                         date={BigInt.asIntN(64, petition.createdAt)}
                                     />
@@ -84,35 +84,34 @@ const Petition = () => {
                                     {petition.body}
                                 </div>
                             </div>
-                            <div className="flex justify-end">
-                                <div className="flex gap-1">
-                                    {canEdit && 
-                                        <>
-                                            <div className="flex-1" title="edit">
-                                                <Button
-                                                    onClick={toggleEdit}
-                                                >
-                                                    <i className="la la-pencil" />
-                                                </Button>
-                                            </div>
-                                            <div className="flex-1" title="delete">
-                                                <Button
-                                                    onClick={toggleDelete}
-                                                >
-                                                    <i className="la la-trash" />
-                                                </Button>
-                                            </div>
-                                        </>
-                                    }
-                                    {canReply && 
-                                        <div className="flex-1" title="reply">
+                            <div className="field is-grouped mt-2">
+                                {canEdit && 
+                                    <>
+                                        <div className="control" title="edit">
                                             <Button
-                                                onClick={toggleReply}>
-                                                <span className="whitespace-nowrap"><i className="la la-reply" /> Reply</span>
+                                                onClick={toggleEdit}
+                                            >
+                                                <i className="la la-pencil" />
                                             </Button>
                                         </div>
-                                    }
-                                </div>
+                                        <div className="control" title="delete">
+                                            <Button
+                                                color='danger'
+                                                onClick={toggleDelete}
+                                            >
+                                                <i className="la la-trash" />
+                                            </Button>
+                                        </div>
+                                    </>
+                                }
+                                {canReply && 
+                                    <div className="control" title="comment">
+                                        <Button
+                                            onClick={toggleComment}>
+                                            <span className="whitespace-nowrap"><i className="la la-reply" /> Comment</span>
+                                        </Button>
+                                    </div>
+                                }
                             </div>
                         </div>
                         
@@ -134,11 +133,11 @@ const Petition = () => {
 
                         <Modal
                             isOpen={modals.reply}
-                            onClose={toggleReply}
+                            onClose={toggleComment}
                         >
-                            <ReplyForm 
+                            <CommentForm 
                                 petition={petition} 
-                                onCancel={toggleReply}
+                                onCancel={toggleComment}
                             />
                         </Modal>
 

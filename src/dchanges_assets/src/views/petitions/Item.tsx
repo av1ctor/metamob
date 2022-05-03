@@ -25,10 +25,10 @@ export const Item = (props: Props) => {
     const petition = props.petition;
 
     return (
-        <div className="flex pt-1">
+        <div className="level">
             <div className="flex-1 p-4 border-b-2">
                 <div>
-                    <Link to={`/t/${petition.pubId}`}>{petition.title}</Link>
+                    <Link to={`/p/${petition.pubId}`}>{petition.title}</Link>
                 </div>
                 <Category id={petition.categoryId} />
                 {petition.tags.map(id => <Tag key={id} id={id} />)}
@@ -40,7 +40,7 @@ export const Item = (props: Props) => {
                 {petition.commentsCnt}
             </div>
             <div className="flex-none w-16 p-4 border-b-2 text-center">
-                <Link to={`/t/${petition.pubId}`}>
+                <Link to={`/p/${petition.pubId}`}>
                     <TimeFromNow 
                         date={BigInt.asIntN(64, petition.commentsCnt > 0? petition.lastCommentAt[0] || 0n: petition.createdAt)}
                     />
@@ -52,15 +52,15 @@ export const Item = (props: Props) => {
 
 export const Header = () => {
     return (
-        <div className="flex pt-1 text-gray-400">
+        <div className="level">
             <div className="flex-1 p-4 border-b-4">
                 Petition
             </div>
             <div className="flex-none w-16 p-4 border-b-4 text-center">
-                Commenters
+                Users
             </div>
             <div className="flex-none w-16 p-4 border-b-4 text-center">
-                Replies
+                Comments
             </div>
             <div className="flex-none w-16 p-4 border-b-4 text-center">
                 Activity

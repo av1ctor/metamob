@@ -1,4 +1,15 @@
+// see: https://bulma.io/documentation/customize/with-node-sass/
 @charset "utf-8";
 @import "./node_modules/bulma/bulma.sass";
 
-// see: https://bulma.io/documentation/customize/with-node-sass/
+
+.ReactModal__Overlay {
+    z-index: 1000;
+}
+
+.input-color {
+    border: 2px solid; 
+    border-radius: 12px; 
+    background-color: #fff;
+    width: 100%;
+}

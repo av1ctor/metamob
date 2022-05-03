@@ -39,36 +39,32 @@ const EditForm = (props: Props) => {
     }, [form]);
 
     return (
-        <>
-            <Grid container>
-                <Grid>
-                    <TextAreaField
-                        label="Body"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        onChange={changeForm}
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
+        <Grid container>
+            <TextAreaField
+                label="Body"
+                name="body"
+                value={form.body || ''}
+                rows={6}
+                onChange={changeForm}
+            />
+            <div className="field is-grouped mt-2">
+                <div className="control">
                     <Button
                         onClick={props.onCancel}
                     >
                         Cancel
                     </Button>
-                </Grid>
-                <Grid>
+                </div>
+                <div className="control">
                     <Button
                         onClick={handleUpdate}
                         disabled={updateMut.isLoading}
                     >
                         Update
                     </Button>
-                </Grid>
-            </Grid>
-        </>
+                </div>
+            </div>
+        </Grid>
     );
 };
 

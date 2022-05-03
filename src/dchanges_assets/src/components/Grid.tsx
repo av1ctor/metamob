@@ -10,8 +10,8 @@ const Grid = (props: Props) => {
     return (
         <div
             className={classnames(
-                props.container? "md:flex pr-2": "md:flex-1 pl-2"
-                )}
+                props.container? "container": ""
+            )}
         >
             {props.children}
         </div>

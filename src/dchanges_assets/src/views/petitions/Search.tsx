@@ -25,34 +25,35 @@ const SearchForm = (props: Props) => {
     }, [form]);
 
     return (
-        <form onSubmit={handleSubmit} className="flex gap-2">
-            <div className="flex-auto">
-                <SelectField
-                    label="Column"
-                    name="key"
-                    value={form.key || ''}
-                    options={props.indexedColumns.map((col) => ({name: col, value: col}))}
-                    onChange={changeForm} 
-                />
-            </div>
-            <div className="flex-auto">
-                <SelectField
-                    label="Operator"
-                    name="op"
-                    value={form.op}
-                    options={[{name: "Equals", value: "eq"}, {name: "Contains", value: "contains"}]}
-                    onChange={changeForm} 
-                />
-            </div>
-            <div className="flex-auto">
-                <TextField
-                    label="Value"
-                    name="value"
-                    value={form.value || ''}
-                    onChange={changeForm} 
-                />
-            </div>
-        </form>
+        <nav className="level">
+            <form onSubmit={handleSubmit}>
+                <div className="level-left">
+                    <div className="level-item">
+                        <SelectField
+                            name="key"
+                            value={form.key || ''}
+                            options={props.indexedColumns.map((col) => ({name: col, value: col}))}
+                            onChange={changeForm} 
+                        />
+                    </div>
+                    <div className="level-item">
+                        <SelectField
+                            name="op"
+                            value={form.op}
+                            options={[{name: "Equals", value: "eq"}, {name: "Contains", value: "contains"}]}
+                            onChange={changeForm} 
+                        />
+                    </div>
+                    <div className="level-item">
+                        <TextField
+                            name="value"
+                            value={form.value || ''}
+                            onChange={changeForm} 
+                        />
+                    </div>
+                </div>
+            </form>
+        </nav>
     );
 };
 

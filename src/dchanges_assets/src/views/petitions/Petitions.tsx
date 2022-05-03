@@ -52,19 +52,20 @@ const Petitions = () => {
     }, [modals]);
 
     return (
-        <div>
+        <div className="container">
             <div>Petitions</div>
             <div>
                 <div>
-                    <div className="flex justify-between">
-                        <SearchForm 
-                                filters={filters}
-                                indexedColumns={indexedColumns}
-                                onSearch={searchPetitions} 
-                            />
-
-                        <div className="flex-initial w-40">
-                            <Button onClick={toggleCreate}>+ Create</Button>
+                    <div className="level">
+                        <div className="level-left">
+                            <SearchForm 
+                                    filters={filters}
+                                    indexedColumns={indexedColumns}
+                                    onSearch={searchPetitions} 
+                                />
+                        </div>
+                        <div className="level-right">
+                            <Button onClick={toggleCreate}>Create</Button>
                         </div>
                     </div>
 

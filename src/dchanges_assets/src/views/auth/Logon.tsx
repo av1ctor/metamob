@@ -46,7 +46,8 @@ const Logon = () => {
     }
 
     return (
-        <div className="relative">
+        <div className="container has-text-centered">
+            <br/>
             <Card label="IC Identity logon">
                 <Grid container>
                     <Button 

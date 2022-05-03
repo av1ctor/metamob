@@ -46,76 +46,58 @@ const CreateForm = (props: Props) => {
     };
     
     return (
-        <div>
+        <Grid container>
+            <TextField 
+                label="Title"
+                name="title"
+                value={form.title || ''}
+                onChange={changeForm} 
+            />
+            <TextAreaField
+                    label="Body"
+                    name="body"
+                    rows={6}
+                    value={form.body || ''}
+                    onChange={changeForm} 
+                />
+            <SelectField 
+                label="Category"
+                name="categoryId"
+                value={form.categoryId || ''}
+                options={props.categories.map((category) => ({name: category.name, value: category._id}))}
+                onChange={changeForm} 
+            />
+            <TextField 
+                label="Tags"
+                name="tags"
+                value={form.tags.join(',')}
+                onChange={changeTags} 
+            />
             <Grid container>
-                <Grid>
-                    <TextField 
-                        label="Title"
-                        name="title"
-                        value={form.title || ''}
-                        onChange={changeForm} 
-                    />
-                </Grid>
+                {props.mutation.isError && 
+                    <div className="form-error">
+                        {props.mutation.error.message}
+                    </div>
+                }
             </Grid>
-            <Grid container>
-                <Grid>
-                    <TextAreaField
-                            label="Body"
-                            name="body"
-                            rows={6}
-                            value={form.body || ''}
-                            onChange={changeForm} 
-                        />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <SelectField 
-                        label="Category"
-                        name="categoryId"
-                        value={form.categoryId || ''}
-                        options={props.categories.map((category) => ({name: category.name, value: category._id}))}
-                        onChange={changeForm} 
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <TextField 
-                        label="Tags"
-                        name="tags"
-                        value={form.tags.join(',')}
-                        onChange={changeTags} 
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    {props.mutation.isError && 
-                        <div className="form-error">
-                            {props.mutation.error.message}
-                        </div>
-                    }
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
+            <div className="field is-grouped mt-2">
+                <div className="control">
                     <Button 
                         onClick={props.onCancel} 
                     >
                         Cancel
                     </Button>
-                </Grid>
-                <Grid>
+                </div>
+                <div className="control">
                     <Button 
                         onClick={createPetition} 
                         disabled={props.mutation.isLoading}
                     >
                         Create
                     </Button>
-                </Grid>
-            </Grid>
-        </div>
+                </div>
+            </div>
+        </Grid>
     );
 };
 
