@@ -7,6 +7,7 @@ interface Props {
     value: string;
     disabled?: boolean;
     rows: number;
+    innerRef?: any;
     onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 };
 
@@ -18,6 +19,7 @@ const TextAreaField = (props: Props) => {
             </label>
             <div className="control">
                 <textarea 
+                    ref={props.innerRef}
                     className="textarea"
                     id={props.id}
                     name={props.name}

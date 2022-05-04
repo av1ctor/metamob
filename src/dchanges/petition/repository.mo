@@ -7,6 +7,8 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Bool "mo:base/Bool";
 import Int "mo:base/Int";
+import Int64 "mo:base/Int64";
+import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Time "mo:base/Time";
@@ -160,6 +162,12 @@ module {
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
                 case "title" func(a: Types.Petition, b: Types.Petition): Int = 
                     Utils.order2Int(Text.compare(a.title, b.title)) * dir;
+                case "state" func(a: Types.Petition, b: Types.Petition): Int = 
+                    Utils.order2Int(Nat8.compare(a.state, b.state)) * dir;
+                case "result" func(a: Types.Petition, b: Types.Petition): Int = 
+                    Utils.order2Int(Nat8.compare(a.result, b.result)) * dir;
+                case "publishedAt" func(a: Types.Petition, b: Types.Petition): Int = 
+                    Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
                 case "createdAt" func(a: Types.Petition, b: Types.Petition): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
                 case "updatedAt" func(a: Types.Petition, b: Types.Petition): Int = 
@@ -314,15 +322,17 @@ module {
             req: Types.PetitionRequest,
             callerId: Nat32
         ): Types.Petition {
+            let now: Int = Time.now();
             {
                 _id = petitions.nextId();
                 pubId = ulid.next();
                 title = req.title;
+                cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
-                stick = false;
-                global = false;
-                locked = false;
+                state = Types.STATE_PUBLISHED;
+                result = Types.RESULT_NONE;
+                duration = req.duration;
                 tags = req.tags;
                 likes = 0;
                 dislikes = 0;
@@ -331,7 +341,9 @@ module {
                 lastCommentAt = null;
                 lastCommentBy = null;
                 commenters = [];
-                createdAt = Time.now();
+                publishedAt = ?now;
+                expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000)))));
+                createdAt = now;
                 createdBy = callerId;
                 updatedAt = null;
                 updatedBy = null;
@@ -349,11 +361,12 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = req.title;
+                cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
-                stick = petition.stick;
-                global = petition.global;
-                locked = petition.locked;
+                state = petition.state;
+                result = petition.result;
+                duration = petition.duration;
                 tags = req.tags;
                 likes = petition.likes;
                 dislikes = petition.dislikes;
@@ -362,6 +375,8 @@ module {
                 lastCommentAt = petition.lastCommentAt;
                 lastCommentBy = petition.lastCommentBy;
                 commenters = petition.commenters;
+                publishedAt = petition.publishedAt;
+                expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
                 createdBy = petition.createdBy;
                 updatedAt = ?Time.now();
@@ -379,11 +394,12 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = "";
+                cover = "";
                 body = "";
                 categoryId = petition.categoryId;
-                stick = petition.stick;
-                global = petition.global;
-                locked = petition.locked;
+                state = Types.STATE_DELETED;
+                result = petition.result;
+                duration = petition.duration;
                 tags = petition.tags;
                 likes = petition.likes;
                 dislikes = petition.dislikes;
@@ -392,6 +408,8 @@ module {
                 lastCommentAt = petition.lastCommentAt;
                 lastCommentBy = petition.lastCommentBy;
                 commenters = petition.commenters;
+                publishedAt = petition.publishedAt;
+                expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
                 createdBy = petition.createdBy;
                 updatedAt = petition.updatedAt;
@@ -409,11 +427,12 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = petition.title;
+                cover = petition.cover;
                 body = petition.body;
                 categoryId = petition.categoryId;
-                stick = petition.stick;
-                global = petition.global;
-                locked = petition.locked;
+                state = petition.state;
+                result = petition.result;
+                duration = petition.duration;
                 tags = petition.tags;
                 likes = petition.likes;
                 dislikes = petition.dislikes;
@@ -422,6 +441,8 @@ module {
                 lastCommentAt = ?comment.createdAt;
                 lastCommentBy = ?comment.createdBy;
                 commenters = Utils.addToArray(petition.commenters, comment.createdBy);
+                publishedAt = petition.publishedAt;
+                expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
                 createdBy = petition.createdBy;
                 updatedAt = petition.updatedAt;
@@ -439,11 +460,12 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = petition.title;
+                cover = petition.cover;
                 body = petition.body;
                 categoryId = petition.categoryId;
-                stick = petition.stick;
-                global = petition.global;
-                locked = petition.locked;
+                state = petition.state;
+                result = petition.result;
+                duration = petition.duration;
                 tags = petition.tags;
                 likes = petition.likes;
                 dislikes = petition.dislikes;
@@ -452,6 +474,8 @@ module {
                 lastCommentAt = petition.lastCommentAt;
                 lastCommentBy = petition.lastCommentBy;
                 commenters = Utils.delFromArray(petition.commenters, comment.createdBy, Nat32.equal);
+                publishedAt = petition.publishedAt;
+                expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
                 createdBy = petition.createdBy;
                 updatedAt = petition.updatedAt;
@@ -471,11 +495,12 @@ module {
         res.put("_id", #nat32(entity._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
         res.put("title", #text(if ignoreCase Utils.toLower(entity.title) else entity.title));
+        res.put("cover", #text(entity.cover));
         res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
         res.put("categoryId", #nat32(entity.categoryId));
-        res.put("stick", #bool(entity.stick));
-        res.put("global", #bool(entity.global));
-        res.put("locked", #bool(entity.locked));
+        res.put("state", #nat8(entity.state));
+        res.put("result", #nat8(entity.result));
+        res.put("duration", #nat32(entity.duration));
         res.put("tags", #array(Array.map(entity.tags, func(id: Nat32): Variant.Variant {#nat32(id);})));
         res.put("likes", #nat32(entity.likes));
         res.put("dislikes", #nat32(entity.dislikes));
@@ -484,6 +509,8 @@ module {
         res.put("lastCommentAt", switch(entity.lastCommentAt) {case null #nil; case (?lastCommentAt) #int(lastCommentAt);});
         res.put("lastCommentBy", switch(entity.lastCommentBy) {case null #nil; case (?lastCommentBy) #nat32(lastCommentBy);});
         res.put("commenters", #array(Array.map(entity.commenters, func(commenterId: Nat32): Variant.Variant {#nat32(commenterId);})));
+        res.put("publishedAt", switch(entity.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
+        res.put("expiredAt", switch(entity.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
         res.put("createdAt", #int(entity.createdAt));
         res.put("createdBy", #nat32(entity.createdBy));
         res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -501,11 +528,12 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             title = Variant.getOptText(map.get("title"));
+            cover = Variant.getOptText(map.get("cover"));
             body = Variant.getOptText(map.get("body"));
             categoryId = Variant.getOptNat32(map.get("categoryId"));
-            stick = Variant.getOptBool(map.get("stick"));
-            global = Variant.getOptBool(map.get("global"));
-            locked = Variant.getOptBool(map.get("locked"));
+            state = Variant.getOptNat8(map.get("state"));
+            result = Variant.getOptNat8(map.get("result"));
+            duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getNat32);
             likes = Variant.getOptNat32(map.get("likes"));
             dislikes = Variant.getOptNat32(map.get("dislikes"));
@@ -514,6 +542,8 @@ module {
             lastCommentAt = Variant.getOptIntOpt(map.get("lastCommentAt"));
             lastCommentBy = Variant.getOptNat32Opt(map.get("lastCommentBy"));
             commenters = Array.map(Variant.getOptArray(map.get("commenters")), Variant.getNat32);
+            publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
+            expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

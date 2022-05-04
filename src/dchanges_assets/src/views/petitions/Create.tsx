@@ -5,6 +5,7 @@ import SelectField from "../../components/SelectField";
 import Grid from "../../components/Grid";
 import TextAreaField from "../../components/TextAreaField";
 import {Category, Tag, PetitionRequest} from "../../../../declarations/dchanges/dchanges.did";
+import NumberField from "../../components/NumberField";
 
 interface Props {
     mutation: any;
@@ -17,6 +18,8 @@ const CreateForm = (props: Props) => {
     const [form, setForm] = useState<PetitionRequest>({
         title: '',
         body: '',
+        cover: '',
+        duration: 7,
         categoryId: 0,
         tags: []
     });
@@ -25,6 +28,8 @@ const CreateForm = (props: Props) => {
         props.mutation.mutate({
             title: form.title,
             body: form.body,
+            cover: form.cover,
+            duration: Number(form.duration),
             categoryId: Number(form.categoryId),
             tags: form.tags
         });
@@ -60,6 +65,18 @@ const CreateForm = (props: Props) => {
                     value={form.body || ''}
                     onChange={changeForm} 
                 />
+            <TextField 
+                label="Cover image" 
+                name="cover"
+                value={form.cover || ''}
+                onChange={changeForm}
+            />
+            <NumberField
+                label="Duration (in days)" 
+                name="duration"
+                value={form.duration}
+                onChange={changeForm}
+            />
             <SelectField 
                 label="Category"
                 name="categoryId"

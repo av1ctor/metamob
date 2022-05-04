@@ -1,6 +1,6 @@
 import React, {useState, useCallback, useContext} from "react";
 import {Comment, Petition} from '../../../../declarations/dchanges/dchanges.did';
-import {Limit, Order} from "../../interfaces/common";
+import {Limit, Order, PetitionState} from "../../interfaces/common";
 import {useFindCommentsByPetition} from "../../hooks/comments";
 import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";
@@ -36,8 +36,8 @@ const Comments = (props: Props) => {
 
     const comments = useFindCommentsByPetition(queryKey, petition._id, orderBy, limit);
 
-    const canReply = !petition?.locked && auth.user;
-    const canEdit = !petition?.locked && auth.user && auth.user._id === petition?.createdBy;
+    const canReply = petition?.state === PetitionState.PUBLISHED && auth.user;
+    const canEdit = petition?.state === PetitionState.PUBLISHED && auth.user && auth.user._id === petition?.createdBy;
 
     const reorderComments = useCallback((orderBy: React.SetStateAction<Order>) => {
         setOrderBy(orderBy);

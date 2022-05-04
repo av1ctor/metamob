@@ -7861,6 +7861,9 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   width: 2.5rem;
   height: 2.5rem; }
 
+.petition-body {
+  font-size: larger; }
+
 .ReactModal__Overlay {
   z-index: 1000; }
 

@@ -35,7 +35,7 @@ export const Item = (props: Props) => {
                 {petition.tags.map(id => <Tag key={id} id={id} />)}
             </>}
             img={
-                <Link to={`/p/${petition.pubId}`}><img src="1280x960.png"/></Link>
+                <Link to={`/p/${petition.pubId}`}><img src={petition.cover || "1280x960.png"}/></Link>
             }
         >
             <div className="level">

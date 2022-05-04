@@ -17,6 +17,10 @@ module {
                 options = [#unique, #partial];
             },
             {
+                name = "cover";
+                options = [];
+            },
+            {
                 name = "body";
                 options = [#partial];
             },
@@ -25,15 +29,15 @@ module {
                 options = [#sortable];
             },
             {
-                name = "stick";
+                name = "state";
                 options = [#sortable];
             },
             {
-                name = "global";
+                name = "result";
                 options = [#sortable];
             },
             {
-                name = "locked";
+                name = "duration";
                 options = [];
             },
             {
@@ -67,6 +71,14 @@ module {
             {
                 name = "commenters";
                 options = [#multiple];
+            },
+            {
+                name = "publishedAt";
+                options = [#nullable, #sortable];
+            },
+            {
+                name = "expiredAt";
+                options = [#nullable, #sortable];
             },
             {
                 name = "createdAt";

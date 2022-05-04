@@ -1,11 +1,12 @@
-import React, {useState, ChangeEvent, useContext, useCallback} from "react";
+import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
 import {useUpdatePetition} from "../../../hooks/petitions";
 import {Category, Tag, PetitionRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField from "../../../components/SelectField";
 import Grid from "../../../components/Grid";
-import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
+import NumberField from "../../../components/NumberField";
+import MarkdownField from "../../../components/MarkdownField";
 
 interface Props {
     petition: Petition;
@@ -41,6 +42,8 @@ const EditForm = (props: Props) => {
                 categoryId: Number(form.categoryId),
                 title: form.title,
                 body: form.body,
+                cover: form.cover,
+                duration: Number(form.duration),
                 tags: form.tags
             }});
             props.onCancel();
@@ -58,11 +61,23 @@ const EditForm = (props: Props) => {
                 value={form.title || ''}
                 onChange={changeForm}
             />
-            <TextAreaField
+            <MarkdownField
                 label="Body"
                 name="body"
                 value={form.body || ''}
                 rows={6}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Cover image" 
+                name="cover"
+                value={form.cover || ''}
+                onChange={changeForm}
+            />
+            <NumberField 
+                label="Duration (in days)" 
+                name="duration"
+                value={form.duration}
                 onChange={changeForm}
             />
             <SelectField

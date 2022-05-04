@@ -13,6 +13,7 @@ import EditForm from "./Edit";
 import CommentForm from "../../comments/comment/Create";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
+import { PetitionState } from "../../../interfaces/common";
 
 const Petition = () => {
     const {id} = useParams();
@@ -59,8 +60,8 @@ const Petition = () => {
         });
     }, [modals]);
 
-    const canReply = !petition?.locked && auth.user;
-    const canEdit = !petition?.locked && auth.user && auth.user._id === petition?.createdBy;
+    const canReply = petition?.state === PetitionState.PUBLISHED && auth.user;
+    const canEdit = petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
 
     return (
         <article className="media">
@@ -75,11 +76,19 @@ const Petition = () => {
                                 <Category id={petition.categoryId} />
                                 {petition.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
-                            <div className="mt-4 pt-2">
+                            <div className="mt-4 pt-2 mb-2">
                                 <Avatar id={petition.createdBy} size='lg' />
                             </div>
-                            <div className="pl-2 pb-4">
-                                <ReactMarkdown children={petition.body}/>
+                            <div className="columns">
+                                <div className="column is-two-thirds">
+                                    <div className="image is-4by3 mb-2">
+                                        <img src={petition.cover || "1280x960.png"} />
+                                    </div>
+                                    <ReactMarkdown className="petition-body" children={petition.body}/>
+                                </div>
+                                <div className="column">
+                                    Sign now
+                                </div>
                             </div>
                             <p>
                                 <small>

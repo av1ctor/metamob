@@ -53,7 +53,6 @@ const Petitions = () => {
 
     return (
         <div className="container">
-            <div>Petitions</div>
             <div>
                 <div>
                     <div className="level">
@@ -82,7 +81,7 @@ const Petitions = () => {
                             </div>
                         }
                         
-                        <div className="columns is-desktop">
+                        <div className="columns is-desktop is-multiline">
                             {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
                                 <div className="column is-half">
                                     <Item 
