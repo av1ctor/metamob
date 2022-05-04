@@ -31,11 +31,9 @@ export const Item = (props: ItemProps) => {
             </div>
             <div className="media-content">
                 <div className="content">
-                    <p>
-                        <strong>{profile?.isSuccess && profile?.data.name}</strong>
-                        <br />
-                        <ReactMarkdown children={comment.body}/>
-                    </p>
+                    <strong>{profile?.isSuccess && profile?.data.name}</strong>
+                    <br />
+                    <ReactMarkdown children={comment.body}/>
                     <p>
                         <small>
                             {props.canEdit && 

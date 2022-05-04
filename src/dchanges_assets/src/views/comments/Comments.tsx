@@ -76,7 +76,7 @@ const Comments = (props: Props) => {
     }, [modals, comment]);
 
     return (
-        <>
+        <div className="comments">
             {comments.status === 'success' && comments.data? 
                 comments.data.map((comment) => 
                     <Item
@@ -129,7 +129,7 @@ const Comments = (props: Props) => {
             >
                 report
             </Modal>            
-        </>
+        </div>
     )
 };
 

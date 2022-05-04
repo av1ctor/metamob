@@ -33,7 +33,7 @@ export const Home = () => {
             <section className="section">
                 <div className="container has-text-centered">
                     <h1 className="title">
-                        D-Changes
+                        <Link to="/">D-Changes</Link>
                     </h1>
                     <p className="subtitle">
                         Together we can transform the world!

@@ -7869,3 +7869,6 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   border-radius: 12px;
   background-color: #fff;
   width: 100%; }
+
+.media:first-of-type {
+  border: none; }

@@ -126,10 +126,29 @@ const Petition = () => {
                                 </small>
                             </p>                            
 
-                            <Comments 
-                                petition={petition} 
-                            />
                         </div>
+
+                        <div className="tabs is-boxed">
+                            <ul>
+                                <li className="is-active">
+                                    <a>
+                                        <span className="icon is-small"><i className="la la-comment"/></span>
+                                        <span>Comments</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span className="icon is-small"><i className="la la-newspaper"/></span>
+                                        <span>Updates</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <Comments 
+                            petition={petition} 
+                        />
+
                     </div>
                     
                     <Modal
