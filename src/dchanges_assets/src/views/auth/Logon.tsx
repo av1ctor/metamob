@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect } from "react"
 import { AuthClient } from "@dfinity/auth-client"
 import { AuthActionType, AuthContext, AuthState } from "../../stores/auth";
 import Button from "../../components/Button";
-import Card from "../../components/Card";
+import Panel from "../../components/Panel";
 import Grid from "../../components/Grid";
 
 const Logon = () => {
@@ -48,14 +48,14 @@ const Logon = () => {
     return (
         <div className="container has-text-centered">
             <br/>
-            <Card label="IC Identity logon">
+            <Panel label="IC Identity logon">
                 <Grid container>
                     <Button 
                         onClick={login}>
                         Click here to log in
                     </Button>
                 </Grid>        
-            </Card>
+            </Panel>
         </div>
     );
 };

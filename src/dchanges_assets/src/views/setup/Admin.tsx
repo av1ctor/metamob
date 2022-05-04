@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import Grid from "../../components/Grid";
-import Card from "../../components/Card";
+import Panel from "../../components/Panel";
 import {ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
 
 interface AdminSetupFormProps {
@@ -24,7 +24,7 @@ const AdminSetupForm = (props: AdminSetupFormProps) => {
     
     return (
         <div>
-            <Card label="Admin registration">
+            <Panel label="Admin registration">
                 <Grid container>
                     <Grid>
                         <TextField 
@@ -59,7 +59,7 @@ const AdminSetupForm = (props: AdminSetupFormProps) => {
                         </Button>
                     </Grid>
                 </Grid>
-            </Card>
+            </Panel>
 
         </div>
     );

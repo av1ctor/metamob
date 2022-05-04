@@ -26,6 +26,7 @@ const Comments = (props: Props) => {
         edit: false,
         reply: false,
         delete: false,
+        report: false,
     });
     const [comment, setComment] = useState<Comment | undefined>(undefined);
 
@@ -66,6 +67,14 @@ const Comments = (props: Props) => {
         setComment(comment);
     }, [modals, comment]);
 
+    const toggleReport = useCallback((comment: Comment | undefined = undefined) => {
+        setModals({
+            ...modals,
+            report: !modals.report
+        });
+        setComment(comment);
+    }, [modals, comment]);
+
     return (
         <>
             {comments.status === 'success' && comments.data? 
@@ -78,6 +87,7 @@ const Comments = (props: Props) => {
                         onEdit={toggleEdit}
                         onReply={toggleReply}
                         onDelete={toggleDelete}
+                        onReport={toggleReport}
                     />
                 ):
                 <div>Loading...</div>
@@ -100,7 +110,8 @@ const Comments = (props: Props) => {
                 onClose={toggleReply}
             >
                 <ReplyForm 
-                    petition={petition} 
+                    petition={petition}
+                    body={comment?.body} 
                     onCancel={toggleReply}
                 />
             </Modal>
@@ -110,6 +121,13 @@ const Comments = (props: Props) => {
                 onClose={toggleDelete}
             >
                 delete
+            </Modal>            
+
+            <Modal
+                isOpen={modals.report}
+                onClose={toggleReport}
+            >
+                report
             </Modal>            
         </>
     )

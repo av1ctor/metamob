@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import Grid from "../../components/Grid";
-import Card from "../../components/Card";
+import Panel from "../../components/Panel";
 import ColorField from "../../components/ColorField";
 import {CategoryRequest} from "../../../../declarations/dchanges/dchanges.did";
 
@@ -26,7 +26,7 @@ const CategorySetupForm = (props: CategorySetupFormProps) => {
 
     return (
         <div>
-            <Card label="Category registration">
+            <Panel label="Category registration">
                 <Grid container>
                     <Grid>
                         <TextField 
@@ -69,7 +69,7 @@ const CategorySetupForm = (props: CategorySetupFormProps) => {
                         </Button>
                     </Grid>
                 </Grid>
-            </Card>
+            </Panel>
 
         </div>
     );

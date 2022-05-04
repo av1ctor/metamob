@@ -1,5 +1,5 @@
 import React, {useState, ChangeEvent} from "react";
-import Card from "../../components/Card";
+import Panel from "../../components/Panel";
 import Grid from "../../components/Grid";
 import SelectField from "../../components/SelectField";
 import {Order} from "../../interfaces/common";
@@ -26,7 +26,7 @@ const OrderForm = (props: Props) => {
     };
   
     return (
-        <Card 
+        <Panel 
             label="Order"
             collapsed={props.collapsed}
             onToggle={props.onToggle}>
@@ -61,7 +61,7 @@ const OrderForm = (props: Props) => {
                     </Grid>
                 </Grid>
             }
-        </Card>
+        </Panel>
     );
 };
 

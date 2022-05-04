@@ -12,8 +12,8 @@ const Category = (props: Props) => {
 
     return (
         category?.isSuccess? 
-            <span className="text-xs" title={category.data.description}>
-                <div className="inline-block w-2 h-2" style={{backgroundColor: category.data.color}}/> {category.data.name}
+            <span className="tag is-rounded" style={{backgroundColor: category.data.color}} title={category.data.description}>
+                <b>{category.data.name}</b>
             </span>:
         null
     );

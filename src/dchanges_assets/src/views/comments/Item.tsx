@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import ReactMarkdown from 'react-markdown';
 import {Comment} from "../../../../declarations/dchanges/dchanges.did";
-import Button from "../../components/Button";
 import TimeFromNow from "../../components/TimeFromNow";
+import { useFindUserById } from "../../hooks/users";
 import Avatar from "../users/Avatar";
 
 interface ItemProps {
@@ -11,60 +12,77 @@ interface ItemProps {
     onEdit: (comment: Comment) => void;
     onReply: (comment: Comment) => void;
     onDelete: (comment: Comment) => void;
+    onReport: (comment: Comment) => void;
 };
 
 export const Item = (props: ItemProps) => {
     const comment = props.comment;
 
+    const profile = comment.createdBy?
+        useFindUserById(['user'], comment.createdBy):
+        undefined;
+
     return (
-        <div className="pb-1">
-            <div className="flex border-t mt-4 pt-2">
+        <article className="media">
+            <div className="media-left">
                 <div className="flex-node w-12">
-                    <Avatar id={comment.createdBy} size='lg' />
-                </div>
-                <div className="flex-1"></div>
-                <div className="flex-none w-8 text-gray-400">
-                    <TimeFromNow 
-                        date={BigInt.asIntN(64, comment.createdAt)}
-                    />
+                    <Avatar id={comment.createdBy} size='lg' noName={true} />
                 </div>
             </div>
-            <div className="flex">
-                <div className="flex-none w-12"></div>
-                <div className="flex-1 pl-2 pb-12">
-                    {comment.body}
+            <div className="media-content">
+                <div className="content">
+                    <p>
+                        <strong>{profile?.isSuccess && profile?.data.name}</strong>
+                        <br />
+                        <ReactMarkdown children={comment.body}/>
+                    </p>
+                    <p>
+                        <small>
+                            {props.canEdit && 
+                                <>
+                                    <a
+                                        title="edit"
+                                        onClick={() => props.onEdit(comment)}
+                                    >
+                                        <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
+                                    <a
+                                        title="delete"
+                                        onClick={() => props.onDelete(comment)}
+                                    >
+                                        <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
+                                </>
+                            }
+                            {props.canReply && 
+                                <>
+                                    <a
+                                        title="reply"
+                                        onClick={() => props.onReply(comment)}
+                                    >
+                                        
+                                        <span className="whitespace-nowrap has-text-success"><i className="la la-reply" /> Reply</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
+                                </>
+                            }
+                            <a
+                                title="report"
+                                onClick={() => props.onReport(comment)}
+                            >
+                                
+                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                            </a>
+                            &nbsp;·&nbsp;
+                            <TimeFromNow 
+                                date={BigInt.asIntN(64, comment.createdAt)}
+                            />
+                        </small>
+                    </p>
                 </div>
             </div>
-            <div className="flex justify-end">
-                <div className="flex gap-1">
-                    {props.canEdit && 
-                        <>
-                            <div className="flex-1" title="edit">
-                                <Button
-                                    onClick={() => props.onEdit(comment)}
-                                >
-                                    <i className="la la-pencil" />
-                                </Button>
-                            </div>
-                            <div className="flex-1" title="delete">
-                                <Button
-                                    onClick={() => props.onDelete(comment)}
-                                >
-                                    <i className="la la-trash" />
-                                </Button>
-                            </div>
-                        </>
-                    }
-                    {props.canReply && 
-                        <div className="flex-1" title="reply">
-                            <Button
-                                onClick={() => props.onReply(comment)}>
-                                <span className="whitespace-nowrap"><i className="la la-reply" /> Reply</span>
-                            </Button>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
+        </article>
     );
 };

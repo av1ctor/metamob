@@ -1,10 +1,10 @@
 import React, {useState, useCallback, useContext} from "react";
 import {useParams} from "react-router-dom";
+import ReactMarkdown from 'react-markdown';
 import {useFindPetitionById} from "../../../hooks/petitions";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import {TagContext} from "../../../stores/tag";
-import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Comments from "../../comments/Comments";
@@ -23,6 +23,7 @@ const Petition = () => {
         edit: false,
         reply: false,
         delete: false,
+        report: false
     });
     
     const res = useFindPetitionById(['petition', id], id || '');
@@ -51,15 +52,22 @@ const Petition = () => {
         });
     }, [modals]);
 
+    const toggleReport = useCallback(() => {
+        setModals({
+            ...modals,
+            report: !modals.report
+        });
+    }, [modals]);
+
     const canReply = !petition?.locked && auth.user;
     const canEdit = !petition?.locked && auth.user && auth.user._id === petition?.createdBy;
 
     return (
-        <div>
-            <div>
-                {petition &&
-                    <>
-                        <div className="pb-1">
+        <article className="media">
+            {petition &&
+                <>
+                    <div className="media-content">
+                        <div className="content">
                             <div className="is-size-2">
                                 {petition.title}
                             </div>
@@ -67,90 +75,101 @@ const Petition = () => {
                                 <Category id={petition.categoryId} />
                                 {petition.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
-                            <div className="flex border-t mt-4 pt-2">
-                                <div className="flex-node w-12">
-                                    <Avatar id={petition.createdBy} size='lg' />
-                                </div>
-                                <div className="flex-1"></div>
-                                <div className="flex-none w-8 has-text-grey-light">
+                            <div className="mt-4 pt-2">
+                                <Avatar id={petition.createdBy} size='lg' />
+                            </div>
+                            <div className="pl-2 pb-4">
+                                <ReactMarkdown children={petition.body}/>
+                            </div>
+                            <p>
+                                <small>
+                                    {canEdit &&
+                                        <>
+                                            <a
+                                                title="edit"
+                                                onClick={toggleEdit}
+                                            >
+                                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                            </a>
+                                            &nbsp;·&nbsp;
+                                            <a
+                                                title="delete"
+                                                onClick={toggleDelete}
+                                            >
+                                                <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                            </a>
+                                            &nbsp;·&nbsp;
+                                        </>
+                                    }
+                                    {canReply && 
+                                        <>
+                                            <a
+                                                title="comment"
+                                                onClick={toggleComment}
+                                            >
+                                                
+                                                <span className="whitespace-nowrap has-text-success"><i className="la la-reply" /> Comment</span>
+                                            </a>
+                                            &nbsp;·&nbsp;
+                                        </>
+                                    }
+                                    <a
+                                        title="report"
+                                        onClick={toggleReport}
+                                    >
+                                        <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
                                     <TimeFromNow 
                                         date={BigInt.asIntN(64, petition.createdAt)}
                                     />
-                                </div>
-                            </div>
-                            <div className="flex">
-                                <div className="flex-none w-12"></div>
-                                <div className="flex-1 pl-2 pb-12">
-                                    {petition.body}
-                                </div>
-                            </div>
-                            <div className="field is-grouped mt-2">
-                                {canEdit && 
-                                    <>
-                                        <div className="control" title="edit">
-                                            <Button
-                                                onClick={toggleEdit}
-                                            >
-                                                <i className="la la-pencil" />
-                                            </Button>
-                                        </div>
-                                        <div className="control" title="delete">
-                                            <Button
-                                                color='danger'
-                                                onClick={toggleDelete}
-                                            >
-                                                <i className="la la-trash" />
-                                            </Button>
-                                        </div>
-                                    </>
-                                }
-                                {canReply && 
-                                    <div className="control" title="comment">
-                                        <Button
-                                            onClick={toggleComment}>
-                                            <span className="whitespace-nowrap"><i className="la la-reply" /> Comment</span>
-                                        </Button>
-                                    </div>
-                                }
-                            </div>
+                                </small>
+                            </p>                            
+
+                            <Comments 
+                                petition={petition} 
+                            />
                         </div>
-                        
-                        <Comments 
+                    </div>
+                    
+                    <Modal
+                        isOpen={modals.edit}
+                        onClose={toggleEdit}
+                    >
+                        <EditForm 
                             petition={petition} 
+                            categories={categories.categories} 
+                            tags={tags.tags}
+                            onCancel={toggleEdit}
                         />
-                        
-                        <Modal
-                            isOpen={modals.edit}
-                            onClose={toggleEdit}
-                        >
-                            <EditForm 
-                                petition={petition} 
-                                categories={categories.categories} 
-                                tags={tags.tags}
-                                onCancel={toggleEdit}
-                            />
-                        </Modal>
+                    </Modal>
 
-                        <Modal
-                            isOpen={modals.reply}
-                            onClose={toggleComment}
-                        >
-                            <CommentForm 
-                                petition={petition} 
-                                onCancel={toggleComment}
-                            />
-                        </Modal>
+                    <Modal
+                        isOpen={modals.reply}
+                        onClose={toggleComment}
+                    >
+                        <CommentForm 
+                            petition={petition} 
+                            onCancel={toggleComment}
+                        />
+                    </Modal>
 
-                        <Modal
-                            isOpen={modals.delete}
-                            onClose={toggleDelete}
-                        >
-                            delete
-                        </Modal>
-                    </>
-                }
-            </div>
-        </div>
+                    <Modal
+                        isOpen={modals.delete}
+                        onClose={toggleDelete}
+                    >
+                        delete
+                    </Modal>
+
+                    <Modal
+                        isOpen={modals.report}
+                        onClose={toggleReport}
+                    >
+                        report
+                    </Modal>
+                </>
+            }
+        </article>
     );
 };
 

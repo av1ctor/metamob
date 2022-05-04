@@ -1,35 +1,37 @@
-import React from "react";
+import React, { ReactElement } from "react";
 
 interface Props {
-    label?: string,
-    collapsed?: boolean;
-    onToggle?: () => void;
+    title: string | ReactElement,
+    subtitle?: string | ReactElement,
+    img: string | ReactElement,
     children: any
 };
 
 const Card = (props: Props) => {
     return (
-        <nav className="panel">
-            {props.label &&
-                <p className="panel-heading">
-                    {props.label}
-                    {props.onToggle &&
-                        <span
-                            className="pl-1">
-                            <i className={`las la-caret-${!props.collapsed? 'up': 'down'}`} />
-                        </span>
+        <div className="card">
+            <div className="card-image">
+                <figure className="image is-4by3">
+                    {typeof props.img === "string"?
+                        <img src={props.img} />:
+                        props.img
                     }
-                </p>
-            }
-            {props.collapsed? 
-                null: 
-                <a className="panel-block is-active">
+                </figure>
+            </div>
+            <div className="card-content">
+                <div className="media">
+                    <div className="media-content">
+                        <p className="title is-4">{props.title}</p>
+                        <p className="subtitle is-6">{props.subtitle}</p>
+                    </div>
+                </div>
+
+                <div className="content">
                     {props.children}
-                </a>
-            }
-        </nav>
+                </div>
+            </div>
+        </div>        
     );
 };
-
 
 export default Card;

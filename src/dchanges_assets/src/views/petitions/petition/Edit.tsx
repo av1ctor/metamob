@@ -81,6 +81,7 @@ const EditForm = (props: Props) => {
             <div className="field is-grouped mt-2">
                 <div className="control">
                     <Button
+                        color="danger"
                         onClick={props.onCancel}
                     >
                         Cancel

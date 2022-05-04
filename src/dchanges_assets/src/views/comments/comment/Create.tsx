@@ -7,13 +7,14 @@ import Button from "../../../components/Button";
 
 interface Props {
     petition: Petition;
+    body?: string;
     onCancel: () => void;
 };
 
 const CreateForm = (props: Props) => {
     const [form, setForm] = useState<CommentRequest>({
         petitionId: props.petition._id,
-        body: '',
+        body: props.body? `> ${props.body}\n\n` : '',
     });
     
     const createMut = useCreateComment();

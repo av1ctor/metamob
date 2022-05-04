@@ -70,7 +70,6 @@ const Petitions = () => {
                     </div>
 
                     <div>
-                        <Header />
                         {petitions.status === 'loading' &&
                             <div>
                                 Loading...
@@ -83,13 +82,16 @@ const Petitions = () => {
                             </div>
                         }
                         
-                        {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
-                            <Item 
-                                key={petition._id} 
-                                petition={petition} />
-                        )}
+                        <div className="columns is-desktop">
+                            {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
+                                <div className="column is-half">
+                                    <Item 
+                                        key={petition._id} 
+                                        petition={petition} />
+                                </div>
+                            )}
+                        </div>        
                     </div>
-
                 </div>
             </div>
 
