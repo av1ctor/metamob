@@ -16,7 +16,7 @@ interface Props {
 };
 
 const formSchema = yup.object().shape({
-    body: yup.string().min(3).max(128),
+    body: yup.string().min(3).max(256),
 });
 
 const SignForm = (props: Props) => {

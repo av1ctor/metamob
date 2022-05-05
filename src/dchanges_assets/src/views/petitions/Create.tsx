@@ -58,7 +58,7 @@ const CreateForm = (props: Props) => {
         }
         
         try {
-            props.mutation.mutate({
+            await props.mutation.mutate({
                 title: form.title,
                 target: form.target,
                 body: form.body,
@@ -67,6 +67,7 @@ const CreateForm = (props: Props) => {
                 categoryId: Number(form.categoryId),
                 tags: form.tags
             });
+            props.onSuccess('Petition created!');
             props.onCancel();
         }
         catch(e) {

@@ -73,12 +73,12 @@ const Petition = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = auth.principal && petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
+    const canEdit = auth.principal && petition?.state === PetitionState.PUBLISHED && auth.user && auth.user._id === petition?.createdBy;
 
     const goal = calcMaxSignatures(petition?.signaturesCnt || 0);
 
     return (
-        <article className="media">
+        <article className="media petition">
             {petition &&
                 <>
                     <div className="media-content">
