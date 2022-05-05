@@ -169,6 +169,8 @@ const Petition = (props: Props) => {
                         
                         <Signatures 
                             petition={petition} 
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
                         />
 
                     </div>

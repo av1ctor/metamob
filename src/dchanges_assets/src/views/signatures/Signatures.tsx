@@ -9,6 +9,8 @@ import EditForm from "./signature/Edit";
 
 interface Props {
     petition: Petition;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
 };
 
 const Signatures = (props: Props) => {
@@ -84,6 +86,8 @@ const Signatures = (props: Props) => {
                     <EditForm
                         signature={signature} 
                         onCancel={toggleEdit}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
                     />
                 }
             </Modal>
