@@ -12,6 +12,12 @@ interface Props {
     onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
 };
 
+const options = {
+    autofocus: false,
+    spellChecker: false,
+    status: false,
+};
+
 const MarkdownField = (props: Props) => {
     const handleOnChange = useCallback((value: string) => {
         props.onChange && props.onChange({target: {name: props.name, id: props.id, value: value}} as any);
@@ -25,11 +31,7 @@ const MarkdownField = (props: Props) => {
             <div className="control">
                 <SimpleMDE 
                     value={props.value} 
-                    options={{
-                        autofocus: true,
-                        spellChecker: false,
-                        status: false,
-                    }}    
+                    options={options}    
                     onChange={handleOnChange}
                 />
             </div>

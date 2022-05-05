@@ -11,10 +11,10 @@ interface Props {
     petition: Petition
 };
 
-const buildCommenter = (petition: Petition): number[] => {
-    if(petition.commentsCnt > 0) {
+const buildSignatureer = (petition: Petition): number[] => {
+    if(petition.signaturesCnt > 0) {
         let res = new Set([petition.createdBy]);
-        petition.commenters.forEach(id => res.add(id));
+        petition.signatureers.forEach(id => res.add(id));
         return Array.from(res);
     }
     else {
@@ -22,7 +22,7 @@ const buildCommenter = (petition: Petition): number[] => {
     }
 };
 
-export const Item = (props: Props) => {
+const Item = (props: Props) => {
     const petition = props.petition;
 
     return (
@@ -40,15 +40,15 @@ export const Item = (props: Props) => {
         >
             <div className="level">
                 <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    {buildCommenter(petition).map((id) => <Avatar key={id} id={id} />)}
+                    {buildSignatureer(petition).map((id) => <Avatar key={id} id={id} />)}
                 </div>
                 <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    {petition.commentsCnt}
+                    {petition.signaturesCnt}
                 </div>
                 <div className="flex-none w-16 p-4 border-b-2 text-center">
                     <Link to={`/p/${petition.pubId}`}>
                         <TimeFromNow 
-                            date={BigInt.asIntN(64, petition.commentsCnt > 0? petition.lastCommentAt[0] || 0n: petition.createdAt)}
+                            date={BigInt.asIntN(64, petition.signaturesCnt > 0? petition.lastSignatureAt[0] || 0n: petition.createdAt)}
                         />
                     </Link>
                 </div>
@@ -57,21 +57,4 @@ export const Item = (props: Props) => {
     );
 };
 
-export const Header = () => {
-    return (
-        <div className="level">
-            <div className="flex-1 p-4 border-b-4">
-                Petition
-            </div>
-            <div className="flex-none w-16 p-4 border-b-4 text-center">
-                Users
-            </div>
-            <div className="flex-none w-16 p-4 border-b-4 text-center">
-                Comments
-            </div>
-            <div className="flex-none w-16 p-4 border-b-4 text-center">
-                Activity
-            </div>
-        </div>
-    );
-};
+export default Item;

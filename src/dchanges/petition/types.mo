@@ -16,6 +16,7 @@ module {
         _id: Nat32;
         pubId: Text;
         title: Text;
+        target: Text;
         cover: Text;
         body: Text;
         categoryId: Nat32;
@@ -23,13 +24,11 @@ module {
         result: PetitionResult;
         duration: Nat32;
         tags: [Nat32];
-        likes: Nat32;
-        dislikes: Nat32;
-        commentsCnt: Nat32;
-        firstCommentAt: ?Int;
-        lastCommentAt: ?Int;
-        lastCommentBy: ?Nat32;
-        commenters: [Nat32];
+        signaturesCnt: Nat32;
+        firstSignatureAt: ?Int;
+        lastSignatureAt: ?Int;
+        lastSignatureBy: ?Nat32;
+        signatureers: [Nat32];
         publishedAt: ?Int;
         expiredAt: ?Int;
         createdAt: Int;
@@ -42,6 +41,7 @@ module {
 
     public type PetitionRequest = {
         title: Text;
+        target: Text;
         cover: Text;
         body: Text;
         categoryId: Nat32;

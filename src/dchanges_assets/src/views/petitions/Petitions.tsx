@@ -6,7 +6,7 @@ import {Filter} from "../../interfaces/common";
 import {useFindPetitions, useCreatePetition, useDeletePetition, useUpdatePetition} from "../../hooks/petitions";
 import CreateForm from "./Create";
 import SearchForm from "./Search";
-import {Header, Item} from "./Item";
+import Item from "./Item";
 import Button from "../../components/Button";
 
 const indexedColumns = ['title'];

@@ -7,10 +7,9 @@ import {CategoryContext} from "../../../stores/category";
 import {TagContext} from "../../../stores/tag";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
-import Comments from "../../comments/Comments";
+import Signatures from "../../signatures/Signatures";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
-import CommentForm from "../../comments/comment/Create";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 import { PetitionState } from "../../../interfaces/common";
@@ -22,7 +21,6 @@ const Petition = () => {
     const [tags] = useContext(TagContext);
     const [modals, setModals] = useState({
         edit: false,
-        reply: false,
         delete: false,
         report: false
     });
@@ -36,13 +34,6 @@ const Petition = () => {
         setModals({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
-
-    const toggleComment = useCallback(() => {
-        setModals({
-            ...modals,
-            reply: !modals.reply
         });
     }, [modals]);
 
@@ -60,7 +51,6 @@ const Petition = () => {
         });
     }, [modals]);
 
-    const canReply = petition?.state === PetitionState.PUBLISHED && auth.user;
     const canEdit = petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
 
     return (
@@ -76,8 +66,10 @@ const Petition = () => {
                                 <Category id={petition.categoryId} />
                                 {petition.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
-                            <div className="mt-4 pt-2 mb-2">
-                                <Avatar id={petition.createdBy} size='lg' />
+                            <div className="columns">
+                                <div className="column is-full">
+                                    {petition.target}
+                                </div>
                             </div>
                             <div className="columns">
                                 <div className="column is-two-thirds">
@@ -89,6 +81,9 @@ const Petition = () => {
                                 <div className="column">
                                     Sign now
                                 </div>
+                            </div>
+                            <div className="mt-4 pt-2 mb-2">
+                                <Avatar id={petition.createdBy} size='lg' />
                             </div>
                             <p>
                                 <small>
@@ -106,18 +101,6 @@ const Petition = () => {
                                                 onClick={toggleDelete}
                                             >
                                                 <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                        </>
-                                    }
-                                    {canReply && 
-                                        <>
-                                            <a
-                                                title="comment"
-                                                onClick={toggleComment}
-                                            >
-                                                
-                                                <span className="whitespace-nowrap has-text-success"><i className="la la-reply" /> Comment</span>
                                             </a>
                                             &nbsp;·&nbsp;
                                         </>
@@ -141,8 +124,8 @@ const Petition = () => {
                             <ul>
                                 <li className="is-active">
                                     <a>
-                                        <span className="icon is-small"><i className="la la-comment"/></span>
-                                        <span>Comments</span>
+                                        <span className="icon is-small"><i className="la la-signature"/></span>
+                                        <span>Signatures</span>
                                     </a>
                                 </li>
                                 <li>
@@ -154,7 +137,7 @@ const Petition = () => {
                             </ul>
                         </div>
                         
-                        <Comments 
+                        <Signatures 
                             petition={petition} 
                         />
 
@@ -169,16 +152,6 @@ const Petition = () => {
                             categories={categories.categories} 
                             tags={tags.tags}
                             onCancel={toggleEdit}
-                        />
-                    </Modal>
-
-                    <Modal
-                        isOpen={modals.reply}
-                        onClose={toggleComment}
-                    >
-                        <CommentForm 
-                            petition={petition} 
-                            onCancel={toggleComment}
                         />
                     </Modal>
 

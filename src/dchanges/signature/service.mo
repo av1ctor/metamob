@@ -17,9 +17,9 @@ module {
         let repo = Repository.Repository(petitionService.getRepository());
 
         public func create(
-            req: Types.CommentRequest,
+            req: Types.SignatureRequest,
             invoker: Principal
-        ): Result.Result<Types.Comment, Text> {
+        ): Result.Result<Types.Signature, Text> {
             let caller = userService.findByPubId(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
@@ -38,9 +38,9 @@ module {
 
         public func update(
             id: Text, 
-            req: Types.CommentRequest,
+            req: Types.SignatureRequest,
             invoker: Principal
-        ): Result.Result<Types.Comment, Text> {
+        ): Result.Result<Types.Signature, Text> {
             let caller = userService.findByPubId(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
@@ -70,7 +70,7 @@ module {
 
         public func findById(
             id: Text
-        ): Result.Result<Types.Comment, Text> {
+        ): Result.Result<Types.Signature, Text> {
             repo.findByPubId(id);
         };
 
@@ -78,7 +78,7 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
+        ): Result.Result<[Types.Signature], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
@@ -86,7 +86,7 @@ module {
             petitionId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
+        ): Result.Result<[Types.Signature], Text> {
             repo.findByPetition(petitionId, sortBy, limit);
         };
 
@@ -100,7 +100,7 @@ module {
             userId: /* Text */ Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
+        ): Result.Result<[Types.Signature], Text> {
             repo.findByUser(userId, sortBy, limit);
         };
 
@@ -166,7 +166,7 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            response: Types.Comment
+            response: Types.Signature
         ): Bool {
             if(caller._id != response.createdBy) {
                 return false;

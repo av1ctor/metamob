@@ -14,7 +14,11 @@ module {
             },
             {
                 name = "title";
-                options = [#unique, #partial];
+                options = [#partial];
+            },
+            {
+                name = "target";
+                options = [#partial];
             },
             {
                 name = "cover";
@@ -45,31 +49,23 @@ module {
                 options = [#multiple, #sortable];
             },
             {
-                name = "likes";
+                name = "signaturesCnt";
                 options = [#sortable];
             },
             {
-                name = "dislikes";
-                options = [#sortable];
-            },
-            {
-                name = "commentsCnt";
-                options = [#sortable];
-            },
-            {
-                name = "firstCommentAt";
+                name = "firstSignatureAt";
                 options = [#nullable];
             },
             {
-                name = "lastCommentAt";
+                name = "lastSignatureAt";
                 options = [#nullable];
             },
             {
-                name = "lastCommentBy";
+                name = "lastSignatureBy";
                 options = [#nullable];
             },
             {
-                name = "commenters";
+                name = "signatureers";
                 options = [#multiple];
             },
             {

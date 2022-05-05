@@ -19,7 +19,7 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
-import CommentTypes "../comment/types";
+import SignatureTypes "../signature/types";
 import Debug "mo:base/Debug";
 
 module {
@@ -68,7 +68,7 @@ module {
                     return #err(msg);
                 };
                 case _ {
-                    //FIXME: delete petition's comments
+                    //FIXME: delete petition's signatures
                     return #ok();
                 };
             };
@@ -293,18 +293,18 @@ module {
             return petitions.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
-        public func onCommentInserted(
+        public func onSignatureInserted(
             petition: Types.Petition,
-            comment: CommentTypes.Comment
+            signature: SignatureTypes.Signature
         ) {
-            ignore petitions.replace(petition._id, _updateEntityWhenCommentInserted(petition, comment));
+            ignore petitions.replace(petition._id, _updateEntityWhenSignatureInserted(petition, signature));
         };
 
-        public func onCommentDeleted(
+        public func onSignatureDeleted(
             petition: Types.Petition,
-            comment: CommentTypes.Comment
+            signature: SignatureTypes.Signature
         ) {
-            ignore petitions.replace(petition._id, _updateEntityWhenCommentDeleted(petition, comment));
+            ignore petitions.replace(petition._id, _updateEntityWhenSignatureDeleted(petition, signature));
         };
 
         public func backup(
@@ -327,6 +327,7 @@ module {
                 _id = petitions.nextId();
                 pubId = ulid.next();
                 title = req.title;
+                target = req.target;
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
@@ -334,13 +335,11 @@ module {
                 result = Types.RESULT_NONE;
                 duration = req.duration;
                 tags = req.tags;
-                likes = 0;
-                dislikes = 0;
-                commentsCnt = 0;
-                firstCommentAt = null;
-                lastCommentAt = null;
-                lastCommentBy = null;
-                commenters = [];
+                signaturesCnt = 0;
+                firstSignatureAt = null;
+                lastSignatureAt = null;
+                lastSignatureBy = null;
+                signatureers = [];
                 publishedAt = ?now;
                 expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000)))));
                 createdAt = now;
@@ -361,6 +360,7 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = req.title;
+                target = req.target;
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
@@ -368,13 +368,11 @@ module {
                 result = petition.result;
                 duration = petition.duration;
                 tags = req.tags;
-                likes = petition.likes;
-                dislikes = petition.dislikes;
-                commentsCnt = petition.commentsCnt;
-                firstCommentAt = petition.firstCommentAt;
-                lastCommentAt = petition.lastCommentAt;
-                lastCommentBy = petition.lastCommentBy;
-                commenters = petition.commenters;
+                signaturesCnt = petition.signaturesCnt;
+                firstSignatureAt = petition.firstSignatureAt;
+                lastSignatureAt = petition.lastSignatureAt;
+                lastSignatureBy = petition.lastSignatureBy;
+                signatureers = petition.signatureers;
                 publishedAt = petition.publishedAt;
                 expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
@@ -394,6 +392,7 @@ module {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = "";
+                target = "";
                 cover = "";
                 body = "";
                 categoryId = petition.categoryId;
@@ -401,13 +400,11 @@ module {
                 result = petition.result;
                 duration = petition.duration;
                 tags = petition.tags;
-                likes = petition.likes;
-                dislikes = petition.dislikes;
-                commentsCnt = petition.commentsCnt;
-                firstCommentAt = petition.firstCommentAt;
-                lastCommentAt = petition.lastCommentAt;
-                lastCommentBy = petition.lastCommentBy;
-                commenters = petition.commenters;
+                signaturesCnt = petition.signaturesCnt;
+                firstSignatureAt = petition.firstSignatureAt;
+                lastSignatureAt = petition.lastSignatureAt;
+                lastSignatureBy = petition.lastSignatureBy;
+                signatureers = petition.signatureers;
                 publishedAt = petition.publishedAt;
                 expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
@@ -419,14 +416,15 @@ module {
             }  
         };
 
-        func _updateEntityWhenCommentInserted(
+        func _updateEntityWhenSignatureInserted(
             petition: Types.Petition, 
-            comment: CommentTypes.Comment
+            signature: SignatureTypes.Signature
         ): Types.Petition {
             {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = petition.title;
+                target = petition.target;
                 cover = petition.cover;
                 body = petition.body;
                 categoryId = petition.categoryId;
@@ -434,13 +432,11 @@ module {
                 result = petition.result;
                 duration = petition.duration;
                 tags = petition.tags;
-                likes = petition.likes;
-                dislikes = petition.dislikes;
-                commentsCnt = petition.commentsCnt + 1;
-                firstCommentAt = switch(petition.firstCommentAt) {case null {?comment.createdAt}; case (?at) {?at};};
-                lastCommentAt = ?comment.createdAt;
-                lastCommentBy = ?comment.createdBy;
-                commenters = Utils.addToArray(petition.commenters, comment.createdBy);
+                signaturesCnt = petition.signaturesCnt + 1;
+                firstSignatureAt = switch(petition.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
+                lastSignatureAt = ?signature.createdAt;
+                lastSignatureBy = ?signature.createdBy;
+                signatureers = Utils.addToArray(petition.signatureers, signature.createdBy);
                 publishedAt = petition.publishedAt;
                 expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
@@ -452,14 +448,15 @@ module {
             }  
         };        
 
-        func _updateEntityWhenCommentDeleted(
+        func _updateEntityWhenSignatureDeleted(
             petition: Types.Petition, 
-            comment: CommentTypes.Comment
+            signature: SignatureTypes.Signature
         ): Types.Petition {
             {
                 _id = petition._id;
                 pubId = petition.pubId;
                 title = petition.title;
+                target = petition.target;
                 cover = petition.cover;
                 body = petition.body;
                 categoryId = petition.categoryId;
@@ -467,13 +464,11 @@ module {
                 result = petition.result;
                 duration = petition.duration;
                 tags = petition.tags;
-                likes = petition.likes;
-                dislikes = petition.dislikes;
-                commentsCnt = petition.commentsCnt - (if(petition.commentsCnt > 0) 1 else 0);
-                firstCommentAt = petition.firstCommentAt;
-                lastCommentAt = petition.lastCommentAt;
-                lastCommentBy = petition.lastCommentBy;
-                commenters = Utils.delFromArray(petition.commenters, comment.createdBy, Nat32.equal);
+                signaturesCnt = petition.signaturesCnt - (if(petition.signaturesCnt > 0) 1 else 0);
+                firstSignatureAt = petition.firstSignatureAt;
+                lastSignatureAt = petition.lastSignatureAt;
+                lastSignatureBy = petition.lastSignatureBy;
+                signatureers = Utils.delFromArray(petition.signatureers, signature.createdBy, Nat32.equal);
                 publishedAt = petition.publishedAt;
                 expiredAt = petition.expiredAt;
                 createdAt = petition.createdAt;
@@ -495,6 +490,7 @@ module {
         res.put("_id", #nat32(entity._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
         res.put("title", #text(if ignoreCase Utils.toLower(entity.title) else entity.title));
+        res.put("target", #text(if ignoreCase Utils.toLower(entity.target) else entity.target));
         res.put("cover", #text(entity.cover));
         res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
         res.put("categoryId", #nat32(entity.categoryId));
@@ -502,13 +498,11 @@ module {
         res.put("result", #nat8(entity.result));
         res.put("duration", #nat32(entity.duration));
         res.put("tags", #array(Array.map(entity.tags, func(id: Nat32): Variant.Variant {#nat32(id);})));
-        res.put("likes", #nat32(entity.likes));
-        res.put("dislikes", #nat32(entity.dislikes));
-        res.put("commentsCnt", #nat32(entity.commentsCnt));
-        res.put("firstCommentAt", switch(entity.firstCommentAt) {case null #nil; case (?firstCommentAt) #int(firstCommentAt);});
-        res.put("lastCommentAt", switch(entity.lastCommentAt) {case null #nil; case (?lastCommentAt) #int(lastCommentAt);});
-        res.put("lastCommentBy", switch(entity.lastCommentBy) {case null #nil; case (?lastCommentBy) #nat32(lastCommentBy);});
-        res.put("commenters", #array(Array.map(entity.commenters, func(commenterId: Nat32): Variant.Variant {#nat32(commenterId);})));
+        res.put("signaturesCnt", #nat32(entity.signaturesCnt));
+        res.put("firstSignatureAt", switch(entity.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
+        res.put("lastSignatureAt", switch(entity.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
+        res.put("lastSignatureBy", switch(entity.lastSignatureBy) {case null #nil; case (?lastSignatureBy) #nat32(lastSignatureBy);});
+        res.put("signatureers", #array(Array.map(entity.signatureers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
         res.put("publishedAt", switch(entity.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
         res.put("expiredAt", switch(entity.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
         res.put("createdAt", #int(entity.createdAt));
@@ -528,6 +522,7 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             title = Variant.getOptText(map.get("title"));
+            target = Variant.getOptText(map.get("target"));
             cover = Variant.getOptText(map.get("cover"));
             body = Variant.getOptText(map.get("body"));
             categoryId = Variant.getOptNat32(map.get("categoryId"));
@@ -535,13 +530,11 @@ module {
             result = Variant.getOptNat8(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getNat32);
-            likes = Variant.getOptNat32(map.get("likes"));
-            dislikes = Variant.getOptNat32(map.get("dislikes"));
-            commentsCnt = Variant.getOptNat32(map.get("commentsCnt"));
-            firstCommentAt = Variant.getOptIntOpt(map.get("firstCommentAt"));
-            lastCommentAt = Variant.getOptIntOpt(map.get("lastCommentAt"));
-            lastCommentBy = Variant.getOptNat32Opt(map.get("lastCommentBy"));
-            commenters = Array.map(Variant.getOptArray(map.get("commenters")), Variant.getNat32);
+            signaturesCnt = Variant.getOptNat32(map.get("signaturesCnt"));
+            firstSignatureAt = Variant.getOptIntOpt(map.get("firstSignatureAt"));
+            lastSignatureAt = Variant.getOptIntOpt(map.get("lastSignatureAt"));
+            lastSignatureBy = Variant.getOptNat32Opt(map.get("lastSignatureBy"));
+            signatureers = Array.map(Variant.getOptArray(map.get("signatureers")), Variant.getNat32);
             publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
             expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

@@ -17,6 +17,7 @@ interface Props {
 const CreateForm = (props: Props) => {
     const [form, setForm] = useState<PetitionRequest>({
         title: '',
+        target: '',
         body: '',
         cover: '',
         duration: 7,
@@ -27,6 +28,7 @@ const CreateForm = (props: Props) => {
     const createPetition = useCallback(async () => {
         props.mutation.mutate({
             title: form.title,
+            target: form.target,
             body: form.body,
             cover: form.cover,
             duration: Number(form.duration),
@@ -56,6 +58,12 @@ const CreateForm = (props: Props) => {
                 label="Title"
                 name="title"
                 value={form.title || ''}
+                onChange={changeForm} 
+            />
+            <TextField 
+                label="Target"
+                name="target"
+                value={form.target || ''}
                 onChange={changeForm} 
             />
             <TextAreaField

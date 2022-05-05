@@ -4,12 +4,12 @@ import Variant "mo:mo-table/variant";
 import UserTypes "./user/types";
 import CategoryTypes "./category/types";
 import PetitionTypes "./petition/types";
-import CommentTypes "./comment/types";
+import SignatureTypes "./signature/types";
 import TagTypes "./tag/types";
 import UserService "./user/service";
 import CategoryService "./category/service";
 import PetitionService "./petition/service";
-import CommentService "./comment/service";
+import SignatureService "./signature/service";
 import TagService "./tag/service";
 
 shared({caller = owner}) actor class DChanges() {
@@ -18,7 +18,7 @@ shared({caller = owner}) actor class DChanges() {
     let userService = UserService.Service();
     let categoryService = CategoryService.Service(userService);
     let petitionService = PetitionService.Service(userService);
-    let commentService = CommentService.Service(userService, petitionService);
+    let signatureService = SignatureService.Service(userService, petitionService);
     let tagService = TagService.Service(userService);
 
     //
@@ -157,61 +157,61 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     //
-    // comments facade
+    // signatures facade
     //
-    public shared(msg) func commentCreate(
-        req: CommentTypes.CommentRequest
-    ): async Result.Result<CommentTypes.Comment, Text> {
-        commentService.create(req, msg.caller);
+    public shared(msg) func signatureCreate(
+        req: SignatureTypes.SignatureRequest
+    ): async Result.Result<SignatureTypes.Signature, Text> {
+        signatureService.create(req, msg.caller);
     };
 
-    public shared(msg) func commentUpdate(
+    public shared(msg) func signatureUpdate(
         id: Text, 
-        req: CommentTypes.CommentRequest
-    ): async Result.Result<CommentTypes.Comment, Text> {
-        commentService.update(id, req, msg.caller);
+        req: SignatureTypes.SignatureRequest
+    ): async Result.Result<SignatureTypes.Signature, Text> {
+        signatureService.update(id, req, msg.caller);
     };
 
-    public query func commentFindById(
+    public query func signatureFindById(
         id: Text
-    ): async Result.Result<CommentTypes.Comment, Text> {
-        commentService.findById(id);
+    ): async Result.Result<SignatureTypes.Signature, Text> {
+        signatureService.findById(id);
     };
 
-    public shared query(msg) func commentFind(
+    public shared query(msg) func signatureFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[CommentTypes.Comment], Text> {
-        commentService.find(criterias, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.Signature], Text> {
+        signatureService.find(criterias, sortBy, limit);
     };
 
-    public query func commentFindByPetition(
+    public query func signatureFindByPetition(
         petitionId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[CommentTypes.Comment], Text> {
-        commentService.findByPetition(petitionId, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.Signature], Text> {
+        signatureService.findByPetition(petitionId, sortBy, limit);
     };
 
-    public query func commentCountByPetition(
+    public query func signatureCountByPetition(
         petitionId: Nat32
     ): async Result.Result<Nat, Text> {
-        commentService.countByPetition(petitionId);
+        signatureService.countByPetition(petitionId);
     };
 
-    public query func commentFindByUser(
+    public query func signatureFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[CommentTypes.Comment], Text> {
-        commentService.findByUser(userId, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.Signature], Text> {
+        signatureService.findByUser(userId, sortBy, limit);
     };
 
-    public shared(msg) func commentDelete(
+    public shared(msg) func signatureDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        commentService.delete(id, msg.caller);
+        signatureService.delete(id, msg.caller);
     };    
 
     //
@@ -257,14 +257,14 @@ shared({caller = owner}) actor class DChanges() {
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var tagEntities: [[(Text, Variant.Variant)]] = [];
     stable var petitionEntities: [[(Text, Variant.Variant)]] = [];
-    stable var commentEntities: [[(Text, Variant.Variant)]] = [];
+    stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
         tagEntities := tagService.backup();
         petitionEntities := petitionService.backup();
-        commentEntities := commentService.backup();
+        signatureEntities := signatureService.backup();
     };
 
     system func postupgrade() {
@@ -272,11 +272,11 @@ shared({caller = owner}) actor class DChanges() {
         categoryService.restore(categoryEntities);
         tagService.restore(tagEntities);
         petitionService.restore(petitionEntities);
-        commentService.restore(commentEntities);
+        signatureService.restore(signatureEntities);
         userEntities := [];
         categoryEntities := [];
         tagEntities := [];
         petitionEntities := [];
-        commentEntities := [];
+        signatureEntities := [];
     };      
 };

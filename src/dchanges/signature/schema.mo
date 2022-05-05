@@ -1,7 +1,7 @@
 module {
     public let schema = 
     {
-        name = "comments";
+        name = "signatures";
         version = 1.0;
         columns = [
             {
@@ -18,14 +18,6 @@ module {
             },
             {
                 name = "petitionId";
-                options = [#sortable];
-            },
-            {
-                name = "likes";
-                options = [#sortable];
-            },
-            {
-                name = "dislikes";
                 options = [#sortable];
             },
             {

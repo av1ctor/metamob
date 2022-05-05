@@ -41,6 +41,7 @@ const EditForm = (props: Props) => {
             await updateMut.mutateAsync({pubId: props.petition.pubId, req: {
                 categoryId: Number(form.categoryId),
                 title: form.title,
+                target: form.target,
                 body: form.body,
                 cover: form.cover,
                 duration: Number(form.duration),
@@ -59,6 +60,12 @@ const EditForm = (props: Props) => {
                 label="Title" 
                 name="title"
                 value={form.title || ''}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Target" 
+                name="target"
+                value={form.target || ''}
                 onChange={changeForm}
             />
             <MarkdownField

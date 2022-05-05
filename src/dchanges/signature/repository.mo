@@ -24,32 +24,32 @@ module {
     public class Repository(
         petitionRepository: PetitionRepository.Repository
     ) {
-        let comments = Table.Table<Types.Comment>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("comments")));
+        let signatures = Table.Table<Types.Signature>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("signatures")));
 
         public func create(
-            req: Types.CommentRequest,
+            req: Types.SignatureRequest,
             callerId: Nat32
-        ): Result.Result<Types.Comment, Text> {
-            let comment = _createEntity(req, callerId);
-            switch(comments.insert(comment._id, comment)) {
+        ): Result.Result<Types.Signature, Text> {
+            let signature = _createEntity(req, callerId);
+            switch(signatures.insert(signature._id, signature)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updatePetition(comment, true);
-                    return #ok(comment);
+                    _updatePetition(signature, true);
+                    return #ok(signature);
                 };
             };
         };
 
         public func update(
-            comment: Types.Comment, 
-            req: Types.CommentRequest,
+            signature: Types.Signature, 
+            req: Types.SignatureRequest,
             callerId: Nat32
-        ): Result.Result<Types.Comment, Text> {
-            let e = _updateEntity(comment, req, callerId);
-            switch(comments.replace(comment._id, e)) {
+        ): Result.Result<Types.Signature, Text> {
+            let e = _updateEntity(signature, req, callerId);
+            switch(signatures.replace(signature._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -60,33 +60,33 @@ module {
         };
 
         public func delete(
-            comment: Types.Comment,
+            signature: Types.Signature,
             callerId: Nat32
         ): Result.Result<(), Text> {
-            let e = _deleteEntity(comment, callerId);
-            switch(comments.replace(comment._id, e)) {
+            let e = _deleteEntity(signature, callerId);
+            switch(signatures.replace(signature._id, e)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case _ {
-                    _updatePetition(comment, false);
+                    _updatePetition(signature, false);
                     #ok();
                 }
             }
         };
 
         func _updatePetition(
-            comment: Types.Comment,
+            signature: Types.Signature,
             inc: Bool
         ) {
-            switch(petitionRepository.findById(comment.petitionId))
+            switch(petitionRepository.findById(signature.petitionId))
             {
                 case (#ok(petition)) {
                     if(inc) {
-                        petitionRepository.onCommentInserted(petition, comment);
+                        petitionRepository.onSignatureInserted(petition, signature);
                     }
                     else {
-                        petitionRepository.onCommentDeleted(petition, comment);
+                        petitionRepository.onSignatureDeleted(petition, signature);
                     };
                 };
                 case _ {
@@ -96,8 +96,8 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Comment, Text> {
-            switch(comments.get(_id)) {
+        ): Result.Result<Types.Signature, Text> {
+            switch(signatures.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -116,8 +116,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Comment, Text> {
-            switch(comments.findOne([{
+        ): Result.Result<Types.Signature, Text> {
+            switch(signatures.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -167,18 +167,18 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Comment, Types.Comment) -> Int {
+        ): (Types.Signature, Types.Signature) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Comment, b: Types.Comment): Int  = 
+                case "_id" func(a: Types.Signature, b: Types.Signature): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Comment, b: Types.Comment): Int = 
+                case "pubId" func(a: Types.Signature, b: Types.Signature): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "createdAt" func(a: Types.Comment, b: Types.Comment): Int = 
+                case "createdAt" func(a: Types.Signature, b: Types.Signature): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "petitionId" func(a: Types.Comment, b: Types.Comment): Int = 
+                case "petitionId" func(a: Types.Signature, b: Types.Signature): Int = 
                     Utils.order2Int(Nat32.compare(a.petitionId, b.petitionId)) * dir;
                 case _ {
-                    func(a: Types.Comment, b: Types.Comment): Int = 0;
+                    func(a: Types.Signature, b: Types.Signature): Int = 0;
                 };
             };
         };
@@ -201,7 +201,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Comment>] {
+        ): ?[Table.SortBy<Types.Signature>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -235,15 +235,15 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
-            return comments.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Signature], Text> {
+            return signatures.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByPetition(
             petitionId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
+        ): Result.Result<[Types.Signature], Text> {
 
             func buildCriterias(petitionId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -255,7 +255,7 @@ module {
                 ]
             };
             
-            return comments.find(buildCriterias(petitionId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return signatures.find(buildCriterias(petitionId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func countByPetition(
@@ -272,14 +272,14 @@ module {
                 ]
             };
             
-            return comments.count(buildCriterias(petitionId));
+            return signatures.count(buildCriterias(petitionId));
         };
 
         public func findByUser(
             userId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Comment], Text> {
+        ): Result.Result<[Types.Signature], Text> {
 
             func buildCriterias(userId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -291,31 +291,29 @@ module {
                 ]
             };
             
-            return comments.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return signatures.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return comments.backup();
+            return signatures.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            comments.restore(entities);
+            signatures.restore(entities);
         };
 
         func _createEntity(
-            req: Types.CommentRequest,
+            req: Types.SignatureRequest,
             callerId: Nat32
-        ): Types.Comment {
+        ): Types.Signature {
             {
-                _id = comments.nextId();
+                _id = signatures.nextId();
                 pubId = ulid.next();
                 body = req.body;
                 petitionId = req.petitionId;
-                likes = 0;
-                dislikes = 0;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -324,39 +322,35 @@ module {
         };
 
         func _updateEntity(
-            comment: Types.Comment, 
-            req: Types.CommentRequest,
+            signature: Types.Signature, 
+            req: Types.SignatureRequest,
             callerId: Nat32
-        ): Types.Comment {
+        ): Types.Signature {
             {
-                _id = comment._id;
-                pubId = comment.pubId;
+                _id = signature._id;
+                pubId = signature.pubId;
                 body = req.body;
                 petitionId = req.petitionId;
-                likes = comment.likes;
-                dislikes = comment.dislikes;
-                createdAt = comment.createdAt;
-                createdBy = comment.createdBy;
+                createdAt = signature.createdAt;
+                createdBy = signature.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
         };
 
         func _deleteEntity(
-            comment: Types.Comment, 
+            signature: Types.Signature, 
             callerId: Nat32
-        ): Types.Comment {
+        ): Types.Signature {
             {
-                _id = comment._id;
-                pubId = comment.pubId;
+                _id = signature._id;
+                pubId = signature.pubId;
                 body = "";
-                petitionId = comment.petitionId;
-                likes = comment.likes;
-                dislikes = comment.dislikes;
-                createdAt = comment.createdAt;
-                createdBy = comment.createdBy;
-                updatedAt = comment.updatedAt;
-                updatedBy = comment.updatedBy;
+                petitionId = signature.petitionId;
+                createdAt = signature.createdAt;
+                createdBy = signature.createdBy;
+                updatedAt = signature.updatedAt;
+                updatedBy = signature.updatedBy;
                 deletedAt = ?Time.now();
                 deletedBy = ?callerId;
             }  
@@ -364,7 +358,7 @@ module {
     };
 
     func serialize(
-        entity: Types.Comment,
+        entity: Types.Signature,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
@@ -373,8 +367,6 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
         res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
         res.put("petitionId", #nat32(entity.petitionId));
-        res.put("likes", #nat32(entity.likes));
-        res.put("dislikes", #nat32(entity.dislikes));
         res.put("createdAt", #int(entity.createdAt));
         res.put("createdBy", #nat32(entity.createdBy));
         res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -385,14 +377,12 @@ module {
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Comment {
+    ): Types.Signature {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             body = Variant.getOptText(map.get("body"));
             petitionId = Variant.getOptNat32(map.get("petitionId"));
-            likes = Variant.getOptNat32(map.get("likes"));
-            dislikes = Variant.getOptNat32(map.get("dislikes"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

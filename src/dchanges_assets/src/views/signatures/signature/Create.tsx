@@ -1,6 +1,6 @@
 import React, {useState, ChangeEvent, useCallback} from "react";
-import {useCreateComment} from "../../../hooks/comments";
-import {CommentRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
+import {useCreateSignature} from "../../../hooks/signatures";
+import {SignatureRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
 import Grid from "../../../components/Grid";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
@@ -12,12 +12,12 @@ interface Props {
 };
 
 const CreateForm = (props: Props) => {
-    const [form, setForm] = useState<CommentRequest>({
+    const [form, setForm] = useState<SignatureRequest>({
         petitionId: props.petition._id,
         body: props.body? `> ${props.body}\n\n` : '',
     });
     
-    const createMut = useCreateComment();
+    const createMut = useCreateSignature();
 
     const changeForm = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setForm({

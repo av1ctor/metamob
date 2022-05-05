@@ -1,22 +1,22 @@
 import React, {useState, ChangeEvent, useCallback} from "react";
-import {useUpdateComment} from "../../../hooks/comments";
-import {Comment, CommentRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import {useUpdateSignature} from "../../../hooks/signatures";
+import {Signature, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
 import Grid from "../../../components/Grid";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 
 interface Props {
-    comment: Comment;
+    signature: Signature;
     onCancel: () => void;
 };
 
 const EditForm = (props: Props) => {
-    const [form, setForm] = useState<CommentRequest>({
+    const [form, setForm] = useState<SignatureRequest>({
         petitionId: 0,
-        body: props.comment.body,
+        body: props.signature.body,
     });
     
-    const updateMut = useUpdateComment();
+    const updateMut = useUpdateSignature();
 
     const changeForm = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setForm({
@@ -27,8 +27,8 @@ const EditForm = (props: Props) => {
 
     const handleUpdate = useCallback(async () => {
         try {
-            await updateMut.mutateAsync({pubId: props.comment.pubId, req: {
-                petitionId: Number(props.comment.petitionId),
+            await updateMut.mutateAsync({pubId: props.signature.pubId, req: {
+                petitionId: Number(props.signature.petitionId),
                 body: form.body,
             }});
             props.onCancel();

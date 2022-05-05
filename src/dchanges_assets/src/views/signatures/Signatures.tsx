@@ -1,18 +1,18 @@
 import React, {useState, useCallback, useContext} from "react";
-import {Comment, Petition} from '../../../../declarations/dchanges/dchanges.did';
+import {Signature, Petition} from '../../../../declarations/dchanges/dchanges.did';
 import {Limit, Order, PetitionState} from "../../interfaces/common";
-import {useFindCommentsByPetition} from "../../hooks/comments";
+import {useFindSignaturesByPetition} from "../../hooks/signatures";
 import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
-import EditForm from "./comment/Edit";
-import ReplyForm from "./comment/Create";
+import EditForm from "./signature/Edit";
+import ReplyForm from "./signature/Create";
 
 interface Props {
     petition: Petition;
 };
 
-const Comments = (props: Props) => {
+const Signatures = (props: Props) => {
     const [auth] = useContext(AuthContext);
     const [orderBy, setOrderBy] = useState<Order>({
         key: '_id',
@@ -28,60 +28,60 @@ const Comments = (props: Props) => {
         delete: false,
         report: false,
     });
-    const [comment, setComment] = useState<Comment | undefined>(undefined);
+    const [signature, setSignature] = useState<Signature | undefined>(undefined);
 
     const petition = props.petition;
 
-    const queryKey = ['comments', petition._id, orderBy.key, orderBy.dir];
+    const queryKey = ['signatures', petition._id, orderBy.key, orderBy.dir];
 
-    const comments = useFindCommentsByPetition(queryKey, petition._id, orderBy, limit);
+    const signatures = useFindSignaturesByPetition(queryKey, petition._id, orderBy, limit);
 
     const canReply = petition?.state === PetitionState.PUBLISHED && auth.user;
     const canEdit = petition?.state === PetitionState.PUBLISHED && auth.user && auth.user._id === petition?.createdBy;
 
-    const reorderComments = useCallback((orderBy: React.SetStateAction<Order>) => {
+    const reorderSignatures = useCallback((orderBy: React.SetStateAction<Order>) => {
         setOrderBy(orderBy);
     }, [orderBy]);
 
-    const toggleEdit = useCallback((comment: Comment | undefined = undefined) => {
+    const toggleEdit = useCallback((signature: Signature | undefined = undefined) => {
         setModals({
             ...modals,
             edit: !modals.edit
         });
-        setComment(comment);
-    }, [modals, comment]);
+        setSignature(signature);
+    }, [modals, signature]);
 
-    const toggleReply = useCallback((comment: Comment | undefined = undefined) => {
+    const toggleReply = useCallback((signature: Signature | undefined = undefined) => {
         setModals({
             ...modals,
             reply: !modals.reply
         });
-        setComment(comment);
-    }, [modals, comment]);
+        setSignature(signature);
+    }, [modals, signature]);
 
-    const toggleDelete = useCallback((comment: Comment | undefined = undefined) => {
+    const toggleDelete = useCallback((signature: Signature | undefined = undefined) => {
         setModals({
             ...modals,
             delete: !modals.delete
         });
-        setComment(comment);
-    }, [modals, comment]);
+        setSignature(signature);
+    }, [modals, signature]);
 
-    const toggleReport = useCallback((comment: Comment | undefined = undefined) => {
+    const toggleReport = useCallback((signature: Signature | undefined = undefined) => {
         setModals({
             ...modals,
             report: !modals.report
         });
-        setComment(comment);
-    }, [modals, comment]);
+        setSignature(signature);
+    }, [modals, signature]);
 
     return (
-        <div className="comments">
-            {comments.status === 'success' && comments.data? 
-                comments.data.map((comment) => 
+        <div className="signatures">
+            {signatures.status === 'success' && signatures.data? 
+                signatures.data.map((signature) => 
                     <Item
-                        key={comment._id} 
-                        comment={comment}
+                        key={signature._id} 
+                        signature={signature}
                         canReply={canReply? true: false}
                         canEdit={canEdit? true: false}
                         onEdit={toggleEdit}
@@ -97,9 +97,9 @@ const Comments = (props: Props) => {
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
-                {comment && 
+                {signature && 
                     <EditForm
-                        comment={comment} 
+                        signature={signature} 
                         onCancel={toggleEdit}
                     />
                 }
@@ -111,7 +111,7 @@ const Comments = (props: Props) => {
             >
                 <ReplyForm 
                     petition={petition}
-                    body={comment?.body} 
+                    body={signature?.body} 
                     onCancel={toggleReply}
                 />
             </Modal>
@@ -133,4 +133,4 @@ const Comments = (props: Props) => {
     )
 };
 
-export default Comments;
+export default Signatures;
