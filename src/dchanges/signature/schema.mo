@@ -14,7 +14,7 @@ module {
             },
             {
                 name = "body";
-                options = [];
+                options = [#min(3), #max(256)];
             },
             {
                 name = "petitionId";

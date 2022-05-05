@@ -14,19 +14,19 @@ module {
             },
             {
                 name = "title";
-                options = [#partial];
+                options = [#partial, #min(10), #max(128)];
             },
             {
                 name = "target";
-                options = [#partial];
+                options = [#partial, #min(3), #max(64)];
             },
             {
                 name = "cover";
-                options = [];
+                options = [#min(7), #max(256)];
             },
             {
                 name = "body";
-                options = [#partial];
+                options = [#partial, #min(100), #max(4096)];
             },
             {
                 name = "categoryId";
@@ -42,7 +42,7 @@ module {
             },
             {
                 name = "duration";
-                options = [];
+                options = [#min(1), #max(365)];
             },
             {
                 name = "tags";
