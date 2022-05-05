@@ -49,7 +49,8 @@ const Petition = (props: Props) => {
         res.data:
         undefined;
 
-    const userSignature = useFindSignatureByPetitionAndUser(['petition-signature', petition?._id || 0, auth.user?._id || 0], petition?._id || -1, auth.user?._id || -1);
+    const userSignature = useFindSignatureByPetitionAndUser(
+        ['petition-signature', petition?._id || 0, auth.user?._id || 0], petition?._id || -1, auth.user?._id || -1);
 
     const toggleEdit = useCallback(() => {
         setModals({
@@ -72,8 +73,7 @@ const Petition = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
-    const canSign = userSignature === undefined;
+    const canEdit = auth.principal && petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
 
     const goal = calcMaxSignatures(petition?.signaturesCnt || 0);
 

@@ -1,4 +1,5 @@
 import React, {useState, ChangeEvent, useContext, useCallback} from "react";
+import * as yup from 'yup';
 import { useNavigate } from "react-router-dom";
 import {useCreateSignature} from "../../../hooks/signatures";
 import {SignatureRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
@@ -13,6 +14,10 @@ interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
+
+const formSchema = yup.object().shape({
+    body: yup.string().min(3).max(128),
+});
 
 const SignForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
@@ -33,7 +38,25 @@ const SignForm = (props: Props) => {
         })
     };
 
-    const handleSign = useCallback(async () => {
+    const validate = async (form: SignatureRequest): Promise<string[]> => {
+        try {
+            await formSchema.validate(form, {abortEarly: false});
+            return [];
+        }
+        catch(e: any) {
+            return e.errors;
+        }
+    };
+
+    const handleSign = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
+        }
+
         try {
             await createMut.mutateAsync({
                 petitionId: props.petition._id,
@@ -53,17 +76,19 @@ const SignForm = (props: Props) => {
     const isLoggedIn = !!authState.principal;
 
     return (
-        <Grid container>
-            <form>
-                <TextAreaField
-                    label="Message"
-                    name="body"
-                    value={form.body || ''}
-                    rows={6}
-                    required={true}
-                    disabled={!!props.body}
-                    onChange={changeForm}
-                />
+        <form onSubmit={handleSign}>
+            <Grid container>
+                {isLoggedIn && 
+                    <TextAreaField
+                        label="Message"
+                        name="body"
+                        value={form.body || ''}
+                        rows={6}
+                        required={true}
+                        disabled={!!props.body}
+                        onChange={changeForm}
+                    />
+                }
 
                 <div className="field mt-2">
                     <div className="control">
@@ -76,8 +101,8 @@ const SignForm = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </form>
-        </Grid>
+            </Grid>
+        </form>
     );
 };
 

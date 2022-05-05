@@ -48,7 +48,9 @@ const CreateForm = (props: Props) => {
         }
     };
 
-    const createPetition = useCallback(async () => {
+    const handleCreate = useCallback(async (e: any) => {
+        e.preventDefault();
+
         const errors = await validate(form);
         if(errors.length > 0) {
             props.onError(errors);
@@ -87,7 +89,7 @@ const CreateForm = (props: Props) => {
     };
     
     return (
-        <form>
+        <form onSubmit={handleCreate}>
             <Grid container>
                 <TextField 
                     label="Title"
@@ -148,7 +150,7 @@ const CreateForm = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button 
-                            onClick={createPetition} 
+                            onClick={handleCreate} 
                             disabled={props.mutation.isLoading}
                         >
                             Create

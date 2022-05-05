@@ -1,4 +1,5 @@
-import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
+import React, {useState, ChangeEvent, useCallback} from "react";
+import * as yup from 'yup';
 import {useUpdatePetition} from "../../../hooks/petitions";
 import {Category, Tag, PetitionRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
@@ -16,6 +17,16 @@ interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
+
+const formSchema = yup.object().shape({
+    title: yup.string().min(10).max(128),
+    target: yup.string().min(3).max(64),
+    body: yup.string().min(100).max(4096),
+    cover: yup.string().min(7).max(256),
+    duration: yup.number().min(1).max(365),
+    categoryId: yup.number().required(),
+    tags: yup.array(yup.number()),
+});
 
 const EditForm = (props: Props) => {
     const [form, setForm] = useState<PetitionRequest>({
@@ -38,7 +49,25 @@ const EditForm = (props: Props) => {
         })
     };
 
-    const handleUpdate = useCallback(async () => {
+    const validate = async (form: PetitionRequest): Promise<string[]> => {
+        try {
+            await formSchema.validate(form, {abortEarly: false});
+            return [];
+        }
+        catch(e: any) {
+            return e.errors;
+        }
+    };
+
+    const handleUpdate = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
+        }
+
         try {
             await updateMut.mutateAsync({pubId: props.petition.pubId, req: {
                 categoryId: Number(form.categoryId),
@@ -58,7 +87,7 @@ const EditForm = (props: Props) => {
     }, [form]);
 
     return (
-        <form>
+        <form onSubmit={handleUpdate}>
             <Grid container>
                 <TextField 
                     label="Title" 

@@ -16,13 +16,18 @@ const showError = (e: any) => {
             e
         :
             e.constructor === Array?
-                e.join('\n'):
+                e.join('\n')
+            :
                 typeof e === 'object'?
-                    JSON.stringify(e):
+                    'data' in e?
+                        e.data.message
+                    :
+                        e.message
+                :
                     '';
         
         toast({
-            message: text,
+            message: `Error: ${text}`,
             type: 'is-danger',
             duration: 5000,
             dismissible: true,
