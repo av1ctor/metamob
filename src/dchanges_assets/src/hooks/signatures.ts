@@ -33,6 +33,22 @@ const findByPetition = async (topicId: number, orderBy?: Order, limit?: Limit): 
     return res.ok; 
 }
 
+const findByPetitionAndUser = async (topicId: number, userId: number): Promise<Signature> => {
+    if(topicId === -1 || userId === -1) {
+        return {} as Signature;
+    }
+    
+    const res = await dchanges.signatureFindByPetitionAndUser(
+        topicId, 
+        userId);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
 const findById = async (pubId: string): Promise<Signature> => {
     const res = await dchanges.signatureFindById(pubId);
     if('err' in res) {
@@ -66,6 +82,16 @@ export const useFindSignaturesByPetition = (
     return useQuery<Signature[], Error>(
         queryKey, 
         () => findByPetition(topicId, orderBy, limit)
+    );
+
+};
+
+export const useFindSignatureByPetitionAndUser = (
+    queryKey: any[], topicId: number, userId: number
+): UseQueryResult<Signature, Error> => {
+    return useQuery<Signature, Error>(
+        queryKey, 
+        () => findByPetitionAndUser(topicId, userId)
     );
 
 };

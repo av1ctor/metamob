@@ -23,6 +23,16 @@
     font-size: larger;
 }
 
+.petition-cover img {
+    max-width: 306px;
+    max-height: 230px;
+}
+
+.petition-body img {
+    max-width: 306px;
+    max-height: 230px;
+}
+
 .ReactModal__Overlay {
     z-index: 1000;
 }

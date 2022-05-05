@@ -138,6 +138,38 @@ module {
             };
         };
 
+        public func findByPetitionAndUser(
+            petitionId: Nat32,
+            createdBy: Nat32
+        ): Result.Result<Types.Signature, Text> {
+            switch(signatures.findOne([
+                {
+                    key = "petitionId";
+                    op = #eq;
+                    value = #nat32(petitionId);
+                },
+                {
+                    key = "createdBy";
+                    op = #eq;
+                    value = #nat32(createdBy);
+                }
+            ])) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case (#ok(entity)) {
+                    switch(entity) {
+                        case null {
+                            return #err("Not found");
+                        };
+                        case (?entity) {
+                            return #ok(entity);
+                        };
+                    };
+                };
+            };
+        };        
+
         func _getCriterias(
             criterias: ?[(Text, Text, Variant.Variant)]
         ): ?[Table.Criteria] {

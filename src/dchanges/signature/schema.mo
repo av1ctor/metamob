@@ -14,7 +14,7 @@ module {
             },
             {
                 name = "body";
-                options = [#partial];
+                options = [];
             },
             {
                 name = "petitionId";
@@ -26,7 +26,7 @@ module {
             },
             {
                 name = "createdBy";
-                options = [];
+                options = [#sortable];
             },
             {
                 name = "updatedAt";

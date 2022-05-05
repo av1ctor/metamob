@@ -208,6 +208,13 @@ shared({caller = owner}) actor class DChanges() {
         signatureService.findByUser(userId, sortBy, limit);
     };
 
+    public query func signatureFindByPetitionAndUser(
+        petitionId: Nat32,
+        userId: Nat32
+    ): async Result.Result<SignatureTypes.Signature, Text> {
+        signatureService.findByPetitionAndUser(petitionId, userId);
+    };
+
     public shared(msg) func signatureDelete(
         id: Text
     ): async Result.Result<(), Text> {

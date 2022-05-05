@@ -30,7 +30,14 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        repo.create(req, caller._id);
+                        switch(repo.findByPetitionAndUser(req.petitionId, caller._id)) {
+                            case (#ok(response)) {
+                                #err("Duplicated");
+                            };
+                            case _ {
+                                repo.create(req, caller._id);
+                            };
+                        };
                     };
                 };
             };
@@ -102,6 +109,13 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
             repo.findByUser(userId, sortBy, limit);
+        };
+
+        public func findByPetitionAndUser(
+            petitionId: Nat32,
+            userId: Nat32
+        ): Result.Result<Types.Signature, Text> {
+            repo.findByPetitionAndUser(petitionId, userId);
         };
 
         public func delete(

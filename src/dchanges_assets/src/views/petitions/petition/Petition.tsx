@@ -13,6 +13,22 @@ import EditForm from "./Edit";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 import { PetitionState } from "../../../interfaces/common";
+import Button from "../../../components/Button";
+import SignForm from "./Sign";
+import { useFindSignatureByPetitionAndUser } from "../../../hooks/signatures";
+
+const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
+
+const calcMaxSignatures = (signatures: number): number => {
+    for(let i = 0; i < maxTb.length; i++) {
+        if(signatures <= maxTb[i]) {
+            return maxTb[i];
+        }
+    }
+
+    return Number.MAX_SAFE_INTEGER;
+}
+
 
 const Petition = () => {
     const {id} = useParams();
@@ -29,6 +45,8 @@ const Petition = () => {
     const petition = res.status === 'success' && res.data?
         res.data:
         undefined;
+
+    const userSignature = useFindSignatureByPetitionAndUser(['petition-signature', petition?._id || 0, auth.user?._id || 0], petition?._id || -1, auth.user?._id || -1);
 
     const toggleEdit = useCallback(() => {
         setModals({
@@ -52,6 +70,9 @@ const Petition = () => {
     }, [modals]);
 
     const canEdit = petition?.state === PetitionState.CREATED && auth.user && auth.user._id === petition?.createdBy;
+    const canSign = userSignature === undefined;
+
+    const goal = calcMaxSignatures(petition?.signaturesCnt || 0);
 
     return (
         <article className="media">
@@ -62,24 +83,28 @@ const Petition = () => {
                             <div className="is-size-2">
                                 {petition.title}
                             </div>
-                            <div>
+                            <div className="mb-2">
                                 <Category id={petition.categoryId} />
                                 {petition.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
                             <div className="columns">
-                                <div className="column is-full">
-                                    {petition.target}
-                                </div>
-                            </div>
-                            <div className="columns">
                                 <div className="column is-two-thirds">
-                                    <div className="image is-4by3 mb-2">
+                                    <div className="image petition-cover mb-2">
                                         <img src={petition.cover || "1280x960.png"} />
                                     </div>
                                     <ReactMarkdown className="petition-body" children={petition.body}/>
                                 </div>
                                 <div className="column">
-                                    Sign now
+                                    <progress className="progress mb-0 pb-0" value={petition.signaturesCnt} max={goal}>{petition.signaturesCnt}</progress>
+                                    <div><small><b>{petition.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
+                                    <div className="is-size-4 has-text-link">
+                                        To {petition.target}
+                                    </div>
+
+                                    <SignForm 
+                                        petition={petition}
+                                        body={userSignature?.data?.body} 
+                                    />
                                 </div>
                             </div>
                             <div className="mt-4 pt-2 mb-2">

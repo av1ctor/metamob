@@ -7,10 +7,8 @@ import Avatar from "../users/Avatar";
 
 interface ItemProps {
     signature: Signature;
-    canReply: boolean;
     canEdit: boolean;
     onEdit: (signature: Signature) => void;
-    onReply: (signature: Signature) => void;
     onDelete: (signature: Signature) => void;
     onReport: (signature: Signature) => void;
 };
@@ -50,18 +48,6 @@ export const Item = (props: ItemProps) => {
                                         onClick={() => props.onDelete(signature)}
                                     >
                                         <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                </>
-                            }
-                            {props.canReply && 
-                                <>
-                                    <a
-                                        title="reply"
-                                        onClick={() => props.onReply(signature)}
-                                    >
-                                        
-                                        <span className="whitespace-nowrap has-text-success"><i className="la la-reply" /> Reply</span>
                                     </a>
                                     &nbsp;·&nbsp;
                                 </>
