@@ -3,6 +3,10 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+
+//const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+//const smp = new SpeedMeasurePlugin();
 
 function initCanisterEnv() {
   let localCanisters, prodCanisters;
@@ -42,7 +46,7 @@ const frontendDirectory = "dchanges_assets";
 
 const asset_entry = path.join("src", frontendDirectory, "src", "index.html");
 
-module.exports = {
+module.exports = /*smp.wrap(*/{
   target: "web",
   mode: isDevelopment ? "development" : "production",
   entry: {
@@ -77,6 +81,7 @@ module.exports = {
     ]
   },  
   plugins: [
+    new ForkTsCheckerWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, asset_entry),
       cache: false,
@@ -113,4 +118,4 @@ module.exports = {
     watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
     liveReload: true,
   },
-};
+}/*)*/;
