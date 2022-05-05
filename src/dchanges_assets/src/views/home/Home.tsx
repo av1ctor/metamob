@@ -1,18 +1,72 @@
 import React, { useContext, useEffect } from "react";
 import {Routes, Route, Link} from "react-router-dom";
-import {AuthContext} from "../../stores/auth";
+import { AuthClient } from "@dfinity/auth-client"
+import { toast } from 'bulma-toast';
+import {AuthActionType, AuthContext} from "../../stores/auth";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
 import Setup from "../setup/Setup";
-import Logon from "../auth/Logon";
 import Petitions from "../petitions/Petitions";
 import Petition from "../petitions/petition/Petition";
+import Logon from "../auth/Logon";
+
+const showError = (e: any) => {
+    if(e) {
+        const text = typeof e === 'string'? 
+            e
+        :
+            e.constructor === Array?
+                e.join('\n'):
+                typeof e === 'object'?
+                    JSON.stringify(e):
+                    '';
+        
+        toast({
+            message: text,
+            type: 'is-danger',
+            duration: 5000,
+            dismissible: true,
+            pauseOnHover: true,
+        });
+    }
+};
+
+const showSuccess = (text: string) => {
+    toast({
+        message: text,
+        type: 'is-success',
+        duration: 5000,
+        dismissible: true,
+        pauseOnHover: true,
+    });
+}
 
 export const Home = () => {
-    const [authState, ] = useContext(AuthContext);
+    const [, authDispatch] = useContext(AuthContext);
     const [categoriesState, categoriesDispatch] = useContext(CategoryContext);
 
     const categories = useFindCategories(['categories']);
+
+    const init = async () => {
+        const client = await AuthClient.create();
+        const isAuthenticated = await client.isAuthenticated();
+        
+        authDispatch({
+            type: AuthActionType.SET_CLIENT, 
+            payload: client
+        });
+
+        if(isAuthenticated) {
+            authDispatch({
+                type: AuthActionType.SET_PRINCIPAL, 
+                payload: client.getIdentity().getPrincipal().toText()
+            });
+        }
+    };
+
+    useEffect(() => {
+        init();
+    }, []);
 
     useEffect((): void => {
         if(categories.status === 'success') {
@@ -20,14 +74,10 @@ export const Home = () => {
         }
     }, [categories.status]);
 
-    if(!authState.principal) {
-        return <Logon />;
-    }
-
     if(categoriesState.categories.length == 0) {
         return <Setup />;
-
     }    
+    
     return (
         <>
             <section className="section">
@@ -41,8 +91,9 @@ export const Home = () => {
                 </div>
                 <div className="container">
                     <Routes>
-                        <Route path="/p/:id" element={<Petition />} />
-                        <Route path="/" element={<Petitions />} />
+                        <Route path="/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/p/:id" element={<Petition onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/" element={<Petitions onSuccess={showSuccess} onError={showError} />} />
                     </Routes>
                 </div>
             </section>

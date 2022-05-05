@@ -33,6 +33,7 @@ const SearchForm = (props: Props) => {
                             name="key"
                             value={form.key || ''}
                             options={props.indexedColumns.map((col) => ({name: col, value: col}))}
+                            required={true}
                             onChange={changeForm} 
                         />
                     </div>
@@ -41,6 +42,7 @@ const SearchForm = (props: Props) => {
                             name="op"
                             value={form.op}
                             options={[{name: "Equals", value: "eq"}, {name: "Contains", value: "contains"}]}
+                            required={true}
                             onChange={changeForm} 
                         />
                     </div>
@@ -48,6 +50,7 @@ const SearchForm = (props: Props) => {
                         <TextField
                             name="value"
                             value={form.value || ''}
+                            required={true}
                             onChange={changeForm} 
                         />
                     </div>

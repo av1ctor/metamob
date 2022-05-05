@@ -1,5 +1,7 @@
 import React, {useState, useCallback, useContext} from "react";
+import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
+import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
 import {TagContext} from "../../stores/tag";
 import {Filter} from "../../interfaces/common";
@@ -21,7 +23,13 @@ const limit = {
     size: 10
 };
 
-const Petitions = () => {
+interface Props {
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+}
+
+const Petitions = (props: Props) => {
+    const [authState, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
     const [tagState, ] = useContext(TagContext);
 
@@ -33,6 +41,8 @@ const Petitions = () => {
     const [modals, setModals] = useState({
         create: false,
     });
+
+    const navigate = useNavigate();
 
     const queryKey = ['petitions', filters.key, filters.op, filters.value, orderBy.key, orderBy.dir];
 
@@ -51,6 +61,12 @@ const Petitions = () => {
         });
     }, [modals]);
 
+    const redirectToLogon = useCallback(() => {
+        navigate('/login');
+    }, []);
+
+    const isLoggedIn = !!authState.principal;
+
     return (
         <div className="container">
             <div>
@@ -64,7 +80,7 @@ const Petitions = () => {
                                 />
                         </div>
                         <div className="level-right">
-                            <Button onClick={toggleCreate}>Create</Button>
+                            <Button onClick={isLoggedIn? toggleCreate: redirectToLogon}>Create</Button>
                         </div>
                     </div>
 
@@ -83,7 +99,10 @@ const Petitions = () => {
                         
                         <div className="columns is-desktop is-multiline">
                             {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
-                                <div className="column is-half">
+                                <div 
+                                    className="column is-half"
+                                    key={petition._id}
+                                >
                                     <Item 
                                         key={petition._id} 
                                         petition={petition} />
@@ -103,6 +122,8 @@ const Petitions = () => {
                     tags={tagState.tags}
                     mutation={createPetitionMut}
                     onCancel={toggleCreate}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
                 />
             </Modal>
 

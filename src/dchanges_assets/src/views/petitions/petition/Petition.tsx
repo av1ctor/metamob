@@ -13,7 +13,6 @@ import EditForm from "./Edit";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 import { PetitionState } from "../../../interfaces/common";
-import Button from "../../../components/Button";
 import SignForm from "./Sign";
 import { useFindSignatureByPetitionAndUser } from "../../../hooks/signatures";
 
@@ -29,8 +28,12 @@ const calcMaxSignatures = (signatures: number): number => {
     return Number.MAX_SAFE_INTEGER;
 }
 
+interface Props {
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+}
 
-const Petition = () => {
+const Petition = (props: Props) => {
     const {id} = useParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
@@ -104,6 +107,8 @@ const Petition = () => {
                                     <SignForm 
                                         petition={petition}
                                         body={userSignature?.data?.body} 
+                                        onSuccess={props.onSuccess}
+                                        onError={props.onError}
                                     />
                                 </div>
                             </div>
@@ -177,6 +182,8 @@ const Petition = () => {
                             categories={categories.categories} 
                             tags={tags.tags}
                             onCancel={toggleEdit}
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
                         />
                     </Modal>
 

@@ -54,6 +54,7 @@
     "last 2 edge version"
   ],
   "dependencies": {
+    "bulma-toast": "^2.4.1",
     "classnames": "^2.3.1",
     "dayjs": "^1.11.1",
     "easymde": "^2.16.1",
@@ -64,6 +65,7 @@
     "react-modal": "^3.15.1",
     "react-query": "^3.38.1",
     "react-router-dom": "^6.3.0",
-    "react-simplemde-editor": "^5.0.2"
+    "react-simplemde-editor": "^5.0.2",
+    "yup": "^0.32.11"
   }
 }

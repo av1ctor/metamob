@@ -5,6 +5,7 @@ interface Props {
     name?: string;
     label: string;
     value: string;
+    required?: boolean;
     disabled?: boolean;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
 };
@@ -22,6 +23,7 @@ const ColorField = (props: Props) => {
                     name={props.name}
                     value={props.value} 
                     type="color"
+                    required={props.required}
                     disabled={props.disabled}
                     onChange={props.onChange}
                 />

@@ -6,6 +6,7 @@ interface Props {
     label?: string;
     value: string;
     disabled?: boolean;
+    required?: boolean;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
 };
 
@@ -24,6 +25,7 @@ const TextField = (props: Props) => {
                     name={props.name}
                     value={props.value} 
                     type="text"
+                    required={props.required}
                     disabled={props.disabled}
                     onChange={props.onChange}
                 />

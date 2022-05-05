@@ -11,6 +11,7 @@ interface Props {
     label?: string;
     value: string | number;
     options: Option[];
+    required?: boolean;
     disabled?: boolean;
     onChange?: React.ChangeEventHandler<HTMLSelectElement>;
 };
@@ -29,6 +30,7 @@ const SelectField = (props: Props) => {
                         id={props.id}
                         name={props.name}
                         value={props.value} 
+                        required={props.required}
                         disabled={props.disabled}
                         onChange={props.onChange}
                     >

@@ -6,6 +6,7 @@ interface Props {
     label: string;
     value: string;
     disabled?: boolean;
+    required?: boolean;
     rows: number;
     innerRef?: any;
     onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -25,6 +26,7 @@ const TextAreaField = (props: Props) => {
                     name={props.name}
                     value={props.value} 
                     rows={props.rows}
+                    required={props.required}
                     disabled={props.disabled}
                     onChange={props.onChange}
                 />
