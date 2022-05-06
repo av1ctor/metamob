@@ -3,8 +3,7 @@ import * as yup from 'yup';
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import Grid from "../../components/Grid";
-import Panel from "../../components/Panel";
-import {ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
+import {ProfileRequest} from "../../../../declarations/dchanges/dchanges.did";
 
 interface Props {
     onCreate: (req: ProfileRequest) => void,
@@ -15,7 +14,7 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().min(3).max(64),
     email: yup.string().min(3).max(128),
-    avatar: yup.string().required(),
+    avatar: yup.array(yup.string()).required(),
 });
 
 const AdminSetupForm = (props: Props) => {
@@ -75,32 +74,37 @@ const AdminSetupForm = (props: Props) => {
     
     return (
         <form onSubmit={handleCreate}>
-            <Panel label="Admin registration">
-                <Grid container>
-                    <TextField 
-                        label="Name"
-                        name="name"
-                        value={form.name || ''}
-                        required={true}
-                        onChange={changeForm} 
-                    />
-                    <TextField 
-                        label="Avatar"
-                        name="avatar"
-                        value={form.avatar[0] || ''}
-                        required={true}
-                        onChange={changeFormOpt} 
-                    />
-                    <div className="field is-grouped mt-2">
-                        <div className="control">
-                            <Button
-                                onClick={handleCreate}>
-                                Create
-                            </Button>
-                        </div>
+            <Grid container>
+                <TextField 
+                    label="Name"
+                    name="name"
+                    value={form.name || ''}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="E-mail"
+                    name="email"
+                    value={form.email || ''}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="Avatar"
+                    name="avatar"
+                    value={form.avatar[0] || ''}
+                    required={true}
+                    onChange={changeFormOpt} 
+                />
+                <div className="field is-grouped mt-2">
+                    <div className="control">
+                        <Button
+                            onClick={handleCreate}>
+                            Create
+                        </Button>
                     </div>
-                </Grid>
-            </Panel>
+                </div>
+            </Grid>
         </form>
     );
 };

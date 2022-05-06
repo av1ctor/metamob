@@ -4,9 +4,12 @@ import {dchanges} from "../../../../declarations/dchanges";
 import { AuthActionType, AuthContext, AuthState } from "../../stores/auth";
 import Button from "../../components/Button";
 import Grid from "../../components/Grid";
-import { Profile } from "../../../../declarations/dchanges/dchanges.did";
+import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
 import Steps, { Step } from "../../components/Steps";
 import UserCreateForm from "../users/Create";
+import { loginUser } from "../../libs/users";
+import { createMainActor } from "../../libs/backend";
+import { ActorActionType, ActorContext } from "../../stores/actor";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -29,7 +32,8 @@ const steps: Step[] = [
 ];
 
 const Logon = (props: Props) => {
-    const [state, dispatch] = useContext(AuthContext);
+    const [authState, authDispatch] = useContext(AuthContext);
+    const [actorState, actorDispatch] = useContext(ActorContext);
 
     const [step, setStep] = useState(0);
 
@@ -41,31 +45,52 @@ const Logon = (props: Props) => {
         return (returnTo && returnTo[1]) || '/';
     }
 
-    const loadLoggedUser = async (): Promise<Profile|undefined> => {
-        const res = await dchanges.userFindMe();
-        if('ok' in res) {
-            const user = res.ok;
-            dispatch({type: AuthActionType.SET_USER, payload: user});
-            return user;
+    const loadAuthenticatedUser = async (
+        main: DChanges        
+    ): Promise<ProfileResponse|undefined> => {
+        try {
+            const res = await main.userFindMe();
+            if('ok' in res) {
+                return res.ok;
+            }
+        }
+        catch(e) {
         }
 
         return undefined;
     };
 
     const handleAuthenticated = useCallback(async () => {
-        dispatch({
-            type: AuthActionType.SET_PRINCIPAL, 
-            payload: state.client?.getIdentity().getPrincipal().toText()
+        const identity = authState.client?.getIdentity();
+        if(!identity) {
+            props.onError('IC Identity should not be null');
+            return;
+        }
+
+        authDispatch({
+            type: AuthActionType.SET_IDENTITY, 
+            payload: identity
         });
         props.onSuccess('User authenticated!');
-        const user = await loadLoggedUser();
+
+        const main = createMainActor(identity);
+        actorDispatch({
+            type: ActorActionType.SET_MAIN,
+            payload: main
+        });        
+
+        const user = await loadAuthenticatedUser(main);
         if(user) {
+            authDispatch({
+                type: AuthActionType.SET_USER, 
+                payload: user
+            });
             setStep(2);
         }
         else {
             setStep(step => step + 1);
         }
-    }, []);
+    }, [authState.client]);
 
     const handleRegistered = useCallback(async (msg: string) => {
         props.onSuccess(msg);
@@ -73,26 +98,16 @@ const Logon = (props: Props) => {
     }, []);
 
     const handleAuthenticate = useCallback(async () => {
-        const width = 500;
-        const height = screen.height;
-        const left = ((screen.width/2)-(width/2))|0;
-        const top = ((screen.height/2)-(height/2))|0; 
-        
-        state.client?.login({
-            identityProvider: "https://identity.ic0.app",
-            windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
-            onSuccess: handleAuthenticated,
-            onError: (msg: string|undefined) => {
-                props.onError(msg);
-            }
-        });
-    }, [state.client]);
+        if(authState.client) {
+            loginUser(authState.client, handleAuthenticated, props.onError);
+        }
+    }, [authState.client, handleAuthenticated]);
 
     const handleReturn = useCallback(() => {
         navigate(getReturnUrl());
     }, [navigate]);
 
-    if(!state.client) {
+    if(!authState.client) {
         props.onError('No IC client found');
         navigate(getReturnUrl());
         return null;

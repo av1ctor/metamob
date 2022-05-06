@@ -1,5 +1,10 @@
 {
   "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "candid": "internet_identity.did",
+      "wasm": "internet_identity.wasm"
+    },    
     "dchanges": {
       "main": "src/dchanges/facade.mo",
       "type": "motoko"

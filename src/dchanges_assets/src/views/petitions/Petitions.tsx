@@ -4,8 +4,8 @@ import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
 import {TagContext} from "../../stores/tag";
-import {Filter} from "../../interfaces/common";
-import {useFindPetitions, useCreatePetition, useDeletePetition, useUpdatePetition} from "../../hooks/petitions";
+import {Filter} from "../../libs/common";
+import {useFindPetitions, useCreatePetition} from "../../hooks/petitions";
 import CreateForm from "./Create";
 import SearchForm from "./Search";
 import Item from "./Item";
@@ -48,7 +48,6 @@ const Petitions = (props: Props) => {
 
     const petitions = useFindPetitions(queryKey, filters, orderBy, limit);
     const createPetitionMut = useCreatePetition();
-    const deletePetitionMut = useDeletePetition();
 
     const searchPetitions = useCallback((filters: React.SetStateAction<Filter>) => {
         setFilters(filters);

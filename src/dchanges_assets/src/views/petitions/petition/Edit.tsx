@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useCallback} from "react";
+import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdatePetition} from "../../../hooks/petitions";
 import {Category, Tag, PetitionRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
@@ -8,6 +8,7 @@ import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     petition: Petition;
@@ -29,6 +30,8 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
+    const [actorContext, ] = useContext(ActorContext);
+    
     const [form, setForm] = useState<PetitionRequest>({
         ...props.petition
     });
@@ -69,22 +72,26 @@ const EditForm = (props: Props) => {
         }
 
         try {
-            await updateMut.mutateAsync({pubId: props.petition.pubId, req: {
-                categoryId: Number(form.categoryId),
-                title: form.title,
-                target: form.target,
-                body: form.body,
-                cover: form.cover,
-                duration: Number(form.duration),
-                tags: form.tags
-            }});
+            await updateMut.mutateAsync({
+                main: actorContext.main,
+                pubId: props.petition.pubId, 
+                req: {
+                    categoryId: Number(form.categoryId),
+                    title: form.title,
+                    target: form.target,
+                    body: form.body,
+                    cover: form.cover,
+                    duration: Number(form.duration),
+                    tags: form.tags
+                }
+            });
             props.onSuccess('Petition updated!');
             props.onCancel();
         }
         catch(e) {
             props.onError(e);
         }
-    }, [form]);
+    }, [form, actorContext.main]);
 
     return (
         <form onSubmit={handleUpdate}>

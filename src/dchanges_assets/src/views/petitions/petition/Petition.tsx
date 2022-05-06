@@ -12,7 +12,7 @@ import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
-import { PetitionState } from "../../../interfaces/common";
+import { PetitionState } from "../../../libs/petitions";
 import SignForm from "./Sign";
 import { useFindSignatureByPetitionAndUser } from "../../../hooks/signatures";
 
@@ -73,7 +73,7 @@ const Petition = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = auth.principal && petition?.state === PetitionState.PUBLISHED && auth.user && auth.user._id === petition?.createdBy;
+    const canEdit = petition?.state === PetitionState.PUBLISHED && auth.user  && auth.user._id === petition?.createdBy;
 
     const goal = calcMaxSignatures(petition?.signaturesCnt || 0);
 

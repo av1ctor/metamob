@@ -17,7 +17,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             owner: Principal
-        ): Result.Result<Types.Profile, Text> {
+        ): Result.Result<Types.ProfileResponse, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -31,7 +31,7 @@ module {
                 };
             };
 
-            repo.create(Principal.toText(invoker), req);
+            repo.create(invoker, req);
         };
 
         public func updateMe(
@@ -42,7 +42,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPubId(Principal.toText(invoker));
+            let caller = repo.findByPrincipal(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
                     #err(msg);
@@ -74,7 +74,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPubId(Principal.toText(invoker));
+            let caller = repo.findByPrincipal(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
                     #err(msg);
@@ -122,12 +122,12 @@ module {
             repo.findByPubId(pubId);
         };
 
-        public func findMe(
-            invoker: Principal
+        public func findByPrincipal(
+            principal: Principal
         ): Result.Result<Types.Profile, Text> {
-            repo.findByPubId(Principal.toText(invoker));
+            repo.findByPrincipal(Principal.toText(principal));
         };
-    
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             repo.backup();

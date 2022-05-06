@@ -13,6 +13,10 @@ module {
                 options = [#unique];
             },
             {
+                name = "principal";
+                options = [#unique];
+            },
+            {
                 name = "name";
                 options = [#unique, #partial, #min(3), #max(64)];
             },

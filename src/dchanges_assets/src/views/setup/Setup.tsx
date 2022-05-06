@@ -1,6 +1,12 @@
 import React, {useState, useEffect, useContext, useCallback} from "react";
-import {dchanges} from "../../../../declarations/dchanges";
-import { Category, CategoryRequest, ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
+import { Link } from "react-router-dom";
+import { Category, CategoryRequest, DChanges, ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
+import Button from "../../components/Button";
+import Grid from "../../components/Grid";
+import Steps, { Step } from "../../components/Steps";
+import { createMainActor } from "../../libs/backend";
+import { loginUser } from "../../libs/users";
+import { ActorActionType, ActorContext } from "../../stores/actor";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import { CategoryActionType, CategoryContext } from "../../stores/category";
 import AdminSetupForm from "./Admin";
@@ -11,19 +17,49 @@ interface Props {
     onError: (message: any) => void;
 };
 
+const steps: Step[] = [
+    {
+        title: 'IC Identity authentication',
+        icon: 'key',
+    },
+    {
+        title: 'Admin registration',
+        icon: 'user',
+    },
+    {
+        title: 'Category creation',
+        icon: 'list',
+    },
+    {
+        title: 'Done',
+        icon: 'check',
+    },
+];
+
 const Setup = (props: Props) => {
     const [authState, authDispatch] = useContext(AuthContext);
     const [, categoryDispatch] = useContext(CategoryContext);
+    const [actorState, actorDispatch] = useContext(ActorContext);
+
+    const [step, setStep] = useState(0);
     const [, setCategory] = useState<Category>({} as Category);
-  
+    
     const createUser = useCallback(async (req: ProfileRequest) => {
         try {
-            const res = await dchanges.userCreate(req);
+            if(!actorState.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await actorState.main.userCreate(req);
             
             if('ok' in res) {
                 const user = res.ok;
-                authDispatch({type: AuthActionType.SET_USER, payload: user});
+                authDispatch({
+                    type: AuthActionType.SET_USER, 
+                    payload: user
+                });
                 props.onSuccess('Admin created!');
+                setStep(step => step + 1);
             }
             else {
                 props.onError(res.err);
@@ -32,16 +68,24 @@ const Setup = (props: Props) => {
         catch(e: any) {
             props.onError(e);
         }
-    }, []);
+    }, [actorState.main]);
 
     const createCategory = useCallback(async (req: CategoryRequest) => {
         try {
-            const res = await dchanges.categoryCreate(req);
+            if(!actorState.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await actorState.main.categoryCreate(req);
             
             if('ok' in res) {
                 setCategory(res.ok);
-                categoryDispatch({type: CategoryActionType.SET, payload: [res.ok]});
+                categoryDispatch({
+                    type: CategoryActionType.SET, 
+                    payload: [res.ok]
+                });
                 props.onSuccess('Category created!');
+                setStep(step => step + 1);
             }
             else {
                 props.onError(res.err);
@@ -50,44 +94,103 @@ const Setup = (props: Props) => {
         catch(e: any) {
             props.onError(e);
         }
-    }, []);
+    }, [actorState.main]);
 
-    const loadCurrentUser = async () => {
-        const res = await dchanges.userFindMe();
-        if('ok' in res) {
-            const user = res.ok;
-            authDispatch({type: AuthActionType.SET_USER, payload: user});
+    const handleAuthenticated = useCallback(() => {
+        const identity = authState.client?.getIdentity();
+        if(!identity) {
+            props.onError('IC Identity should not be null');
+            return;
+        }
+        
+        authDispatch({
+            type: AuthActionType.SET_IDENTITY, 
+            payload: identity
+        });
+        
+        const main = createMainActor(identity);
+        actorDispatch({
+            type: ActorActionType.SET_MAIN,
+            payload: main
+        });
+        
+        props.onSuccess('User authenticated!');
+        setStep(step => step + 1);
+    }, [authState.client]);
+
+    const handleAuthenticate = useCallback(async () => {
+        if(authState.client) {
+            loginUser(authState.client, handleAuthenticated, props.onError)
+        }
+    }, [authState.client, handleAuthenticated]);
+
+    const loadCurrentUser = async (
+        main: DChanges
+    ) => {
+        try {
+            const res = await main.userFindMe();
+            if('ok' in res) {
+                const user = res.ok;
+                authDispatch({
+                    type: AuthActionType.SET_USER, 
+                    payload: user
+                });
+            }
+        }
+        catch(e) {
+            props.onError(e);
         }
     };
 
     useEffect(() => {
-        loadCurrentUser();    
-    }, []);
+        if(actorState.main) {
+            loadCurrentUser(actorState.main);
+            setStep(1);
+        }
+    }, [actorState.main]);
+
+    useEffect(() => {
+        if(authState.user) {
+            setStep(2);
+        }
+    }, [authState.user]);
   
     return (
         <div>
             <div>Setup</div>
-            <div>
-                {!authState.user && 
-                    <div>
-                        <div>Step 1</div>
+            <div className="container has-text-centered">
+                <br/>
+                <Steps
+                    step={step}
+                    steps={steps}
+                />
+                <Grid container>
+                    {step === 0 && 
+                        <Button 
+                            onClick={handleAuthenticate}>
+                            <i className="la la-key"/>&nbsp;Authenticate
+                        </Button>
+                    }
+                    {step === 1 && 
                         <AdminSetupForm 
                             onCreate={createUser}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                         />
-                    </div>
-                }
-                {authState.user && 
-                    <div>
-                        <div>Step 2</div>
+                    }
+                    {step === 2 && 
                         <CategorySetupForm 
                             onCreate={createCategory}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                         />
-                    </div>
-                }
+                    }
+                    {step === 3 && 
+                        <div>
+                            The setup have been finished! <Link to="/">Go the main page</Link>.
+                        </div>
+                    }
+                </Grid>
             </div>
         </div>
     );

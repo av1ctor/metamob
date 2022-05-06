@@ -18,7 +18,7 @@ module {
             req: Types.CategoryRequest,
             invoker: Principal
         ): Result.Result<Types.Category, Text> {
-            let caller = userService.findByPubId(Principal.toText(invoker));
+            let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
                     #err(msg);
@@ -39,7 +39,7 @@ module {
             req: Types.CategoryRequest,
             invoker: Principal
         ): Result.Result<Types.Category, Text> {
-            let caller = userService.findByPubId(Principal.toText(invoker));
+            let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
                     #err(msg);
@@ -89,7 +89,7 @@ module {
             id: Text,
             invoker: Principal
         ): Result.Result<(), Text> {
-            let caller = userService.findByPubId(Principal.toText(invoker));
+            let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
                     #err(msg);

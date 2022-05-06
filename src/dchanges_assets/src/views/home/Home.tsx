@@ -2,13 +2,19 @@ import React, { useContext, useEffect } from "react";
 import {Routes, Route, Link} from "react-router-dom";
 import { AuthClient } from "@dfinity/auth-client"
 import { toast } from 'bulma-toast';
+import {dchanges} from "../../../../declarations/dchanges";
+import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
 import {AuthActionType, AuthContext} from "../../stores/auth";
+import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
+import { createMainActor } from "../../libs/backend";
 import Setup from "../setup/Setup";
 import Petitions from "../petitions/Petitions";
 import Petition from "../petitions/petition/Petition";
 import Logon from "../auth/Logon";
+import Header from "./Header";
+import Footer from "./Footer";
 
 const showError = (e: any) => {
     if(e) {
@@ -48,24 +54,54 @@ const showSuccess = (text: string) => {
 
 export const Home = () => {
     const [, authDispatch] = useContext(AuthContext);
+    const [, actorDispatch] = useContext(ActorContext);
     const [categoriesState, categoriesDispatch] = useContext(CategoryContext);
 
     const categories = useFindCategories(['categories']);
 
+    const loadAuthenticatedUser = async (
+        main: DChanges
+    ): Promise<ProfileResponse|undefined> => {
+        try {
+            const res = await main.userFindMe();
+            if('ok' in res) {
+                return res.ok;
+            }
+        }
+        catch(e) {
+        }
+
+        return undefined;
+    };
+    
     const init = async () => {
         const client = await AuthClient.create();
-        const isAuthenticated = await client.isAuthenticated();
-        
         authDispatch({
             type: AuthActionType.SET_CLIENT, 
             payload: client
         });
 
+        const isAuthenticated = await client.isAuthenticated();
         if(isAuthenticated) {
+            const identity = client.getIdentity();
             authDispatch({
-                type: AuthActionType.SET_PRINCIPAL, 
-                payload: client.getIdentity().getPrincipal().toText()
+                type: AuthActionType.SET_IDENTITY, 
+                payload: identity
             });
+
+            const main = createMainActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_MAIN,
+                payload: main
+            });        
+            
+            const user = await loadAuthenticatedUser(main);
+            if(user) {
+                authDispatch({
+                    type: AuthActionType.SET_USER, 
+                    payload: user
+                });
+            }
         }
     };
 
@@ -90,15 +126,11 @@ export const Home = () => {
     
     return (
         <>
+            <Header 
+                onSuccess={showSuccess}
+                onError={showError}
+            />
             <section className="section">
-                <div className="container has-text-centered">
-                    <h1 className="title">
-                        <Link to="/">D-Changes</Link>
-                    </h1>
-                    <p className="subtitle">
-                        Together we can transform the world!
-                    </p>
-                </div>
                 <div className="container">
                     <Routes>
                         <Route path="/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
@@ -107,11 +139,7 @@ export const Home = () => {
                     </Routes>
                 </div>
             </section>
-            <footer className="footer">
-                <div className="content has-text-centered">
-                    D-Changes (c) 2022 by av1ctor
-                </div>
-            </footer>
+            <Footer />
         </>            
     );
 }

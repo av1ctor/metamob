@@ -1,10 +1,11 @@
-import React, {useState, ChangeEvent, useCallback} from "react";
+import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateSignature} from "../../../hooks/signatures";
 import {Signature, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
 import Grid from "../../../components/Grid";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     signature: Signature;
@@ -18,6 +19,8 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
+    const [actorState, ] = useContext(ActorContext);
+    
     const [form, setForm] = useState<SignatureRequest>({
         petitionId: 0,
         body: props.signature.body,
@@ -52,10 +55,14 @@ const EditForm = (props: Props) => {
         }
         
         try {
-            await updateMut.mutateAsync({pubId: props.signature.pubId, req: {
-                petitionId: Number(props.signature.petitionId),
-                body: form.body,
-            }});
+            await updateMut.mutateAsync({
+                main: actorState.main,
+                pubId: props.signature.pubId, 
+                req: {
+                    petitionId: Number(props.signature.petitionId),
+                    body: form.body,
+                }
+        });
             props.onSuccess('Comment updated!');
             props.onCancel();
         }

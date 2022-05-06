@@ -1,8 +1,8 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
-import {Profile} from "../../../declarations/dchanges/dchanges.did";
+import {ProfileResponse} from "../../../declarations/dchanges/dchanges.did";
 
-const findById = async (_id: number): Promise<Profile> => {
+const findById = async (_id: number): Promise<ProfileResponse> => {
     const res = await dchanges.userFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
@@ -12,8 +12,8 @@ const findById = async (_id: number): Promise<Profile> => {
 
 export const useFindUserById = (
     queryKey: any[], _id: number
-): UseQueryResult<Profile, Error> => {
-    return useQuery<Profile, Error>(
+): UseQueryResult<ProfileResponse, Error> => {
+    return useQuery<ProfileResponse, Error>(
         queryKey, 
         () => findById(_id)
     );

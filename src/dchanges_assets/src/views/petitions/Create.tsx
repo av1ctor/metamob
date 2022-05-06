@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
@@ -7,6 +7,7 @@ import Grid from "../../components/Grid";
 import {Category, Tag, PetitionRequest} from "../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../components/NumberField";
 import MarkdownField from "../../components/MarkdownField";
+import { ActorContext } from "../../stores/actor";
 
 interface Props {
     mutation: any;
@@ -28,6 +29,8 @@ const formSchema = yup.object().shape({
 });
 
 const CreateForm = (props: Props) => {
+    const [actorState, ] = useContext(ActorContext);
+    
     const [form, setForm] = useState<PetitionRequest>({
         title: '',
         target: '',
@@ -58,22 +61,26 @@ const CreateForm = (props: Props) => {
         }
         
         try {
-            await props.mutation.mutate({
-                title: form.title,
-                target: form.target,
-                body: form.body,
-                cover: form.cover,
-                duration: Number(form.duration),
-                categoryId: Number(form.categoryId),
-                tags: form.tags
+            await props.mutation.mutateAsync({
+                main: actorState.main,
+                req: {
+                    title: form.title,
+                    target: form.target,
+                    body: form.body,
+                    cover: form.cover,
+                    duration: Number(form.duration),
+                    categoryId: Number(form.categoryId),
+                    tags: form.tags
+                }
             });
+
             props.onSuccess('Petition created!');
             props.onCancel();
         }
         catch(e) {
             props.onError(e);
         }
-    }, [form]);
+    }, [form, actorState.main]);
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({

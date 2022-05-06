@@ -91,7 +91,7 @@ const Create = (props: Props) => {
         }
     }, [form]);
 
-    if(!state.client || !state.principal) {
+    if(!state.client || !state.identity) {
         return null;
     }
 

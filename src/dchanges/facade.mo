@@ -26,38 +26,38 @@ shared({caller = owner}) actor class DChanges() {
     //
     public shared(msg) func userCreate(
         req: UserTypes.ProfileRequest
-    ): async Result.Result<UserTypes.Profile, Text> {
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
         userService.create(req, msg.caller, owner);
     };
 
     public shared(msg) func userUpdateMe(
         req: UserTypes.ProfileRequest
-    ): async Result.Result<UserTypes.Profile, Text> {
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
         userService.updateMe(req, msg.caller);
     };
 
     public shared(msg) func userUpdate(
         id: Text, 
         req: UserTypes.ProfileRequest
-    ): async Result.Result<UserTypes.Profile, Text> {
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
         userService.update(id, req, msg.caller);
     };
 
     public query func userFindById(
         _id: Nat32
-    ): async Result.Result<UserTypes.Profile, Text> {
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
         userService.findById(_id);
     };
 
     public query func userFindByPubId(
         pubId: Text
-    ): async Result.Result<UserTypes.Profile, Text> {
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
         userService.findByPubId(pubId);
     };
 
     public shared query(msg) func userFindMe(
-    ): async Result.Result<UserTypes.Profile, Text> {
-        userService.findByPubId(Principal.toText(msg.caller));
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
+        userService.findByPrincipal(msg.caller);
     };    
 
     //

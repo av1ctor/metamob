@@ -1,6 +1,7 @@
 import React, {useState, useCallback, useContext} from "react";
 import {Signature, Petition} from '../../../../declarations/dchanges/dchanges.did';
-import {Limit, Order, PetitionState} from "../../interfaces/common";
+import {Limit, Order} from "../../libs/common";
+import {PetitionState} from "../../libs/petitions";
 import {useFindSignaturesByPetition} from "../../hooks/signatures";
 import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";

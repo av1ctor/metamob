@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 //const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 //const smp = new SpeedMeasurePlugin();
@@ -82,6 +83,7 @@ module.exports = /*smp.wrap(*/{
   },  
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
+    new Dotenv(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, asset_entry),
       cache: false,

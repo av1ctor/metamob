@@ -1,17 +1,19 @@
 import React, {createContext, useReducer} from "react";
 import { AuthClient } from "@dfinity/auth-client";
-import { Profile } from "../../../declarations/dchanges/dchanges.did";
+import { ProfileResponse } from "../../../declarations/dchanges/dchanges.did";
+import { Identity } from "@dfinity/agent";
 
 export interface AuthState {
     client?: AuthClient;
-    principal: string;
-    user?: Profile;
+    identity?: Identity;
+    user?: ProfileResponse;
 };
 
 export enum AuthActionType {
     SET_CLIENT,
-    SET_PRINCIPAL,
-    SET_USER
+    SET_IDENTITY,
+    SET_USER,
+    LOGOUT
 };
 
 interface Action {
@@ -21,7 +23,7 @@ interface Action {
 
 const initialState: AuthState = {
     client: undefined,
-    principal: "",
+    identity: undefined,
     user: undefined,
 };
 
@@ -36,16 +38,23 @@ const reducer = (state: AuthState, action: Action) => {
                 client: action.payload
             };
         
-        case AuthActionType.SET_PRINCIPAL:
+        case AuthActionType.SET_IDENTITY:
             return {
                 ...state,
-                principal: action.payload
+                identity: action.payload
             };
 
         case AuthActionType.SET_USER:
             return {
                 ...state,
                 user: action.payload
+            };
+
+        case AuthActionType.LOGOUT:
+            return {
+                ...state,
+                identity: undefined,
+                user: undefined
             };
 
         default:

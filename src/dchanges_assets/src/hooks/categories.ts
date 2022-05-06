@@ -1,7 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
-import {Category, CategoryRequest, Variant} from "../../../declarations/dchanges/dchanges.did";
-import {Filter, Limit, Order} from "../interfaces/common";
+import {Category, CategoryRequest, DChanges, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {Filter, Limit, Order} from "../libs/common";
 
 const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit) => {
     const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
@@ -46,10 +46,17 @@ export const useFindCategories = (
 
 };
 
-export const useCreateCategory = (queryKey: any[]) => {
+export const useCreateCategory = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (category: CategoryRequest) => {
-            const res = await dchanges.categoryCreate(category);
+    return useMutation(
+        async (options: {main?: DChanges, req: CategoryRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.categoryCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -57,17 +64,23 @@ export const useCreateCategory = (queryKey: any[]) => {
         },
         {
             onSuccess: () => {
-                // invalidate, because a new item was created (depending on the current sorting value, its position could be anywhere)
                 queryClient.invalidateQueries(queryKey);
             }   
         }
     );
 };
 
-export const useUpdateCategory = (queryKey: any[]) => {
+export const useUpdateCategory = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (category: Category) => {
-            const res = await dchanges.categoryUpdate(category.pubId, category);
+    return useMutation(
+        async (options: {main?: DChanges, req: Category}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.categoryUpdate(options.req.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -82,10 +95,17 @@ export const useUpdateCategory = (queryKey: any[]) => {
     );
 };
 
-export const useDeleteCategory = (queryKey: any[]) => {
+export const useDeleteCategory = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (category: Category) => {
-            const res = await dchanges.categoryDelete(category.pubId);
+    return useMutation(
+        async (options: {main?: DChanges, req: Category}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.categoryDelete(options.req.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

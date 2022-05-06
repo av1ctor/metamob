@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from "react";
 import SelectField from "../../components/SelectField";
 import TextField from "../../components/TextField";
-import {Filter} from "../../interfaces/common";
+import {Filter} from "../../libs/common";
 
 interface Props {
     filters: Filter;

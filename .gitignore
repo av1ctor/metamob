@@ -15,3 +15,4 @@ src/declarations
 # frontend code
 node_modules/
 dist/
+.env

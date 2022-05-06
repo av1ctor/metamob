@@ -12,6 +12,8 @@ import Time "mo:base/Time";
 import Debug "mo:base/Debug";
 import Variant "mo:mo-table/variant";
 import Table "mo:mo-table/table";
+import Random "../common/random";
+import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
@@ -19,12 +21,13 @@ import Schema "./schema";
 module {
     public class Repository() {
         let users = Table.Table<Types.Profile>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("users")));
 
         public func create(
-            pubId: Text, 
+            principal: Principal, 
             req: Types.ProfileRequest
         ): Result.Result<Types.Profile, Text> {
-            let prof = _createEntity(pubId, req);
+            let prof = _createEntity(principal, req);
             switch(users.insert(prof._id, prof)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -95,6 +98,30 @@ module {
             };
         };
 
+        public func findByPrincipal(
+            principal: Text
+        ): Result.Result<Types.Profile, Text> {
+            switch(users.findOne([{
+                key = "principal";
+                op = #eq;
+                value = #text(Utils.toLower(principal));
+            }])) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case (#ok(prof)) {
+                    switch(prof) {
+                        case null {
+                            return #err("Not found");
+                        };
+                        case (?prof) {
+                            return #ok(prof);
+                        };
+                    };
+                };
+            };
+        };        
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             return users.backup();
@@ -107,13 +134,14 @@ module {
         };
 
         func _createEntity(
-            pubId: Text, 
+            principal: Principal, 
             req: Types.ProfileRequest
         ): Types.Profile {
             let _id = users.nextId();
             {
                 _id = _id;
-                pubId = pubId;
+                pubId = ulid.next();
+                principal = Principal.toText(principal);
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
@@ -142,6 +170,7 @@ module {
             {
                 _id = prof._id;
                 pubId = prof.pubId;
+                principal = prof.principal;
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
@@ -174,6 +203,7 @@ module {
 
         res.put("_id", #nat32(entity._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
+        res.put("principal", #text(if ignoreCase Utils.toLower(entity.principal) else entity.principal));
         res.put("name", #text(if ignoreCase Utils.toLower(entity.name) else entity.name));
         res.put("email", #text(if ignoreCase Utils.toLower(entity.email) else entity.email));
         res.put("avatar", switch(entity.avatar) {case null #nil; case (?avatar) #text(avatar);});
@@ -195,6 +225,7 @@ module {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
+            principal = Variant.getOptText(map.get("principal"));
             name = Variant.getOptText(map.get("name"));
             email = Variant.getOptText(map.get("email"));
             avatar = Variant.getOptTextOpt(map.get("avatar"));

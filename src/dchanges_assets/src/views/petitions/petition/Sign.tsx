@@ -7,6 +7,7 @@ import { AuthContext } from "../../../stores/auth";
 import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import TextAreaField from "../../../components/TextAreaField";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     petition: Petition;
@@ -21,6 +22,7 @@ const formSchema = yup.object().shape({
 
 const SignForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
+    const [actorState, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<SignatureRequest>({
         petitionId: props.petition._id,
@@ -59,8 +61,11 @@ const SignForm = (props: Props) => {
 
         try {
             await createMut.mutateAsync({
-                petitionId: props.petition._id,
-                body: form.body,
+                main: actorState.main,
+                req: {
+                    petitionId: props.petition._id,
+                    body: form.body,
+                }
             });
             props.onSuccess('Petition signed!');
         }

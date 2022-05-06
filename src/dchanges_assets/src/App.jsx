@@ -4,6 +4,7 @@ import {QueryClient, QueryClientProvider} from 'react-query';
 import {AuthContextProvider} from "./stores/auth";
 import {CategoryContextProvider} from "./stores/category";
 import {Home} from "./views/home/Home";
+import { ActorContextProvider } from "./stores/actor";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -17,11 +18,13 @@ export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
         <AuthContextProvider>
-            <CategoryContextProvider>
-                <Router>                    
-                    <Home />
-                </Router>
-            </CategoryContextProvider>
+            <ActorContextProvider>
+                <CategoryContextProvider>
+                    <Router>                    
+                        <Home />
+                    </Router>
+                </CategoryContextProvider>
+            </ActorContextProvider>
         </AuthContextProvider>
     </QueryClientProvider>
   );

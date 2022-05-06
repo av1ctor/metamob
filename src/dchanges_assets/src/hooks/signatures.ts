@@ -1,7 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
-import {SignatureRequest, Signature, Variant} from "../../../declarations/dchanges/dchanges.did";
-import {Filter, Limit, Order} from "../interfaces/common";
+import {SignatureRequest, Signature, Variant, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import {Filter, Limit, Order} from "../libs/common";
 
 const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promise<Signature[]> => {
     const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
@@ -98,8 +98,13 @@ export const useFindSignatureByPetitionAndUser = (
 
 export const useCreateSignature = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (req: SignatureRequest) => {
-            const res = await dchanges.signatureCreate(req);
+    return useMutation(
+        async (options: {main?: DChanges, req: SignatureRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+                
+            const res = await options.main.signatureCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -115,8 +120,13 @@ export const useCreateSignature = () => {
 
 export const useUpdateSignature = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (options: {pubId: string, req: SignatureRequest}) => {
-            const res = await dchanges.signatureUpdate(options.pubId, options.req);
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string, req: SignatureRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.signatureUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -132,8 +142,13 @@ export const useUpdateSignature = () => {
 
 export const useDeleteSignature = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (pubId: string) => {
-            const res = await dchanges.signatureDelete(pubId);
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+                
+            const res = await options.main.signatureDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

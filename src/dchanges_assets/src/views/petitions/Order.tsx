@@ -2,7 +2,7 @@ import React, {useState, ChangeEvent} from "react";
 import Panel from "../../components/Panel";
 import Grid from "../../components/Grid";
 import SelectField from "../../components/SelectField";
-import {Order} from "../../interfaces/common";
+import {Order} from "../../libs/common";
 
 interface Props {
     orderBy: Order;

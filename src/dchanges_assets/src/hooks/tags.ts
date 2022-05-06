@@ -1,7 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
-import {Tag, TagRequest, Variant} from "../../../declarations/dchanges/dchanges.did";
-import {Filter, Limit, Order} from "../interfaces/common";
+import {DChanges, Tag, TagRequest, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {Filter, Limit, Order} from "../libs/common";
 
 const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit) => {
     const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
@@ -47,10 +47,17 @@ export const useFindCategories = (
 
 };
 
-export const useCreateTag = (queryKey: any[]) => {
+export const useCreateTag = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (tag: TagRequest) => {
-            const res = await dchanges.tagCreate(tag);
+    return useMutation(
+        async (options: {main?: DChanges, req: TagRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+                
+            const res = await options.main.tagCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -65,10 +72,17 @@ export const useCreateTag = (queryKey: any[]) => {
     );
 };
 
-export const useUpdateTag = (queryKey: any[]) => {
+export const useUpdateTag = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (tag: Tag) => {
-            const res = await dchanges.tagUpdate(tag.pubId, tag);
+    return useMutation(
+        async (options: {main?: DChanges, req: Tag}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+        
+            const res = await options.main.tagUpdate(options.req.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -83,10 +97,17 @@ export const useUpdateTag = (queryKey: any[]) => {
     );
 };
 
-export const useDeleteTag = (queryKey: any[]) => {
+export const useDeleteTag = (
+    queryKey: any[]
+) => {
     const queryClient = useQueryClient();
-    return useMutation(async (tag: Tag) => {
-            const res = await dchanges.tagDelete(tag.pubId);
+    return useMutation(
+        async (options: {main?: DChanges, req: Tag}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+        
+            const res = await options.main.tagDelete(options.req.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

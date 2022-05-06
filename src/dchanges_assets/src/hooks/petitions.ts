@@ -1,7 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
-import {PetitionRequest, Petition, Variant} from "../../../declarations/dchanges/dchanges.did";
-import {Filter, Limit, Order} from "../interfaces/common";
+import {PetitionRequest, Petition, Variant, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import {Filter, Limit, Order} from "../libs/common";
 
 const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promise<Petition[]> => {
     const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
@@ -49,8 +49,14 @@ export const useFindPetitions = (
 
 export const useCreatePetition = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (req: PetitionRequest) => {
-            const res = await dchanges.petitionCreate(req);
+    return useMutation(
+        async (options: {main?: DChanges, req: PetitionRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }            
+            
+            const res = await options.main.petitionCreate(options.req);
+            
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -66,8 +72,13 @@ export const useCreatePetition = () => {
 
 export const useUpdatePetition = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (options: {pubId: string, req: PetitionRequest}) => {
-            const res = await dchanges.petitionUpdate(options.pubId, options.req);
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string, req: PetitionRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.petitionUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -83,8 +94,13 @@ export const useUpdatePetition = () => {
 
 export const useDeletePetition = () => {
     const queryClient = useQueryClient();
-    return useMutation(async (pubId: string) => {
-            const res = await dchanges.petitionDelete(pubId);
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.petitionDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }
