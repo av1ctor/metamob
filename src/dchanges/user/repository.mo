@@ -115,6 +115,7 @@ module {
                 _id = _id;
                 pubId = pubId;
                 name = req.name;
+                email = req.email;
                 avatar = req.avatar;
                 roles = switch(req.roles) {
                     case null [#user];
@@ -125,6 +126,7 @@ module {
                     case (?val) val;
                 };
                 banned = false;
+                countryId = req.countryId;
                 createdAt = Time.now();
                 createdBy = _id;
                 updatedAt = null;
@@ -141,6 +143,7 @@ module {
                 _id = prof._id;
                 pubId = prof.pubId;
                 name = req.name;
+                email = req.email;
                 avatar = req.avatar;
                 roles = switch(req.roles) {
                     case null prof.roles;
@@ -154,6 +157,7 @@ module {
                     case null prof.banned;
                     case (?val) val;
                 };
+                countryId = req.countryId;
                 createdAt = prof.createdAt;
                 createdBy = prof.createdBy;
                 updatedAt = ?Time.now();
@@ -171,10 +175,12 @@ module {
         res.put("_id", #nat32(entity._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
         res.put("name", #text(if ignoreCase Utils.toLower(entity.name) else entity.name));
+        res.put("email", #text(if ignoreCase Utils.toLower(entity.email) else entity.email));
         res.put("avatar", switch(entity.avatar) {case null #nil; case (?avatar) #text(avatar);});
         res.put("roles", #array(Array.map(entity.roles, _roleToVariant)));
         res.put("active", #bool(entity.active));
         res.put("banned", #bool(entity.banned));
+        res.put("countryId", #nat32(entity.countryId));
         res.put("createdAt", #int(entity.createdAt));
         res.put("createdBy", #nat32(entity.createdBy));
         res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -190,10 +196,12 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             name = Variant.getOptText(map.get("name"));
+            email = Variant.getOptText(map.get("email"));
             avatar = Variant.getOptTextOpt(map.get("avatar"));
             roles = Array.map(Variant.getOptArray(map.get("roles")), _variantToRole);
             active = Variant.getOptBool(map.get("active"));
             banned = Variant.getOptBool(map.get("banned"));
+            countryId = Variant.getOptNat32(map.get("countryId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

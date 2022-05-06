@@ -40,6 +40,10 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden");
+                    };
+                    
                     if(Option.isSome(req.roles) or 
                         Option.isSome(req.active) or
                         Option.isSome(req.banned)) {
@@ -64,6 +68,10 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden");
+                    };
+                    
                     if(Text.equal(caller.pubId, id)) {
                         if(Option.isSome(req.roles) or 
                             Option.isSome(req.active) or

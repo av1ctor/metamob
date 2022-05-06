@@ -157,10 +157,6 @@ module {
         func hasAuth(
             caller: UserTypes.Profile
         ): Bool {
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             if(not caller.active) {
                 return false;
             };
@@ -169,6 +165,10 @@ module {
                 return false;
             };
 
+            if(UserUtils.isAdmin(caller)) {
+                return true;
+            };
+            
             return true;
         };
 

@@ -12,6 +12,7 @@ interface AdminSetupFormProps {
 const AdminSetupForm = (props: AdminSetupFormProps) => {
     const [form, setForm] = useState({
         name: '',
+        email: '',
         avatar: '',
     });
     
@@ -31,6 +32,7 @@ const AdminSetupForm = (props: AdminSetupFormProps) => {
                             label="Name"
                             name="name"
                             value={form.name || ''}
+                            required={true}
                             onChange={changeForm} 
                         />
                     </Grid>
@@ -50,10 +52,12 @@ const AdminSetupForm = (props: AdminSetupFormProps) => {
                         <Button
                             onClick={() => props.onCreate({
                                 name: form.name, 
+                                email: form.email, 
                                 avatar: [form.avatar],
                                 roles: [[{admin: null}]],
                                 active: [true],
-                                banned: [false]
+                                banned: [false],
+                                countryId: 0,
                             })}>
                             Create
                         </Button>

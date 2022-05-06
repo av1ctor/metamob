@@ -14,11 +14,19 @@ module {
             },
             {
                 name = "name";
-                options = [#unique, #partial];
+                options = [#unique, #partial, #min(3), #max(64)];
+            },
+            {
+                name = "email";
+                options = [#unique, #min(6), #max(64)];
+            },
+            {
+                name = "countryId";
+                options = [#sortable];
             },
             {
                 name = "avatar";
-                options = [#nullable];
+                options = [#nullable, #max(256)];
             },
             {
                 name = "roles";

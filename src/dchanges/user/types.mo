@@ -8,9 +8,11 @@ module {
         _id: Nat32;
         pubId: Text;
         name: Text;
+        email: Text;
         avatar: ?Text;
         roles: [Role];
         active: Bool;
+        countryId: Nat32;
         banned: Bool;
         createdAt: Int;
         createdBy: Nat32;
@@ -20,9 +22,11 @@ module {
 
     public type ProfileRequest = {
         name: Text;
+        email: Text;
         avatar: ?Text;
         roles: ?[Role];
         active: ?Bool;
         banned: ?Bool;
+        countryId: Nat32;
     };
 };
