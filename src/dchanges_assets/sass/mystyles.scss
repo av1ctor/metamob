@@ -1,6 +1,7 @@
 // see: https://bulma.io/documentation/customize/with-node-sass/
 @charset "utf-8";
 @import "./node_modules/bulma/bulma.sass";
+@import "./node_modules/bulma-o-steps/bulma-steps.sass";
 
 .avatar {
     background-color: #ccc;

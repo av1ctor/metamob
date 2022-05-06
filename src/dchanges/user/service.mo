@@ -18,12 +18,16 @@ module {
             invoker: Principal,
             owner: Principal
         ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+            
             if(Option.isSome(req.roles) or 
                 Option.isSome(req.active) or
                 Option.isSome(req.banned)) {
                 if(not Principal.equal(invoker, owner)) {
                     D.print(debug_show((invoker, owner)));
-                    //return #err("Forbidden");
+                    //return #err("Forbidden: invalid fields");
                 };
             };
 
@@ -34,6 +38,10 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal
         ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
             let caller = repo.findByPubId(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
@@ -41,14 +49,14 @@ module {
                 };
                 case (#ok(caller)) {
                     if(not caller.active or caller.banned) {
-                        return #err("Forbidden");
+                        return #err("Forbidden: not active");
                     };
                     
                     if(Option.isSome(req.roles) or 
                         Option.isSome(req.active) or
                         Option.isSome(req.banned)) {
                         if(not Utils.isAdmin(caller)) {
-                            return #err("Forbidden");
+                            return #err("Forbidden: invalid fields");
                         };
                     };
                     
@@ -62,6 +70,10 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal
         ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
             let caller = repo.findByPubId(Principal.toText(invoker));
             switch(caller) {
                 case (#err(msg)) {
@@ -69,14 +81,14 @@ module {
                 };
                 case (#ok(caller)) {
                     if(not caller.active or caller.banned) {
-                        return #err("Forbidden");
+                        return #err("Forbidden: not active");
                     };
                     
                     if(Text.equal(caller.pubId, id)) {
                         if(Option.isSome(req.roles) or 
                             Option.isSome(req.active) or
                             Option.isSome(req.banned)) {
-                            return #err("Forbidden");
+                            return #err("Forbidden: invalid fields");
                         };
 
                         repo.update(caller, req, caller._id);

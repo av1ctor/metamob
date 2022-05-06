@@ -35,19 +35,19 @@ const EditForm = (props: Props) => {
     
     const updateMut = useUpdatePetition();
 
-    const changeForm = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm({
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        })
-    };
+        }));
+    }, []);
 
-    const changeTags = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({
+    const changeTags = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
-            tags: e.target.value.split(',').map(t => Number(t))
-        })
-    };
+            tags: e.target.value.split(',').map((t: string) => Number(t))
+        }));
+    }, []);
 
     const validate = async (form: PetitionRequest): Promise<string[]> => {
         try {

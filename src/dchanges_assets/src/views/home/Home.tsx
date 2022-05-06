@@ -80,7 +80,12 @@ export const Home = () => {
     }, [categories.status]);
 
     if(categoriesState.categories.length == 0) {
-        return <Setup />;
+        return (
+            <Setup 
+                onSuccess={showSuccess}
+                onError={showError}
+            />
+        );
     }    
     
     return (

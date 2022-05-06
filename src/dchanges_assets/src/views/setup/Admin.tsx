@@ -1,71 +1,107 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
+import * as yup from 'yup';
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import Grid from "../../components/Grid";
 import Panel from "../../components/Panel";
 import {ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
 
-interface AdminSetupFormProps {
+interface Props {
     onCreate: (req: ProfileRequest) => void,
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
 };
 
-const AdminSetupForm = (props: AdminSetupFormProps) => {
-    const [form, setForm] = useState({
+const formSchema = yup.object().shape({
+    name: yup.string().min(3).max(64),
+    email: yup.string().min(3).max(128),
+    avatar: yup.string().required(),
+});
+
+const AdminSetupForm = (props: Props) => {
+    const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
-        avatar: '',
+        avatar: [],
+        roles: [[{admin: null}]],
+        active: [true],
+        banned: [false],
+        countryId: 0
     });
     
-    const changeForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm({
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        })
+        }));
+    }, []);
+
+    const changeFormOpt = useCallback((e: any) => {
+        setForm(form => ({
+            ...form, 
+            [e.target.name]: [e.target.value]
+        }));
+    }, []);
+    
+    const validate = async (form: ProfileRequest): Promise<string[]> => {
+        try {
+            await formSchema.validate(form, {abortEarly: false});
+            return [];
+        }
+        catch(e: any) {
+            return e.errors;
+        }
     };
+
+    const handleCreate = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
+        }
+        
+        props.onCreate({
+            name: form.name, 
+            email: form.email, 
+            avatar: form.avatar,
+            roles: [[{admin: null}]],
+            active: [true],
+            banned: [false],
+            countryId: 0,
+        });
+    }, [props.onCreate, form]);
     
     return (
-        <div>
+        <form onSubmit={handleCreate}>
             <Panel label="Admin registration">
                 <Grid container>
-                    <Grid>
-                        <TextField 
-                            label="Name"
-                            name="name"
-                            value={form.name || ''}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container>
-                    <Grid>
-                        <TextField 
-                            label="Avatar"
-                            name="avatar"
-                            value={form.avatar || ''}
-                            onChange={changeForm} 
-                        />
-                    </Grid>
-                </Grid>
-                <Grid container>
-                    <Grid>
-                        <Button
-                            onClick={() => props.onCreate({
-                                name: form.name, 
-                                email: form.email, 
-                                avatar: [form.avatar],
-                                roles: [[{admin: null}]],
-                                active: [true],
-                                banned: [false],
-                                countryId: 0,
-                            })}>
-                            Create
-                        </Button>
-                    </Grid>
+                    <TextField 
+                        label="Name"
+                        name="name"
+                        value={form.name || ''}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <TextField 
+                        label="Avatar"
+                        name="avatar"
+                        value={form.avatar[0] || ''}
+                        required={true}
+                        onChange={changeFormOpt} 
+                    />
+                    <div className="field is-grouped mt-2">
+                        <div className="control">
+                            <Button
+                                onClick={handleCreate}>
+                                Create
+                            </Button>
+                        </div>
+                    </div>
                 </Grid>
             </Panel>
-
-        </div>
+        </form>
     );
 };
 

@@ -31,12 +31,12 @@ const SignForm = (props: Props) => {
 
     const navigate = useNavigate();
 
-    const changeForm = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm({
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        })
-    };
+        }));
+    }, []);
 
     const validate = async (form: SignatureRequest): Promise<string[]> => {
         try {
@@ -73,7 +73,7 @@ const SignForm = (props: Props) => {
         navigate(`/login?return=/p/${props.petition.pubId}`);
     }, [props.petition.pubId]);
 
-    const isLoggedIn = !!authState.principal;
+    const isLoggedIn = !!authState.user;
 
     return (
         <form onSubmit={handleSign}>

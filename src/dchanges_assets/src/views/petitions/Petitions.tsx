@@ -65,7 +65,7 @@ const Petitions = (props: Props) => {
         navigate('/login');
     }, []);
 
-    const isLoggedIn = !!authState.principal;
+    const isLoggedIn = !!authState.user;
 
     return (
         <div className="container">

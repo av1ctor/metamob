@@ -12,12 +12,12 @@ interface Props {
 const SearchForm = (props: Props) => {
     const [form, setForm] = useState(props.filters);
 
-    const changeForm = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        setForm({
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        })
-    }, [form]);
+        }));
+    }, []);
 
     const handleSubmit = useCallback((e: any) => {
         e.preventDefault();

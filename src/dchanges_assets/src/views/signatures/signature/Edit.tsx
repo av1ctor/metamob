@@ -25,12 +25,12 @@ const EditForm = (props: Props) => {
     
     const updateMut = useUpdateSignature();
 
-    const changeForm = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm({
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        })
-    };
+        }));
+    }, []);
 
     const validate = async (form: SignatureRequest): Promise<string[]> => {
         try {
