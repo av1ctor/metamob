@@ -17,7 +17,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             owner: Principal
-        ): Result.Result<Types.ProfileResponse, Text> {
+        ): Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };

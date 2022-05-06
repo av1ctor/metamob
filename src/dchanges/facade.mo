@@ -21,43 +21,65 @@ shared({caller = owner}) actor class DChanges() {
     let signatureService = SignatureService.Service(userService, petitionService);
     let tagService = TagService.Service(userService);
 
+    private func _transformUserReponse(
+        res: Result.Result<UserTypes.Profile, Text>
+    ): Result.Result<UserTypes.ProfileResponse, Text> {
+        switch(res)
+        {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(prof)) {
+                #ok({
+                    _id = prof._id;
+                    pubId = prof.pubId;
+                    name = prof.name;
+                    email = prof.email;
+                    avatar = prof.avatar;
+                    roles = prof.roles;
+                    countryId = prof.countryId;
+                });
+            };
+        };
+    };
+
     //
     // users facade
     //
     public shared(msg) func userCreate(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.create(req, msg.caller, owner);
+        _transformUserReponse(userService.create(req, msg.caller, owner));
     };
 
     public shared(msg) func userUpdateMe(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.updateMe(req, msg.caller);
+        _transformUserReponse(userService.updateMe(req, msg.caller));
     };
 
     public shared(msg) func userUpdate(
         id: Text, 
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.update(id, req, msg.caller);
+        _transformUserReponse(userService.update(id, req, msg.caller));
     };
 
     public query func userFindById(
         _id: Nat32
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.findById(_id);
+        _transformUserReponse(userService.findById(_id));
     };
 
     public query func userFindByPubId(
         pubId: Text
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.findByPubId(pubId);
+        _transformUserReponse(userService.findByPubId(pubId));
     };
 
     public shared query(msg) func userFindMe(
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        userService.findByPrincipal(msg.caller);
+        _transformUserReponse(userService.findByPrincipal(msg.caller));
     };    
 
     //
