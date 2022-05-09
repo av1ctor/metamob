@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from "react";
+import Button from "../../components/Button";
 import SelectField from "../../components/SelectField";
 import TextField from "../../components/TextField";
 import {Filter} from "../../libs/common";
@@ -29,30 +30,18 @@ const SearchForm = (props: Props) => {
             <form onSubmit={handleSubmit}>
                 <div className="level-left">
                     <div className="level-item">
-                        <SelectField
-                            name="key"
-                            value={form.key || ''}
-                            options={props.indexedColumns.map((col) => ({name: col, value: col}))}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                    </div>
-                    <div className="level-item">
-                        <SelectField
-                            name="op"
-                            value={form.op}
-                            options={[{name: "Equals", value: "eq"}, {name: "Contains", value: "contains"}]}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                    </div>
-                    <div className="level-item">
                         <TextField
                             name="value"
                             value={form.value || ''}
-                            required={true}
                             onChange={changeForm} 
                         />
+                    </div>
+                    <div className="level-item">
+                        <div className="field">
+                            <div className="control">
+                                <Button onClick={handleSubmit}><i className="la la-search" /></Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

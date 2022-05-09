@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
-import {dchanges} from "../../../../declarations/dchanges";
 import { AuthActionType, AuthContext, AuthState } from "../../stores/auth";
 import Button from "../../components/Button";
 import Grid from "../../components/Grid";
@@ -33,7 +32,7 @@ const steps: Step[] = [
 
 const Logon = (props: Props) => {
     const [authState, authDispatch] = useContext(AuthContext);
-    const [actorState, actorDispatch] = useContext(ActorContext);
+    const [, actorDispatch] = useContext(ActorContext);
 
     const [step, setStep] = useState(0);
 

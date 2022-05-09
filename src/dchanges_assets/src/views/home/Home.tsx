@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from "react";
 import {Routes, Route, Link} from "react-router-dom";
 import { AuthClient } from "@dfinity/auth-client"
 import { toast } from 'bulma-toast';
-import {dchanges} from "../../../../declarations/dchanges";
 import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
 import {AuthActionType, AuthContext} from "../../stores/auth";
 import { ActorActionType, ActorContext } from "../../stores/actor";

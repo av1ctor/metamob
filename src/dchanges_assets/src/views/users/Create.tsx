@@ -80,7 +80,7 @@ const Create = (props: Props) => {
             if('ok' in res) {
                 const user = res.ok;
                 dispatch({type: AuthActionType.SET_USER, payload: user});
-                props.onSuccess('Admin created!');
+                props.onSuccess('User created!');
             }
             else {
                 props.onError(res.err);
@@ -102,6 +102,13 @@ const Create = (props: Props) => {
                     label="Name"
                     name="name"
                     value={form.name || ''}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="E-mail"
+                    name="email"
+                    value={form.email || ''}
                     required={true}
                     onChange={changeForm} 
                 />

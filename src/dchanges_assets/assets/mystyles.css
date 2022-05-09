@@ -9063,9 +9063,6 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
     display: flex;
     flex-direction: column-reverse; }
 
-.header {
-  background-color: #ccc; }
-
 .avatar {
   background-color: #ccc;
   border-radius: 50%;

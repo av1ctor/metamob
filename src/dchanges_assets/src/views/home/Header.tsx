@@ -1,7 +1,8 @@
-import React, { useContext, useCallback } from "react";
+import React, { useContext, useCallback, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import { AuthActionType, AuthContext } from "../../stores/auth";
+import Avatar from "../users/Avatar";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -10,6 +11,9 @@ interface Props {
 
 const Header = (props: Props) => {
     const [authState, authDispatch] = useContext(AuthContext);
+    
+    const menuRef = useRef<HTMLDivElement>(null);
+    const burgerRef = useRef<HTMLAnchorElement>(null);
 
     const navigate = useNavigate();
 
@@ -26,43 +30,82 @@ const Header = (props: Props) => {
         props.onSuccess('Logged out!');
     }, []);
 
+    const handleToggleMenu = useCallback(() => {
+        burgerRef.current?.classList.toggle('is-active');
+        menuRef.current?.classList.toggle('is-active');
+        console.log(burgerRef.current)
+    }, [burgerRef.current, menuRef.current]);
+
     const isLogged = !!authState.user;
 
     return (
-        <div className="container header">
-            <div className="level ml-2 mr-2">
-                <div className="level-left">
-                    <div>
-                        <h1 className="title mb-0">
-                            <Link to="/">D-Changes</Link>
-                        </h1>
-                        <div>
-                            <small>Together we can transform the world!</small>
-                        </div>
-                    </div>
+        <nav className="navbar is-warning" role="navigation" aria-label="main navigation">
+            <div className="navbar-brand">
+                <a className="navbar-item" href="/">
+                    <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28"/>
+                </a>
+
+                <a 
+                    ref={burgerRef}
+                    role="button" 
+                    className="navbar-burger" 
+                    aria-label="menu" 
+                    aria-expanded="false" 
+                    onClick={handleToggleMenu}
+                >
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div 
+                ref={menuRef}
+                className="navbar-menu"
+            >
+                <div className="navbar-start">
+                    <a className="navbar-item" href="/">
+                    <i className="la la-home"/>&nbsp;Home
+                    </a>
                 </div>
-                <div className="level-right">
-                    <div className="has-text-centered">
-                        {!isLogged && 
-                            <Button 
-                                title="Login"
-                                onClick={redirectToLogon}
-                            >
-                                <i className="la la-user"/>
-                            </Button>
-                        }
-                        {isLogged && 
-                            <Button 
-                                title="Logout"
-                                onClick={handleLogout}
-                            >
-                                <i className="la la-sign-out-alt"/>
-                            </Button>
-                        }
-                    </div>
+
+                <div className="navbar-end">
+                    {isLogged &&
+                        <div className="navbar-item has-dropdown is-hoverable">
+                            <a className="navbar-link">
+                                <Avatar id={authState.user?._id} />
+                            </a>
+
+                            <div className="navbar-dropdown is-right">
+                                <a className="navbar-item">
+                                    <i className="la la-list"/>&nbsp;Campaigns
+                                </a>
+                                <a className="navbar-item">
+                                    <i className="la la-user"/>&nbsp;Profile
+                                </a>
+                                <hr className="navbar-divider"/>
+                                <a className="navbar-item" onClick={handleLogout}>
+                                    <i className="la la-sign-out-alt"/>&nbsp;Logout
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    
+                    {!isLogged &&
+                        <div className="navbar-item">
+                            <div className="buttons">
+                                <a 
+                                    className="button is-success"
+                                    onClick={redirectToLogon}
+                                >
+                                    <i className="la la-sign-in-alt"/>&nbsp;Login
+                                </a>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
+        </nav>
     );
 };
 
