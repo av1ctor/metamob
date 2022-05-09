@@ -17,12 +17,12 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
-import PetitionRepository "../petition/repository";
+import CampaignRepository "../campaign/repository";
 import Debug "mo:base/Debug";
 
 module {
     public class Repository(
-        petitionRepository: PetitionRepository.Repository
+        campaignRepository: CampaignRepository.Repository
     ) {
         let signatures = Table.Table<Types.Signature>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("signatures")));
@@ -37,7 +37,7 @@ module {
                     return #err(msg);
                 };
                 case _ {
-                    _updatePetition(signature, true);
+                    _updateCampaign(signature, true);
                     return #ok(signature);
                 };
             };
@@ -69,24 +69,24 @@ module {
                     #err(msg);
                 };
                 case _ {
-                    _updatePetition(signature, false);
+                    _updateCampaign(signature, false);
                     #ok();
                 }
             }
         };
 
-        func _updatePetition(
+        func _updateCampaign(
             signature: Types.Signature,
             inc: Bool
         ) {
-            switch(petitionRepository.findById(signature.petitionId))
+            switch(campaignRepository.findById(signature.campaignId))
             {
-                case (#ok(petition)) {
+                case (#ok(campaign)) {
                     if(inc) {
-                        petitionRepository.onSignatureInserted(petition, signature);
+                        campaignRepository.onSignatureInserted(campaign, signature);
                     }
                     else {
-                        petitionRepository.onSignatureDeleted(petition, signature);
+                        campaignRepository.onSignatureDeleted(campaign, signature);
                     };
                 };
                 case _ {
@@ -138,15 +138,15 @@ module {
             };
         };
 
-        public func findByPetitionAndUser(
-            petitionId: Nat32,
+        public func findByCampaignAndUser(
+            campaignId: Nat32,
             createdBy: Nat32
         ): Result.Result<Types.Signature, Text> {
             switch(signatures.findOne([
                 {
-                    key = "petitionId";
+                    key = "campaignId";
                     op = #eq;
-                    value = #nat32(petitionId);
+                    value = #nat32(campaignId);
                 },
                 {
                     key = "createdBy";
@@ -207,8 +207,8 @@ module {
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
                 case "createdAt" func(a: Types.Signature, b: Types.Signature): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "petitionId" func(a: Types.Signature, b: Types.Signature): Int = 
-                    Utils.order2Int(Nat32.compare(a.petitionId, b.petitionId)) * dir;
+                case "campaignId" func(a: Types.Signature, b: Types.Signature): Int = 
+                    Utils.order2Int(Nat32.compare(a.campaignId, b.campaignId)) * dir;
                 case _ {
                     func(a: Types.Signature, b: Types.Signature): Int = 0;
                 };
@@ -271,40 +271,40 @@ module {
             return signatures.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
-        public func findByPetition(
-            petitionId: Nat32,
+        public func findByCampaign(
+            campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
 
-            func buildCriterias(petitionId: Nat32): ?[Table.Criteria] {
+            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
                 ?[
                     {       
-                        key = "petitionId";
+                        key = "campaignId";
                         op = #eq;
-                        value = #nat32(petitionId);
+                        value = #nat32(campaignId);
                     }
                 ]
             };
             
-            return signatures.find(buildCriterias(petitionId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return signatures.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
-        public func countByPetition(
-            petitionId: Nat32
+        public func countByCampaign(
+            campaignId: Nat32
         ): Result.Result<Nat, Text> {
 
-            func buildCriterias(petitionId: Nat32): ?[Table.Criteria] {
+            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
                 ?[
                     {       
-                        key = "petitionId";
+                        key = "campaignId";
                         op = #eq;
-                        value = #nat32(petitionId);
+                        value = #nat32(campaignId);
                     }
                 ]
             };
             
-            return signatures.count(buildCriterias(petitionId));
+            return signatures.count(buildCriterias(campaignId));
         };
 
         public func findByUser(
@@ -345,7 +345,7 @@ module {
                 _id = signatures.nextId();
                 pubId = ulid.next();
                 body = req.body;
-                petitionId = req.petitionId;
+                campaignId = req.campaignId;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -362,7 +362,7 @@ module {
                 _id = signature._id;
                 pubId = signature.pubId;
                 body = req.body;
-                petitionId = req.petitionId;
+                campaignId = req.campaignId;
                 createdAt = signature.createdAt;
                 createdBy = signature.createdBy;
                 updatedAt = ?Time.now();
@@ -378,7 +378,7 @@ module {
                 _id = signature._id;
                 pubId = signature.pubId;
                 body = "";
-                petitionId = signature.petitionId;
+                campaignId = signature.campaignId;
                 createdAt = signature.createdAt;
                 createdBy = signature.createdBy;
                 updatedAt = signature.updatedAt;
@@ -398,7 +398,7 @@ module {
         res.put("_id", #nat32(entity._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
         res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
-        res.put("petitionId", #nat32(entity.petitionId));
+        res.put("campaignId", #nat32(entity.campaignId));
         res.put("createdAt", #int(entity.createdAt));
         res.put("createdBy", #nat32(entity.createdBy));
         res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -414,7 +414,7 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             body = Variant.getOptText(map.get("body"));
-            petitionId = Variant.getOptNat32(map.get("petitionId"));
+            campaignId = Variant.getOptNat32(map.get("campaignId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

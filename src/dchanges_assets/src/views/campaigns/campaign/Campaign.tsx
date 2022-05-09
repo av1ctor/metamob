@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext} from "react";
 import {useParams} from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
-import {useFindPetitionById} from "../../../hooks/petitions";
+import {useFindCampaignById} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import {TagContext} from "../../../stores/tag";
@@ -12,9 +12,9 @@ import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
-import { PetitionState } from "../../../libs/petitions";
+import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
-import { useFindSignatureByPetitionAndUser } from "../../../hooks/signatures";
+import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -33,7 +33,7 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Petition = (props: Props) => {
+const Campaign = (props: Props) => {
     const {id} = useParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
@@ -44,13 +44,13 @@ const Petition = (props: Props) => {
         report: false
     });
     
-    const res = useFindPetitionById(['petition', id], id || '');
-    const petition = res.status === 'success' && res.data?
+    const res = useFindCampaignById(['campaign', id], id || '');
+    const campaign = res.status === 'success' && res.data?
         res.data:
         undefined;
 
-    const userSignature = useFindSignatureByPetitionAndUser(
-        ['petition-signature', petition?._id || 0, auth.user?._id || 0], petition?._id || -1, auth.user?._id || -1);
+    const userSignature = useFindSignatureByCampaignAndUser(
+        ['campaign-signature', campaign?._id || 0, auth.user?._id || 0], campaign?._id || -1, auth.user?._id || -1);
 
     const toggleEdit = useCallback(() => {
         setModals({
@@ -73,39 +73,39 @@ const Petition = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = petition?.state === PetitionState.PUBLISHED && auth.user  && auth.user._id === petition?.createdBy;
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user  && auth.user._id === campaign?.createdBy;
 
-    const goal = calcMaxSignatures(petition?.signaturesCnt || 0);
+    const goal = calcMaxSignatures(campaign?.signaturesCnt || 0);
 
     return (
-        <article className="media petition">
-            {petition &&
+        <article className="media campaign">
+            {campaign &&
                 <>
                     <div className="media-content">
                         <div className="content">
                             <div className="is-size-2">
-                                {petition.title}
+                                {campaign.title}
                             </div>
                             <div className="mb-2">
-                                <Category id={petition.categoryId} />
-                                {petition.tags.map(id => <Tag key={id} id={id} />)}
+                                <Category id={campaign.categoryId} />
+                                {campaign.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
                             <div className="columns">
                                 <div className="column is-two-thirds">
-                                    <div className="image petition-cover mb-2">
-                                        <img src={petition.cover || "1280x960.png"} />
+                                    <div className="image campaign-cover mb-2">
+                                        <img src={campaign.cover || "1280x960.png"} />
                                     </div>
-                                    <ReactMarkdown className="petition-body" children={petition.body}/>
+                                    <ReactMarkdown className="campaign-body" children={campaign.body}/>
                                 </div>
                                 <div className="column">
-                                    <progress className="progress mb-0 pb-0" value={petition.signaturesCnt} max={goal}>{petition.signaturesCnt}</progress>
-                                    <div><small><b>{petition.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
+                                    <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
+                                    <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
                                     <div className="is-size-4 has-text-link">
-                                        To {petition.target}
+                                        To {campaign.target}
                                     </div>
 
                                     <SignForm 
-                                        petition={petition}
+                                        campaign={campaign}
                                         body={userSignature?.data?.body} 
                                         onSuccess={props.onSuccess}
                                         onError={props.onError}
@@ -113,7 +113,7 @@ const Petition = (props: Props) => {
                                 </div>
                             </div>
                             <div className="mt-4 pt-2 mb-2">
-                                <Avatar id={petition.createdBy} size='lg' />
+                                <Avatar id={campaign.createdBy} size='lg' />
                             </div>
                             <p>
                                 <small>
@@ -143,7 +143,7 @@ const Petition = (props: Props) => {
                                     </a>
                                     &nbsp;·&nbsp;
                                     <TimeFromNow 
-                                        date={BigInt.asIntN(64, petition.createdAt)}
+                                        date={BigInt.asIntN(64, campaign.createdAt)}
                                     />
                                 </small>
                             </p>                            
@@ -168,7 +168,7 @@ const Petition = (props: Props) => {
                         </div>
                         
                         <Signatures 
-                            petition={petition} 
+                            campaign={campaign} 
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                         />
@@ -180,7 +180,7 @@ const Petition = (props: Props) => {
                         onClose={toggleEdit}
                     >
                         <EditForm 
-                            petition={petition} 
+                            campaign={campaign} 
                             categories={categories.categories} 
                             tags={tags.tags}
                             onCancel={toggleEdit}
@@ -208,5 +208,5 @@ const Petition = (props: Props) => {
     );
 };
 
-export default Petition;
+export default Campaign;
   

@@ -4,7 +4,7 @@ import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import SelectField from "../../components/SelectField";
 import Grid from "../../components/Grid";
-import {Category, Tag, PetitionRequest} from "../../../../declarations/dchanges/dchanges.did";
+import {Category, Tag, CampaignRequest} from "../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../components/NumberField";
 import MarkdownField from "../../components/MarkdownField";
 import { ActorContext } from "../../stores/actor";
@@ -31,7 +31,7 @@ const formSchema = yup.object().shape({
 const CreateForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const [form, setForm] = useState<PetitionRequest>({
+    const [form, setForm] = useState<CampaignRequest>({
         title: '',
         target: '',
         body: '',
@@ -41,7 +41,7 @@ const CreateForm = (props: Props) => {
         tags: []
     });
 
-    const validate = async (form: PetitionRequest): Promise<string[]> => {
+    const validate = async (form: CampaignRequest): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -74,7 +74,7 @@ const CreateForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Petition created!');
+            props.onSuccess('Campaign created!');
             props.onCancel();
         }
         catch(e) {

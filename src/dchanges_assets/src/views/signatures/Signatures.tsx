@@ -1,15 +1,15 @@
 import React, {useState, useCallback, useContext} from "react";
-import {Signature, Petition} from '../../../../declarations/dchanges/dchanges.did';
+import {Signature, Campaign} from '../../../../declarations/dchanges/dchanges.did';
 import {Limit, Order} from "../../libs/common";
-import {PetitionState} from "../../libs/petitions";
-import {useFindSignaturesByPetition} from "../../hooks/signatures";
+import {CampaignState} from "../../libs/campaigns";
+import {useFindSignaturesByCampaign} from "../../hooks/signatures";
 import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
 
 interface Props {
-    petition: Petition;
+    campaign: Campaign;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -31,13 +31,13 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<Signature | undefined>(undefined);
 
-    const petition = props.petition;
+    const campaign = props.campaign;
 
-    const queryKey = ['signatures', petition._id, orderBy.key, orderBy.dir];
+    const queryKey = ['signatures', campaign._id, orderBy.key, orderBy.dir];
 
-    const signatures = useFindSignaturesByPetition(queryKey, petition._id, orderBy, limit);
+    const signatures = useFindSignaturesByCampaign(queryKey, campaign._id, orderBy, limit);
 
-    const canEdit = petition?.state === PetitionState.PUBLISHED && auth.user && auth.user._id === petition?.createdBy;
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
 
     const toggleEdit = useCallback((signature: Signature | undefined = undefined) => {
         setModals({

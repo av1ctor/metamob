@@ -17,7 +17,7 @@ module {
                 options = [#min(3), #max(256)];
             },
             {
-                name = "petitionId";
+                name = "campaignId";
                 options = [#sortable];
             },
             {

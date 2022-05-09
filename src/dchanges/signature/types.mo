@@ -3,7 +3,7 @@ module {
         _id: Nat32;
         pubId: Text;
         body: Text;
-        petitionId: Nat32;
+        campaignId: Nat32;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -11,7 +11,7 @@ module {
     };
 
     public type SignatureRequest = {
-        petitionId: Nat32;
+        campaignId: Nat32;
         body: Text;
     };
 };

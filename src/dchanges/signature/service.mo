@@ -7,14 +7,14 @@ import Repository "./repository";
 import UserTypes "../user/types";
 import UserUtils "../user/utils";
 import UserService "../user/service";
-import PetitionService "../petition/service";
+import CampaignService "../campaign/service";
 
 module {
     public class Service(
         userService: UserService.Service,
-        petitionService: PetitionService.Service
+        campaignService: CampaignService.Service
     ) {
-        let repo = Repository.Repository(petitionService.getRepository());
+        let repo = Repository.Repository(campaignService.getRepository());
 
         public func create(
             req: Types.SignatureRequest,
@@ -30,7 +30,7 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(repo.findByPetitionAndUser(req.petitionId, caller._id)) {
+                        switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
                             case (#ok(response)) {
                                 #err("Duplicated");
                             };
@@ -89,18 +89,18 @@ module {
             repo.find(criterias, sortBy, limit);
         };
 
-        public func findByPetition(
-            petitionId: Nat32,
+        public func findByCampaign(
+            campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
-            repo.findByPetition(petitionId, sortBy, limit);
+            repo.findByCampaign(campaignId, sortBy, limit);
         };
 
-        public func countByPetition(
-            petitionId: Nat32
+        public func countByCampaign(
+            campaignId: Nat32
         ): Result.Result<Nat, Text> {
-            repo.countByPetition(petitionId);
+            repo.countByCampaign(campaignId);
         };
 
         public func findByUser(
@@ -111,11 +111,11 @@ module {
             repo.findByUser(userId, sortBy, limit);
         };
 
-        public func findByPetitionAndUser(
-            petitionId: Nat32,
+        public func findByCampaignAndUser(
+            campaignId: Nat32,
             userId: Nat32
         ): Result.Result<Types.Signature, Text> {
-            repo.findByPetitionAndUser(petitionId, userId);
+            repo.findByCampaignAndUser(campaignId, userId);
         };
 
         public func delete(

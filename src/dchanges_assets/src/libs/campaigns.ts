@@ -1,4 +1,4 @@
-export enum PetitionState {
+export enum CampaignState {
     CREATED = 0,
     CANCELED = 1,
     DELETED = 2,
@@ -7,7 +7,7 @@ export enum PetitionState {
     BANNED = 5,
 }
 
-export enum PetitionResult {
+export enum CampaignResult {
     NONE = 0,
     WON = 1,
     LOST = 2,

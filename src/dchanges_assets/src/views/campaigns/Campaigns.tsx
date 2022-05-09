@@ -5,7 +5,7 @@ import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
 import {TagContext} from "../../stores/tag";
 import {Filter} from "../../libs/common";
-import {useFindPetitions, useCreatePetition} from "../../hooks/petitions";
+import {useFindCampaigns, useCreateCampaign} from "../../hooks/campaigns";
 import CreateForm from "./Create";
 import SearchForm from "./Search";
 import Item from "./Item";
@@ -28,7 +28,7 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Petitions = (props: Props) => {
+const Campaigns = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
     const [tagState, ] = useContext(TagContext);
@@ -44,12 +44,12 @@ const Petitions = (props: Props) => {
 
     const navigate = useNavigate();
 
-    const queryKey = ['petitions', filters.key, filters.op, filters.value, orderBy.key, orderBy.dir];
+    const queryKey = ['campaigns', filters.key, filters.op, filters.value, orderBy.key, orderBy.dir];
 
-    const petitions = useFindPetitions(queryKey, filters, orderBy, limit);
-    const createPetitionMut = useCreatePetition();
+    const campaigns = useFindCampaigns(queryKey, filters, orderBy, limit);
+    const createCampaignMut = useCreateCampaign();
 
-    const searchPetitions = useCallback((filters: React.SetStateAction<Filter>) => {
+    const searchCampaigns = useCallback((filters: React.SetStateAction<Filter>) => {
         setFilters(filters);
     }, [filters]);
 
@@ -75,7 +75,7 @@ const Petitions = (props: Props) => {
                             <SearchForm 
                                     filters={filters}
                                     indexedColumns={indexedColumns}
-                                    onSearch={searchPetitions} 
+                                    onSearch={searchCampaigns} 
                                 />
                         </div>
                         <div className="level-right">
@@ -84,27 +84,27 @@ const Petitions = (props: Props) => {
                     </div>
 
                     <div>
-                        {petitions.status === 'loading' &&
+                        {campaigns.status === 'loading' &&
                             <div>
                                 Loading...
                             </div>
                         }
 
-                        {petitions.status === 'error' &&
+                        {campaigns.status === 'error' &&
                             <div className="form-error">
-                                {petitions.error.message}
+                                {campaigns.error.message}
                             </div>
                         }
                         
                         <div className="columns is-desktop is-multiline">
-                            {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
+                            {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                                 <div 
                                     className="column is-half"
-                                    key={petition._id}
+                                    key={campaign._id}
                                 >
                                     <Item 
-                                        key={petition._id} 
-                                        petition={petition} />
+                                        key={campaign._id} 
+                                        campaign={campaign} />
                                 </div>
                             )}
                         </div>        
@@ -119,7 +119,7 @@ const Petitions = (props: Props) => {
                 <CreateForm
                     categories={categoryState.categories}
                     tags={tagState.tags}
-                    mutation={createPetitionMut}
+                    mutation={createCampaignMut}
                     onCancel={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
@@ -130,5 +130,5 @@ const Petitions = (props: Props) => {
     );
 };
 
-export default Petitions;
+export default Campaigns;
   

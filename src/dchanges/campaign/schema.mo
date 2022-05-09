@@ -1,7 +1,7 @@
 module {
     public let schema = 
     {
-        name = "petitions";
+        name = "campaigns";
         version = 1.0;
         columns = [
             {

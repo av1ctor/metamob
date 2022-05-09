@@ -2,7 +2,7 @@ import React, {useState, ChangeEvent, useContext, useCallback} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCreateSignature} from "../../../hooks/signatures";
-import {SignatureRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
+import {SignatureRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../stores/auth";
 import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
@@ -10,7 +10,7 @@ import TextAreaField from "../../../components/TextAreaField";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
-    petition: Petition;
+    campaign: Campaign;
     body?: string;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -25,7 +25,7 @@ const SignForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<SignatureRequest>({
-        petitionId: props.petition._id,
+        campaignId: props.campaign._id,
         body: props.body || '',
     });
     
@@ -63,11 +63,11 @@ const SignForm = (props: Props) => {
             await createMut.mutateAsync({
                 main: actorState.main,
                 req: {
-                    petitionId: props.petition._id,
+                    campaignId: props.campaign._id,
                     body: form.body,
                 }
             });
-            props.onSuccess('Petition signed!');
+            props.onSuccess('Campaign signed!');
         }
         catch(e) {
             props.onError(e);
@@ -75,8 +75,8 @@ const SignForm = (props: Props) => {
     }, [form]);
 
     const redirectToLogon = useCallback(() => {
-        navigate(`/user/login?return=/p/${props.petition.pubId}`);
-    }, [props.petition.pubId]);
+        navigate(`/user/login?return=/p/${props.campaign.pubId}`);
+    }, [props.campaign.pubId]);
 
     const isLoggedIn = !!authState.user;
 

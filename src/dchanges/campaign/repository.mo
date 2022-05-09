@@ -24,15 +24,15 @@ import Debug "mo:base/Debug";
 
 module {
     public class Repository() {
-        let petitions = Table.Table<Types.Petition>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("petitions")));
+        let campaigns = Table.Table<Types.Campaign>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("campaigns")));
 
         public func create(
-            req: Types.PetitionRequest,
+            req: Types.CampaignRequest,
             callerId: Nat32
-        ): Result.Result<Types.Petition, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             let e = _createEntity(req, callerId);
-            switch(petitions.insert(e._id, e)) {
+            switch(campaigns.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -43,12 +43,12 @@ module {
         };
 
         public func update(
-            petition: Types.Petition, 
-            req: Types.PetitionRequest,
+            campaign: Types.Campaign, 
+            req: Types.CampaignRequest,
             callerId: Nat32
-        ): Result.Result<Types.Petition, Text> {
-            let e = _updateEntity(petition, req, callerId);
-            switch(petitions.replace(petition._id, e)) {
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntity(campaign, req, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -59,16 +59,16 @@ module {
         };
 
         public func delete(
-            petition: Types.Petition,
+            campaign: Types.Campaign,
             callerId: Nat32
         ): Result.Result<(), Text> {
-            let e = _deleteEntity(petition, callerId);
-            switch(petitions.replace(petition._id, e)) {
+            let e = _deleteEntity(campaign, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    //FIXME: delete petition's signatures
+                    //FIXME: delete campaign's signatures
                     return #ok();
                 };
             };
@@ -76,8 +76,8 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Petition, Text> {
-            switch(petitions.get(_id)) {
+        ): Result.Result<Types.Campaign, Text> {
+            switch(campaigns.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -96,8 +96,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Petition, Text> {
-            switch(petitions.findOne([{
+        ): Result.Result<Types.Campaign, Text> {
+            switch(campaigns.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -154,28 +154,28 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Petition, Types.Petition) -> Int {
+        ): (Types.Campaign, Types.Campaign) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Petition, b: Types.Petition): Int  = 
+                case "_id" func(a: Types.Campaign, b: Types.Campaign): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "pubId" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "title" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "title" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Text.compare(a.title, b.title)) * dir;
-                case "state" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "state" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Nat8.compare(a.state, b.state)) * dir;
-                case "result" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "result" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Nat8.compare(a.result, b.result)) * dir;
-                case "publishedAt" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "publishedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
-                case "createdAt" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "createdAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "updatedAt" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "updatedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Utils.compareIntOpt(a.updatedAt, b.updatedAt)) * dir;
-                case "categoryId" func(a: Types.Petition, b: Types.Petition): Int = 
+                case "categoryId" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Nat32.compare(a.categoryId, b.categoryId)) * dir;
                 case _ {
-                    func(a: Types.Petition, b: Types.Petition): Int = 0;
+                    func(a: Types.Campaign, b: Types.Campaign): Int = 0;
                 };
             };
         };
@@ -198,7 +198,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Petition>] {
+        ): ?[Table.SortBy<Types.Campaign>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -232,15 +232,15 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
-            return petitions.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Campaign], Text> {
+            return campaigns.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByCategory(
             categoryId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
 
             func buildCriterias(categoryId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -252,14 +252,14 @@ module {
                 ]
             };
             
-            return petitions.find(buildCriterias(categoryId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(buildCriterias(categoryId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByTag(
             tagId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
 
             func buildCriterias(tagId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -271,14 +271,14 @@ module {
                 ]
             };
             
-            return petitions.find(buildCriterias(tagId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(buildCriterias(tagId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByUser(
             userId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
 
             func buildCriterias(userId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -290,41 +290,41 @@ module {
                 ]
             };
             
-            return petitions.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func onSignatureInserted(
-            petition: Types.Petition,
+            campaign: Types.Campaign,
             signature: SignatureTypes.Signature
         ) {
-            ignore petitions.replace(petition._id, _updateEntityWhenSignatureInserted(petition, signature));
+            ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureInserted(campaign, signature));
         };
 
         public func onSignatureDeleted(
-            petition: Types.Petition,
+            campaign: Types.Campaign,
             signature: SignatureTypes.Signature
         ) {
-            ignore petitions.replace(petition._id, _updateEntityWhenSignatureDeleted(petition, signature));
+            ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureDeleted(campaign, signature));
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return petitions.backup();
+            return campaigns.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            petitions.restore(entities);
+            campaigns.restore(entities);
         };
 
         func _createEntity(
-            req: Types.PetitionRequest,
+            req: Types.CampaignRequest,
             callerId: Nat32
-        ): Types.Petition {
+        ): Types.Campaign {
             let now: Int = Time.now();
             {
-                _id = petitions.nextId();
+                _id = campaigns.nextId();
                 pubId = ulid.next();
                 title = req.title;
                 target = req.target;
@@ -352,137 +352,137 @@ module {
         };
 
         func _updateEntity(
-            petition: Types.Petition, 
-            req: Types.PetitionRequest,
+            campaign: Types.Campaign, 
+            req: Types.CampaignRequest,
             callerId: Nat32
-        ): Types.Petition {
+        ): Types.Campaign {
             {
-                _id = petition._id;
-                pubId = petition.pubId;
+                _id = campaign._id;
+                pubId = campaign.pubId;
                 title = req.title;
                 target = req.target;
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
-                state = petition.state;
-                result = petition.result;
-                duration = petition.duration;
+                state = campaign.state;
+                result = campaign.result;
+                duration = campaign.duration;
                 tags = req.tags;
-                signaturesCnt = petition.signaturesCnt;
-                firstSignatureAt = petition.firstSignatureAt;
-                lastSignatureAt = petition.lastSignatureAt;
-                lastSignatureBy = petition.lastSignatureBy;
-                signatureers = petition.signatureers;
-                publishedAt = petition.publishedAt;
-                expiredAt = petition.expiredAt;
-                createdAt = petition.createdAt;
-                createdBy = petition.createdBy;
+                signaturesCnt = campaign.signaturesCnt;
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signatureers = campaign.signatureers;
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                deletedAt = petition.deletedAt;
-                deletedBy = petition.deletedBy;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
             }  
         };
 
         func _deleteEntity(
-            petition: Types.Petition, 
+            campaign: Types.Campaign, 
             callerId: Nat32
-        ): Types.Petition {
+        ): Types.Campaign {
             {
-                _id = petition._id;
-                pubId = petition.pubId;
+                _id = campaign._id;
+                pubId = campaign.pubId;
                 title = "";
                 target = "";
                 cover = "";
                 body = "";
-                categoryId = petition.categoryId;
+                categoryId = campaign.categoryId;
                 state = Types.STATE_DELETED;
-                result = petition.result;
-                duration = petition.duration;
-                tags = petition.tags;
-                signaturesCnt = petition.signaturesCnt;
-                firstSignatureAt = petition.firstSignatureAt;
-                lastSignatureAt = petition.lastSignatureAt;
-                lastSignatureBy = petition.lastSignatureBy;
-                signatureers = petition.signatureers;
-                publishedAt = petition.publishedAt;
-                expiredAt = petition.expiredAt;
-                createdAt = petition.createdAt;
-                createdBy = petition.createdBy;
-                updatedAt = petition.updatedAt;
-                updatedBy = petition.updatedBy;
+                result = campaign.result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt;
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signatureers = campaign.signatureers;
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = campaign.updatedAt;
+                updatedBy = campaign.updatedBy;
                 deletedAt = ?Time.now();
                 deletedBy = ?callerId;
             }  
         };
 
         func _updateEntityWhenSignatureInserted(
-            petition: Types.Petition, 
+            campaign: Types.Campaign, 
             signature: SignatureTypes.Signature
-        ): Types.Petition {
+        ): Types.Campaign {
             {
-                _id = petition._id;
-                pubId = petition.pubId;
-                title = petition.title;
-                target = petition.target;
-                cover = petition.cover;
-                body = petition.body;
-                categoryId = petition.categoryId;
-                state = petition.state;
-                result = petition.result;
-                duration = petition.duration;
-                tags = petition.tags;
-                signaturesCnt = petition.signaturesCnt + 1;
-                firstSignatureAt = switch(petition.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
+                _id = campaign._id;
+                pubId = campaign.pubId;
+                title = campaign.title;
+                target = campaign.target;
+                cover = campaign.cover;
+                body = campaign.body;
+                categoryId = campaign.categoryId;
+                state = campaign.state;
+                result = campaign.result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt + 1;
+                firstSignatureAt = switch(campaign.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
                 lastSignatureAt = ?signature.createdAt;
                 lastSignatureBy = ?signature.createdBy;
-                signatureers = Utils.addToArray(petition.signatureers, signature.createdBy);
-                publishedAt = petition.publishedAt;
-                expiredAt = petition.expiredAt;
-                createdAt = petition.createdAt;
-                createdBy = petition.createdBy;
-                updatedAt = petition.updatedAt;
-                updatedBy = petition.updatedBy;
-                deletedAt = petition.deletedAt;
-                deletedBy = petition.deletedBy;
+                signatureers = Utils.addToArray(campaign.signatureers, signature.createdBy);
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = campaign.updatedAt;
+                updatedBy = campaign.updatedBy;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
             }  
         };        
 
         func _updateEntityWhenSignatureDeleted(
-            petition: Types.Petition, 
+            campaign: Types.Campaign, 
             signature: SignatureTypes.Signature
-        ): Types.Petition {
+        ): Types.Campaign {
             {
-                _id = petition._id;
-                pubId = petition.pubId;
-                title = petition.title;
-                target = petition.target;
-                cover = petition.cover;
-                body = petition.body;
-                categoryId = petition.categoryId;
-                state = petition.state;
-                result = petition.result;
-                duration = petition.duration;
-                tags = petition.tags;
-                signaturesCnt = petition.signaturesCnt - (if(petition.signaturesCnt > 0) 1 else 0);
-                firstSignatureAt = petition.firstSignatureAt;
-                lastSignatureAt = petition.lastSignatureAt;
-                lastSignatureBy = petition.lastSignatureBy;
-                signatureers = Utils.delFromArray(petition.signatureers, signature.createdBy, Nat32.equal);
-                publishedAt = petition.publishedAt;
-                expiredAt = petition.expiredAt;
-                createdAt = petition.createdAt;
-                createdBy = petition.createdBy;
-                updatedAt = petition.updatedAt;
-                updatedBy = petition.updatedBy;
-                deletedAt = petition.deletedAt;
-                deletedBy = petition.deletedBy;
+                _id = campaign._id;
+                pubId = campaign.pubId;
+                title = campaign.title;
+                target = campaign.target;
+                cover = campaign.cover;
+                body = campaign.body;
+                categoryId = campaign.categoryId;
+                state = campaign.state;
+                result = campaign.result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt - (if(campaign.signaturesCnt > 0) 1 else 0);
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signatureers = Utils.delFromArray(campaign.signatureers, signature.createdBy, Nat32.equal);
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = campaign.updatedAt;
+                updatedBy = campaign.updatedBy;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
             }  
         };        
     };
 
     func serialize(
-        entity: Types.Petition,
+        entity: Types.Campaign,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
@@ -517,7 +517,7 @@ module {
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Petition {
+    ): Types.Campaign {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));

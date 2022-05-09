@@ -1,7 +1,7 @@
 import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
-import {useUpdatePetition} from "../../../hooks/petitions";
-import {Category, Tag, PetitionRequest, Petition} from "../../../../../declarations/dchanges/dchanges.did";
+import {useUpdateCampaign} from "../../../hooks/campaigns";
+import {Category, Tag, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField from "../../../components/SelectField";
 import Grid from "../../../components/Grid";
@@ -11,7 +11,7 @@ import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
-    petition: Petition;
+    campaign: Campaign;
     categories: Category[];
     tags: Tag[];
     onCancel: () => void;
@@ -32,11 +32,11 @@ const formSchema = yup.object().shape({
 const EditForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
-    const [form, setForm] = useState<PetitionRequest>({
-        ...props.petition
+    const [form, setForm] = useState<CampaignRequest>({
+        ...props.campaign
     });
     
-    const updateMut = useUpdatePetition();
+    const updateMut = useUpdateCampaign();
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -52,7 +52,7 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: PetitionRequest): Promise<string[]> => {
+    const validate = async (form: CampaignRequest): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -74,7 +74,7 @@ const EditForm = (props: Props) => {
         try {
             await updateMut.mutateAsync({
                 main: actorContext.main,
-                pubId: props.petition.pubId, 
+                pubId: props.campaign.pubId, 
                 req: {
                     categoryId: Number(form.categoryId),
                     title: form.title,
@@ -85,7 +85,7 @@ const EditForm = (props: Props) => {
                     tags: form.tags
                 }
             });
-            props.onSuccess('Petition updated!');
+            props.onSuccess('Campaign updated!');
             props.onCancel();
         }
         catch(e) {

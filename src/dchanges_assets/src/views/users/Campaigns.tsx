@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useFindUserPetitions } from "../../hooks/petitions";
+import { useFindUserCampaigns } from "../../hooks/campaigns";
 import { AuthContext } from "../../stores/auth";
-import Item from "../petitions/Item";
+import Item from "../campaigns/Item";
 
 interface Props {
 };
@@ -17,12 +17,12 @@ const limit = {
     size: 10
 };
 
-const Petitions = (props: Props) => {
+const Campaigns = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
 
     const navigate = useNavigate();
 
-    const petitions = useFindUserPetitions(authState.user?._id || -1, orderBy, limit);
+    const campaigns = useFindUserCampaigns(authState.user?._id || -1, orderBy, limit);
     
     if(!authState.client || !authState.identity || !authState.user) {
         navigate('/user/login');
@@ -32,27 +32,27 @@ const Petitions = (props: Props) => {
     return (
         <div className="container">
             <div>
-                {petitions.status === 'loading' &&
+                {campaigns.status === 'loading' &&
                     <div>
                         Loading...
                     </div>
                 }
 
-                {petitions.status === 'error' &&
+                {campaigns.status === 'error' &&
                     <div className="form-error">
-                        {petitions.error.message}
+                        {campaigns.error.message}
                     </div>
                 }
                 
                 <div className="columns is-desktop is-multiline">
-                    {petitions.status === 'success' && petitions.data && petitions.data.map((petition) => 
+                    {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                         <div 
                             className="column is-half"
-                            key={petition._id}
+                            key={campaign._id}
                         >
                             <Item 
-                                key={petition._id} 
-                                petition={petition} />
+                                key={campaign._id} 
+                                campaign={campaign} />
                         </div>
                     )}
                 </div>        
@@ -61,4 +61,4 @@ const Petitions = (props: Props) => {
     );
 };
 
-export default Petitions;
+export default Campaigns;

@@ -9078,17 +9078,17 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   width: 2.5rem;
   height: 2.5rem; }
 
-.petition div {
+.campaign div {
   overflow: hidden; }
 
-.petition-body {
+.campaign-body {
   font-size: larger; }
 
-.petition-cover img {
+.campaign-cover img {
   max-width: 306px;
   max-height: 230px; }
 
-.petition-body img {
+.campaign-body img {
   max-width: 306px;
   max-height: 230px; }
 

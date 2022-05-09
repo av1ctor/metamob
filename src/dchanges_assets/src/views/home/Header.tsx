@@ -34,8 +34,8 @@ const Header = (props: Props) => {
         navigate('/user/profile');
     }, []);
 
-    const redirectToPetitions = useCallback(() => {
-        navigate('/user/petitions');
+    const redirectToCampaigns = useCallback(() => {
+        navigate('/user/campaigns');
     }, []);
 
     const handleToggleMenu = useCallback(() => {
@@ -85,7 +85,7 @@ const Header = (props: Props) => {
                             </a>
 
                             <div className="navbar-dropdown is-right">
-                                <a className="navbar-item" onClick={redirectToPetitions}>
+                                <a className="navbar-item" onClick={redirectToCampaigns}>
                                     <i className="la la-list"/>&nbsp;Campaigns
                                 </a>
                                 <a className="navbar-item" onClick={redirectToProfile}>

@@ -3,12 +3,12 @@ import Result "mo:base/Result";
 import Variant "mo:mo-table/variant";
 import UserTypes "./user/types";
 import CategoryTypes "./category/types";
-import PetitionTypes "./petition/types";
+import CampaignTypes "./campaign/types";
 import SignatureTypes "./signature/types";
 import TagTypes "./tag/types";
 import UserService "./user/service";
 import CategoryService "./category/service";
-import PetitionService "./petition/service";
+import CampaignService "./campaign/service";
 import SignatureService "./signature/service";
 import TagService "./tag/service";
 
@@ -17,8 +17,8 @@ shared({caller = owner}) actor class DChanges() {
     // services
     let userService = UserService.Service();
     let categoryService = CategoryService.Service(userService);
-    let petitionService = PetitionService.Service(userService);
-    let signatureService = SignatureService.Service(userService, petitionService);
+    let campaignService = CampaignService.Service(userService);
+    let signatureService = SignatureService.Service(userService, campaignService);
     let tagService = TagService.Service(userService);
 
     private func _transformUserReponse(
@@ -127,55 +127,55 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     //
-    // petitions facade
+    // campaigns facade
     //
-    public shared(msg) func petitionCreate(
-        req: PetitionTypes.PetitionRequest
-    ): async Result.Result<PetitionTypes.Petition, Text> {
-        petitionService.create(req, msg.caller);
+    public shared(msg) func campaignCreate(
+        req: CampaignTypes.CampaignRequest
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        campaignService.create(req, msg.caller);
     };
 
-    public shared(msg) func petitionUpdate(
+    public shared(msg) func campaignUpdate(
         id: Text, 
-        req: PetitionTypes.PetitionRequest
-    ): async Result.Result<PetitionTypes.Petition, Text> {
-        petitionService.update(id, req, msg.caller);
+        req: CampaignTypes.CampaignRequest
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        campaignService.update(id, req, msg.caller);
     };
 
-    public query func petitionFindById(
+    public query func campaignFindById(
         id: Text
-    ): async Result.Result<PetitionTypes.Petition, Text> {
-        petitionService.findById(id);
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        campaignService.findById(id);
     };
 
-    public shared query(msg) func petitionFind(
+    public shared query(msg) func campaignFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[PetitionTypes.Petition], Text> {
-        petitionService.find(criterias, sortBy, limit);
+    ): async Result.Result<[CampaignTypes.Campaign], Text> {
+        campaignService.find(criterias, sortBy, limit);
     };
 
-    public query func petitionFindByCategory(
-        petitionId: Nat32,
+    public query func campaignFindByCategory(
+        campaignId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[PetitionTypes.Petition], Text> {
-        petitionService.findByCategory(petitionId, sortBy, limit);
+    ): async Result.Result<[CampaignTypes.Campaign], Text> {
+        campaignService.findByCategory(campaignId, sortBy, limit);
     };
 
-    public query func petitionFindByUser(
+    public query func campaignFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[PetitionTypes.Petition], Text> {
-        petitionService.findByUser(userId, sortBy, limit);
+    ): async Result.Result<[CampaignTypes.Campaign], Text> {
+        campaignService.findByUser(userId, sortBy, limit);
     };
 
-    public shared(msg) func petitionDelete(
+    public shared(msg) func campaignDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        petitionService.delete(id, msg.caller);
+        campaignService.delete(id, msg.caller);
     };
 
     //
@@ -208,18 +208,18 @@ shared({caller = owner}) actor class DChanges() {
         signatureService.find(criterias, sortBy, limit);
     };
 
-    public query func signatureFindByPetition(
-        petitionId: Nat32,
+    public query func signatureFindByCampaign(
+        campaignId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.Signature], Text> {
-        signatureService.findByPetition(petitionId, sortBy, limit);
+        signatureService.findByCampaign(campaignId, sortBy, limit);
     };
 
-    public query func signatureCountByPetition(
-        petitionId: Nat32
+    public query func signatureCountByCampaign(
+        campaignId: Nat32
     ): async Result.Result<Nat, Text> {
-        signatureService.countByPetition(petitionId);
+        signatureService.countByCampaign(campaignId);
     };
 
     public query func signatureFindByUser(
@@ -230,11 +230,11 @@ shared({caller = owner}) actor class DChanges() {
         signatureService.findByUser(userId, sortBy, limit);
     };
 
-    public query func signatureFindByPetitionAndUser(
-        petitionId: Nat32,
+    public query func signatureFindByCampaignAndUser(
+        campaignId: Nat32,
         userId: Nat32
     ): async Result.Result<SignatureTypes.Signature, Text> {
-        signatureService.findByPetitionAndUser(petitionId, userId);
+        signatureService.findByCampaignAndUser(campaignId, userId);
     };
 
     public shared(msg) func signatureDelete(
@@ -285,14 +285,14 @@ shared({caller = owner}) actor class DChanges() {
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var tagEntities: [[(Text, Variant.Variant)]] = [];
-    stable var petitionEntities: [[(Text, Variant.Variant)]] = [];
+    stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
         tagEntities := tagService.backup();
-        petitionEntities := petitionService.backup();
+        campaignEntities := campaignService.backup();
         signatureEntities := signatureService.backup();
     };
 
@@ -300,12 +300,12 @@ shared({caller = owner}) actor class DChanges() {
         userService.restore(userEntities);
         categoryService.restore(categoryEntities);
         tagService.restore(tagEntities);
-        petitionService.restore(petitionEntities);
+        campaignService.restore(campaignEntities);
         signatureService.restore(signatureEntities);
         userEntities := [];
         categoryEntities := [];
         tagEntities := [];
-        petitionEntities := [];
+        campaignEntities := [];
         signatureEntities := [];
     };      
 };

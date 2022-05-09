@@ -20,8 +20,8 @@ const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promis
     return res.ok; 
 }
 
-const findByPetition = async (topicId: number, orderBy?: Order, limit?: Limit): Promise<Signature[]> => {
-    const res = await dchanges.signatureFindByPetition(
+const findByCampaign = async (topicId: number, orderBy?: Order, limit?: Limit): Promise<Signature[]> => {
+    const res = await dchanges.signatureFindByCampaign(
         topicId, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
@@ -33,12 +33,12 @@ const findByPetition = async (topicId: number, orderBy?: Order, limit?: Limit): 
     return res.ok; 
 }
 
-const findByPetitionAndUser = async (topicId: number, userId: number): Promise<Signature> => {
+const findByCampaignAndUser = async (topicId: number, userId: number): Promise<Signature> => {
     if(topicId === -1 || userId === -1) {
         return {} as Signature;
     }
     
-    const res = await dchanges.signatureFindByPetitionAndUser(
+    const res = await dchanges.signatureFindByCampaignAndUser(
         topicId, 
         userId);
     
@@ -76,22 +76,22 @@ export const useFindSignatures = (
 
 };
 
-export const useFindSignaturesByPetition = (
+export const useFindSignaturesByCampaign = (
     queryKey: any[], topicId: number, orderBy: Order, limit: Limit
 ): UseQueryResult<Signature[], Error> => {
     return useQuery<Signature[], Error>(
         queryKey, 
-        () => findByPetition(topicId, orderBy, limit)
+        () => findByCampaign(topicId, orderBy, limit)
     );
 
 };
 
-export const useFindSignatureByPetitionAndUser = (
+export const useFindSignatureByCampaignAndUser = (
     queryKey: any[], topicId: number, userId: number
 ): UseQueryResult<Signature, Error> => {
     return useQuery<Signature, Error>(
         queryKey, 
-        () => findByPetitionAndUser(topicId, userId)
+        () => findByCampaignAndUser(topicId, userId)
     );
 
 };

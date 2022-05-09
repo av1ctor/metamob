@@ -1,5 +1,5 @@
 module {
-    public type PetitionState = Nat8;
+    public type CampaignState = Nat8;
     public let STATE_CREATED: Nat8 = 0;
     public let STATE_CANCELED: Nat8 = 1;
     public let STATE_DELETED: Nat8 = 2;
@@ -7,12 +7,12 @@ module {
     public let STATE_FINISHED: Nat8 = 4;
     public let STATE_BANNED: Nat8 = 5;
 
-    public type PetitionResult = Nat8;
+    public type CampaignResult = Nat8;
     public let RESULT_NONE: Nat8 = 0;
     public let RESULT_WON: Nat8 = 1;
     public let RESULT_LOST: Nat8 = 2;
 
-    public type Petition = {
+    public type Campaign = {
         _id: Nat32;
         pubId: Text;
         title: Text;
@@ -20,8 +20,8 @@ module {
         cover: Text;
         body: Text;
         categoryId: Nat32;
-        state: PetitionState;
-        result: PetitionResult;
+        state: CampaignState;
+        result: CampaignResult;
         duration: Nat32;
         tags: [Nat32];
         signaturesCnt: Nat32;
@@ -39,7 +39,7 @@ module {
         deletedBy: ?Nat32;
     };
 
-    public type PetitionRequest = {
+    public type CampaignRequest = {
         title: Text;
         target: Text;
         cover: Text;

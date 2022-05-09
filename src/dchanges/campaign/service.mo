@@ -18,9 +18,9 @@ module {
         let repo = Repository.Repository();
         
         public func create(
-            req: Types.PetitionRequest,
+            req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Petition, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -39,9 +39,9 @@ module {
 
         public func update(
             id: Text, 
-            req: Types.PetitionRequest,
+            req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Petition, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -56,12 +56,12 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(petition)) {
-                                if(not canChange(caller, petition)) {
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.update(petition, req, caller._id);
+                                return repo.update(campaign, req, caller._id);
                             };
                         };
                     };
@@ -71,7 +71,7 @@ module {
 
         public func findById(
             id: Text
-        ): Result.Result<Types.Petition, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             repo.findByPubId(id);
         };
 
@@ -79,23 +79,23 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
         public func findByCategory(
-            petitionId: Nat32,
+            campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
-            repo.findByCategory(petitionId, sortBy, limit);
+        ): Result.Result<[Types.Campaign], Text> {
+            repo.findByCategory(campaignId, sortBy, limit);
         };
 
         public func findByTag(
             tagId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
             repo.findByTag(tagId, sortBy, limit);
         };
 
@@ -103,7 +103,7 @@ module {
             userId: /* Text */ Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Petition], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
             repo.findByUser(userId, sortBy, limit);
         };
 
@@ -125,12 +125,12 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(petition)) {
-                                if(not canChange(caller, petition)) {
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.delete(petition, caller._id);
+                                return repo.delete(campaign, caller._id);
                             };
                         };
                     };
@@ -174,10 +174,10 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            petition: Types.Petition
+            campaign: Types.Campaign
         ): Bool {
             // not the same author?
-            if(caller._id != petition.createdBy) {
+            if(caller._id != campaign.createdBy) {
                 // not an admin?
                 if(not UserUtils.isAdmin(caller)) {
                     return false;
@@ -185,7 +185,7 @@ module {
             };
 
             // deleted?
-            if(Option.isSome(petition.deletedAt)) {
+            if(Option.isSome(campaign.deletedAt)) {
                 return false;
             };
 

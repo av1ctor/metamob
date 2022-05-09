@@ -22,7 +22,7 @@ const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<SignatureRequest>({
-        petitionId: 0,
+        campaignId: 0,
         body: props.signature.body,
     });
     
@@ -59,7 +59,7 @@ const EditForm = (props: Props) => {
                 main: actorState.main,
                 pubId: props.signature.pubId, 
                 req: {
-                    petitionId: Number(props.signature.petitionId),
+                    campaignId: Number(props.signature.campaignId),
                     body: form.body,
                 }
         });

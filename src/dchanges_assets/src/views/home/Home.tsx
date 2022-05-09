@@ -9,9 +9,9 @@ import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
 import { createMainActor } from "../../libs/backend";
 import Setup from "../setup/Setup";
-import Petitions from "../petitions/Petitions";
-import Petition from "../petitions/petition/Petition";
-import UserPetitions from "../users/Petitions";
+import Campaigns from "../campaigns/Campaigns";
+import Campaign from "../campaigns/campaign/Campaign";
+import UserCampaigns from "../users/Campaigns";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -136,9 +136,9 @@ export const Home = () => {
                     <Routes>
                         <Route path="/user/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/user/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/user/petitions" element={<UserPetitions />} />
-                        <Route path="/p/:id" element={<Petition onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/" element={<Petitions onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/campaigns" element={<UserCampaigns />} />
+                        <Route path="/p/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/" element={<Campaigns onSuccess={showSuccess} onError={showError} />} />
                     </Routes>
                 </div>
             </section>
