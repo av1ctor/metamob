@@ -30,6 +30,10 @@ const Header = (props: Props) => {
         props.onSuccess('Logged out!');
     }, []);
 
+    const redirectToProfile = useCallback(() => {
+        navigate('/profile');
+    }, []);
+
     const handleToggleMenu = useCallback(() => {
         burgerRef.current?.classList.toggle('is-active');
         menuRef.current?.classList.toggle('is-active');
@@ -80,7 +84,7 @@ const Header = (props: Props) => {
                                 <a className="navbar-item">
                                     <i className="la la-list"/>&nbsp;Campaigns
                                 </a>
-                                <a className="navbar-item">
+                                <a className="navbar-item" onClick={redirectToProfile}>
                                     <i className="la la-user"/>&nbsp;Profile
                                 </a>
                                 <hr className="navbar-divider"/>

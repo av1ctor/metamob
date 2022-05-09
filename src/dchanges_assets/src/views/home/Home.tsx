@@ -14,6 +14,7 @@ import Petition from "../petitions/petition/Petition";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
+import Profile from "../users/Profile";
 
 const showError = (e: any) => {
     if(e) {
@@ -133,6 +134,7 @@ export const Home = () => {
                 <div className="container">
                     <Routes>
                         <Route path="/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/p/:id" element={<Petition onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/" element={<Petitions onSuccess={showSuccess} onError={showError} />} />
                     </Routes>
