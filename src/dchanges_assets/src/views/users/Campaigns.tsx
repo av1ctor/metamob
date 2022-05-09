@@ -47,7 +47,7 @@ const Campaigns = (props: Props) => {
                 <div className="columns is-desktop is-multiline">
                     {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                         <div 
-                            className="column is-half"
+                            className="column is-one-quarter"
                             key={campaign._id}
                         >
                             <Item 
