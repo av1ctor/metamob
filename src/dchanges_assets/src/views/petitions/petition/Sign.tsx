@@ -75,7 +75,7 @@ const SignForm = (props: Props) => {
     }, [form]);
 
     const redirectToLogon = useCallback(() => {
-        navigate(`/login?return=/p/${props.petition.pubId}`);
+        navigate(`/user/login?return=/p/${props.petition.pubId}`);
     }, [props.petition.pubId]);
 
     const isLoggedIn = !!authState.user;

@@ -11,6 +11,7 @@ import { createMainActor } from "../../libs/backend";
 import Setup from "../setup/Setup";
 import Petitions from "../petitions/Petitions";
 import Petition from "../petitions/petition/Petition";
+import UserPetitions from "../users/Petitions";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -133,8 +134,9 @@ export const Home = () => {
             <section className="section">
                 <div className="container">
                     <Routes>
-                        <Route path="/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/petitions" element={<UserPetitions />} />
                         <Route path="/p/:id" element={<Petition onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/" element={<Petitions onSuccess={showSuccess} onError={showError} />} />
                     </Routes>

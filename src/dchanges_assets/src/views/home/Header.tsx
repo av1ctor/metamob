@@ -18,7 +18,7 @@ const Header = (props: Props) => {
     const navigate = useNavigate();
 
     const redirectToLogon = useCallback(() => {
-        navigate('/login');
+        navigate('/user/login');
     }, []);
 
     const handleLogout = useCallback(async () => {
@@ -31,7 +31,11 @@ const Header = (props: Props) => {
     }, []);
 
     const redirectToProfile = useCallback(() => {
-        navigate('/profile');
+        navigate('/user/profile');
+    }, []);
+
+    const redirectToPetitions = useCallback(() => {
+        navigate('/user/petitions');
     }, []);
 
     const handleToggleMenu = useCallback(() => {
@@ -81,7 +85,7 @@ const Header = (props: Props) => {
                             </a>
 
                             <div className="navbar-dropdown is-right">
-                                <a className="navbar-item">
+                                <a className="navbar-item" onClick={redirectToPetitions}>
                                     <i className="la la-list"/>&nbsp;Campaigns
                                 </a>
                                 <a className="navbar-item" onClick={redirectToProfile}>

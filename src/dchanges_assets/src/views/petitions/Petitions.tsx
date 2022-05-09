@@ -61,7 +61,7 @@ const Petitions = (props: Props) => {
     }, [modals]);
 
     const redirectToLogon = useCallback(() => {
-        navigate('/login');
+        navigate('/user/login');
     }, []);
 
     const isLoggedIn = !!authState.user;

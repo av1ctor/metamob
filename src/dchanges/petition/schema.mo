@@ -82,7 +82,7 @@ module {
             },
             {
                 name = "createdBy";
-                options = [];
+                options = [#sortable];
             },
             {
                 name = "updatedAt";

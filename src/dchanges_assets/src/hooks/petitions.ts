@@ -20,6 +20,19 @@ const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promis
     return res.ok; 
 }
 
+const findByUser = async (userId: number, orderBy?: Order, limit?: Limit): Promise<Petition[]> => {
+    const res = await dchanges.petitionFindByUser(
+        userId, 
+        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
 const findById = async (pubId: string): Promise<Petition> => {
     const res = await dchanges.petitionFindById(pubId);
     if('err' in res) {
@@ -43,6 +56,16 @@ export const useFindPetitions = (
     return useQuery<Petition[], Error>(
         queryKey, 
         () => findAll(filters, orderBy, limit)
+    );
+
+};
+
+export const useFindUserPetitions = (
+    userId: number, orderBy: Order, limit: Limit
+): UseQueryResult<Petition[], Error> => {
+    return useQuery<Petition[], Error>(
+        ['user-petitions', userId, orderBy.key, orderBy.dir], 
+        () => userId === -1? []: findByUser(userId, orderBy, limit)
     );
 
 };

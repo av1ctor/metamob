@@ -7,6 +7,7 @@ import Grid from "../../components/Grid";
 import TextField from "../../components/TextField";
 import {ProfileRequest, Role } from "../../../../declarations/dchanges/dchanges.did";
 import { ActorContext } from "../../stores/actor";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -33,6 +34,8 @@ const Profile = (props: Props) => {
         countryId: 0,
         ...authState.user
     });
+
+    const navigate = useNavigate();
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -97,6 +100,11 @@ const Profile = (props: Props) => {
             props.onError(e);
         }
     }, [form]);
+
+    if(!authState.client || !authState.identity || !authState.user) {
+        navigate('/user/login');
+        return null;
+    }
 
     return (
         <form onSubmit={handleUpdate}>
