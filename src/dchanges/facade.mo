@@ -1,16 +1,18 @@
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Variant "mo:mo-table/variant";
-import UserTypes "./user/types";
-import CategoryTypes "./category/types";
-import CampaignTypes "./campaign/types";
-import SignatureTypes "./signature/types";
-import TagTypes "./tag/types";
-import UserService "./user/service";
-import CategoryService "./category/service";
-import CampaignService "./campaign/service";
-import SignatureService "./signature/service";
-import TagService "./tag/service";
+import UserTypes "./users/types";
+import CategoryTypes "./categories/types";
+import CampaignTypes "./campaigns/types";
+import SignatureTypes "./signatures/types";
+import UpdateTypes "./updates/types";
+import TagTypes "./tags/types";
+import UserService "./users/service";
+import CategoryService "./categories/service";
+import CampaignService "./campaigns/service";
+import SignatureService "./signatures/service";
+import UpdateService "./updates/service";
+import TagService "./tags/service";
 
 shared({caller = owner}) actor class DChanges() {
 
@@ -19,6 +21,7 @@ shared({caller = owner}) actor class DChanges() {
     let categoryService = CategoryService.Service(userService);
     let campaignService = CampaignService.Service(userService);
     let signatureService = SignatureService.Service(userService, campaignService);
+    let updateService = UpdateService.Service(userService, campaignService);
     let tagService = TagService.Service(userService);
 
     private func _transformUserReponse(
@@ -243,6 +246,71 @@ shared({caller = owner}) actor class DChanges() {
         signatureService.delete(id, msg.caller);
     };    
 
+    //
+    // updates facade
+    //
+    public shared(msg) func updateCreate(
+        req: UpdateTypes.UpdateRequest
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.create(req, msg.caller);
+    };
+
+    public shared(msg) func updateUpdate(
+        id: Text, 
+        req: UpdateTypes.UpdateRequest
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.update(id, req, msg.caller);
+    };
+
+    public query func updateFindById(
+        id: Text
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.findById(id);
+    };
+
+    public shared query(msg) func updateFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[UpdateTypes.Update], Text> {
+        updateService.find(criterias, sortBy, limit);
+    };
+
+    public query func updateFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[UpdateTypes.Update], Text> {
+        updateService.findByCampaign(campaignId, sortBy, limit);
+    };
+
+    public query func updateCountByCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Nat, Text> {
+        updateService.countByCampaign(campaignId);
+    };
+
+    public query func updateFindByUser(
+        userId: /* Text */ Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[UpdateTypes.Update], Text> {
+        updateService.findByUser(userId, sortBy, limit);
+    };
+
+    public query func updateFindByCampaignAndUser(
+        campaignId: Nat32,
+        userId: Nat32
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.findByCampaignAndUser(campaignId, userId);
+    };
+
+    public shared(msg) func updateDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        updateService.delete(id, msg.caller);
+    };   
+    
     //
     // tags facade
     //

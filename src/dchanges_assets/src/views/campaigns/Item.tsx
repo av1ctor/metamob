@@ -14,7 +14,7 @@ interface Props {
 const buildSignatureer = (campaign: Campaign): number[] => {
     if(campaign.signaturesCnt > 0) {
         let res = new Set([campaign.createdBy]);
-        campaign.signatureers.forEach(id => res.add(id));
+        campaign.signaturers.forEach(id => res.add(id));
         return Array.from(res);
     }
     else {

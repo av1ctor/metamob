@@ -1,25 +1,26 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
+import Array "mo:base/Array";
 import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
-import UserTypes "../user/types";
-import UserUtils "../user/utils";
-import UserService "../user/service";
-import CampaignService "../campaign/service";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import UserService "../users/service";
+import D "mo:base/Debug";
 
 module {
     public class Service(
-        userService: UserService.Service,
-        campaignService: CampaignService.Service
+        userService: UserService.Service
     ) {
-        let repo = Repository.Repository(campaignService.getRepository());
-
+        let repo = Repository.Repository();
+        
         public func create(
-            req: Types.SignatureRequest,
+            req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -30,14 +31,7 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
-                            case (#ok(response)) {
-                                #err("Duplicated");
-                            };
-                            case _ {
-                                repo.create(req, caller._id);
-                            };
-                        };
+                        repo.create(req, caller._id);
                     };
                 };
             };
@@ -45,9 +39,9 @@ module {
 
         public func update(
             id: Text, 
-            req: Types.SignatureRequest,
+            req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -62,12 +56,12 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(response)) {
-                                if(not canChange(caller, response)) {
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.update(response, req, caller._id);
+                                return repo.update(campaign, req, caller._id);
                             };
                         };
                     };
@@ -77,7 +71,7 @@ module {
 
         public func findById(
             id: Text
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Campaign, Text> {
             repo.findByPubId(id);
         };
 
@@ -85,37 +79,32 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
-        public func findByCampaign(
+        public func findByCategory(
             campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
-            repo.findByCampaign(campaignId, sortBy, limit);
+        ): Result.Result<[Types.Campaign], Text> {
+            repo.findByCategory(campaignId, sortBy, limit);
         };
 
-        public func countByCampaign(
-            campaignId: Nat32
-        ): Result.Result<Nat, Text> {
-            repo.countByCampaign(campaignId);
+        public func findByTag(
+            tagId: Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Campaign], Text> {
+            repo.findByTag(tagId, sortBy, limit);
         };
 
         public func findByUser(
             userId: /* Text */ Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Campaign], Text> {
             repo.findByUser(userId, sortBy, limit);
-        };
-
-        public func findByCampaignAndUser(
-            campaignId: Nat32,
-            userId: Nat32
-        ): Result.Result<Types.Signature, Text> {
-            repo.findByCampaignAndUser(campaignId, userId);
         };
 
         public func delete(
@@ -136,12 +125,12 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(response)) {
-                                if(not canChange(caller, response)) {
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.delete(response, caller._id);
+                                return repo.delete(campaign, caller._id);
                             };
                         };
                     };
@@ -158,6 +147,11 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        public func getRepository(
+        ): Repository.Repository {
+            repo;
         };
 
         func hasAuth(
@@ -180,13 +174,18 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            response: Types.Signature
+            campaign: Types.Campaign
         ): Bool {
-            if(caller._id != response.createdBy) {
-                if(UserUtils.isAdmin(caller)) {
-                    return true;
+            // not the same author?
+            if(caller._id != campaign.createdBy) {
+                // not an admin?
+                if(not UserUtils.isAdmin(caller)) {
+                    return false;
                 };
-                
+            };
+
+            // deleted?
+            if(Option.isSome(campaign.deletedAt)) {
                 return false;
             };
 

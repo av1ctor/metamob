@@ -65,8 +65,12 @@ module {
                 options = [#nullable];
             },
             {
-                name = "signatureers";
+                name = "signaturers";
                 options = [#multiple];
+            },
+            {
+                name = "updatesCnt";
+                options = [#sortable];
             },
             {
                 name = "publishedAt";

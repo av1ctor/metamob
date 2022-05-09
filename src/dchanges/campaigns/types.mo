@@ -28,7 +28,8 @@ module {
         firstSignatureAt: ?Int;
         lastSignatureAt: ?Int;
         lastSignatureBy: ?Nat32;
-        signatureers: [Nat32];
+        signaturers: [Nat32];
+        updatesCnt: Nat32;
         publishedAt: ?Int;
         expiredAt: ?Int;
         createdAt: Int;

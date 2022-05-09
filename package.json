@@ -21,6 +21,7 @@
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --delete src/declarations"
   },
   "devDependencies": {
+    "@creativebulma/bulma-badge": "^1.0.1",
     "@dfinity/agent": "0.11.1",
     "@dfinity/auth-client": "^0.11.1",
     "@dfinity/authentication": "^0.11.1",

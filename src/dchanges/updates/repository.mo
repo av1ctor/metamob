@@ -17,39 +17,39 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
-import CampaignRepository "../campaign/repository";
+import CampaignRepository "../campaigns/repository";
 import Debug "mo:base/Debug";
 
 module {
     public class Repository(
         campaignRepository: CampaignRepository.Repository
     ) {
-        let signatures = Table.Table<Types.Signature>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("signatures")));
+        let updates = Table.Table<Types.Update>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("updates")));
 
         public func create(
-            req: Types.SignatureRequest,
+            req: Types.UpdateRequest,
             callerId: Nat32
-        ): Result.Result<Types.Signature, Text> {
-            let signature = _createEntity(req, callerId);
-            switch(signatures.insert(signature._id, signature)) {
+        ): Result.Result<Types.Update, Text> {
+            let update = _createEntity(req, callerId);
+            switch(updates.insert(update._id, update)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(signature, true);
-                    return #ok(signature);
+                    _updateCampaign(update, true);
+                    return #ok(update);
                 };
             };
         };
 
         public func update(
-            signature: Types.Signature, 
-            req: Types.SignatureRequest,
+            update: Types.Update, 
+            req: Types.UpdateRequest,
             callerId: Nat32
-        ): Result.Result<Types.Signature, Text> {
-            let e = _updateEntity(signature, req, callerId);
-            switch(signatures.replace(signature._id, e)) {
+        ): Result.Result<Types.Update, Text> {
+            let e = _updateEntity(update, req, callerId);
+            switch(updates.replace(update._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -60,33 +60,33 @@ module {
         };
 
         public func delete(
-            signature: Types.Signature,
+            update: Types.Update,
             callerId: Nat32
         ): Result.Result<(), Text> {
-            let e = _deleteEntity(signature, callerId);
-            switch(signatures.replace(signature._id, e)) {
+            let e = _deleteEntity(update, callerId);
+            switch(updates.replace(update._id, e)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case _ {
-                    _updateCampaign(signature, false);
+                    _updateCampaign(update, false);
                     #ok();
                 }
             }
         };
 
         func _updateCampaign(
-            signature: Types.Signature,
+            update: Types.Update,
             inc: Bool
         ) {
-            switch(campaignRepository.findById(signature.campaignId))
+            switch(campaignRepository.findById(update.campaignId))
             {
                 case (#ok(campaign)) {
                     if(inc) {
-                        campaignRepository.onSignatureInserted(campaign, signature);
+                        campaignRepository.onUpdateInserted(campaign, update);
                     }
                     else {
-                        campaignRepository.onSignatureDeleted(campaign, signature);
+                        campaignRepository.onUpdateDeleted(campaign, update);
                     };
                 };
                 case _ {
@@ -96,8 +96,8 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Signature, Text> {
-            switch(signatures.get(_id)) {
+        ): Result.Result<Types.Update, Text> {
+            switch(updates.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -116,8 +116,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Signature, Text> {
-            switch(signatures.findOne([{
+        ): Result.Result<Types.Update, Text> {
+            switch(updates.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -141,8 +141,8 @@ module {
         public func findByCampaignAndUser(
             campaignId: Nat32,
             createdBy: Nat32
-        ): Result.Result<Types.Signature, Text> {
-            switch(signatures.findOne([
+        ): Result.Result<Types.Update, Text> {
+            switch(updates.findOne([
                 {
                     key = "campaignId";
                     op = #eq;
@@ -199,18 +199,18 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Signature, Types.Signature) -> Int {
+        ): (Types.Update, Types.Update) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Signature, b: Types.Signature): Int  = 
+                case "_id" func(a: Types.Update, b: Types.Update): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Signature, b: Types.Signature): Int = 
+                case "pubId" func(a: Types.Update, b: Types.Update): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "createdAt" func(a: Types.Signature, b: Types.Signature): Int = 
+                case "createdAt" func(a: Types.Update, b: Types.Update): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "campaignId" func(a: Types.Signature, b: Types.Signature): Int = 
+                case "campaignId" func(a: Types.Update, b: Types.Update): Int = 
                     Utils.order2Int(Nat32.compare(a.campaignId, b.campaignId)) * dir;
                 case _ {
-                    func(a: Types.Signature, b: Types.Signature): Int = 0;
+                    func(a: Types.Update, b: Types.Update): Int = 0;
                 };
             };
         };
@@ -233,7 +233,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Signature>] {
+        ): ?[Table.SortBy<Types.Update>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -267,15 +267,15 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
-            return signatures.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Update], Text> {
+            return updates.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByCampaign(
             campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Update], Text> {
 
             func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -287,7 +287,7 @@ module {
                 ]
             };
             
-            return signatures.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return updates.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func countByCampaign(
@@ -304,14 +304,14 @@ module {
                 ]
             };
             
-            return signatures.count(buildCriterias(campaignId));
+            return updates.count(buildCriterias(campaignId));
         };
 
         public func findByUser(
             userId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Update], Text> {
 
             func buildCriterias(userId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -323,26 +323,26 @@ module {
                 ]
             };
             
-            return signatures.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return updates.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return signatures.backup();
+            return updates.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            signatures.restore(entities);
+            updates.restore(entities);
         };
 
         func _createEntity(
-            req: Types.SignatureRequest,
+            req: Types.UpdateRequest,
             callerId: Nat32
-        ): Types.Signature {
+        ): Types.Update {
             {
-                _id = signatures.nextId();
+                _id = updates.nextId();
                 pubId = ulid.next();
                 body = req.body;
                 campaignId = req.campaignId;
@@ -354,35 +354,35 @@ module {
         };
 
         func _updateEntity(
-            signature: Types.Signature, 
-            req: Types.SignatureRequest,
+            update: Types.Update, 
+            req: Types.UpdateRequest,
             callerId: Nat32
-        ): Types.Signature {
+        ): Types.Update {
             {
-                _id = signature._id;
-                pubId = signature.pubId;
+                _id = update._id;
+                pubId = update.pubId;
                 body = req.body;
                 campaignId = req.campaignId;
-                createdAt = signature.createdAt;
-                createdBy = signature.createdBy;
+                createdAt = update.createdAt;
+                createdBy = update.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
         };
 
         func _deleteEntity(
-            signature: Types.Signature, 
+            update: Types.Update, 
             callerId: Nat32
-        ): Types.Signature {
+        ): Types.Update {
             {
-                _id = signature._id;
-                pubId = signature.pubId;
+                _id = update._id;
+                pubId = update.pubId;
                 body = "";
-                campaignId = signature.campaignId;
-                createdAt = signature.createdAt;
-                createdBy = signature.createdBy;
-                updatedAt = signature.updatedAt;
-                updatedBy = signature.updatedBy;
+                campaignId = update.campaignId;
+                createdAt = update.createdAt;
+                createdBy = update.createdBy;
+                updatedAt = update.updatedAt;
+                updatedBy = update.updatedBy;
                 deletedAt = ?Time.now();
                 deletedBy = ?callerId;
             }  
@@ -390,7 +390,7 @@ module {
     };
 
     func serialize(
-        entity: Types.Signature,
+        entity: Types.Update,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
@@ -409,7 +409,7 @@ module {
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Signature {
+    ): Types.Update {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));

@@ -9063,6 +9063,176 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
     display: flex;
     flex-direction: column-reverse; }
 
+.badge {
+  background-color: #00d1b2;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px white;
+  color: white;
+  font-size: 0.65rem;
+  height: 14px;
+  line-height: calc(7px + 1px);
+  min-width: 14px;
+  overflow: hidden;
+  padding: 0.05rem 0.15rem;
+  position: absolute;
+  right: 0;
+  text-overflow: ellipsis;
+  top: 0;
+  transform: translate(50%, -50%);
+  white-space: nowrap; }
+  .badge.is-outlined {
+    background-color: white;
+    border-color: #00d1b2;
+    color: #00d1b2; }
+  .badge.is-left {
+    bottom: 0;
+    left: 0;
+    right: auto;
+    top: 50%;
+    transform: translate(-50%, -50%); }
+  .badge.is-right {
+    bottom: auto;
+    left: auto;
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%); }
+  .badge.is-top {
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    top: 0;
+    transform: translate(-50%, -50%); }
+  .badge.is-top-left {
+    bottom: auto;
+    left: 0;
+    right: auto;
+    top: 0;
+    transform: translate(-50%, -50%); }
+  .badge.is-top-right {
+    bottom: auto;
+    left: auto;
+    right: 0;
+    top: 0;
+    transform: translate(50%, -50%); }
+  .badge.is-bottom {
+    bottom: 0;
+    left: 50%;
+    right: auto;
+    top: auto;
+    transform: translate(-50%, 50%); }
+  .badge.is-bottom-left {
+    bottom: 0;
+    left: 0;
+    right: auto;
+    top: auto;
+    transform: translate(-50%, 50%); }
+  .badge.is-bottom-right {
+    bottom: 0;
+    left: auto;
+    right: 0;
+    top: auto;
+    transform: translate(50%, 50%); }
+  .badge.is-white:not(.is-outlined) {
+    background-color: white;
+    color: #0a0a0a; }
+  .badge.is-white.is-outlined {
+    border-color: white;
+    color: white; }
+  .badge.is-black:not(.is-outlined) {
+    background-color: #0a0a0a;
+    color: white; }
+  .badge.is-black.is-outlined {
+    border-color: #0a0a0a;
+    color: #0a0a0a; }
+  .badge.is-light:not(.is-outlined) {
+    background-color: whitesmoke;
+    color: rgba(0, 0, 0, 0.7); }
+  .badge.is-light.is-outlined {
+    border-color: whitesmoke;
+    color: whitesmoke; }
+  .badge.is-dark:not(.is-outlined) {
+    background-color: #363636;
+    color: #fff; }
+  .badge.is-dark.is-outlined {
+    border-color: #363636;
+    color: #363636; }
+  .badge.is-primary:not(.is-outlined) {
+    background-color: #00d1b2;
+    color: #fff; }
+  .badge.is-primary.is-outlined {
+    border-color: #00d1b2;
+    color: #00d1b2; }
+  .badge.is-primary.is-light {
+    color: #00947e; }
+    .badge.is-primary.is-light:not(.is-outlined) {
+      background-color: #ebfffc; }
+    .badge.is-primary.is-light.is-outlined {
+      border-color: #00d1b2; }
+  .badge.is-link:not(.is-outlined) {
+    background-color: #485fc7;
+    color: #fff; }
+  .badge.is-link.is-outlined {
+    border-color: #485fc7;
+    color: #485fc7; }
+  .badge.is-link.is-light {
+    color: #3850b7; }
+    .badge.is-link.is-light:not(.is-outlined) {
+      background-color: #eff1fa; }
+    .badge.is-link.is-light.is-outlined {
+      border-color: #485fc7; }
+  .badge.is-info:not(.is-outlined) {
+    background-color: #3e8ed0;
+    color: #fff; }
+  .badge.is-info.is-outlined {
+    border-color: #3e8ed0;
+    color: #3e8ed0; }
+  .badge.is-info.is-light {
+    color: #296fa8; }
+    .badge.is-info.is-light:not(.is-outlined) {
+      background-color: #eff5fb; }
+    .badge.is-info.is-light.is-outlined {
+      border-color: #3e8ed0; }
+  .badge.is-success:not(.is-outlined) {
+    background-color: #48c78e;
+    color: #fff; }
+  .badge.is-success.is-outlined {
+    border-color: #48c78e;
+    color: #48c78e; }
+  .badge.is-success.is-light {
+    color: #257953; }
+    .badge.is-success.is-light:not(.is-outlined) {
+      background-color: #effaf5; }
+    .badge.is-success.is-light.is-outlined {
+      border-color: #48c78e; }
+  .badge.is-warning:not(.is-outlined) {
+    background-color: #ffe08a;
+    color: rgba(0, 0, 0, 0.7); }
+  .badge.is-warning.is-outlined {
+    border-color: #ffe08a;
+    color: #ffe08a; }
+  .badge.is-warning.is-light {
+    color: #946c00; }
+    .badge.is-warning.is-light:not(.is-outlined) {
+      background-color: #fffaeb; }
+    .badge.is-warning.is-light.is-outlined {
+      border-color: #ffe08a; }
+  .badge.is-danger:not(.is-outlined) {
+    background-color: #f14668;
+    color: #fff; }
+  .badge.is-danger.is-outlined {
+    border-color: #f14668;
+    color: #f14668; }
+  .badge.is-danger.is-light {
+    color: #cc0f35; }
+    .badge.is-danger.is-light:not(.is-outlined) {
+      background-color: #feecf0; }
+    .badge.is-danger.is-light.is-outlined {
+      border-color: #f14668; }
+
+.tabs li {
+  position: relative; }
+
 .avatar {
   background-color: #ccc;
   border-radius: 50%;

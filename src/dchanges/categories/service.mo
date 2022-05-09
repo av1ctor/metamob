@@ -4,9 +4,9 @@ import Result "mo:base/Result";
 import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
-import UserTypes "../user/types";
-import UserUtils "../user/utils";
-import UserService "../user/service";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import UserService "../users/service";
 
 module {
     public class Service(
@@ -15,9 +15,9 @@ module {
         let repo = Repository.Repository();
 
         public func create(
-            req: Types.TagRequest,
+            req: Types.CategoryRequest,
             invoker: Principal
-        ): Result.Result<Types.Tag, Text> {
+        ): Result.Result<Types.Category, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -36,9 +36,9 @@ module {
 
         public func update(
             id: Text, 
-            req: Types.TagRequest,
+            req: Types.CategoryRequest,
             invoker: Principal
-        ): Result.Result<Types.Tag, Text> {
+        ): Result.Result<Types.Category, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -53,8 +53,8 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(tag)) {
-                                repo.update(tag, req, caller._id);
+                            case (#ok(category)) {
+                                repo.update(category, req, caller._id);
                             };
                         };
                     };
@@ -64,7 +64,7 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Tag, Text> {
+        ): Result.Result<Types.Category, Text> {
             repo.findById(_id);
         };
 
@@ -73,8 +73,16 @@ module {
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat),
             invoker: Principal
-        ): Result.Result<[Types.Tag], Text> {
+        ): Result.Result<[Types.Category], Text> {
             repo.find(criterias, sortBy, limit);
+        };
+
+        public func findByUser(
+            userId: /* Text */ Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Category], Text> {
+            repo.findByUser(userId, sortBy, limit);
         };
 
         public func delete(
@@ -95,8 +103,8 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(tag)) {
-                                repo.delete(tag);
+                            case (#ok(category)) {
+                                repo.delete(category);
                             };
                         };
                     };

@@ -19,7 +19,8 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
-import SignatureTypes "../signature/types";
+import SignatureTypes "../signatures/types";
+import UpdateTypes "../updates/types";
 import Debug "mo:base/Debug";
 
 module {
@@ -307,6 +308,20 @@ module {
             ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureDeleted(campaign, signature));
         };
 
+        public func onUpdateInserted(
+            campaign: Types.Campaign,
+            update: UpdateTypes.Update
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenUpdateInserted(campaign, update));
+        };
+
+        public func onUpdateDeleted(
+            campaign: Types.Campaign,
+            update: UpdateTypes.Update
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenUpdateDeleted(campaign, update));
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             return campaigns.backup();
@@ -339,7 +354,8 @@ module {
                 firstSignatureAt = null;
                 lastSignatureAt = null;
                 lastSignatureBy = null;
-                signatureers = [];
+                signaturers = [];
+                updatesCnt = 0;
                 publishedAt = ?now;
                 expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000)))));
                 createdAt = now;
@@ -372,7 +388,8 @@ module {
                 firstSignatureAt = campaign.firstSignatureAt;
                 lastSignatureAt = campaign.lastSignatureAt;
                 lastSignatureBy = campaign.lastSignatureBy;
-                signatureers = campaign.signatureers;
+                signaturers = campaign.signaturers;
+                updatesCnt = campaign.updatesCnt;
                 publishedAt = campaign.publishedAt;
                 expiredAt = campaign.expiredAt;
                 createdAt = campaign.createdAt;
@@ -404,7 +421,8 @@ module {
                 firstSignatureAt = campaign.firstSignatureAt;
                 lastSignatureAt = campaign.lastSignatureAt;
                 lastSignatureBy = campaign.lastSignatureBy;
-                signatureers = campaign.signatureers;
+                signaturers = campaign.signaturers;
+                updatesCnt = campaign.updatesCnt;
                 publishedAt = campaign.publishedAt;
                 expiredAt = campaign.expiredAt;
                 createdAt = campaign.createdAt;
@@ -436,7 +454,8 @@ module {
                 firstSignatureAt = switch(campaign.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
                 lastSignatureAt = ?signature.createdAt;
                 lastSignatureBy = ?signature.createdBy;
-                signatureers = Utils.addToArray(campaign.signatureers, signature.createdBy);
+                signaturers = Utils.addToArray(campaign.signaturers, signature.createdBy);
+                updatesCnt = campaign.updatesCnt;
                 publishedAt = campaign.publishedAt;
                 expiredAt = campaign.expiredAt;
                 createdAt = campaign.createdAt;
@@ -468,7 +487,41 @@ module {
                 firstSignatureAt = campaign.firstSignatureAt;
                 lastSignatureAt = campaign.lastSignatureAt;
                 lastSignatureBy = campaign.lastSignatureBy;
-                signatureers = Utils.delFromArray(campaign.signatureers, signature.createdBy, Nat32.equal);
+                signaturers = Utils.delFromArray(campaign.signaturers, signature.createdBy, Nat32.equal);
+                updatesCnt = campaign.updatesCnt;
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = campaign.updatedAt;
+                updatedBy = campaign.updatedBy;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
+            }  
+        };     
+
+        func _updateEntityWhenUpdateInserted(
+            campaign: Types.Campaign, 
+            update: UpdateTypes.Update
+        ): Types.Campaign {
+            {
+                _id = campaign._id;
+                pubId = campaign.pubId;
+                title = campaign.title;
+                target = campaign.target;
+                cover = campaign.cover;
+                body = campaign.body;
+                categoryId = campaign.categoryId;
+                state = campaign.state;
+                result = campaign.result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt;
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signaturers = campaign.signaturers;
+                updatesCnt = campaign.updatesCnt + 1;
                 publishedAt = campaign.publishedAt;
                 expiredAt = campaign.expiredAt;
                 createdAt = campaign.createdAt;
@@ -479,6 +532,39 @@ module {
                 deletedBy = campaign.deletedBy;
             }  
         };        
+
+        func _updateEntityWhenUpdateDeleted(
+            campaign: Types.Campaign, 
+            update: UpdateTypes.Update
+        ): Types.Campaign {
+            {
+                _id = campaign._id;
+                pubId = campaign.pubId;
+                title = campaign.title;
+                target = campaign.target;
+                cover = campaign.cover;
+                body = campaign.body;
+                categoryId = campaign.categoryId;
+                state = campaign.state;
+                result = campaign.result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt;
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signaturers = campaign.signaturers;
+                updatesCnt = campaign.updatesCnt - (if(campaign.updatesCnt > 0) 1 else 0);
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = campaign.updatedAt;
+                updatedBy = campaign.updatedBy;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
+            }  
+        };           
     };
 
     func serialize(
@@ -502,7 +588,8 @@ module {
         res.put("firstSignatureAt", switch(entity.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
         res.put("lastSignatureAt", switch(entity.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
         res.put("lastSignatureBy", switch(entity.lastSignatureBy) {case null #nil; case (?lastSignatureBy) #nat32(lastSignatureBy);});
-        res.put("signatureers", #array(Array.map(entity.signatureers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
+        res.put("signaturers", #array(Array.map(entity.signaturers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
+        res.put("updatesCnt", #nat32(entity.updatesCnt));
         res.put("publishedAt", switch(entity.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
         res.put("expiredAt", switch(entity.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
         res.put("createdAt", #int(entity.createdAt));
@@ -534,7 +621,8 @@ module {
             firstSignatureAt = Variant.getOptIntOpt(map.get("firstSignatureAt"));
             lastSignatureAt = Variant.getOptIntOpt(map.get("lastSignatureAt"));
             lastSignatureBy = Variant.getOptNat32Opt(map.get("lastSignatureBy"));
-            signatureers = Array.map(Variant.getOptArray(map.get("signatureers")), Variant.getNat32);
+            signaturers = Array.map(Variant.getOptArray(map.get("signaturers")), Variant.getNat32);
+            updatesCnt = Variant.getOptNat32(map.get("updatesCnt"));
             publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
             expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

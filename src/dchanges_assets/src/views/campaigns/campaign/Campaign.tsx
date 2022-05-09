@@ -8,6 +8,7 @@ import {TagContext} from "../../../stores/tag";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Signatures from "../../signatures/Signatures";
+import Updates from "../../updates/Updates";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/Category";
@@ -15,6 +16,7 @@ import Tag from "../../tags/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
 import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
+import Tabs from "../../../components/Tabs";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -150,28 +152,24 @@ const Campaign = (props: Props) => {
 
                         </div>
 
-                        <div className="tabs is-boxed">
-                            <ul>
-                                <li className="is-active">
-                                    <a>
-                                        <span className="icon is-small"><i className="la la-signature"/></span>
-                                        <span>Signatures</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a>
-                                        <span className="icon is-small"><i className="la la-newspaper"/></span>
-                                        <span>Updates</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <Signatures 
-                            campaign={campaign} 
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                        />
+                        <Tabs
+                            tabs={[
+                                {title: 'Signatures', icon: 'signature'},
+                                {title: 'Updates', icon: 'newspaper'}
+                            ]}
+                        >
+                            <Signatures 
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                            />
+
+                            <Updates
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                            />
+                        </Tabs>
 
                     </div>
                     
