@@ -126,8 +126,9 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="dark"
-                            onClick={handleUpdate}
                             disabled={createMut.isLoading || !form.body}
+                            title="Post an update message"
+                            onClick={handleUpdate}
                         >
                             <i className="la la-pen"/>&nbsp;UPDATE
                         </Button>
@@ -135,8 +136,9 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={handleEnd}
+                            title="Post a final message when the result was not good"
                             disabled={createMut.isLoading || !form.body}
+                            onClick={handleEnd}
                         >
                             <i className="la la-thumbs-down"/>&nbsp;END
                         </Button>
@@ -144,8 +146,9 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="success"
-                            onClick={handleFinish}
+                            title="Post a final message when the result was perfect"
                             disabled={createMut.isLoading || !form.body}
+                            onClick={handleFinish}
                         >
                             <i className="la la-thumbs-up"/>&nbsp;FINISH
                         </Button>

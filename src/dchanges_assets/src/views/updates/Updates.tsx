@@ -16,9 +16,9 @@ interface Props {
 
 const Updates = (props: Props) => {
     const [auth] = useContext(AuthContext);
-    const [orderBy, setOrderBy] = useState<Order>({
+    const [orderBy, ] = useState<Order>({
         key: '_id',
-        dir: 'asc'
+        dir: 'desc'
     });
     const [limit, ] = useState<Limit>({
         offset: 0,
