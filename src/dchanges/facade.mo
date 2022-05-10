@@ -252,6 +252,13 @@ shared({caller = owner}) actor class DChanges() {
         updateService.create(req, msg.caller);
     };
 
+    public shared(msg) func updateCreateAndFinishCampaign(
+        req: UpdateTypes.UpdateRequest,
+        result: CampaignTypes.CampaignResult
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.createAndFinishCampaign(req, result, msg.caller);
+    };
+
     public shared(msg) func updateUpdate(
         id: Text, 
         req: UpdateTypes.UpdateRequest

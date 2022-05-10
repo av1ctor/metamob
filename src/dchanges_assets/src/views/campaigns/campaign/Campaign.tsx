@@ -74,7 +74,7 @@ const Campaign = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user  && auth.user._id === campaign?.createdBy;
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
 
     const goal = calcMaxSignatures(campaign?.signaturesCnt || 0);
 
@@ -84,15 +84,15 @@ const Campaign = (props: Props) => {
                 <>
                     <div className="media-content">
                         <div className="content">
-                            <div className="is-size-2">
+                            <div className="is-size-2 overflow-hidden">
                                 {campaign.title}
                             </div>
-                            <div className="mb-2">
+                            <div className="mb-2 overflow-hidden">
                                 <Category id={campaign.categoryId} />
                                 {campaign.tags.map(id => <Tag key={id} id={id} />)}
                             </div>
                             <div className="columns">
-                                <div className="column is-two-thirds">
+                                <div className="column is-two-thirds overflow-hidden">
                                     <div className="image campaign-cover mb-2">
                                         <img src={campaign.cover || "1280x960.png"} />
                                     </div>
@@ -102,23 +102,25 @@ const Campaign = (props: Props) => {
                                     <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
                                     <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
                                     <br/>
-                                    {auth.user?._id === campaign.createdBy?
-                                        <UpdateForm 
-                                            campaign={campaign}
-                                            onSuccess={props.onSuccess}
-                                            onError={props.onError}
-                                        />:
-                                        <>
-                                            <div className="is-size-4 has-text-link">
-                                                To {campaign.target}
-                                            </div>
-                                            <SignForm 
+                                    {campaign.state === CampaignState.PUBLISHED? 
+                                        auth.user?._id === campaign.createdBy?
+                                            <UpdateForm 
                                                 campaign={campaign}
-                                                body={userSignature?.data?.body} 
                                                 onSuccess={props.onSuccess}
                                                 onError={props.onError}
-                                            />
-                                        </>
+                                            />:
+                                            <>
+                                                <div className="is-size-4 has-text-link">
+                                                    To {campaign.target}
+                                                </div>
+                                                <SignForm 
+                                                    campaign={campaign}
+                                                    body={userSignature?.data?.body} 
+                                                    onSuccess={props.onSuccess}
+                                                    onError={props.onError}
+                                                />
+                                            </>:
+                                        null
                                     }
                                 </div>
                             </div>

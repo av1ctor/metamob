@@ -1,15 +1,16 @@
-import Principal "mo:base/Principal";
-import Nat32 "mo:base/Nat32";
-import Result "mo:base/Result";
-import Option "mo:base/Option";
 import Array "mo:base/Array";
-import Variant "mo:mo-table/variant";
-import Types "./types";
+import CampaignTypes "types";
+import D "mo:base/Debug";
+import Nat32 "mo:base/Nat32";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
 import Repository "./repository";
+import Result "mo:base/Result";
+import Types "./types";
+import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
-import UserService "../users/service";
-import D "mo:base/Debug";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
@@ -62,6 +63,38 @@ module {
                                 };
                                 
                                 return repo.update(campaign, req, caller._id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func finish(
+            _id: Nat32, 
+            result: Types.CampaignResult,
+            invoker: Principal
+        ): Result.Result<Types.Campaign, Text> {
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findById(_id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
+                                    return #err("Forbidden");
+                                };
+                                
+                                return repo.finish(campaign, result, caller._id);
                             };
                         };
                     };
@@ -186,6 +219,12 @@ module {
 
             // deleted?
             if(Option.isSome(campaign.deletedAt)) {
+                return false;
+            };
+
+            // not published or created?
+            if(campaign.state != CampaignTypes.STATE_CREATED and 
+                campaign.state != CampaignTypes.STATE_PUBLISHED) {
                 return false;
             };
 

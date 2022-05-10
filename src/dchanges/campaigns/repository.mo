@@ -59,6 +59,22 @@ module {
             };
         };
 
+        public func finish(
+            campaign: Types.Campaign, 
+            result: Types.CampaignResult,
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWhenFinished(campaign, result, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
         public func delete(
             campaign: Types.Campaign,
             callerId: Nat32
@@ -565,6 +581,40 @@ module {
                 deletedBy = campaign.deletedBy;
             }  
         };           
+
+        func _updateEntityWhenFinished(
+            campaign: Types.Campaign, 
+            result: Types.CampaignResult,
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _id = campaign._id;
+                pubId = campaign.pubId;
+                title = campaign.title;
+                target = campaign.target;
+                cover = campaign.cover;
+                body = campaign.body;
+                categoryId = campaign.categoryId;
+                state = Types.STATE_FINISHED;
+                result = result;
+                duration = campaign.duration;
+                tags = campaign.tags;
+                signaturesCnt = campaign.signaturesCnt;
+                firstSignatureAt = campaign.firstSignatureAt;
+                lastSignatureAt = campaign.lastSignatureAt;
+                lastSignatureBy = campaign.lastSignatureBy;
+                signaturers = campaign.signaturers;
+                updatesCnt = campaign.updatesCnt;
+                publishedAt = campaign.publishedAt;
+                expiredAt = campaign.expiredAt;
+                createdAt = campaign.createdAt;
+                createdBy = campaign.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+                deletedAt = campaign.deletedAt;
+                deletedBy = campaign.deletedBy;
+            }  
+        };        
     };
 
     func serialize(

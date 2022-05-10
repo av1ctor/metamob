@@ -1,6 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {dchanges} from "../../../declarations/dchanges";
 import {UpdateRequest, Update, Variant, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 
 const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promise<Update[]> => {
@@ -73,12 +74,15 @@ export const useFindUpdatesByCampaign = (
 export const useCreateUpdate = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, req: UpdateRequest}) => {
+        async (options: {main?: DChanges, req: UpdateRequest, result?: CampaignResult}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.updateCreate(options.req);
+            const res = options.result === undefined?
+                await options.main.updateCreate(options.req):
+                await options.main.updateCreateAndFinishCampaign(options.req, options.result);
+            
             if('err' in res) {
                 throw new Error(res.err);
             }

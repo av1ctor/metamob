@@ -8,6 +8,7 @@ import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
 import CampaignService "../campaigns/service";
+import CampaignTypes "../campaigns/types";
 
 module {
     public class Service(
@@ -15,6 +16,7 @@ module {
         campaignService: CampaignService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
+        let campaignRepo = campaignService.getRepository();
 
         public func create(
             req: Types.SignatureRequest,
@@ -30,14 +32,22 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
-                            case (#ok(response)) {
-                                #err("Duplicated");
+                        switch(canChangeCampaign(req.campaignId)) {
+                            case (#err(msg)) {
+                                #err(msg);
                             };
                             case _ {
-                                repo.create(req, caller._id);
+                                switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
+                                    case (#ok(response)) {
+                                        #err("Duplicated");
+                                    };
+                                    case _ {
+                                        repo.create(req, caller._id);
+                                    };
+                                };
                             };
-                        };
+                        };           
+
                     };
                 };
             };
@@ -62,12 +72,19 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(response)) {
-                                if(not canChange(caller, response)) {
+                            case (#ok(entity)) {
+                                if(not canChange(caller, entity)) {
                                     return #err("Forbidden");
                                 };
-                                
-                                return repo.update(response, req, caller._id);
+
+                                switch(canChangeCampaign(entity.campaignId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.update(entity, req, caller._id);
+                                    };
+                                };
                             };
                         };
                     };
@@ -136,12 +153,19 @@ module {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
-                            case (#ok(response)) {
-                                if(not canChange(caller, response)) {
+                            case (#ok(entity)) {
+                                if(not canChange(caller, entity)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.delete(response, caller._id);
+                                switch(canChangeCampaign(entity.campaignId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.delete(entity, caller._id);
+                                    };
+                                };
                             };
                         };
                     };
@@ -191,6 +215,24 @@ module {
             };
 
             return true;
+        };
+
+        func canChangeCampaign(
+            campaignId: Nat32
+        ): Result.Result<(), Text> {
+            switch(campaignRepo.findById(campaignId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(campaign)) {
+                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                        #err("Invalid campaign state");
+                    }
+                    else {
+                        #ok();
+                    };
+                };
+            };
         };
     };
 };

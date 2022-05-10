@@ -7,6 +7,7 @@ import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
+import { CampaignResult } from "../../../libs/campaigns";
 
 interface Props {
     campaign: Campaign;
@@ -47,6 +48,29 @@ const UpdateForm = (props: Props) => {
         }
     };
 
+    const doUpdate = useCallback(async (result?: CampaignResult) => {
+        try {
+            await createMut.mutateAsync({
+                main: actorState.main,
+                req: {
+                    campaignId: props.campaign._id,
+                    body: form.body,
+                },
+                result: result
+            });
+
+            setForm({
+                ...form,
+                body: ''
+            });
+
+            props.onSuccess('Campaign updated!');
+        }
+        catch(e) {
+            props.onError(e);
+        }
+    }, [form]);
+
     const handleUpdate = useCallback(async (e: any) => {
         e.preventDefault();
 
@@ -56,20 +80,32 @@ const UpdateForm = (props: Props) => {
             return;
         }
 
-        try {
-            await createMut.mutateAsync({
-                main: actorState.main,
-                req: {
-                    campaignId: props.campaign._id,
-                    body: form.body,
-                }
-            });
-            props.onSuccess('Campaign updated!');
+        doUpdate();
+    }, [form]);    
+
+    const handleEnd = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
         }
-        catch(e) {
-            props.onError(e);
+
+        doUpdate(CampaignResult.LOST);
+    }, [form]);    
+
+    const handleFinish = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
         }
-    }, [form]);
+
+        doUpdate(CampaignResult.WON);
+    }, [form]);    
 
     if(!authState.user) {
         return null;
@@ -99,7 +135,7 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={handleUpdate}
+                            onClick={handleEnd}
                             disabled={createMut.isLoading || !form.body}
                         >
                             <i className="la la-thumbs-down"/>&nbsp;END
@@ -108,7 +144,7 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="success"
-                            onClick={handleUpdate}
+                            onClick={handleFinish}
                             disabled={createMut.isLoading || !form.body}
                         >
                             <i className="la la-thumbs-up"/>&nbsp;FINISH
