@@ -5,8 +5,8 @@ import {UpdateRequest, Campaign} from "../../../../../declarations/dchanges/dcha
 import { AuthContext } from "../../../stores/auth";
 import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
-import TextAreaField from "../../../components/TextAreaField";
 import { ActorContext } from "../../../stores/actor";
+import MarkdownField from "../../../components/MarkdownField";
 
 interface Props {
     campaign: Campaign;
@@ -78,24 +78,40 @@ const UpdateForm = (props: Props) => {
     return (
         <form onSubmit={handleUpdate}>
             <Grid container>
-                <TextAreaField
+                <MarkdownField
                     label="Message"
                     name="body"
                     value={form.body || ''}
                     rows={6}
-                    required={true}
-                    disabled={!!props.body}
                     onChange={changeForm}
                 />
 
-                <div className="field mt-2">
+                <div className="field is-grouped mt-2">
+                    <div className="control">
+                        <Button
+                            color="dark"
+                            onClick={handleUpdate}
+                            disabled={createMut.isLoading || !form.body}
+                        >
+                            <i className="la la-pen"/>&nbsp;UPDATE
+                        </Button>
+                    </div>
                     <div className="control">
                         <Button
                             color="danger"
                             onClick={handleUpdate}
-                            disabled={createMut.isLoading || !!props.body}
+                            disabled={createMut.isLoading || !form.body}
                         >
-                            UPDATE
+                            <i className="la la-thumbs-down"/>&nbsp;END
+                        </Button>
+                    </div>
+                    <div className="control">
+                        <Button
+                            color="success"
+                            onClick={handleUpdate}
+                            disabled={createMut.isLoading || !form.body}
+                        >
+                            <i className="la la-thumbs-up"/>&nbsp;FINISH
                         </Button>
                     </div>
                 </div>

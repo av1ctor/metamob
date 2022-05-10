@@ -90,7 +90,6 @@ const SignForm = (props: Props) => {
                         value={form.body || ''}
                         rows={6}
                         required={true}
-                        disabled={!!props.body}
                         onChange={changeForm}
                     />
                 }
@@ -100,9 +99,9 @@ const SignForm = (props: Props) => {
                         <Button
                             color="danger"
                             onClick={isLoggedIn? handleSign: redirectToLogon}
-                            disabled={createMut.isLoading || !!props.body}
+                            disabled={isLoggedIn? createMut.isLoading || !form.body: false}
                         >
-                            SIGN
+                            <i className="la la-fancy"/>&nbsp;SIGN
                         </Button>
                     </div>
                 </div>

@@ -33,22 +33,6 @@ const findByCampaign = async (topicId: number, orderBy?: Order, limit?: Limit): 
     return res.ok; 
 }
 
-const findByCampaignAndUser = async (topicId: number, userId: number): Promise<Update> => {
-    if(topicId === -1 || userId === -1) {
-        return {} as Update;
-    }
-    
-    const res = await dchanges.updateFindByCampaignAndUser(
-        topicId, 
-        userId);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return res.ok; 
-}
-
 const findById = async (pubId: string): Promise<Update> => {
     const res = await dchanges.updateFindById(pubId);
     if('err' in res) {
@@ -82,16 +66,6 @@ export const useFindUpdatesByCampaign = (
     return useQuery<Update[], Error>(
         queryKey, 
         () => findByCampaign(topicId, orderBy, limit)
-    );
-
-};
-
-export const useFindUpdateByCampaignAndUser = (
-    queryKey: any[], topicId: number, userId: number
-): UseQueryResult<Update, Error> => {
-    return useQuery<Update, Error>(
-        queryKey, 
-        () => findByCampaignAndUser(topicId, userId)
     );
 
 };

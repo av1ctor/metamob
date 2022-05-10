@@ -30,14 +30,7 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
-                            case (#ok(response)) {
-                                #err("Duplicated");
-                            };
-                            case _ {
-                                repo.create(req, caller._id);
-                            };
-                        };
+                        repo.create(req, caller._id);
                     };
                 };
             };
@@ -109,13 +102,6 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Update], Text> {
             repo.findByUser(userId, sortBy, limit);
-        };
-
-        public func findByCampaignAndUser(
-            campaignId: Nat32,
-            userId: Nat32
-        ): Result.Result<Types.Update, Text> {
-            repo.findByCampaignAndUser(campaignId, userId);
         };
 
         public func delete(

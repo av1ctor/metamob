@@ -295,13 +295,6 @@ shared({caller = owner}) actor class DChanges() {
         updateService.findByUser(userId, sortBy, limit);
     };
 
-    public query func updateFindByCampaignAndUser(
-        campaignId: Nat32,
-        userId: Nat32
-    ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.findByCampaignAndUser(campaignId, userId);
-    };
-
     public shared(msg) func updateDelete(
         id: Text
     ): async Result.Result<(), Text> {
