@@ -46,7 +46,7 @@ module {
             },
             {
                 name = "tags";
-                options = [#multiple, #sortable];
+                options = [#multiple, #sortable, #max(5)];
             },
             {
                 name = "signaturesCnt";
