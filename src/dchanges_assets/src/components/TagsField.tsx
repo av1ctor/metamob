@@ -1,4 +1,4 @@
-import React, { KeyboardEventHandler, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 interface Props {
     label?: string;
