@@ -6,6 +6,7 @@ import Avatar from "../users/Avatar";
 import Category from "../categories/Category";
 import Tag from "../tags/Tag";
 import Card from "../../components/Card";
+import { CampaignResult, CampaignState } from "../../libs/campaigns";
 
 interface Props {
     campaign: Campaign
@@ -39,18 +40,24 @@ const Item = (props: Props) => {
             }
         >
             <div className="level">
-                <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    {buildSignature(campaign).map((id) => <Avatar key={id} id={id} />)}
+                <div className="level-left">
+                    {campaign.state === CampaignState.FINISHED? 
+                        campaign.result === CampaignResult.WON?
+                            <span className="tag is-rounded is-success">finished</span>
+                        :
+                            <span className="tag is-rounded is-danger">ended</span>
+                    :
+                    <span className="tag is-rounded is-light">published</span>
+                    }
+                    &nbsp;·&nbsp;
+                    <span className="tag" title="Signatures">{campaign.signaturesCnt}</span>&nbsp;·&nbsp;
+                    <span className="tag" title="Updates">{campaign.updatesCnt}</span>
                 </div>
-                <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    {campaign.signaturesCnt}
-                </div>
-                <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    <Link to={`/p/${campaign.pubId}`}>
-                        <TimeFromNow 
-                            date={BigInt.asIntN(64, campaign.signaturesCnt > 0? campaign.lastSignatureAt[0] || 0n: campaign.createdAt)}
-                        />
-                    </Link>
+                <div className="level-right">
+                    <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
+                    <TimeFromNow 
+                        date={BigInt.asIntN(64, campaign.signaturesCnt > 0? campaign.lastSignatureAt[0] || 0n: campaign.createdAt)}
+                    />
                 </div>
             </div>
         </Card>

@@ -94,7 +94,7 @@ const Campaigns = (props: Props) => {
                             </div>
                         }
                         
-                        <div className="columns is-desktop is-multiline">
+                        <div className="columns is-desktop is-multiline is-align-items-center">
                             {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                                 <div 
                                     className="column is-half"

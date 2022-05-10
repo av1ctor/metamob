@@ -26,7 +26,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required(),
-    tags: yup.array(yup.string()).max(5),
+    tags: yup.array(yup.string().max(12)).max(5),
 });
 
 const EditForm = (props: Props) => {

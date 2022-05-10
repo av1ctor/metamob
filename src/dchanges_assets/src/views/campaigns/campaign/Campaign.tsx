@@ -79,140 +79,140 @@ const Campaign = (props: Props) => {
 
     const goal = calcMaxSignatures(campaign?.signaturesCnt || 0);
 
+    if(!campaign) {
+        return null;
+    }
+
     return (
         <article className="media campaign">
-            {campaign &&
-                <>
-                    <div className="media-content">
-                        <div className="content">
-                            <div className="is-size-2 overflow-hidden">
-                                {campaign.title}
+            <div className="media-content">
+                <div className="content">
+                    <div className="is-size-2 overflow-hidden">
+                        {campaign.title}
+                    </div>
+                    <div className="mb-2 overflow-hidden">
+                        <Category id={campaign.categoryId} />
+                        {campaign.tags.map(id => <Tag key={id} id={id} />)}
+                    </div>
+                    <div className="columns">
+                        <div className="column is-two-thirds overflow-hidden">
+                            <div className="image campaign-cover mb-2">
+                                <img src={campaign.cover || "1280x960.png"} />
                             </div>
-                            <div className="mb-2 overflow-hidden">
-                                <Category id={campaign.categoryId} />
-                                {campaign.tags.map(id => <Tag key={id} id={id} />)}
-                            </div>
-                            <div className="columns">
-                                <div className="column is-two-thirds overflow-hidden">
-                                    <div className="image campaign-cover mb-2">
-                                        <img src={campaign.cover || "1280x960.png"} />
-                                    </div>
-                                    <ReactMarkdown className="campaign-body" children={campaign.body}/>
-                                </div>
-                                <div className="column">
-                                    <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
-                                    <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
-                                    <br/>
-                                    {campaign.state === CampaignState.PUBLISHED? 
-                                        auth.user?._id === campaign.createdBy?
-                                            <UpdateForm 
-                                                campaign={campaign}
-                                                onSuccess={props.onSuccess}
-                                                onError={props.onError}
-                                            />:
-                                            <>
-                                                <div className="is-size-4 has-text-link">
-                                                    To {campaign.target}
-                                                </div>
-                                                <SignForm 
-                                                    campaign={campaign}
-                                                    body={userSignature?.data?.body} 
-                                                    onSuccess={props.onSuccess}
-                                                    onError={props.onError}
-                                                />
-                                            </>:
-                                        <Result result={campaign.result} />
-                                    }
-                                </div>
-                            </div>
-                            <div className="mt-4 pt-2 mb-2">
-                                <Avatar id={campaign.createdBy} size='lg' />
-                            </div>
-                            <p>
-                                <small>
-                                    {canEdit &&
-                                        <>
-                                            <a
-                                                title="edit"
-                                                onClick={toggleEdit}
-                                            >
-                                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                            <a
-                                                title="delete"
-                                                onClick={toggleDelete}
-                                            >
-                                                <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                        </>
-                                    }
+                            <ReactMarkdown className="campaign-body" children={campaign.body}/>
+                        </div>
+                        <div className="column">
+                            <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
+                            <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
+                            <br/>
+                            {campaign.state === CampaignState.PUBLISHED? 
+                                auth.user?._id === campaign.createdBy?
+                                    <UpdateForm 
+                                        campaign={campaign}
+                                        onSuccess={props.onSuccess}
+                                        onError={props.onError}
+                                    />:
+                                    <>
+                                        <div className="is-size-4 has-text-link">
+                                            To {campaign.target}
+                                        </div>
+                                        <SignForm 
+                                            campaign={campaign}
+                                            body={userSignature?.data?.body} 
+                                            onSuccess={props.onSuccess}
+                                            onError={props.onError}
+                                        />
+                                    </>:
+                                <Result result={campaign.result} />
+                            }
+                        </div>
+                    </div>
+                    <div className="mt-4 pt-2 mb-2">
+                        <Avatar id={campaign.createdBy} size='lg' />
+                    </div>
+                    <p>
+                        <small>
+                            {canEdit &&
+                                <>
                                     <a
-                                        title="report"
-                                        onClick={toggleReport}
+                                        title="edit"
+                                        onClick={toggleEdit}
                                     >
-                                        <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                        <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
                                     </a>
                                     &nbsp;·&nbsp;
-                                    <TimeFromNow 
-                                        date={BigInt.asIntN(64, campaign.createdAt)}
-                                    />
-                                </small>
-                            </p>                            
-
-                        </div>
-
-                        <Tabs
-                            tabs={[
-                                {title: 'Signatures', icon: 'signature'},
-                                {title: 'Updates', icon: 'newspaper'}
-                            ]}
-                        >
-                            <Signatures 
-                                campaign={campaign} 
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
+                                    <a
+                                        title="delete"
+                                        onClick={toggleDelete}
+                                    >
+                                        <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
+                                </>
+                            }
+                            <a
+                                title="report"
+                                onClick={toggleReport}
+                            >
+                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                            </a>
+                            &nbsp;·&nbsp;
+                            <TimeFromNow 
+                                date={BigInt.asIntN(64, campaign.createdAt)}
                             />
+                        </small>
+                    </p>                            
 
-                            <Updates
-                                campaign={campaign} 
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
-                            />
-                        </Tabs>
+                </div>
 
-                    </div>
-                    
-                    <Modal
-                        isOpen={modals.edit}
-                        onClose={toggleEdit}
-                    >
-                        <EditForm 
-                            campaign={campaign} 
-                            categories={categories.categories} 
-                            onCancel={toggleEdit}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                        />
-                    </Modal>
+                <Tabs
+                    tabs={[
+                        {title: 'Signatures', icon: 'signature'},
+                        {title: 'Updates', icon: 'newspaper'}
+                    ]}
+                >
+                    <Signatures 
+                        campaign={campaign} 
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
 
-                    <Modal
-                        isOpen={modals.delete}
-                        onClose={toggleDelete}
-                    >
-                        delete
-                    </Modal>
+                    <Updates
+                        campaign={campaign} 
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                </Tabs>
 
-                    <Modal
-                        isOpen={modals.report}
-                        onClose={toggleReport}
-                    >
-                        report
-                    </Modal>
-                </>
-            }
-        </article>
+            </div>
+            
+            <Modal
+                isOpen={modals.edit}
+                onClose={toggleEdit}
+            >
+                <EditForm 
+                    campaign={campaign} 
+                    categories={categories.categories} 
+                    onCancel={toggleEdit}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Modal>
+
+            <Modal
+                isOpen={modals.delete}
+                onClose={toggleDelete}
+            >
+                delete
+            </Modal>
+
+            <Modal
+                isOpen={modals.report}
+                onClose={toggleReport}
+            >
+                report
+            </Modal>
+</article>
     );
 };
 
