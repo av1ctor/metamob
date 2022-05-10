@@ -11,7 +11,7 @@ interface Props {
     campaign: Campaign
 };
 
-const buildSignatureer = (campaign: Campaign): number[] => {
+const buildSignature = (campaign: Campaign): number[] => {
     if(campaign.signaturesCnt > 0) {
         let res = new Set([campaign.createdBy]);
         campaign.signaturers.forEach(id => res.add(id));
@@ -40,7 +40,7 @@ const Item = (props: Props) => {
         >
             <div className="level">
                 <div className="flex-none w-16 p-4 border-b-2 text-center">
-                    {buildSignatureer(campaign).map((id) => <Avatar key={id} id={id} />)}
+                    {buildSignature(campaign).map((id) => <Avatar key={id} id={id} />)}
                 </div>
                 <div className="flex-none w-16 p-4 border-b-2 text-center">
                     {campaign.signaturesCnt}

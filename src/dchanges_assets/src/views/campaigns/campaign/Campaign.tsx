@@ -14,6 +14,7 @@ import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
+import UpdateForm from "./Update";
 import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 import Tabs from "../../../components/Tabs";
 
@@ -100,16 +101,25 @@ const Campaign = (props: Props) => {
                                 <div className="column">
                                     <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
                                     <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
-                                    <div className="is-size-4 has-text-link">
-                                        To {campaign.target}
-                                    </div>
-
-                                    <SignForm 
-                                        campaign={campaign}
-                                        body={userSignature?.data?.body} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                    />
+                                    <br/>
+                                    {auth.user?._id === campaign.createdBy?
+                                        <UpdateForm 
+                                            campaign={campaign}
+                                            onSuccess={props.onSuccess}
+                                            onError={props.onError}
+                                        />:
+                                        <>
+                                            <div className="is-size-4 has-text-link">
+                                                To {campaign.target}
+                                            </div>
+                                            <SignForm 
+                                                campaign={campaign}
+                                                body={userSignature?.data?.body} 
+                                                onSuccess={props.onSuccess}
+                                                onError={props.onError}
+                                            />
+                                        </>
+                                    }
                                 </div>
                             </div>
                             <div className="mt-4 pt-2 mb-2">
