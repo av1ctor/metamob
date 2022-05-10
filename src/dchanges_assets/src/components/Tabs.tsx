@@ -3,6 +3,7 @@ import React, {useCallback, useState} from "react";
 interface Tab {
     title: string;
     icon: string;
+    badge?: string;
 }
 
 interface Props {
@@ -25,8 +26,9 @@ const Tabs = (props: Props) => {
                         <li key={index} className={`${index === active? 'is-active': ''}`}>
                             <a onClick={() => handleChangeActive(index)}>
                                 <span className="icon is-small"><i className={`la la-${tab.icon}`}/></span>
-                                <span>
+                                <span className="is-relative">
                                     {tab.title}
+                                    {tab.badge && <span className="badge is-outlined">{tab.badge}</span>}
                                 </span>
                             </a>
                         </li>

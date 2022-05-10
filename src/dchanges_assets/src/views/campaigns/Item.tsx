@@ -50,8 +50,8 @@ const Item = (props: Props) => {
                     <span className="tag is-rounded is-light">published</span>
                     }
                     &nbsp;·&nbsp;
-                    <span className="tag" title="Signatures">{campaign.signaturesCnt}</span>&nbsp;·&nbsp;
-                    <span className="tag" title="Updates">{campaign.updatesCnt}</span>
+                    <span className="tag is-rounded is-success" title="Signatures">{campaign.signaturesCnt}</span>
+                    {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title="Updates">{campaign.updatesCnt}</span></>}
                 </div>
                 <div className="level-right">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;

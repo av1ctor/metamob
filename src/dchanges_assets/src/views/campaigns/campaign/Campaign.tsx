@@ -102,7 +102,7 @@ const Campaign = (props: Props) => {
                             <ReactMarkdown className="campaign-body" children={campaign.body}/>
                         </div>
                         <div className="column">
-                            <progress className="progress mb-0 pb-0" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
+                            <progress className="progress mb-0 pb-0 is-success" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
                             <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
                             <br/>
                             {campaign.state === CampaignState.PUBLISHED? 
@@ -167,8 +167,8 @@ const Campaign = (props: Props) => {
 
                 <Tabs
                     tabs={[
-                        {title: 'Signatures', icon: 'signature'},
-                        {title: 'Updates', icon: 'newspaper'}
+                        {title: 'Signatures', icon: 'signature', badge: campaign.signaturesCnt > 0? campaign.signaturesCnt.toString(): ''},
+                        {title: 'Updates', icon: 'newspaper', badge: campaign.updatesCnt > 0? campaign.updatesCnt.toString(): ''}
                     ]}
                 >
                     <Signatures 

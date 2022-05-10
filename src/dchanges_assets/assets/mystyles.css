@@ -9276,3 +9276,6 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
 
 .media:first-of-type {
   border: none; }
+
+.badge {
+  top: 1px; }
