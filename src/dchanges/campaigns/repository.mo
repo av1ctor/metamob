@@ -257,17 +257,17 @@ module {
         };
 
         public func findByTag(
-            tagId: Nat32,
+            tagId: Text,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
-            func buildCriterias(tagId: Nat32): ?[Table.Criteria] {
+            func buildCriterias(tagId: Text): ?[Table.Criteria] {
                 ?[
                     {       
                         key = "tagId";
                         op = #eq;
-                        value = #nat32(tagId);
+                        value = #text(tagId);
                     }
                 ]
             };
@@ -583,7 +583,7 @@ module {
         res.put("state", #nat8(entity.state));
         res.put("result", #nat8(entity.result));
         res.put("duration", #nat32(entity.duration));
-        res.put("tags", #array(Array.map(entity.tags, func(id: Nat32): Variant.Variant {#nat32(id);})));
+        res.put("tags", #array(Array.map(entity.tags, func(id: Text): Variant.Variant {#text(id);})));
         res.put("signaturesCnt", #nat32(entity.signaturesCnt));
         res.put("firstSignatureAt", switch(entity.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
         res.put("lastSignatureAt", switch(entity.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
@@ -616,7 +616,7 @@ module {
             state = Variant.getOptNat8(map.get("state"));
             result = Variant.getOptNat8(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
-            tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getNat32);
+            tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
             signaturesCnt = Variant.getOptNat32(map.get("signaturesCnt"));
             firstSignatureAt = Variant.getOptIntOpt(map.get("firstSignatureAt"));
             lastSignatureAt = Variant.getOptIntOpt(map.get("lastSignatureAt"));

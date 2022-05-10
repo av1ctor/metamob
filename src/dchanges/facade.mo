@@ -6,13 +6,11 @@ import CategoryTypes "./categories/types";
 import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
 import UpdateTypes "./updates/types";
-import TagTypes "./tags/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
 import UpdateService "./updates/service";
-import TagService "./tags/service";
 
 shared({caller = owner}) actor class DChanges() {
 
@@ -22,7 +20,6 @@ shared({caller = owner}) actor class DChanges() {
     let campaignService = CampaignService.Service(userService);
     let signatureService = SignatureService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
-    let tagService = TagService.Service(userService);
 
     private func _transformUserReponse(
         res: Result.Result<UserTypes.Profile, Text>
@@ -312,68 +309,32 @@ shared({caller = owner}) actor class DChanges() {
     };   
     
     //
-    // tags facade
-    //
-    public shared(msg) func tagCreate(
-        req: TagTypes.TagRequest
-    ): async Result.Result<TagTypes.Tag, Text> {
-        tagService.create(req, msg.caller);
-    };
-
-    public shared(msg) func tagUpdate(
-        id: Text, 
-        req: TagTypes.TagRequest
-    ): async Result.Result<TagTypes.Tag, Text> {
-        tagService.update(id, req, msg.caller);
-    };
-
-    public query func tagFindById(
-        _id: Nat32
-    ): async Result.Result<TagTypes.Tag, Text> {
-        tagService.findById(_id);
-    };
-
-    public shared query(msg) func tagFind(
-        criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
-        limit: ?(Nat, Nat)
-    ): async Result.Result<[TagTypes.Tag], Text> {
-        tagService.find(criterias, sortBy, limit, msg.caller);
-    };
-
-    public shared(msg) func tagDelete(
-        id: Text
-    ): async Result.Result<(), Text> {
-        tagService.delete(id, msg.caller);
-    };
-
     //
     // migration
     //
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
-    stable var tagEntities: [[(Text, Variant.Variant)]] = [];
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
+    stable var updateEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
-        tagEntities := tagService.backup();
         campaignEntities := campaignService.backup();
         signatureEntities := signatureService.backup();
+        updateEntities := updateService.backup();
     };
 
     system func postupgrade() {
         userService.restore(userEntities);
         categoryService.restore(categoryEntities);
-        tagService.restore(tagEntities);
         campaignService.restore(campaignEntities);
-        signatureService.restore(signatureEntities);
+        updateService.restore(updateEntities);
         userEntities := [];
         categoryEntities := [];
-        tagEntities := [];
         campaignEntities := [];
         signatureEntities := [];
+        updateEntities := [];
     };      
 };

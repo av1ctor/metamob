@@ -34,7 +34,7 @@ const Tabs = (props: Props) => {
                 </ul>
             </div>
             {props.children.map((child, index) => 
-                <div className={`${index === active? 'is-visible': 'is-hidden'}`}>
+                <div key={index} className={`${index === active? 'is-visible': 'is-hidden'}`}>
                     {child}
                 </div>)}
         </>

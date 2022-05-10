@@ -28,6 +28,7 @@
     "@dfinity/candid": "0.11.1",
     "@dfinity/identity": "^0.11.1",
     "@dfinity/principal": "0.11.1",
+    "@types/creativebulma__bulma-tagsinput": "^1.0.2",
     "@types/react": "^18.0.8",
     "@types/react-modal": "^3.13.1",
     "assert": "2.0.0",
@@ -60,6 +61,7 @@
     "last 2 edge version"
   ],
   "dependencies": {
+    "@creativebulma/bulma-tagsinput": "^1.0.3",
     "bulma-o-steps": "^1.1.0",
     "bulma-toast": "^2.4.1",
     "classnames": "^2.3.1",

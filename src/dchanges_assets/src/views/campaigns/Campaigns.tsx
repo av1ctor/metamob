@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
-import {TagContext} from "../../stores/tag";
 import {Filter} from "../../libs/common";
 import {useFindCampaigns, useCreateCampaign} from "../../hooks/campaigns";
 import CreateForm from "./Create";
@@ -31,7 +30,6 @@ interface Props {
 const Campaigns = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
-    const [tagState, ] = useContext(TagContext);
 
     const [filters, setFilters] = useState<Filter>({
         key: 'title',
@@ -118,7 +116,6 @@ const Campaigns = (props: Props) => {
             >
                 <CreateForm
                     categories={categoryState.categories}
-                    tags={tagState.tags}
                     mutation={createCampaignMut}
                     onCancel={toggleCreate}
                     onSuccess={props.onSuccess}

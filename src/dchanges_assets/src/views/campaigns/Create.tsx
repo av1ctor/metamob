@@ -4,15 +4,15 @@ import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import SelectField from "../../components/SelectField";
 import Grid from "../../components/Grid";
-import {Category, Tag, CampaignRequest} from "../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest} from "../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../components/NumberField";
 import MarkdownField from "../../components/MarkdownField";
 import { ActorContext } from "../../stores/actor";
+import TagsField from "../../components/TagsField";
 
 interface Props {
     mutation: any;
     categories: Category[];
-    tags: Tag[];
     onCancel: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -25,7 +25,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required(),
-    tags: yup.array(yup.number()),
+    tags: yup.array(yup.number()).max(5),
 });
 
 const CreateForm = (props: Props) => {
@@ -89,13 +89,6 @@ const CreateForm = (props: Props) => {
         }));
     }, []);
   
-    const changeTags = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            tags: e.target.value.split(',').map((t: string) => Number(t))
-        }));
-    }, []);
-    
     return (
         <form onSubmit={handleCreate}>
             <Grid container>
@@ -142,11 +135,11 @@ const CreateForm = (props: Props) => {
                     required={true}
                     onChange={changeForm} 
                 />
-                <TextField 
+                <TagsField 
                     label="Tags"
                     name="tags"
-                    value={form.tags.join(',')}
-                    onChange={changeTags} 
+                    value={form.tags}
+                    onChange={changeForm} 
                 />
                 <Grid container>
                     {props.mutation.isError && 

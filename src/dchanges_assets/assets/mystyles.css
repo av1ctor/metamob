@@ -9262,6 +9262,9 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
   max-width: 306px;
   max-height: 230px; }
 
+.tag:not(:first-child) {
+  margin-left: 4px; }
+
 .ReactModal__Overlay {
   z-index: 1000; }
 

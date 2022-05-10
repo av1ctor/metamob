@@ -1,7 +1,7 @@
-import React, {useState, ChangeEvent, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Tag, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField from "../../../components/SelectField";
 import Grid from "../../../components/Grid";
@@ -9,11 +9,11 @@ import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
+import TagsField from "../../../components/TagsField";
 
 interface Props {
     campaign: Campaign;
     categories: Category[];
-    tags: Tag[];
     onCancel: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -26,7 +26,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required(),
-    tags: yup.array(yup.number()),
+    tags: yup.array(yup.string()).max(5),
 });
 
 const EditForm = (props: Props) => {
@@ -42,13 +42,6 @@ const EditForm = (props: Props) => {
         setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
-        }));
-    }, []);
-
-    const changeTags = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            tags: e.target.value.split(',').map((t: string) => Number(t))
         }));
     }, []);
 
@@ -139,11 +132,11 @@ const EditForm = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />
-                <TextField 
+                <TagsField 
                     label="Tags"
                     name="tags"
-                    value={form.tags.join(',')}
-                    onChange={changeTags} 
+                    value={form.tags}
+                    onChange={changeForm} 
                 />
                 <div className="field is-grouped mt-2">
                     <div className="control">

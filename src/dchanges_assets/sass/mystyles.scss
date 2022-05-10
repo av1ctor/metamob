@@ -42,6 +42,10 @@
     max-height: 230px;
 }
 
+.tag:not(:first-child) {
+    margin-left: 4px;
+}
+
 .ReactModal__Overlay {
     z-index: 1000;
 }

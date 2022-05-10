@@ -4,7 +4,6 @@ import ReactMarkdown from 'react-markdown';
 import {useFindCampaignById} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
-import {TagContext} from "../../../stores/tag";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Signatures from "../../signatures/Signatures";
@@ -39,7 +38,6 @@ const Campaign = (props: Props) => {
     const {id} = useParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
-    const [tags] = useContext(TagContext);
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
@@ -180,7 +178,6 @@ const Campaign = (props: Props) => {
                         <EditForm 
                             campaign={campaign} 
                             categories={categories.categories} 
-                            tags={tags.tags}
                             onCancel={toggleEdit}
                             onSuccess={props.onSuccess}
                             onError={props.onError}

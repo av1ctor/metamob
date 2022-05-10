@@ -23,7 +23,7 @@ module {
         state: CampaignState;
         result: CampaignResult;
         duration: Nat32;
-        tags: [Nat32];
+        tags: [Text];
         signaturesCnt: Nat32;
         firstSignatureAt: ?Int;
         lastSignatureAt: ?Int;
@@ -46,7 +46,7 @@ module {
         cover: Text;
         body: Text;
         categoryId: Nat32;
-        tags: [Nat32];
+        tags: [Text];
         duration: Nat32;
     };
 };

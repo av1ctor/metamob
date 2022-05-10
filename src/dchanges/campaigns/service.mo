@@ -92,7 +92,7 @@ module {
         };
 
         public func findByTag(
-            tagId: Nat32,
+            tagId: Text,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
