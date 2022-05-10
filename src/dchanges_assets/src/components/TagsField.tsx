@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import BulmaTagsInput from '@creativebulma/bulma-tagsinput';
+import React, { KeyboardEventHandler, useCallback, useState } from "react";
 
 interface Props {
     label?: string;
@@ -11,32 +10,34 @@ interface Props {
 }
 
 const TagsField = (props: Props) => {
-    const inpRef = useRef(null);
+    const [value, setValue] = useState('');
 
-    const handleChange = useCallback((value: string[]) => {
-        props.onChange({target: {id: props.id, name: props.name, value: value}})
-    }, [props.onChange]);
-
-    const fakeChange = useCallback((e: any) => {
+    const handleChange = useCallback((e: any) => {
+        setValue(e.target.value);
     }, []);
 
-    useEffect(() => {
-        if(inpRef.current) {
-            const bti = new BulmaTagsInput(inpRef.current, {
-                caseSensitive: false,
-                maxTags: props.maxTags || 5,
-            });
-            bti.on('after.add', (): any => {
-                const value = typeof bti.value === 'string'? bti.value.split(','): bti.value;
-                handleChange(value);
-            });
-            bti.on('after.remove', (): any => {
-                const value = typeof bti.value === 'string'? bti.value.split(','): bti.value;
-                handleChange(value);
-            });            
+    const handleInsert = useCallback(() => {
+        const arr = new Set(props.value);
+        arr.add(value);
+        setValue('');
+        props.onChange({target: {id: props.id, name: props.name, value: Array.from(arr)}})
+    }, [props.onChange, props.value, value]);
+
+    const handleDelete = useCallback((index: number) => {
+        const arr = Array.from(props.value);
+        arr.splice(index, 1);
+        props.onChange({target: {id: props.id, name: props.name, value: arr}})
+    }, [props.onChange, props.value]);
+
+    const handleKeyDown = useCallback((e: any) => {
+        switch(e.key) {
+            case 'Enter':
+                e.preventDefault();
+                handleInsert();
+                break;   
         }
-    }, [inpRef.current])
-    
+    }, [handleInsert]);
+
     return (
         <div className="field">
             {props.label &&
@@ -45,12 +46,21 @@ const TagsField = (props: Props) => {
                 </label>
             }
             <div className="control">
+                <div className="tags-input">
+                    {props.value.map((val, index) => 
+                        <span key={val} className="tag is-rounded">
+                            {val}
+                            <div className="delete is-small" onClick={() => handleDelete(index)}></div>
+                        </span>
+                    )}
+                </div>
                 <input 
                     className="input"
-                    ref={inpRef}
-                    value={props.value}
-                    multiple
-                    onChange={fakeChange}
+                    type="text"
+                    value={value}
+                    disabled={props.value.length >= (props.maxTags || Number.MAX_SAFE_INTEGER)}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
                 />
             </div>
         </div>

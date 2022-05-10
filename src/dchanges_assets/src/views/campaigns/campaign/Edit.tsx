@@ -136,6 +136,7 @@ const EditForm = (props: Props) => {
                     label="Tags"
                     name="tags"
                     value={form.tags}
+                    maxTags={5}
                     onChange={changeForm} 
                 />
                 <div className="field is-grouped mt-2">

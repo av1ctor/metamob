@@ -139,6 +139,7 @@ const CreateForm = (props: Props) => {
                     label="Tags"
                     name="tags"
                     value={form.tags}
+                    maxTags={5}
                     onChange={changeForm} 
                 />
                 <Grid container>
