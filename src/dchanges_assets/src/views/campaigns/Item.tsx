@@ -53,7 +53,7 @@ const Item = (props: Props) => {
                     <span className="tag is-rounded is-success" title="Signatures">{campaign.signaturesCnt}</span>
                     {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title="Updates">{campaign.updatesCnt}</span></>}
                 </div>
-                <div className="level-right">
+                <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
                     <TimeFromNow 
                         date={BigInt.asIntN(64, campaign.signaturesCnt > 0? campaign.lastSignatureAt[0] || 0n: campaign.createdAt)}
