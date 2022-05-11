@@ -49,7 +49,7 @@ const TagsField = (props: Props) => {
                 <div className="tags-input">
                     {props.value.map((val, index) => 
                         <span key={val} className="tag is-rounded">
-                            {val}
+                            #{val}
                             <div className="delete is-small" onClick={() => handleDelete(index)}></div>
                         </span>
                     )}

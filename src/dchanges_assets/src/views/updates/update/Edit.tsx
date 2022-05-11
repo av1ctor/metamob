@@ -3,9 +3,9 @@ import * as yup from 'yup';
 import {useUpdateUpdate} from "../../../hooks/updates";
 import {Update, UpdateRequest} from "../../../../../declarations/dchanges/dchanges.did";
 import Grid from "../../../components/Grid";
-import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import MarkdownField from "../../../components/MarkdownField";
 
 interface Props {
     update: Update;
@@ -74,12 +74,11 @@ const EditForm = (props: Props) => {
     return (
         <form onSubmit={handleUpdate}>
             <Grid container>
-                <TextAreaField
+                <MarkdownField
                     label="Body"
                     name="body"
                     value={form.body || ''}
                     rows={6}
-                    required={true}
                     onChange={changeForm}
                 />
                 <div className="field is-grouped mt-2">

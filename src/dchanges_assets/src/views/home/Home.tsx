@@ -137,7 +137,7 @@ export const Home = () => {
                         <Route path="/user/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/user/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns />} />
-                        <Route path="/p/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/c/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/" element={<Campaigns onSuccess={showSuccess} onError={showError} />} />
                     </Routes>
                 </div>

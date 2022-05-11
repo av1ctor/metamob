@@ -29,14 +29,14 @@ const Item = (props: Props) => {
     return (
         <Card 
             title={
-                <Link to={`/p/${campaign.pubId}`}>{campaign.title}</Link>
+                <Link to={`/c/${campaign.pubId}`}>{campaign.title}</Link>
             } 
             subtitle={<>
                 <Category id={campaign.categoryId} />
                 {campaign.tags.map(id => <Tag key={id} id={id} />)}
             </>}
             img={
-                <Link to={`/p/${campaign.pubId}`}><img src={campaign.cover || "1280x960.png"}/></Link>
+                <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover || "1280x960.png"}/></Link>
             }
         >
             <div className="level">
