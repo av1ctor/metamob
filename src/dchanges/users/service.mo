@@ -138,5 +138,10 @@ module {
         ) {
             repo.restore(entities);
         };
+
+        public func getRepository(
+        ): Repository.Repository {
+            repo;
+        };
     };
 };

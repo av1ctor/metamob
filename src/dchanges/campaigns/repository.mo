@@ -99,16 +99,16 @@ module {
                 case (#err(msg)) {
                     #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             #err("Not found");
                         };
-                        case (?entity) {
-                            if(Option.isSome(entity.deletedAt)) {
+                        case (?e) {
+                            if(Option.isSome(e.deletedAt)) {
                                 return #err("Not found");
                             };
-                            #ok(entity);
+                            #ok(e);
                         };
                     };
                 };
@@ -126,16 +126,16 @@ module {
                 case (#err(msg)) {
                     #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             #err("Not found");
                         };
-                        case (?entity) {
-                            if(Option.isSome(entity.deletedAt)) {
+                        case (?e) {
+                            if(Option.isSome(e.deletedAt)) {
                                 return #err("Not found");
                             };                            
-                            #ok(entity);
+                            #ok(e);
                         };
                     };
                 };
@@ -412,270 +412,270 @@ module {
         };
 
         func _updateEntity(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             req: Types.CampaignRequest,
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
+                _id = e._id;
+                pubId = e.pubId;
                 title = req.title;
                 target = req.target;
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
-                state = campaign.state;
-                result = campaign.result;
-                duration = campaign.duration;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
                 tags = req.tags;
-                signaturesCnt = campaign.signaturesCnt;
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = campaign.signaturers;
-                updatesCnt = campaign.updatesCnt;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
+                signaturesCnt = e.signaturesCnt;
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = e.signaturers;
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };
 
         func _deleteEntity(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
+                _id = e._id;
+                pubId = e.pubId;
                 title = "";
                 target = "";
                 cover = "";
                 body = "";
-                categoryId = campaign.categoryId;
+                categoryId = e.categoryId;
                 state = Types.STATE_DELETED;
-                result = campaign.result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt;
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = campaign.signaturers;
-                updatesCnt = campaign.updatesCnt;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
-                updatedAt = campaign.updatedAt;
-                updatedBy = campaign.updatedBy;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt;
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = e.signaturers;
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
                 deletedAt = ?Time.now();
                 deletedBy = ?callerId;
             }  
         };
 
         func _updateEntityWhenSignatureInserted(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             signature: SignatureTypes.Signature
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
-                title = campaign.title;
-                target = campaign.target;
-                cover = campaign.cover;
-                body = campaign.body;
-                categoryId = campaign.categoryId;
-                state = campaign.state;
-                result = campaign.result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt + 1;
-                firstSignatureAt = switch(campaign.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
+                _id = e._id;
+                pubId = e.pubId;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt + 1;
+                firstSignatureAt = switch(e.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
                 lastSignatureAt = ?signature.createdAt;
                 lastSignatureBy = ?signature.createdBy;
-                signaturers = Utils.addToArray(campaign.signaturers, signature.createdBy);
-                updatesCnt = campaign.updatesCnt;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
-                updatedAt = campaign.updatedAt;
-                updatedBy = campaign.updatedBy;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                signaturers = Utils.addToArray(e.signaturers, signature.createdBy);
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };        
 
         func _updateEntityWhenSignatureDeleted(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             signature: SignatureTypes.Signature
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
-                title = campaign.title;
-                target = campaign.target;
-                cover = campaign.cover;
-                body = campaign.body;
-                categoryId = campaign.categoryId;
-                state = campaign.state;
-                result = campaign.result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt - (if(campaign.signaturesCnt > 0) 1 else 0);
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = Utils.delFromArray(campaign.signaturers, signature.createdBy, Nat32.equal);
-                updatesCnt = campaign.updatesCnt;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
-                updatedAt = campaign.updatedAt;
-                updatedBy = campaign.updatedBy;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                _id = e._id;
+                pubId = e.pubId;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt - (if(e.signaturesCnt > 0) 1 else 0);
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = Utils.delFromArray(e.signaturers, signature.createdBy, Nat32.equal);
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };     
 
         func _updateEntityWhenUpdateInserted(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             update: UpdateTypes.Update
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
-                title = campaign.title;
-                target = campaign.target;
-                cover = campaign.cover;
-                body = campaign.body;
-                categoryId = campaign.categoryId;
-                state = campaign.state;
-                result = campaign.result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt;
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = campaign.signaturers;
-                updatesCnt = campaign.updatesCnt + 1;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
-                updatedAt = campaign.updatedAt;
-                updatedBy = campaign.updatedBy;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                _id = e._id;
+                pubId = e.pubId;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt;
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = e.signaturers;
+                updatesCnt = e.updatesCnt + 1;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };        
 
         func _updateEntityWhenUpdateDeleted(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             update: UpdateTypes.Update
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
-                title = campaign.title;
-                target = campaign.target;
-                cover = campaign.cover;
-                body = campaign.body;
-                categoryId = campaign.categoryId;
-                state = campaign.state;
-                result = campaign.result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt;
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = campaign.signaturers;
-                updatesCnt = campaign.updatesCnt - (if(campaign.updatesCnt > 0) 1 else 0);
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
-                updatedAt = campaign.updatedAt;
-                updatedBy = campaign.updatedBy;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                _id = e._id;
+                pubId = e.pubId;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt;
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = e.signaturers;
+                updatesCnt = e.updatesCnt - (if(e.updatesCnt > 0) 1 else 0);
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };           
 
         func _updateEntityWhenFinished(
-            campaign: Types.Campaign, 
+            e: Types.Campaign, 
             result: Types.CampaignResult,
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = campaign._id;
-                pubId = campaign.pubId;
-                title = campaign.title;
-                target = campaign.target;
-                cover = campaign.cover;
-                body = campaign.body;
-                categoryId = campaign.categoryId;
+                _id = e._id;
+                pubId = e.pubId;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
                 state = Types.STATE_FINISHED;
                 result = result;
-                duration = campaign.duration;
-                tags = campaign.tags;
-                signaturesCnt = campaign.signaturesCnt;
-                firstSignatureAt = campaign.firstSignatureAt;
-                lastSignatureAt = campaign.lastSignatureAt;
-                lastSignatureBy = campaign.lastSignatureBy;
-                signaturers = campaign.signaturers;
-                updatesCnt = campaign.updatesCnt;
-                publishedAt = campaign.publishedAt;
-                expiredAt = campaign.expiredAt;
-                createdAt = campaign.createdAt;
-                createdBy = campaign.createdBy;
+                duration = e.duration;
+                tags = e.tags;
+                signaturesCnt = e.signaturesCnt;
+                firstSignatureAt = e.firstSignatureAt;
+                lastSignatureAt = e.lastSignatureAt;
+                lastSignatureBy = e.lastSignatureBy;
+                signaturers = e.signaturers;
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                deletedAt = campaign.deletedAt;
-                deletedBy = campaign.deletedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
             }  
         };        
     };
 
     func serialize(
-        entity: Types.Campaign,
+        e: Types.Campaign,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
 
-        res.put("_id", #nat32(entity._id));
-        res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
-        res.put("title", #text(if ignoreCase Utils.toLower(entity.title) else entity.title));
-        res.put("target", #text(if ignoreCase Utils.toLower(entity.target) else entity.target));
-        res.put("cover", #text(entity.cover));
-        res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
-        res.put("categoryId", #nat32(entity.categoryId));
-        res.put("state", #nat8(entity.state));
-        res.put("result", #nat8(entity.result));
-        res.put("duration", #nat32(entity.duration));
-        res.put("tags", #array(Array.map(entity.tags, func(id: Text): Variant.Variant {#text(id);})));
-        res.put("signaturesCnt", #nat32(entity.signaturesCnt));
-        res.put("firstSignatureAt", switch(entity.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
-        res.put("lastSignatureAt", switch(entity.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
-        res.put("lastSignatureBy", switch(entity.lastSignatureBy) {case null #nil; case (?lastSignatureBy) #nat32(lastSignatureBy);});
-        res.put("signaturers", #array(Array.map(entity.signaturers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
-        res.put("updatesCnt", #nat32(entity.updatesCnt));
-        res.put("publishedAt", switch(entity.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
-        res.put("expiredAt", switch(entity.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
-        res.put("createdAt", #int(entity.createdAt));
-        res.put("createdBy", #nat32(entity.createdBy));
-        res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
-        res.put("updatedBy", switch(entity.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
-        res.put("deletedAt", switch(entity.deletedAt) {case null #nil; case (?deletedAt) #int(deletedAt);});
-        res.put("deletedBy", switch(entity.deletedBy) {case null #nil; case (?deletedBy) #nat32(deletedBy);});
+        res.put("_id", #nat32(e._id));
+        res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("title", #text(if ignoreCase Utils.toLower(e.title) else e.title));
+        res.put("target", #text(if ignoreCase Utils.toLower(e.target) else e.target));
+        res.put("cover", #text(e.cover));
+        res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("categoryId", #nat32(e.categoryId));
+        res.put("state", #nat8(e.state));
+        res.put("result", #nat8(e.result));
+        res.put("duration", #nat32(e.duration));
+        res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
+        res.put("signaturesCnt", #nat32(e.signaturesCnt));
+        res.put("firstSignatureAt", switch(e.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
+        res.put("lastSignatureAt", switch(e.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
+        res.put("lastSignatureBy", switch(e.lastSignatureBy) {case null #nil; case (?lastSignatureBy) #nat32(lastSignatureBy);});
+        res.put("signaturers", #array(Array.map(e.signaturers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
+        res.put("updatesCnt", #nat32(e.updatesCnt));
+        res.put("publishedAt", switch(e.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
+        res.put("expiredAt", switch(e.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
+        res.put("createdAt", #int(e.createdAt));
+        res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
+        res.put("deletedAt", switch(e.deletedAt) {case null #nil; case (?deletedAt) #int(deletedAt);});
+        res.put("deletedBy", switch(e.deletedBy) {case null #nil; case (?deletedBy) #nat32(deletedBy);});
 
         res;
     };

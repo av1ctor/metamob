@@ -184,6 +184,11 @@ module {
             repo.restore(entities);
         };
 
+        public func getRepository(
+        ): Repository.Repository {
+            repo;
+        };
+
         func hasAuth(
             caller: UserTypes.Profile
         ): Bool {
@@ -204,9 +209,9 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            response: Types.Signature
+            entity: Types.Signature
         ): Bool {
-            if(caller._id != response.createdBy) {
+            if(caller._id != entity.createdBy) {
                 if(UserUtils.isAdmin(caller)) {
                     return true;
                 };

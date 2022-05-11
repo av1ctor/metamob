@@ -242,6 +242,11 @@ module {
             repo.restore(entities);
         };
 
+        public func getRepository(
+        ): Repository.Repository {
+            repo;
+        };
+
         func hasAuth(
             caller: UserTypes.Profile
         ): Bool {
@@ -262,9 +267,9 @@ module {
 
         func canCreate(
             caller: UserTypes.Profile,
-            campaign: CampaignTypes.Campaign
+            entity: CampaignTypes.Campaign
         ): Bool {
-            if(caller._id == campaign.createdBy) {
+            if(caller._id == entity.createdBy) {
                 return true;
             }
             else if(UserUtils.isAdmin(caller)) {
@@ -276,9 +281,9 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            response: Types.Update
+            entity: Types.Update
         ): Bool {
-            if(caller._id == response.createdBy) {
+            if(caller._id == entity.createdBy) {
                 return true;
             }
             else if(UserUtils.isAdmin(caller)) {
@@ -289,9 +294,9 @@ module {
         };
 
         func canChangeCampaign(
-            campaign: CampaignTypes.Campaign
+            entity: CampaignTypes.Campaign
         ): Result.Result<(), Text> {
-            if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+            if(entity.state != CampaignTypes.STATE_PUBLISHED) {
                 #err("Invalid campaign state");
             }
             else {

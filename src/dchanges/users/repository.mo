@@ -27,13 +27,13 @@ module {
             principal: Principal, 
             req: Types.ProfileRequest
         ): Result.Result<Types.Profile, Text> {
-            let prof = _createEntity(principal, req);
-            switch(users.insert(prof._id, prof)) {
+            let e = _createEntity(principal, req);
+            switch(users.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    return #ok(prof);
+                    return #ok(e);
                 };
             };
         };
@@ -43,13 +43,13 @@ module {
             req: Types.ProfileRequest,
             callerId: Nat32,
         ): Result.Result<Types.Profile, Text> {
-            let res = _updateEntity(prof, req, callerId);
-            switch(users.replace(prof._id, res)) {
+            let e = _updateEntity(prof, req, callerId);
+            switch(users.replace(prof._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    return #ok(res);
+                    return #ok(e);
                 };
             };
         };
@@ -163,32 +163,32 @@ module {
         };
 
         func _updateEntity(
-            prof: Types.Profile, 
+            e: Types.Profile, 
             req: Types.ProfileRequest,
             callerId: Nat32
         ): Types.Profile {
             {
-                _id = prof._id;
-                pubId = prof.pubId;
-                principal = prof.principal;
+                _id = e._id;
+                pubId = e.pubId;
+                principal = e.principal;
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
                 roles = switch(req.roles) {
-                    case null prof.roles;
+                    case null e.roles;
                     case (?val) val;
                 };
                 active = switch(req.active) {
-                    case null prof.active;
+                    case null e.active;
                     case (?val) val;
                 };
                 banned = switch(req.banned) {
-                    case null prof.banned;
+                    case null e.banned;
                     case (?val) val;
                 };
                 countryId = req.countryId;
-                createdAt = prof.createdAt;
-                createdBy = prof.createdBy;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -196,25 +196,25 @@ module {
     };
 
     func serialize(
-        entity: Types.Profile,
+        e: Types.Profile,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
 
-        res.put("_id", #nat32(entity._id));
-        res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
-        res.put("principal", #text(if ignoreCase Utils.toLower(entity.principal) else entity.principal));
-        res.put("name", #text(if ignoreCase Utils.toLower(entity.name) else entity.name));
-        res.put("email", #text(if ignoreCase Utils.toLower(entity.email) else entity.email));
-        res.put("avatar", switch(entity.avatar) {case null #nil; case (?avatar) #text(avatar);});
-        res.put("roles", #array(Array.map(entity.roles, _roleToVariant)));
-        res.put("active", #bool(entity.active));
-        res.put("banned", #bool(entity.banned));
-        res.put("countryId", #nat32(entity.countryId));
-        res.put("createdAt", #int(entity.createdAt));
-        res.put("createdBy", #nat32(entity.createdBy));
-        res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
-        res.put("updatedBy", switch(entity.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
+        res.put("_id", #nat32(e._id));
+        res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("principal", #text(if ignoreCase Utils.toLower(e.principal) else e.principal));
+        res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
+        res.put("email", #text(if ignoreCase Utils.toLower(e.email) else e.email));
+        res.put("avatar", switch(e.avatar) {case null #nil; case (?avatar) #text(avatar);});
+        res.put("roles", #array(Array.map(e.roles, _roleToVariant)));
+        res.put("active", #bool(e.active));
+        res.put("banned", #bool(e.banned));
+        res.put("countryId", #nat32(e.countryId));
+        res.put("createdAt", #int(e.createdAt));
+        res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
 
         res;
     };

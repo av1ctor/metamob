@@ -31,14 +31,14 @@ module {
             req: Types.SignatureRequest,
             callerId: Nat32
         ): Result.Result<Types.Signature, Text> {
-            let signature = _createEntity(req, callerId);
-            switch(signatures.insert(signature._id, signature)) {
+            let e = _createEntity(req, callerId);
+            switch(signatures.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(signature, true);
-                    return #ok(signature);
+                    _updateCampaign(e, true);
+                    return #ok(e);
                 };
             };
         };
@@ -63,8 +63,7 @@ module {
             signature: Types.Signature,
             callerId: Nat32
         ): Result.Result<(), Text> {
-            let e = _deleteEntity(signature, callerId);
-            switch(signatures.replace(signature._id, e)) {
+            switch(signatures.delete(signature._id)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -101,13 +100,13 @@ module {
                 case (#err(msg)) {
                     return #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             return #err("Not found");
                         };
-                        case (?entity) {
-                            return #ok(entity);
+                        case (?e) {
+                            return #ok(e);
                         };
                     };
                 };
@@ -125,13 +124,13 @@ module {
                 case (#err(msg)) {
                     return #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             return #err("Not found");
                         };
-                        case (?entity) {
-                            return #ok(entity);
+                        case (?e) {
+                            return #ok(e);
                         };
                     };
                 };
@@ -157,13 +156,13 @@ module {
                 case (#err(msg)) {
                     return #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             return #err("Not found");
                         };
-                        case (?entity) {
-                            return #ok(entity);
+                        case (?e) {
+                            return #ok(e);
                         };
                     };
                 };
@@ -354,55 +353,37 @@ module {
         };
 
         func _updateEntity(
-            signature: Types.Signature, 
+            e: Types.Signature, 
             req: Types.SignatureRequest,
             callerId: Nat32
         ): Types.Signature {
             {
-                _id = signature._id;
-                pubId = signature.pubId;
+                _id = e._id;
+                pubId = e.pubId;
                 body = req.body;
-                campaignId = req.campaignId;
-                createdAt = signature.createdAt;
-                createdBy = signature.createdBy;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-            }  
-        };
-
-        func _deleteEntity(
-            signature: Types.Signature, 
-            callerId: Nat32
-        ): Types.Signature {
-            {
-                _id = signature._id;
-                pubId = signature.pubId;
-                body = "";
-                campaignId = signature.campaignId;
-                createdAt = signature.createdAt;
-                createdBy = signature.createdBy;
-                updatedAt = signature.updatedAt;
-                updatedBy = signature.updatedBy;
-                deletedAt = ?Time.now();
-                deletedBy = ?callerId;
             }  
         };
     };
 
     func serialize(
-        entity: Types.Signature,
+        e: Types.Signature,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
         
-        res.put("_id", #nat32(entity._id));
-        res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
-        res.put("body", #text(if ignoreCase Utils.toLower(entity.body) else entity.body));
-        res.put("campaignId", #nat32(entity.campaignId));
-        res.put("createdAt", #int(entity.createdAt));
-        res.put("createdBy", #nat32(entity.createdBy));
-        res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
-        res.put("updatedBy", switch(entity.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
+        res.put("_id", #nat32(e._id));
+        res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("campaignId", #nat32(e.campaignId));
+        res.put("createdAt", #int(e.createdAt));
+        res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
 
         res;
     };

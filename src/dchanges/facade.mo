@@ -6,11 +6,13 @@ import CategoryTypes "./categories/types";
 import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
 import UpdateTypes "./updates/types";
+import ReportTypes "./reports/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
 import UpdateService "./updates/service";
+import ReportService "./reports/service";
 
 shared({caller = owner}) actor class DChanges() {
 
@@ -20,6 +22,7 @@ shared({caller = owner}) actor class DChanges() {
     let campaignService = CampaignService.Service(userService);
     let signatureService = SignatureService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
+    let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
 
     private func _transformUserReponse(
         res: Result.Result<UserTypes.Profile, Text>
@@ -309,6 +312,50 @@ shared({caller = owner}) actor class DChanges() {
     };   
     
     //
+    // reports facade
+    //
+    public shared(msg) func reportCreate(
+        req: ReportTypes.ReportRequest
+    ): async Result.Result<ReportTypes.Report, Text> {
+        reportService.create(req, msg.caller);
+    };
+
+    public shared(msg) func reportUpdate(
+        id: Text, 
+        req: ReportTypes.ReportRequest
+    ): async Result.Result<ReportTypes.Report, Text> {
+        reportService.update(id, req, msg.caller);
+    };
+
+    public shared(msg) func reportAssign(
+        id: Text, 
+        toUserId: Nat32
+    ): async Result.Result<ReportTypes.Report, Text> {
+        reportService.assign(id, toUserId, msg.caller);
+    };    
+
+    public shared(msg) func reportClose(
+        id: Text, 
+        req: ReportTypes.ReportCloseRequest
+    ): async Result.Result<ReportTypes.Report, Text> {
+        reportService.close(id, req, msg.caller);
+    };
+
+    public query func reportFindById(
+        id: Text
+    ): async Result.Result<ReportTypes.Report, Text> {
+        reportService.findById(id);
+    };
+
+    public shared query(msg) func reportFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ReportTypes.Report], Text> {
+        reportService.find(criterias, sortBy, limit);
+    };
+
+    //
     //
     // migration
     //
@@ -317,6 +364,7 @@ shared({caller = owner}) actor class DChanges() {
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
+    stable var reportEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
@@ -324,6 +372,7 @@ shared({caller = owner}) actor class DChanges() {
         campaignEntities := campaignService.backup();
         signatureEntities := signatureService.backup();
         updateEntities := updateService.backup();
+        reportEntities := reportService.backup();
     };
 
     system func postupgrade() {
@@ -331,10 +380,12 @@ shared({caller = owner}) actor class DChanges() {
         categoryService.restore(categoryEntities);
         campaignService.restore(campaignEntities);
         updateService.restore(updateEntities);
+        reportService.restore(reportEntities);
         userEntities := [];
         categoryEntities := [];
         campaignEntities := [];
         signatureEntities := [];
         updateEntities := [];
+        reportEntities := [];
     };      
 };

@@ -24,32 +24,31 @@ module {
     public class Repository(
         campaignRepository: CampaignRepository.Repository
     ) {
-        let updates = Table.Table<Types.Update>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("updates")));
+        let reports = Table.Table<Types.Report>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("reports")));
 
         public func create(
-            req: Types.UpdateRequest,
+            req: Types.ReportRequest,
             callerId: Nat32
-        ): Result.Result<Types.Update, Text> {
+        ): Result.Result<Types.Report, Text> {
             let e = _createEntity(req, callerId);
-            switch(updates.insert(e._id, e)) {
+            switch(reports.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(e, true);
                     return #ok(e);
                 };
             };
         };
 
         public func update(
-            update: Types.Update, 
-            req: Types.UpdateRequest,
+            report: Types.Report, 
+            req: Types.ReportRequest,
             callerId: Nat32
-        ): Result.Result<Types.Update, Text> {
-            let e = _updateEntity(update, req, callerId);
-            switch(updates.replace(update._id, e)) {
+        ): Result.Result<Types.Report, Text> {
+            let e = _updateEntity(report, req, callerId);
+            switch(reports.replace(report._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -59,44 +58,42 @@ module {
             };
         };
 
-        public func delete(
-            update: Types.Update,
+        public func assign(
+            report: Types.Report, 
+            toUserId: Nat32,
             callerId: Nat32
-        ): Result.Result<(), Text> {
-            switch(updates.delete(update._id)) {
+        ): Result.Result<Types.Report, Text> {
+            let e = _updateEntityWhenAssigned(report, toUserId, callerId);
+            switch(reports.replace(report._id, e)) {
                 case (#err(msg)) {
-                    #err(msg);
+                    return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(update, false);
-                    #ok();
-                }
-            }
+                    return #ok(e);
+                };
+            };
         };
 
-        func _updateCampaign(
-            update: Types.Update,
-            inc: Bool
-        ) {
-            switch(campaignRepository.findById(update.campaignId))
-            {
-                case (#ok(campaign)) {
-                    if(inc) {
-                        campaignRepository.onUpdateInserted(campaign, update);
-                    }
-                    else {
-                        campaignRepository.onUpdateDeleted(campaign, update);
-                    };
+        public func close(
+            report: Types.Report, 
+            req: Types.ReportCloseRequest,
+            callerId: Nat32
+        ): Result.Result<Types.Report, Text> {
+            let e = _updateEntityWhenClosed(report, req, callerId);
+            switch(reports.replace(report._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
                 };
                 case _ {
+                    return #ok(e);
                 };
             };
         };
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Update, Text> {
-            switch(updates.get(_id)) {
+        ): Result.Result<Types.Report, Text> {
+            switch(reports.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -115,8 +112,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Update, Text> {
-            switch(updates.findOne([{
+        ): Result.Result<Types.Report, Text> {
+            switch(reports.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -166,18 +163,18 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Update, Types.Update) -> Int {
+        ): (Types.Report, Types.Report) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Update, b: Types.Update): Int  = 
+                case "_id" func(a: Types.Report, b: Types.Report): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Update, b: Types.Update): Int = 
+                case "pubId" func(a: Types.Report, b: Types.Report): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "createdAt" func(a: Types.Update, b: Types.Update): Int = 
+                case "createdAt" func(a: Types.Report, b: Types.Report): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "campaignId" func(a: Types.Update, b: Types.Update): Int = 
-                    Utils.order2Int(Nat32.compare(a.campaignId, b.campaignId)) * dir;
+                case "entityId" func(a: Types.Report, b: Types.Report): Int = 
+                    Utils.order2Int(Nat32.compare(a.entityId, b.entityId)) * dir;
                 case _ {
-                    func(a: Types.Update, b: Types.Update): Int = 0;
+                    func(a: Types.Report, b: Types.Report): Int = 0;
                 };
             };
         };
@@ -200,7 +197,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Update>] {
+        ): ?[Table.SortBy<Types.Report>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -234,15 +231,15 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Update], Text> {
-            return updates.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Report], Text> {
+            return reports.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByCampaign(
             campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Update], Text> {
+        ): Result.Result<[Types.Report], Text> {
 
             func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -254,7 +251,7 @@ module {
                 ]
             };
             
-            return updates.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return reports.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func countByCampaign(
@@ -271,14 +268,14 @@ module {
                 ]
             };
             
-            return updates.count(buildCriterias(campaignId));
+            return reports.count(buildCriterias(campaignId));
         };
 
         public func findByUser(
             userId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Update], Text> {
+        ): Result.Result<[Types.Report], Text> {
 
             func buildCriterias(userId: Nat32): ?[Table.Criteria] {
                 ?[
@@ -290,84 +287,154 @@ module {
                 ]
             };
             
-            return updates.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return reports.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return updates.backup();
+            return reports.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            updates.restore(entities);
+            reports.restore(entities);
         };
 
         func _createEntity(
-            req: Types.UpdateRequest,
+            req: Types.ReportRequest,
             callerId: Nat32
-        ): Types.Update {
+        ): Types.Report {
             {
-                _id = updates.nextId();
+                _id = reports.nextId();
                 pubId = ulid.next();
-                body = req.body;
-                campaignId = req.campaignId;
+                state = Types.STATE_CREATED;
+                result = Types.RESULT_NOTSOLVED;
+                description = req.description;
+                resolution = "";
+                entityType = req.entityType;
+                entityId = req.entityId;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
                 updatedBy = null;
+                assignedAt = null;
+                assignedTo = null;
             }
         };
 
         func _updateEntity(
-            e: Types.Update, 
-            req: Types.UpdateRequest,
+            e: Types.Report, 
+            req: Types.ReportRequest,
             callerId: Nat32
-        ): Types.Update {
+        ): Types.Report {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                body = req.body;
-                campaignId = req.campaignId;
+                state = e.state;
+                result = e.result;
+                description = req.description;
+                resolution = e.resolution;
+                entityType = e.entityType;
+                entityId = e.entityId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
+                assignedAt = e.assignedAt;
+                assignedTo = e.assignedTo;
+            }  
+        };
+
+        func _updateEntityWhenAssigned(
+            e: Types.Report, 
+            toUserId: Nat32,
+            callerId: Nat32
+        ): Types.Report {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                result = e.result;
+                description = e.description;
+                resolution = e.resolution;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+                assignedAt = ?Time.now();
+                assignedTo = ?toUserId;
+            }  
+        };
+    
+        func _updateEntityWhenClosed(
+            e: Types.Report, 
+            req: Types.ReportCloseRequest,
+            callerId: Nat32
+        ): Types.Report {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                result = req.result;
+                description = e.description;
+                resolution = req.resolution;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+                assignedAt = e.assignedAt;
+                assignedTo = e.assignedTo;
             }  
         };
     };
 
     func serialize(
-        e: Types.Update,
+        e: Types.Report,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
         
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
-        res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
-        res.put("campaignId", #nat32(e.campaignId));
+        res.put("state", #nat8(e.state));
+        res.put("result", #nat8(e.result));
+        res.put("body", #text(if ignoreCase Utils.toLower(e.description) else e.description));
+        res.put("resolution", #text(if ignoreCase Utils.toLower(e.resolution) else e.resolution));
+        res.put("entityType", #nat8(e.entityType));
+        res.put("entityId", #nat32(e.entityId));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
         res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
+        res.put("assignedAt", switch(e.assignedAt) {case null #nil; case (?assignedAt) #int(assignedAt);});
+        res.put("assignedTo", switch(e.assignedTo) {case null #nil; case (?assignedTo) #nat32(assignedTo);});
 
         res;
     };
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Update {
+    ): Types.Report {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
-            body = Variant.getOptText(map.get("body"));
-            campaignId = Variant.getOptNat32(map.get("campaignId"));
+            state = Variant.getOptNat8(map.get("state"));
+            result = Variant.getOptNat8(map.get("result"));
+            description = Variant.getOptText(map.get("description"));
+            resolution = Variant.getOptText(map.get("resolution"));
+            entityType = Variant.getOptNat8(map.get("entityType"));
+            entityId = Variant.getOptNat32(map.get("entityId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));
             updatedBy = Variant.getOptNat32Opt(map.get("updatedBy"));
+            assignedAt = Variant.getOptIntOpt(map.get("assignedAt"));
+            assignedTo = Variant.getOptNat32Opt(map.get("assignedTo"));
         }
     };
 };
