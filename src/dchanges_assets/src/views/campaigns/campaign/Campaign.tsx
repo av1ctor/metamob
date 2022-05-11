@@ -15,9 +15,11 @@ import Tag from "../../tags/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
 import UpdateForm from "./Update";
+import ReportForm from "../../reports/Create";
 import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 import Tabs from "../../../components/Tabs";
 import Result from "./Result";
+import { ReportType } from "../../../libs/reports";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -210,7 +212,13 @@ const Campaign = (props: Props) => {
                 isOpen={modals.report}
                 onClose={toggleReport}
             >
-                report
+                <ReportForm
+                    entityId={campaign._id}
+                    entityType={ReportType.CAMPAIGNS}
+                    onCancel={toggleReport}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
             </Modal>
 </article>
     );

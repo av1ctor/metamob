@@ -30,13 +30,15 @@
 }
 
 .campaign-cover img {
-    max-width: 306px;
-    max-height: 230px;
+    max-width: 459px;
+    max-height: 345px;
 }
 
-.campaign-body img {
-    max-width: 306px;
-    max-height: 230px;
+.campaign-body img,
+.update-body img,
+.field img {
+    max-width: 459px;
+    max-height: 345px;
 }
 
 .tag:not(:first-child) {

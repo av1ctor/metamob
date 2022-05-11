@@ -403,7 +403,7 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("state", #nat8(e.state));
         res.put("result", #nat8(e.result));
-        res.put("body", #text(if ignoreCase Utils.toLower(e.description) else e.description));
+        res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("resolution", #text(if ignoreCase Utils.toLower(e.resolution) else e.resolution));
         res.put("entityType", #nat8(e.entityType));
         res.put("entityId", #nat32(e.entityId));

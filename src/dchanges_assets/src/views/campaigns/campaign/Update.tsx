@@ -136,7 +136,7 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            title="Post a final message when the result was not good"
+                            title="Post a final message if the goal was not achieved and end the campaign"
                             disabled={createMut.isLoading || !form.body}
                             onClick={handleEnd}
                         >
@@ -146,7 +146,7 @@ const UpdateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="success"
-                            title="Post a final message when the result was perfect"
+                            title="Post a final message if the goal was achieved and finish the campaign"
                             disabled={createMut.isLoading || !form.body}
                             onClick={handleFinish}
                         >

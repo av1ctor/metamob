@@ -31,7 +31,7 @@ export const Item = (props: ItemProps) => {
                 <div className="content">
                     <strong>{profile?.isSuccess && profile?.data.name}</strong>
                     <br />
-                    <ReactMarkdown children={update.body}/>
+                    <ReactMarkdown className="update-body" children={update.body}/>
                     <p>
                         <small>
                             {props.canEdit && 

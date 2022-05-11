@@ -22,11 +22,11 @@ module {
             },
             {
                 name = "description";
-                options = [#min(3), #max(4096)];
+                options = [#min(10), #max(4096)];
             },
             {
                 name = "resolution";
-                options = [#min(3), #max(4096)];
+                options = [#max(4096)];
             },
             {
                 name = "entityType";

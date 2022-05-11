@@ -7,6 +7,8 @@ import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
+import ReportForm from "../reports/Create";
+import { ReportType } from "../../libs/reports";
 
 interface Props {
     campaign: Campaign;
@@ -104,7 +106,15 @@ const Signatures = (props: Props) => {
                 isOpen={modals.report}
                 onClose={toggleReport}
             >
-                report
+                {signature &&
+                    <ReportForm
+                        entityId={signature._id}
+                        entityType={ReportType.SIGNATURES}
+                        onCancel={toggleReport}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
             </Modal>            
         </div>
     )
