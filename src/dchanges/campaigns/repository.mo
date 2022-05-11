@@ -1,4 +1,5 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Option "mo:base/Option";
@@ -96,15 +97,18 @@ module {
         ): Result.Result<Types.Campaign, Text> {
             switch(campaigns.get(_id)) {
                 case (#err(msg)) {
-                    return #err(msg);
+                    #err(msg);
                 };
                 case (#ok(entity)) {
                     switch(entity) {
                         case null {
-                            return #err("Not found");
+                            #err("Not found");
                         };
                         case (?entity) {
-                            return #ok(entity);
+                            if(Option.isSome(entity.deletedAt)) {
+                                return #err("Not found");
+                            };
+                            #ok(entity);
                         };
                     };
                 };
@@ -120,15 +124,18 @@ module {
                 value = #text(Utils.toLower(pubId));
             }])) {
                 case (#err(msg)) {
-                    return #err(msg);
+                    #err(msg);
                 };
                 case (#ok(entity)) {
                     switch(entity) {
                         case null {
-                            return #err("Not found");
+                            #err("Not found");
                         };
                         case (?entity) {
-                            return #ok(entity);
+                            if(Option.isSome(entity.deletedAt)) {
+                                return #err("Not found");
+                            };                            
+                            #ok(entity);
                         };
                     };
                 };
@@ -144,26 +151,32 @@ module {
                     null;
                 };
                 case (?criterias) {
-                    ?Array.map(
-                        criterias, 
-                        func (crit: (Text, Text, Variant.Variant)): Table.Criteria {
-                            {
-                                key = crit.0;
-                                op = switch(crit.1) {
-                                    case "contains" #contains; 
-                                    case _ #eq;
+                    let buf = Buffer.Buffer<Table.Criteria>(criterias.size() + 1);
+                    buf.add({       
+                        key = "deletedAt";
+                        op = #eq;
+                        value = #nil;
+                    });
+
+                    for(crit in criterias.vals()) {
+                        buf.add({
+                            key = crit.0;
+                            op = switch(crit.1) {
+                                case "contains" #contains; 
+                                case _ #eq;
+                            };
+                            value = switch(crit.2) {
+                                case (#text(text)) {
+                                    #text(Utils.toLower(text));
                                 };
-                                value = switch(crit.2) {
-                                    case (#text(text)) {
-                                        #text(Utils.toLower(text));
-                                    };
-                                    case _ {
-                                        crit.2;
-                                    };
+                                case _ {
+                                    crit.2;
                                 };
-                            }
-                        }
-                    )
+                            };
+                        });
+                    };
+
+                    ?buf.toArray();
                 };
             };
         };
@@ -265,7 +278,12 @@ module {
                         key = "categoryId";
                         op = #eq;
                         value = #nat32(categoryId);
-                    }
+                    },
+                    {       
+                        key = "deletedAt";
+                        op = #eq;
+                        value = #nil;
+                    }                    
                 ]
             };
             
@@ -284,6 +302,11 @@ module {
                         key = "tagId";
                         op = #eq;
                         value = #text(tagId);
+                    },
+                    {       
+                        key = "deletedAt";
+                        op = #eq;
+                        value = #nil;
                     }
                 ]
             };
@@ -303,6 +326,11 @@ module {
                         key = "createdBy";
                         op = #eq;
                         value = #nat32(userId);
+                    },
+                    {       
+                        key = "deletedAt";
+                        op = #eq;
+                        value = #nil;
                     }
                 ]
             };
