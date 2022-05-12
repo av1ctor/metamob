@@ -77,7 +77,8 @@ const Campaign = (props: Props) => {
         });
     }, [modals]);
 
-    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && auth.user._id === campaign?.createdBy;
 
     const goal = calcMaxSignatures(campaign?.signaturesCnt || 0);
 
@@ -152,13 +153,17 @@ const Campaign = (props: Props) => {
                                     &nbsp;·&nbsp;
                                 </>
                             }
-                            <a
-                                title="report"
-                                onClick={toggleReport}
-                            >
-                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
-                            </a>
-                            &nbsp;·&nbsp;
+                            {auth.user && 
+                                <>
+                                    <a
+                                        title="report"
+                                        onClick={toggleReport}
+                                    >
+                                        <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                    </a>
+                                    &nbsp;·&nbsp;
+                                </>
+                            }
                             <TimeFromNow 
                                 date={BigInt.asIntN(64, campaign.createdAt)}
                             />
