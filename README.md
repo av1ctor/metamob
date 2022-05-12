@@ -52,4 +52,4 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 
 ### deploying the local internet_identity canister:
 - Run: II_ENV=development dfx deploy --no-wallet --argument '(null)' internet_identity
-- Copy the UI canister address and the local II address and replace the II_URL_LOCAL variable at .env with http://localhost:8000/?canisterId={THE_UI_CANISTER_ID}&id={THE_II_CANISTER_ID}
+- Copy the local II address and replace the II_URL_LOCAL variable at .env with http://localhost:8000/?canisterId={II_CANISTER_ID}&id={II_CANISTER_ID}
