@@ -1,5 +1,7 @@
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Array "mo:base/Array";
+import Options "mo:base/Option";
 import Variant "mo:mo-table/variant";
 import UserTypes "./users/types";
 import CategoryTypes "./categories/types";
@@ -23,28 +25,6 @@ shared({caller = owner}) actor class DChanges() {
     let signatureService = SignatureService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
     let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
-
-    private func _transformUserReponse(
-        res: Result.Result<UserTypes.Profile, Text>
-    ): Result.Result<UserTypes.ProfileResponse, Text> {
-        switch(res)
-        {
-            case (#err(msg)) {
-                #err(msg);
-            };
-            case (#ok(prof)) {
-                #ok({
-                    _id = prof._id;
-                    pubId = prof.pubId;
-                    name = prof.name;
-                    email = prof.email;
-                    avatar = prof.avatar;
-                    roles = prof.roles;
-                    countryId = prof.countryId;
-                });
-            };
-        };
-    };
 
     //
     // users facade
@@ -84,6 +64,28 @@ shared({caller = owner}) actor class DChanges() {
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
         _transformUserReponse(userService.findByPrincipal(msg.caller));
     };    
+
+    private func _transformUserReponse(
+        res: Result.Result<UserTypes.Profile, Text>
+    ): Result.Result<UserTypes.ProfileResponse, Text> {
+        switch(res)
+        {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(prof)) {
+                #ok({
+                    _id = prof._id;
+                    pubId = prof.pubId;
+                    name = prof.name;
+                    email = prof.email;
+                    avatar = prof.avatar;
+                    roles = prof.roles;
+                    countryId = prof.countryId;
+                });
+            };
+        };
+    };
 
     //
     // categories facade
@@ -186,37 +188,37 @@ shared({caller = owner}) actor class DChanges() {
     //
     public shared(msg) func signatureCreate(
         req: SignatureTypes.SignatureRequest
-    ): async Result.Result<SignatureTypes.Signature, Text> {
-        signatureService.create(req, msg.caller);
+    ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponseEx(signatureService.create(req, msg.caller), false);
     };
 
     public shared(msg) func signatureUpdate(
         id: Text, 
         req: SignatureTypes.SignatureRequest
-    ): async Result.Result<SignatureTypes.Signature, Text> {
-        signatureService.update(id, req, msg.caller);
+    ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponseEx(signatureService.update(id, req, msg.caller), false);
     };
 
     public query func signatureFindById(
         id: Text
-    ): async Result.Result<SignatureTypes.Signature, Text> {
-        signatureService.findById(id);
+    ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponse(signatureService.findById(id));
     };
 
     public shared query(msg) func signatureFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[SignatureTypes.Signature], Text> {
-        signatureService.find(criterias, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
+        _transformSignatureResponses(signatureService.find(criterias, sortBy, limit));
     };
 
     public query func signatureFindByCampaign(
         campaignId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[SignatureTypes.Signature], Text> {
-        signatureService.findByCampaign(campaignId, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
+        _transformSignatureResponses(signatureService.findByCampaign(campaignId, sortBy, limit));
     };
 
     public query func signatureCountByCampaign(
@@ -229,21 +231,92 @@ shared({caller = owner}) actor class DChanges() {
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[SignatureTypes.Signature], Text> {
-        signatureService.findByUser(userId, sortBy, limit);
+    ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
+        _transformSignatureResponses(signatureService.findByUser(userId, sortBy, limit));
     };
 
     public query func signatureFindByCampaignAndUser(
         campaignId: Nat32,
         userId: Nat32
-    ): async Result.Result<SignatureTypes.Signature, Text> {
-        signatureService.findByCampaignAndUser(campaignId, userId);
+    ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponse(signatureService.findByCampaignAndUser(campaignId, userId));
     };
 
     public shared(msg) func signatureDelete(
         id: Text
     ): async Result.Result<(), Text> {
         signatureService.delete(id, msg.caller);
+    };
+
+    func _redactSignatureEx(
+        e: SignatureTypes.Signature,
+        checkAnonymous: Bool
+    ): SignatureTypes.SignatureResponse {
+        if(not checkAnonymous or not e.anonymous) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                body = e.body;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                body = e.body;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
+            };
+        };
+    };
+
+    func _redactSignature(
+        e: SignatureTypes.Signature
+    ): SignatureTypes.SignatureResponse {
+        _redactSignatureEx(e, true);
+    };
+
+    func _transformSignatureResponseEx(
+        res: Result.Result<SignatureTypes.Signature, Text>,
+        checkAnonymous: Bool
+    ): Result.Result<SignatureTypes.SignatureResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactSignatureEx(e, checkAnonymous));
+            };
+        };
+    };
+
+    func _transformSignatureResponse(
+        res: Result.Result<SignatureTypes.Signature, Text>
+    ): Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponseEx(res, true);
+    };    
+
+    func _transformSignatureResponses(
+        res: Result.Result<[SignatureTypes.Signature], Text>
+    ): Result.Result<[SignatureTypes.SignatureResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(entities, _redactSignature));
+            };
+        };
     };    
 
     //

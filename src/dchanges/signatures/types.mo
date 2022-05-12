@@ -4,6 +4,7 @@ module {
         pubId: Text;
         body: Text;
         campaignId: Nat32;
+        anonymous: Bool;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -13,5 +14,18 @@ module {
     public type SignatureRequest = {
         campaignId: Nat32;
         body: Text;
+        anonymous: Bool;
     };
+
+    public type SignatureResponse = {
+        _id: Nat32;
+        pubId: Text;
+        body: Text;
+        campaignId: Nat32;
+        anonymous: Bool;
+        createdAt: Int;
+        createdBy: ?Nat32;
+        updatedAt: ?Int;
+        updatedBy: ?Nat32;
+    };    
 };

@@ -81,7 +81,7 @@ const Header = (props: Props) => {
                     {isLogged &&
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
-                                <Avatar id={authState.user?._id} />
+                                <Avatar id={authState.user?._id || 0} />
                             </a>
 
                             <div className="navbar-dropdown is-right">

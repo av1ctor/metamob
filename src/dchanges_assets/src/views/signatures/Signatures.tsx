@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useContext} from "react";
-import {Signature, Campaign} from '../../../../declarations/dchanges/dchanges.did';
+import {Campaign, SignatureResponse} from '../../../../declarations/dchanges/dchanges.did';
 import {Limit, Order} from "../../libs/common";
 import {CampaignState} from "../../libs/campaigns";
 import {useFindSignaturesByCampaign} from "../../hooks/signatures";
@@ -31,17 +31,9 @@ const Signatures = (props: Props) => {
         delete: false,
         report: false,
     });
-    const [signature, setSignature] = useState<Signature | undefined>(undefined);
+    const [signature, setSignature] = useState<SignatureResponse | undefined>(undefined);
 
-    const campaign = props.campaign;
-
-    const queryKey = ['signatures', campaign._id, orderBy.key, orderBy.dir];
-
-    const signatures = useFindSignaturesByCampaign(queryKey, campaign._id, orderBy, limit);
-
-    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
-
-    const toggleEdit = useCallback((signature: Signature | undefined = undefined) => {
+    const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals({
             ...modals,
             edit: !modals.edit
@@ -49,7 +41,7 @@ const Signatures = (props: Props) => {
         setSignature(signature);
     }, [modals, signature]);
 
-    const toggleDelete = useCallback((signature: Signature | undefined = undefined) => {
+    const toggleDelete = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals({
             ...modals,
             delete: !modals.delete
@@ -57,13 +49,19 @@ const Signatures = (props: Props) => {
         setSignature(signature);
     }, [modals, signature]);
 
-    const toggleReport = useCallback((signature: Signature | undefined = undefined) => {
+    const toggleReport = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals({
             ...modals,
             report: !modals.report
         });
         setSignature(signature);
     }, [modals, signature]);
+
+    const campaign = props.campaign;
+
+    const queryKey = ['signatures', campaign._id, orderBy.key, orderBy.dir];
+
+    const signatures = useFindSignaturesByCampaign(queryKey, campaign._id, orderBy, limit);
 
     return (
         <div className="signatures">
@@ -72,7 +70,7 @@ const Signatures = (props: Props) => {
                     <Item
                         key={signature._id} 
                         signature={signature}
-                        canEdit={canEdit? true: false}
+                        campaign={campaign}
                         onEdit={toggleEdit}
                         onDelete={toggleDelete}
                         onReport={toggleReport}

@@ -1,17 +1,18 @@
 import React, { useContext, useState } from "react";
 import ReactMarkdown from 'react-markdown';
-import {Signature} from "../../../../declarations/dchanges/dchanges.did";
+import {Campaign, SignatureResponse} from "../../../../declarations/dchanges/dchanges.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
+import { CampaignState } from "../../libs/campaigns";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
 interface ItemProps {
-    signature: Signature;
-    canEdit: boolean;
-    onEdit: (signature: Signature) => void;
-    onDelete: (signature: Signature) => void;
-    onReport: (signature: Signature) => void;
+    campaign: Campaign;
+    signature: SignatureResponse;
+    onEdit: (signature: SignatureResponse) => void;
+    onDelete: (signature: SignatureResponse) => void;
+    onReport: (signature: SignatureResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -19,15 +20,20 @@ export const Item = (props: ItemProps) => {
     
     const signature = props.signature;
 
-    const profile = signature.createdBy?
-        useFindUserById(['user'], signature.createdBy):
-        undefined;
+    const author = signature.createdBy && signature.createdBy.length > 0?
+        signature.createdBy[0] || 0:
+        0;
+
+    const profile = useFindUserById(['user', author], author);
+
+    const canEdit = props.campaign.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === author && author !== 0);
 
     return (
         <article className="media">
             <div className="media-left">
                 <div className="flex-node w-12">
-                    <Avatar id={signature.createdBy} size='lg' noName={true} />
+                    <Avatar id={author} size='lg' noName={true} />
                 </div>
             </div>
             <div className="media-content">
@@ -37,7 +43,7 @@ export const Item = (props: ItemProps) => {
                     <ReactMarkdown children={signature.body}/>
                     <p>
                         <small>
-                            {props.canEdit && 
+                            {canEdit && 
                                 <>
                                     <a
                                         title="edit"

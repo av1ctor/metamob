@@ -2,15 +2,13 @@ import React from 'react';
 import { useFindUserById } from '../../hooks/users';
 
 interface Props {
-    id?: number;
+    id: number;
     size?: 'lg';
     noName?: boolean;
 };
 
 const Avatar = (props: Props) => {
-    const profile = props.id?
-        useFindUserById(['user'], props.id):
-        undefined;
+    const profile = useFindUserById(['user', props.id], props.id);
 
     let size = 6;
     switch(props.size) {

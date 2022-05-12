@@ -54,7 +54,7 @@ const Campaign = (props: Props) => {
         undefined;
 
     const userSignature = useFindSignatureByCampaignAndUser(
-        ['campaign-signature', campaign?._id || 0, auth.user?._id || 0], campaign?._id || -1, auth.user?._id || -1);
+        ['campaign-signature', campaign?._id || 0, auth.user?._id || 0], campaign?._id, auth.user?._id);
 
     const toggleEdit = useCallback(() => {
         setModals({
@@ -109,23 +109,25 @@ const Campaign = (props: Props) => {
                             <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
                             <br/>
                             {campaign.state === CampaignState.PUBLISHED? 
-                                auth.user?._id === campaign.createdBy?
-                                    <UpdateForm 
+                                <>
+                                    <div className="is-size-4 has-text-link">
+                                        To {campaign.target}
+                                    </div>
+                                    <SignForm 
                                         campaign={campaign}
+                                        body={userSignature?.data?.body} 
                                         onSuccess={props.onSuccess}
                                         onError={props.onError}
-                                    />:
-                                    <>
-                                        <div className="is-size-4 has-text-link">
-                                            To {campaign.target}
-                                        </div>
-                                        <SignForm 
+                                    />
+                                    {auth.user?._id === campaign.createdBy &&
+                                        <UpdateForm 
                                             campaign={campaign}
-                                            body={userSignature?.data?.body} 
                                             onSuccess={props.onSuccess}
                                             onError={props.onError}
                                         />
-                                    </>:
+                                    }
+                                </>
+                            :
                                 <Result result={campaign.result} />
                             }
                         </div>

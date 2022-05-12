@@ -247,6 +247,9 @@ module {
             case (#admin) {
                 #text("admin");
             };
+            case (#moderator) {
+                #text("moderator");
+            };
             case (#user) {
                 #text("user");
             };

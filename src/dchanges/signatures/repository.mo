@@ -1,24 +1,25 @@
 import Array "mo:base/Array";
-import HashMap "mo:base/HashMap";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
 import Bool "mo:base/Bool";
-import Int "mo:base/Int";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Time "mo:base/Time";
-import Variant "mo:mo-table/variant";
-import Table "mo:mo-table/table";
-import Random "../common/random";
-import ULID "../common/ulid";
-import Utils "../common/utils";
-import Types "./types";
-import Schema "./schema";
 import CampaignRepository "../campaigns/repository";
 import Debug "mo:base/Debug";
+import HashMap "mo:base/HashMap";
+import Int "mo:base/Int";
+import Iter "mo:base/Iter";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Option "mo:base/Option";
+import Options "mo:base/Option";
+import Principal "mo:base/Principal";
+import Random "../common/random";
+import Result "mo:base/Result";
+import Schema "./schema";
+import Table "mo:mo-table/table";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
+import Types "./types";
+import ULID "../common/ulid";
+import Utils "../common/utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Repository(
@@ -344,6 +345,7 @@ module {
                 _id = signatures.nextId();
                 pubId = ulid.next();
                 body = req.body;
+                anonymous = req.anonymous;
                 campaignId = req.campaignId;
                 createdAt = Time.now();
                 createdBy = callerId;
@@ -361,6 +363,7 @@ module {
                 _id = e._id;
                 pubId = e.pubId;
                 body = req.body;
+                anonymous = req.anonymous;
                 campaignId = e.campaignId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -379,6 +382,7 @@ module {
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -395,6 +399,7 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             body = Variant.getOptText(map.get("body"));
+            anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

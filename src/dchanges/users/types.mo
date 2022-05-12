@@ -1,6 +1,7 @@
 module {
     public type Role = {
         #admin;
+        #moderator;
         #user;
     };
     

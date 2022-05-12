@@ -8,6 +8,7 @@ import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import TextAreaField from "../../../components/TextAreaField";
 import { ActorContext } from "../../../stores/actor";
+import CheckboxField from "../../../components/CheckboxField";
 
 interface Props {
     campaign: Campaign;
@@ -18,6 +19,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string().min(3).max(256),
+    anonymous: yup.bool().required(),
 });
 
 const SignForm = (props: Props) => {
@@ -27,6 +29,7 @@ const SignForm = (props: Props) => {
     const [form, setForm] = useState<SignatureRequest>({
         campaignId: props.campaign._id,
         body: props.body || '',
+        anonymous: false,
     });
     
     const createMut = useCreateSignature();
@@ -34,9 +37,13 @@ const SignForm = (props: Props) => {
     const navigate = useNavigate();
 
     const changeForm = useCallback((e: any) => {
+        const field = e.target.id || e.target.name;
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
         setForm(form => ({
             ...form, 
-            [e.target.name]: e.target.value
+            [field]: value
         }));
     }, []);
 
@@ -65,6 +72,7 @@ const SignForm = (props: Props) => {
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
+                    anonymous: form.anonymous,
                 }
             });
             props.onSuccess('Campaign signed!');
@@ -84,14 +92,22 @@ const SignForm = (props: Props) => {
         <form onSubmit={handleSign}>
             <Grid container>
                 {isLoggedIn && 
-                    <TextAreaField
-                        label="Message"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        required={true}
-                        onChange={changeForm}
-                    />
+                    <>
+                        <TextAreaField
+                            label="Message"
+                            name="body"
+                            value={form.body || ''}
+                            rows={6}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <CheckboxField
+                            label="Sign as anonymous"
+                            id="anonymous"
+                            value={form.anonymous}
+                            onChange={changeForm}
+                        />
+                    </>
                 }
 
                 <div className="field mt-2">

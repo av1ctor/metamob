@@ -1,14 +1,15 @@
 import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateSignature} from "../../../hooks/signatures";
-import {Signature, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import {SignatureResponse, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
 import Grid from "../../../components/Grid";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import CheckboxField from "../../../components/CheckboxField";
 
 interface Props {
-    signature: Signature;
+    signature: SignatureResponse;
     onCancel: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -16,6 +17,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string().min(3).max(256),
+    anonymous: yup.bool().required(),
 });
 
 const EditForm = (props: Props) => {
@@ -24,14 +26,19 @@ const EditForm = (props: Props) => {
     const [form, setForm] = useState<SignatureRequest>({
         campaignId: 0,
         body: props.signature.body,
+        anonymous: props.signature.anonymous,
     });
     
     const updateMut = useUpdateSignature();
 
     const changeForm = useCallback((e: any) => {
+        const field = e.target.id || e.target.name;
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
         setForm(form => ({
             ...form, 
-            [e.target.name]: e.target.value
+            [field.replace('__edit__', '')]: value
         }));
     }, []);
 
@@ -61,6 +68,7 @@ const EditForm = (props: Props) => {
                 req: {
                     campaignId: Number(props.signature.campaignId),
                     body: form.body,
+                    anonymous: form.anonymous,
                 }
         });
             props.onSuccess('Comment updated!');
@@ -80,6 +88,12 @@ const EditForm = (props: Props) => {
                     value={form.body || ''}
                     rows={6}
                     required={true}
+                    onChange={changeForm}
+                />
+                <CheckboxField
+                    label="Sign as anonymous"
+                    id="__edit__anonymous"
+                    value={form.anonymous}
                     onChange={changeForm}
                 />
                 <div className="field is-grouped mt-2">
