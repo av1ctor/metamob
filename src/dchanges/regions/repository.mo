@@ -17,19 +17,21 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import Types "./types";
 import Schema "./schema";
+import CampaignRepository "../campaigns/repository";
 import Debug "mo:base/Debug";
 
 module {
-    public class Repository() {
-        let categories = Table.Table<Types.Category>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("categories")));
+    public class Repository(
+    ) {
+        let regions = Table.Table<Types.Region>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("regions")));
 
         public func create(
-            req: Types.CategoryRequest,
+            req: Types.RegionRequest,
             callerId: Nat32
-        ): Result.Result<Types.Category, Text> {
+        ): Result.Result<Types.Region, Text> {
             let e = _createEntity(req, callerId);
-            switch(categories.insert(e._id, e)) {
+            switch(regions.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -40,12 +42,12 @@ module {
         };
 
         public func update(
-            category: Types.Category, 
-            req: Types.CategoryRequest,
+            region: Types.Region, 
+            req: Types.RegionRequest,
             callerId: Nat32
-        ): Result.Result<Types.Category, Text> {
-            let e = _updateEntity(category, req, callerId);
-            switch(categories.replace(category._id, e)) {
+        ): Result.Result<Types.Region, Text> {
+            let e = _updateEntity(region, req, callerId);
+            switch(regions.replace(region._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -55,27 +57,20 @@ module {
             };
         };
 
-        public func delete(
-            category: Types.Category
-        ): Result.Result<(), Text> {
-            //FIXME: delete category's topics
-            return categories.delete(category._id);
-        };
-
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Category, Text> {
-            switch(categories.get(_id)) {
+        ): Result.Result<Types.Region, Text> {
+            switch(regions.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             return #err("Not found");
                         };
-                        case (?entity) {
-                            return #ok(entity);
+                        case (?e) {
+                            return #ok(e);
                         };
                     };
                 };
@@ -84,8 +79,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Category, Text> {
-            switch(categories.findOne([{
+        ): Result.Result<Types.Region, Text> {
+            switch(regions.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -93,13 +88,13 @@ module {
                 case (#err(msg)) {
                     return #err(msg);
                 };
-                case (#ok(entity)) {
-                    switch(entity) {
+                case (#ok(e)) {
+                    switch(e) {
                         case null {
                             return #err("Not found");
                         };
-                        case (?entity) {
-                            return #ok(entity);
+                        case (?e) {
+                            return #ok(e);
                         };
                     };
                 };
@@ -135,18 +130,16 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Category, Types.Category) -> Int {
+        ): (Types.Region, Types.Region) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Category, b: Types.Category): Int  = 
+                case "_id" func(a: Types.Region, b: Types.Region): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Category, b: Types.Category): Int = 
+                case "pubId" func(a: Types.Region, b: Types.Region): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "name" func(a: Types.Category, b: Types.Category): Int = 
-                    Utils.order2Int(Text.compare(a.name, b.name)) * dir;
-                case "createdAt" func(a: Types.Category, b: Types.Category): Int = 
+                case "createdAt" func(a: Types.Region, b: Types.Region): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
                 case _ {
-                    func(a: Types.Category, b: Types.Category): Int = 0;
+                    func(a: Types.Region, b: Types.Region): Int = 0;
                 };
             };
         };
@@ -169,7 +162,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Category>] {
+        ): ?[Table.SortBy<Types.Region>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -203,51 +196,31 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Category], Text> {
-            return categories.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
-        };
-
-        public func findByUser(
-            userId: Nat32,
-            sortBy: ?(Text, Text),
-            limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Category], Text> {
-
-            func buildCriterias(userId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "createdBy";
-                        op = #eq;
-                        value = #nat32(userId);
-                    }
-                ]
-            };
-            
-            return categories.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Region], Text> {
+            return regions.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return categories.backup();
+            return regions.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            categories.restore(entities);
+            regions.restore(entities);
         };
 
         func _createEntity(
-            req: Types.CategoryRequest,
+            req: Types.RegionRequest,
             callerId: Nat32
-        ): Types.Category {
+        ): Types.Region {
             {
-                _id = categories.nextId();
+                _id = regions.nextId();
                 pubId = ulid.next();
                 name = req.name;
-                description = req.description;
-                active = true;
-                color = req.color;
+                private_ = req.private_;
+                parentId = req.parentId;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -256,19 +229,18 @@ module {
         };
 
         func _updateEntity(
-            category: Types.Category, 
-            req: Types.CategoryRequest,
+            e: Types.Region, 
+            req: Types.RegionRequest,
             callerId: Nat32
-        ): Types.Category {
+        ): Types.Region {
             {
-                _id = category._id;
-                pubId = category.pubId;
+                _id = e._id;
+                pubId = e.pubId;
                 name = req.name;
-                description = req.description;
-                active = category.active;
-                color = req.color;
-                createdAt = category.createdAt;
-                createdBy = category.createdBy;
+                private_ = req.private_;
+                parentId = e.parentId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -276,35 +248,33 @@ module {
     };
 
     func serialize(
-        entity: Types.Category,
+        e: Types.Region,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
         
-        res.put("_id", #nat32(entity._id));
-        res.put("pubId", #text(if ignoreCase Utils.toLower(entity.pubId) else entity.pubId));
-        res.put("name", #text(if ignoreCase Utils.toLower(entity.name) else entity.name));
-        res.put("description", #text(entity.description));
-        res.put("active", #bool(entity.active));
-        res.put("color", #text(entity.color));
-        res.put("createdAt", #int(entity.createdAt));
-        res.put("createdBy", #nat32(entity.createdBy));
-        res.put("updatedAt", switch(entity.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
-        res.put("updatedBy", switch(entity.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
+        res.put("_id", #nat32(e._id));
+        res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
+        res.put("private_", #bool(e.private_));
+        res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
+        res.put("createdAt", #int(e.createdAt));
+        res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
 
         res;
     };
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Category {
+    ): Types.Region {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             name = Variant.getOptText(map.get("name"));
-            description = Variant.getOptText(map.get("description"));
-            active = Variant.getOptBool(map.get("active"));
-            color = Variant.getOptText(map.get("color"));
+            private_ = Variant.getOptBool(map.get("private_"));
+            parentId = Variant.getOptNat32Opt(map.get("parentId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

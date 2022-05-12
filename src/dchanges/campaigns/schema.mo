@@ -33,6 +33,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "regionId";
+                options = [#sortable];
+            },
+            {
                 name = "state";
                 options = [#sortable];
             },

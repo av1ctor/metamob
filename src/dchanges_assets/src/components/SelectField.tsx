@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-interface Option {
+export interface Option {
     name: string;
     value: any;
 }
@@ -10,13 +10,29 @@ interface Props {
     name?: string;
     label?: string;
     value: string | number;
-    options: Option[];
+    options: Option[] | ((value: string | number) => Promise<Option[]>);
     required?: boolean;
     disabled?: boolean;
     onChange?: React.ChangeEventHandler<HTMLSelectElement>;
 };
 
 const SelectField = (props: Props) => {
+    const [options, setOptions] = useState<Option[]>([]);
+    
+    const getOptions = useCallback(async () => {
+        if(Array.isArray(props.options)) {
+            setOptions(props.options);
+        }
+        else {
+            const options = await props.options(props.value);
+            setOptions(options);
+        }
+    }, [props.options]);
+    
+    useEffect(() => {
+        getOptions();
+    }, [getOptions]);
+
     return (
         <div className="field">
             {props.label && 
@@ -34,11 +50,12 @@ const SelectField = (props: Props) => {
                         disabled={props.disabled}
                         onChange={props.onChange}
                     >
-                        {([{name:"", value:""}]).concat(props.options || []).map((opt, index) => 
-                            <option key={index} value={opt.value}>
-                                {opt.name}
-                            </option>
-                        )}
+                        {([{name:"", value:""}]).concat(options).map((opt, index) => 
+                                <option key={index} value={opt.value}>
+                                    {opt.name}
+                                </option>
+                            )
+                        }
                     </select>
                 </div>
             </div>

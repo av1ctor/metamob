@@ -290,6 +290,30 @@ module {
             return campaigns.find(buildCriterias(categoryId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
+        public func findByRegion(
+            regionId: Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Campaign], Text> {
+
+            func buildCriterias(regionId: Nat32): ?[Table.Criteria] {
+                ?[
+                    {       
+                        key = "regionId";
+                        op = #eq;
+                        value = #nat32(regionId);
+                    },
+                    {       
+                        key = "deletedAt";
+                        op = #eq;
+                        value = #nil;
+                    }                    
+                ]
+            };
+            
+            return campaigns.find(buildCriterias(regionId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        };
+
         public func findByTag(
             tagId: Text,
             sortBy: ?(Text, Text),
@@ -390,6 +414,7 @@ module {
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
+                regionId = req.regionId;
                 state = Types.STATE_PUBLISHED;
                 result = Types.RESULT_NONE;
                 duration = req.duration;
@@ -424,6 +449,7 @@ module {
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
+                regionId = req.regionId;
                 state = e.state;
                 result = e.result;
                 duration = e.duration;
@@ -457,6 +483,7 @@ module {
                 cover = "";
                 body = "";
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = Types.STATE_DELETED;
                 result = e.result;
                 duration = e.duration;
@@ -490,6 +517,7 @@ module {
                 cover = e.cover;
                 body = e.body;
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = e.state;
                 result = e.result;
                 duration = e.duration;
@@ -523,6 +551,7 @@ module {
                 cover = e.cover;
                 body = e.body;
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = e.state;
                 result = e.result;
                 duration = e.duration;
@@ -556,6 +585,7 @@ module {
                 cover = e.cover;
                 body = e.body;
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = e.state;
                 result = e.result;
                 duration = e.duration;
@@ -589,6 +619,7 @@ module {
                 cover = e.cover;
                 body = e.body;
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = e.state;
                 result = e.result;
                 duration = e.duration;
@@ -623,6 +654,7 @@ module {
                 cover = e.cover;
                 body = e.body;
                 categoryId = e.categoryId;
+                regionId = e.regionId;
                 state = Types.STATE_FINISHED;
                 result = result;
                 duration = e.duration;
@@ -658,6 +690,7 @@ module {
         res.put("cover", #text(e.cover));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("categoryId", #nat32(e.categoryId));
+        res.put("regionId", #nat32(e.regionId));
         res.put("state", #nat8(e.state));
         res.put("result", #nat8(e.result));
         res.put("duration", #nat32(e.duration));
@@ -691,6 +724,7 @@ module {
             cover = Variant.getOptText(map.get("cover"));
             body = Variant.getOptText(map.get("body"));
             categoryId = Variant.getOptNat32(map.get("categoryId"));
+            regionId = Variant.getOptNat32(map.get("regionId"));
             state = Variant.getOptNat8(map.get("state"));
             result = Variant.getOptNat8(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));

@@ -9,12 +9,14 @@ import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
 import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
+import RegionTypes "./regions/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
 import UpdateService "./updates/service";
 import ReportService "./reports/service";
+import RegionService "./regions/service";
 
 shared({caller = owner}) actor class DChanges() {
 
@@ -25,6 +27,7 @@ shared({caller = owner}) actor class DChanges() {
     let signatureService = SignatureService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
     let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
+    let regionService = RegionService.Service(userService);
 
     //
     // users facade
@@ -162,11 +165,19 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     public query func campaignFindByCategory(
-        campaignId: Nat32,
+        categoryId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
-        campaignService.findByCategory(campaignId, sortBy, limit);
+        campaignService.findByCategory(categoryId, sortBy, limit);
+    };
+
+    public query func campaignFindByRegion(
+        regionId: Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[CampaignTypes.Campaign], Text> {
+        campaignService.findByRegion(regionId, sortBy, limit);
     };
 
     public query func campaignFindByUser(
@@ -429,6 +440,35 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     //
+    // regions facade
+    //
+    public shared(msg) func regionCreate(
+        req: RegionTypes.RegionRequest
+    ): async Result.Result<RegionTypes.Region, Text> {
+        regionService.create(req, msg.caller);
+    };
+
+    public shared(msg) func regionUpdate(
+        id: Text, 
+        req: RegionTypes.RegionRequest
+    ): async Result.Result<RegionTypes.Region, Text> {
+        regionService.update(id, req, msg.caller);
+    };
+
+    public query func regionFindById(
+        id: Text
+    ): async Result.Result<RegionTypes.Region, Text> {
+        regionService.findById(id);
+    };
+
+    public shared query(msg) func regionFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[RegionTypes.Region], Text> {
+        regionService.find(criterias, sortBy, limit);
+    };
+
     //
     // migration
     //
@@ -438,6 +478,7 @@ shared({caller = owner}) actor class DChanges() {
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
+    stable var regionEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
@@ -446,19 +487,29 @@ shared({caller = owner}) actor class DChanges() {
         signatureEntities := signatureService.backup();
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
+        regionEntities := regionService.backup();
     };
 
     system func postupgrade() {
         userService.restore(userEntities);
-        categoryService.restore(categoryEntities);
-        campaignService.restore(campaignEntities);
-        updateService.restore(updateEntities);
-        reportService.restore(reportEntities);
         userEntities := [];
+        
+        categoryService.restore(categoryEntities);
         categoryEntities := [];
+        
+        campaignService.restore(campaignEntities);
         campaignEntities := [];
+        
+        signatureService.restore(signatureEntities);
         signatureEntities := [];
+        
+        updateService.restore(updateEntities);
         updateEntities := [];
+        
+        reportService.restore(reportEntities);
         reportEntities := [];
+        
+        regionService.restore(regionEntities);
+        regionEntities := [];
     };      
 };

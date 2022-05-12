@@ -1,46 +1,8 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {dchanges} from "../../../declarations/dchanges";
-import {UpdateRequest, Update, Variant, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import {UpdateRequest, Update, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
-
-const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit): Promise<Update[]> => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
-        [];
-
-    const res = await dchanges.updateFind(
-        criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
-        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return res.ok; 
-}
-
-const findByCampaign = async (topicId: number, orderBy?: Order, limit?: Limit): Promise<Update[]> => {
-    const res = await dchanges.updateFindByCampaign(
-        topicId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
-        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return res.ok; 
-}
-
-const findById = async (pubId: string): Promise<Update> => {
-    const res = await dchanges.updateFindById(pubId);
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-    return res.ok; 
-};
+import { findAll, findByCampaign, findById } from '../libs/updates';
 
 export const useFindUpdateById = (
     queryKey: any[], pubId: string

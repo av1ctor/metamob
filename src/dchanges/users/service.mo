@@ -1,4 +1,5 @@
 import Principal "mo:base/Principal";
+import Array "mo:base/Array";
 import Text "mo:base/Text";
 import Option "mo:base/Option";
 import Result "mo:base/Result";
@@ -12,7 +13,7 @@ module {
     public class Service(
     ) {
         let repo = Repository.Repository();
-        
+
         public func create(
             req: Types.ProfileRequest,
             invoker: Principal,
@@ -25,9 +26,8 @@ module {
             if(Option.isSome(req.roles) or 
                 Option.isSome(req.active) or
                 Option.isSome(req.banned)) {
-                if(not Principal.equal(invoker, owner)) {
-                    D.print(debug_show((invoker, owner)));
-                    //return #err("Forbidden: invalid fields");
+                if(invoker != owner) {
+                    return #err("Forbidden: invalid fields");
                 };
             };
 

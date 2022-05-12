@@ -117,11 +117,19 @@ module {
         };
 
         public func findByCategory(
-            campaignId: Nat32,
+            categoryId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
-            repo.findByCategory(campaignId, sortBy, limit);
+            repo.findByCategory(categoryId, sortBy, limit);
+        };
+
+        public func findByRegion(
+            regionId: Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Campaign], Text> {
+            repo.findByRegion(regionId, sortBy, limit);
         };
 
         public func findByTag(

@@ -2,13 +2,14 @@ import React, {useState, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
-import SelectField from "../../components/SelectField";
+import SelectField, { Option } from "../../components/SelectField";
 import Grid from "../../components/Grid";
 import {Category, CampaignRequest} from "../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../components/NumberField";
 import MarkdownField from "../../components/MarkdownField";
 import { ActorContext } from "../../stores/actor";
 import TagsField from "../../components/TagsField";
+import { findAll } from "../../libs/regions";
 
 interface Props {
     mutation: any;
@@ -25,6 +26,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required(),
+    regionId: yup.number().required(),
     tags: yup.array(yup.string().max(12)).max(5),
 });
 
@@ -38,6 +40,7 @@ const CreateForm = (props: Props) => {
         cover: '',
         duration: 7,
         categoryId: 0,
+        regionId: 0,
         tags: []
     });
 
@@ -70,6 +73,7 @@ const CreateForm = (props: Props) => {
                     cover: form.cover,
                     duration: Number(form.duration),
                     categoryId: Number(form.categoryId),
+                    regionId: Number(form.regionId),
                     tags: form.tags
                 }
             });
@@ -81,6 +85,23 @@ const CreateForm = (props: Props) => {
             props.onError(e);
         }
     }, [form, actorState.main]);
+
+    const handleSearchRegion = useCallback(async (
+        value: string | number
+    ): Promise<Option[]> => {
+        const regions = await findAll(
+            {
+                key: 'name',
+                op: 'contains',
+                value: typeof value === "number"? String(value): value
+            }
+        );
+
+        return regions.map(r => ({
+            name: r.name,
+            value: r._id
+        }));
+    }, []);
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -130,10 +151,18 @@ const CreateForm = (props: Props) => {
                 <SelectField 
                     label="Category"
                     name="categoryId"
-                    value={form.categoryId || ''}
-                    options={props.categories.map((category) => ({name: category.name, value: category._id}))}
+                    value={form.categoryId}
+                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
                     required={true}
                     onChange={changeForm} 
+                />
+                <SelectField
+                    label="Region"
+                    name="regionId"
+                    value={form.regionId}
+                    options={handleSearchRegion}
+                    required={true}
+                    onChange={changeForm}
                 />
                 <TagsField 
                     label="Tags"

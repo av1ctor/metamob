@@ -1,15 +1,17 @@
 import React, {useState, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Campaign, Region} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
-import SelectField from "../../../components/SelectField";
+import SelectField, { Option } from "../../../components/SelectField";
 import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
+import { useFindRegions } from "../../../hooks/regions";
+import { findAll } from "../../../libs/regions";
 
 interface Props {
     campaign: Campaign;
@@ -26,6 +28,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required(),
+    regionId: yup.number().required(),
     tags: yup.array(yup.string().max(12)).max(5),
 });
 
@@ -70,6 +73,7 @@ const EditForm = (props: Props) => {
                 pubId: props.campaign.pubId, 
                 req: {
                     categoryId: Number(form.categoryId),
+                    regionId: Number(form.regionId),
                     title: form.title,
                     target: form.target,
                     body: form.body,
@@ -85,6 +89,23 @@ const EditForm = (props: Props) => {
             props.onError(e);
         }
     }, [form, actorContext.main]);
+
+    const handleSearchRegion = useCallback(async (
+        value: string | number
+    ): Promise<Option[]> => {
+        const regions = await findAll(
+            {
+                key: 'name',
+                op: 'contains',
+                value: typeof value === "number"? String(value): value
+            }
+        );
+
+        return regions.map(r => ({
+            name: r.name,
+            value: r._id
+        }));
+    }, []);
 
     return (
         <form onSubmit={handleUpdate}>
@@ -127,8 +148,16 @@ const EditForm = (props: Props) => {
                 <SelectField
                     label="Category"
                     name="categoryId"
-                    value={form.categoryId || ''}
-                    options={props.categories.map((category) => ({name: category.name, value: category._id}))}
+                    value={form.categoryId}
+                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <SelectField
+                    label="Region"
+                    name="regionId"
+                    value={form.regionId}
+                    options={handleSearchRegion}
                     required={true}
                     onChange={changeForm}
                 />

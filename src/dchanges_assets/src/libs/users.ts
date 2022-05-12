@@ -1,5 +1,29 @@
 import { AuthClient } from "@dfinity/auth-client";
+import {dchanges} from "../../../declarations/dchanges";
+import {ProfileResponse} from "../../../declarations/dchanges/dchanges.did";
 import { config } from "../config";
+
+export const findById = async (
+    _id: number
+): Promise<ProfileResponse> => {
+    if(_id === 0) {
+        return {
+            _id: 0,
+            pubId: '',
+            name: 'Anonymous',
+            email: '',
+            avatar: ['anonymous'],
+            roles: [],
+            countryId: 0,
+        };
+    }
+
+    const res = await dchanges.userFindById(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
 
 export const loginUser = async (
     client: AuthClient, 

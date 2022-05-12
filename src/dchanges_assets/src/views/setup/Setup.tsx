@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext, useCallback} from "react";
 import { Link } from "react-router-dom";
-import { Category, CategoryRequest, DChanges, ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
+import { Category, CategoryRequest, DChanges, ProfileRequest, RegionRequest } from "../../../../declarations/dchanges/dchanges.did";
 import Button from "../../components/Button";
 import Grid from "../../components/Grid";
 import Steps, { Step } from "../../components/Steps";
@@ -11,6 +11,7 @@ import { AuthActionType, AuthContext } from "../../stores/auth";
 import { CategoryActionType, CategoryContext } from "../../stores/category";
 import AdminSetupForm from "./Admin";
 import CategorySetupForm from "./Category";
+import RegionSetupForm from "./Region";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -29,6 +30,10 @@ const steps: Step[] = [
     {
         title: 'Category creation',
         icon: 'list',
+    },
+    {
+        title: 'Region creation',
+        icon: 'globe',
     },
     {
         title: 'Done',
@@ -85,6 +90,26 @@ const Setup = (props: Props) => {
                     payload: [res.ok]
                 });
                 props.onSuccess('Category created!');
+                setStep(step => step + 1);
+            }
+            else {
+                props.onError(res.err);
+            }
+        }
+        catch(e: any) {
+            props.onError(e);
+        }
+    }, [actorState.main]);
+
+    const createRegion = useCallback(async (req: RegionRequest) => {
+        try {
+            if(!actorState.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await actorState.main.regionCreate(req);
+            
+            if('ok' in res) {
                 setStep(step => step + 1);
             }
             else {
@@ -186,6 +211,13 @@ const Setup = (props: Props) => {
                         />
                     }
                     {step === 3 && 
+                        <RegionSetupForm 
+                            onCreate={createRegion}
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
+                        />
+                    }
+                    {step === 4 && 
                         <div>
                             The setup have been finished! <Link to="/">Go the main page</Link>.
                         </div>

@@ -1,32 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {dchanges} from "../../../declarations/dchanges";
-import {Category, CategoryRequest, DChanges, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {Category, CategoryRequest, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import { findAll, findById } from '../libs/categories';
 import {Filter, Limit, Order} from "../libs/common";
-
-const findAll = async (filters?: Filter, orderBy?: Order, limit?: Limit) => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
-        [];
-
-    const res = await dchanges.categoryFind(
-        criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
-        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return res.ok; 
-};
-
-const findById = async (_id: number): Promise<Category> => {
-    const res = await dchanges.categoryFindById(_id);
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-    return res.ok; 
-};
 
 export const useFindCategoryById = (
     queryKey: any[], _id: number
@@ -36,6 +11,7 @@ export const useFindCategoryById = (
         () => findById(_id)
     );
 };
+
 export const useFindCategories = (
     queryKey: any[], filters?: Filter, orderBy?: Order, limit?: Limit
 ): UseQueryResult<Category [], Error> => {
@@ -43,7 +19,6 @@ export const useFindCategories = (
         queryKey,
         () => findAll(filters, orderBy, limit)
     );
-
 };
 
 export const useCreateCategory = (
@@ -88,7 +63,6 @@ export const useUpdateCategory = (
         },
         {
             onSuccess: () => {
-                // invalidate, because an item was updated (depending on the current sorting value, its position could change)
                 queryClient.invalidateQueries(queryKey);
             }   
         }
@@ -113,7 +87,6 @@ export const useDeleteCategory = (
         },
         {
             onSuccess: () => {
-                // invalidate, because an item was deleted
                 queryClient.invalidateQueries(queryKey);
             }   
         }
