@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import {useCreateUpdate} from "../../../hooks/updates";
 import {UpdateRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../stores/auth";
-import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
@@ -113,7 +112,7 @@ const UpdateForm = (props: Props) => {
 
     return (
         <form onSubmit={handleUpdate}>
-            <Grid container>
+            <div>
                 <MarkdownField
                     label="Message"
                     name="body"
@@ -154,7 +153,7 @@ const UpdateForm = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </div>
         </form>
     );
 };

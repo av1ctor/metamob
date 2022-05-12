@@ -71,7 +71,7 @@ const EditForm = (props: Props) => {
                     anonymous: form.anonymous,
                 }
         });
-            props.onSuccess('Comment updated!');
+            props.onSuccess('Signature updated!');
             props.onCancel();
         }
         catch(e) {
@@ -83,7 +83,7 @@ const EditForm = (props: Props) => {
         <form onSubmit={handleUpdate}>
             <Grid container>
                 <TextAreaField
-                    label="Body"
+                    label="Message"
                     name="body"
                     value={form.body || ''}
                     rows={6}

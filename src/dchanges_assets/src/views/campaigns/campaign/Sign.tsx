@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import {useCreateSignature} from "../../../hooks/signatures";
 import {SignatureRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../stores/auth";
-import Grid from "../../../components/Grid";
 import Button from "../../../components/Button";
 import TextAreaField from "../../../components/TextAreaField";
 import { ActorContext } from "../../../stores/actor";
@@ -90,7 +89,7 @@ const SignForm = (props: Props) => {
 
     return (
         <form onSubmit={handleSign}>
-            <Grid container>
+            <div>
                 {isLoggedIn && 
                     <>
                         <TextAreaField
@@ -99,12 +98,14 @@ const SignForm = (props: Props) => {
                             value={form.body || ''}
                             rows={6}
                             required={true}
+                            disabled={!!props.body}
                             onChange={changeForm}
                         />
                         <CheckboxField
                             label="Sign as anonymous"
                             id="anonymous"
                             value={form.anonymous}
+                            disabled={!!props.body}
                             onChange={changeForm}
                         />
                     </>
@@ -121,7 +122,7 @@ const SignForm = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </div>
         </form>
     );
 };

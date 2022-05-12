@@ -5,6 +5,7 @@ import {useFindCampaignById} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import Modal from "../../../components/Modal";
+import Box from "../../../components/Box";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Signatures from "../../signatures/Signatures";
 import Updates from "../../updates/Updates";
@@ -106,25 +107,30 @@ const Campaign = (props: Props) => {
                         </div>
                         <div className="column">
                             <progress className="progress mb-0 pb-0 is-success" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
-                            <div><small><b>{campaign.signaturesCnt}</b> have signed. Let's get to {goal}!</small></div>
+                            <div><small><b>{campaign.signaturesCnt}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
                             <br/>
                             {campaign.state === CampaignState.PUBLISHED? 
                                 <>
-                                    <div className="is-size-4 has-text-link">
-                                        To {campaign.target}
-                                    </div>
-                                    <SignForm 
-                                        campaign={campaign}
-                                        body={userSignature?.data?.body} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                    />
-                                    {auth.user?._id === campaign.createdBy &&
-                                        <UpdateForm 
+                                    <Box>
+                                        <div className="is-size-4">
+                                            To: <span className="is-size-4 has-text-link">{campaign.target}</span>
+                                        </div>
+                                        <SignForm 
                                             campaign={campaign}
+                                            body={userSignature?.data?.body} 
                                             onSuccess={props.onSuccess}
                                             onError={props.onError}
                                         />
+                                    </Box>
+                                    <br />
+                                    {auth.user?._id === campaign.createdBy &&
+                                        <Box>
+                                            <UpdateForm 
+                                                campaign={campaign}
+                                                onSuccess={props.onSuccess}
+                                                onError={props.onError}
+                                            />
+                                        </Box>                                            
                                     }
                                 </>
                             :
