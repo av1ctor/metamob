@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@creativebulma/bulma-badge": "^1.0.1",
+    "@creativebulma/bulma-tooltip": "^1.2.0",
     "@dfinity/agent": "0.11.1",
     "@dfinity/auth-client": "^0.11.1",
     "@dfinity/authentication": "^0.11.1",

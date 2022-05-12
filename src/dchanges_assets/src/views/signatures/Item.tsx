@@ -69,6 +69,11 @@ export const Item = (props: ItemProps) => {
                             <TimeFromNow 
                                 date={BigInt.asIntN(64, signature.createdAt)}
                             />
+                            {signature.updatedBy && signature.updatedBy.length > 0 &&
+                                <>
+                                    &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                </>
+                            }                            
                         </small>
                     </p>
                 </div>

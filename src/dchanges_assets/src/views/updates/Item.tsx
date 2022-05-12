@@ -70,6 +70,11 @@ export const Item = (props: ItemProps) => {
                             <TimeFromNow 
                                 date={BigInt.asIntN(64, update.createdAt)}
                             />
+                            {update.updatedBy && update.updatedBy.length > 0 &&
+                                <>
+                                    &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                </>
+                            }
                         </small>
                     </p>
                 </div>

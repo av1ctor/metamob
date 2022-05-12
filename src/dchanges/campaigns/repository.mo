@@ -637,8 +637,8 @@ module {
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
-                updatedAt = ?Time.now();
-                updatedBy = ?callerId;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
             }  

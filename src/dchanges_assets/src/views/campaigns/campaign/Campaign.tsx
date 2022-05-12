@@ -167,6 +167,11 @@ const Campaign = (props: Props) => {
                             <TimeFromNow 
                                 date={BigInt.asIntN(64, campaign.createdAt)}
                             />
+                            {campaign.updatedBy && campaign.updatedBy.length > 0 &&
+                                <>
+                                    &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                </>
+                            }
                         </small>
                     </p>                            
 
