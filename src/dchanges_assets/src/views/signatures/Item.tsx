@@ -24,7 +24,7 @@ export const Item = (props: ItemProps) => {
         signature.createdBy[0] || 0:
         0;
 
-    const profile = useFindUserById(['user', author], author);
+    const profile = useFindUserById(['users', author], author);
 
     const canEdit = props.campaign.state === CampaignState.PUBLISHED && 
         auth.user && (auth.user._id === author && author !== 0);
@@ -40,7 +40,7 @@ export const Item = (props: ItemProps) => {
                 <div className="content">
                     <strong>{profile?.isSuccess && profile?.data.name}</strong>
                     <br />
-                    <ReactMarkdown children={signature.body}/>
+                    <ReactMarkdown className="update-body" children={signature.body}/>
                     <p>
                         <small>
                             {canEdit && 
