@@ -18,7 +18,7 @@ interface Props {
 }
 
 const formSchema = yup.object().shape({
-    name: yup.string().min(3).max(96),
+    name: yup.string().required().min(3).max(96),
     parentId: yup.array(yup.number().required().min(1)).required(),
     private: yup.bool(),
 });
@@ -108,7 +108,8 @@ const Create = (props: Props) => {
                     label="Name"
                     name="name"
                     value={form.name}
-                    disabled={true}
+                    required={true}
+                    onChange={changeForm}
                 />            
                 <CheckboxField 
                     label="Private"
