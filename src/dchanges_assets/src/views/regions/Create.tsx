@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { RegionRequest } from "../../../../declarations/dchanges/dchanges.did";
+import AutocompleteField from "../../components/AutocompleteField";
 import Button from "../../components/Button";
 import CheckboxField from "../../components/CheckboxField";
 import SelectField, { Option } from "../../components/SelectField";
@@ -115,11 +116,11 @@ const Create = (props: Props) => {
                     value={form.private}
                     onChange={changeForm}
                 />
-                <SelectField
+                <AutocompleteField
                     label="Parent"
                     name="parentId"
                     value=""
-                    options={handleSearchRegion}
+                    onSearch={handleSearchRegion}
                     onChange={changeForm}
                 />            
                 <div className="field is-grouped mt-2">

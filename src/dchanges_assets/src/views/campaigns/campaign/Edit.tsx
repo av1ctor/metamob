@@ -14,6 +14,7 @@ import { useFindRegionById, useFindRegions } from "../../../hooks/regions";
 import { search } from "../../../libs/regions";
 import RegionForm from '../../regions/Create';
 import Modal from "../../../components/Modal";
+import AutocompleteField from "../../../components/AutocompleteField";
 
 interface Props {
     campaign: Campaign;
@@ -161,12 +162,12 @@ const EditForm = (props: Props) => {
                         required={true}
                         onChange={changeForm}
                     />
-                    <SelectField
+                    <AutocompleteField
                         label="Region"
                         name="regionId"
                         value={region.data?.name || ''}
-                        options={handleSearchRegion}
                         required={true}
+                        onSearch={handleSearchRegion}
                         onChange={changeForm}
                         onAdd={showCreateRegion}
                     />

@@ -12,6 +12,7 @@ import TagsField from "../../components/TagsField";
 import { search } from "../../libs/regions";
 import RegionForm from '../regions/Create';
 import Modal from "../../components/Modal";
+import AutocompleteField from "../../components/AutocompleteField";
 
 interface Props {
     mutation: any;
@@ -163,12 +164,12 @@ const CreateForm = (props: Props) => {
                         required={true}
                         onChange={changeForm} 
                     />
-                    <SelectField
+                    <AutocompleteField
                         label="Region"
                         name="regionId"
                         value=""
-                        options={handleSearchRegion}
                         required={true}
+                        onSearch={handleSearchRegion}
                         onChange={changeForm}
                         onAdd={showCreateRegion}
                     />
