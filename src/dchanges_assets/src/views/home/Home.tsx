@@ -112,11 +112,14 @@ export const Home = () => {
 
     useEffect((): void => {
         if(categories.status === 'success') {
-            categoriesDispatch({type: CategoryActionType.SET, payload: categories.data});
+            categoriesDispatch({
+                type: CategoryActionType.SET, 
+                payload: categories.data
+            });
         }
     }, [categories.status]);
 
-    if(categoriesState.categories.length == 0) {
+    if(categoriesState.categories.length === 0) {
         return (
             <Setup 
                 onSuccess={showSuccess}

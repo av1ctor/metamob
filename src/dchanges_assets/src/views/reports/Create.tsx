@@ -95,6 +95,13 @@ const Report = (props: Props) => {
                             Create
                         </Button>
                     </div>
+                    <div className="control">
+                        <Button
+                            color="danger"
+                            onClick={props.onCancel}>
+                            Cancel
+                        </Button>
+                    </div>
                 </div>
             </Grid>
         </form>    

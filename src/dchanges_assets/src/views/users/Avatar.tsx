@@ -8,7 +8,7 @@ interface Props {
 };
 
 const Avatar = (props: Props) => {
-    const profile = useFindUserById(['user', props.id], props.id);
+    const profile = useFindUserById(['users', props.id], props.id);
 
     let size = 6;
     switch(props.size) {

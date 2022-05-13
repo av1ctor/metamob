@@ -9,7 +9,9 @@ import NumberField from "../../components/NumberField";
 import MarkdownField from "../../components/MarkdownField";
 import { ActorContext } from "../../stores/actor";
 import TagsField from "../../components/TagsField";
-import { findAll } from "../../libs/regions";
+import { search } from "../../libs/regions";
+import RegionForm from '../regions/Create';
+import Modal from "../../components/Modal";
 
 interface Props {
     mutation: any;
@@ -25,14 +27,15 @@ const formSchema = yup.object().shape({
     body: yup.string().min(100).max(4096),
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
-    categoryId: yup.number().required(),
-    regionId: yup.number().required(),
+    categoryId: yup.number().required().min(1),
+    regionId: yup.number().required().min(1),
     tags: yup.array(yup.string().max(12)).max(5),
 });
 
 const CreateForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
+    const [regionValue, setRegionValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
         title: '',
         target: '',
@@ -86,118 +89,136 @@ const CreateForm = (props: Props) => {
         }
     }, [form, actorState.main]);
 
-    const handleSearchRegion = useCallback(async (
-        value: string | number
-    ): Promise<Option[]> => {
-        const regions = await findAll(
-            {
-                key: 'name',
-                op: 'contains',
-                value: typeof value === "number"? String(value): value
-            }
-        );
-
-        return regions.map(r => ({
-            name: r.name,
-            value: r._id
-        }));
-    }, []);
-    
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
         }));
     }, []);
+
+    const handleSearchRegion = useCallback(async (
+        value: string
+    ): Promise<Option[]> => {
+        try {
+            return search(value);
+        }
+        catch(e) {
+            props.onError(e);
+            return [];
+        }
+    }, []);
+    
+    const showCreateRegion = useCallback((value: string) => {
+        setRegionValue(value);
+    }, []);
+
+    const closeCreateRegion = useCallback(() => {
+        setRegionValue('');
+    }, []);    
   
     return (
-        <form onSubmit={handleCreate}>
-            <Grid container>
-                <TextField 
-                    label="Title"
-                    name="title"
-                    value={form.title || ''}
-                    required={true}
-                    onChange={changeForm} 
-                />
-                <TextField 
-                    label="Target"
-                    name="target"
-                    value={form.target || ''}
-                    required={true}
-                    onChange={changeForm} 
-                />
-                <MarkdownField
-                    label="Body"
-                    name="body"
-                    value={form.body || ''}
-                    rows={6}
-                    onChange={changeForm}
-                />
-                <TextField 
-                    label="Cover image" 
-                    name="cover"
-                    value={form.cover || ''}
-                    required={true}
-                    onChange={changeForm}
-                />
-                <NumberField
-                    label="Duration (in days)" 
-                    name="duration"
-                    value={form.duration}
-                    required={true}
-                    onChange={changeForm}
-                />
-                <SelectField 
-                    label="Category"
-                    name="categoryId"
-                    value={form.categoryId}
-                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
-                    required={true}
-                    onChange={changeForm} 
-                />
-                <SelectField
-                    label="Region"
-                    name="regionId"
-                    value={form.regionId}
-                    options={handleSearchRegion}
-                    required={true}
-                    onChange={changeForm}
-                />
-                <TagsField 
-                    label="Tags"
-                    name="tags"
-                    value={form.tags}
-                    maxTags={5}
-                    onChange={changeForm} 
-                />
+        <>
+            <form onSubmit={handleCreate}>
                 <Grid container>
-                    {props.mutation.isError && 
-                        <div className="form-error">
-                            {props.mutation.error.message}
+                    <TextField 
+                        label="Title"
+                        name="title"
+                        value={form.title || ''}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <TextField 
+                        label="Target"
+                        name="target"
+                        value={form.target || ''}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <MarkdownField
+                        label="Body"
+                        name="body"
+                        value={form.body || ''}
+                        rows={6}
+                        onChange={changeForm}
+                    />
+                    <TextField 
+                        label="Cover image" 
+                        name="cover"
+                        value={form.cover || ''}
+                        required={true}
+                        onChange={changeForm}
+                    />
+                    <NumberField
+                        label="Duration (in days)" 
+                        name="duration"
+                        value={form.duration}
+                        required={true}
+                        onChange={changeForm}
+                    />
+                    <SelectField 
+                        label="Category"
+                        name="categoryId"
+                        value={form.categoryId}
+                        options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <SelectField
+                        label="Region"
+                        name="regionId"
+                        value=""
+                        options={handleSearchRegion}
+                        required={true}
+                        onChange={changeForm}
+                        onAdd={showCreateRegion}
+                    />
+                    <TagsField 
+                        label="Tags"
+                        name="tags"
+                        value={form.tags}
+                        maxTags={5}
+                        onChange={changeForm} 
+                    />
+                    <Grid container>
+                        {props.mutation.isError && 
+                            <div className="form-error">
+                                {props.mutation.error.message}
+                            </div>
+                        }
+                    </Grid>
+                    <div className="field is-grouped mt-2">
+                        <div className="control">
+                            <Button 
+                                onClick={handleCreate} 
+                                disabled={props.mutation.isLoading}
+                            >
+                                Create
+                            </Button>
                         </div>
-                    }
+                        <div className="control">
+                            <Button 
+                                color="danger"
+                                onClick={props.onCancel} 
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
                 </Grid>
-                <div className="field is-grouped mt-2">
-                    <div className="control">
-                        <Button 
-                            onClick={handleCreate} 
-                            disabled={props.mutation.isLoading}
-                        >
-                            Create
-                        </Button>
-                    </div>
-                    <div className="control">
-                        <Button 
-                            color="danger"
-                            onClick={props.onCancel} 
-                        >
-                            Cancel
-                        </Button>
-                    </div>
-                </div>
-            </Grid>
-        </form>
+            </form>
+            
+            <Modal
+                isOpen={!!regionValue}
+                onClose={closeCreateRegion}
+            >
+                <RegionForm 
+                    value={regionValue}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    onCancel={closeCreateRegion}
+                />
+            </Modal>            
+        </>
     );
 };
 

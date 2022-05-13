@@ -456,9 +456,15 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     public query func regionFindById(
-        id: Text
+        _id: Nat32
     ): async Result.Result<RegionTypes.Region, Text> {
-        regionService.findById(id);
+        regionService.findById(_id);
+    };
+
+    public query func regionFindByPubId(
+        pubId: Text
+    ): async Result.Result<RegionTypes.Region, Text> {
+        regionService.findByPubId(pubId);
     };
 
     public shared query(msg) func regionFind(

@@ -7,7 +7,7 @@ interface Props {
 
 const Category = (props: Props) => {
     const category = props.id?
-        useFindCategoryById(['category'], props.id):
+        useFindCategoryById(['categories', props.id], props.id):
         undefined;
 
     return (

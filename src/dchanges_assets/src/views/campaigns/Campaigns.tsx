@@ -77,7 +77,11 @@ const Campaigns = (props: Props) => {
                                 />
                         </div>
                         <div className="level-right">
-                            <Button onClick={isLoggedIn? toggleCreate: redirectToLogon}>Create</Button>
+                            <Button 
+                                onClick={isLoggedIn? toggleCreate: redirectToLogon}
+                            >
+                                <i className="la la-plus-circle" />&nbsp;Create
+                            </Button>
                         </div>
                     </div>
 

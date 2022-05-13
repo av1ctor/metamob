@@ -13,6 +13,7 @@ module {
     public class Service(
     ) {
         let repo = Repository.Repository();
+        var hasAdmin: Bool = false;
 
         public func create(
             req: Types.ProfileRequest,
@@ -27,7 +28,10 @@ module {
                 Option.isSome(req.active) or
                 Option.isSome(req.banned)) {
                 if(invoker != owner) {
-                    return #err("Forbidden: invalid fields");
+                    if(hasAdmin) {
+                        return #err("Forbidden: invalid fields");
+                    };
+                    hasAdmin := true;
                 };
             };
 

@@ -118,7 +118,7 @@ const SignForm = (props: Props) => {
                             onClick={isLoggedIn? handleSign: redirectToLogon}
                             disabled={isLoggedIn? createMut.isLoading || !form.body: false}
                         >
-                            <i className="la la-fancy"/>&nbsp;SIGN
+                            <i className="la la-pen-fancy"/>&nbsp;SIGN
                         </Button>
                     </div>
                 </div>

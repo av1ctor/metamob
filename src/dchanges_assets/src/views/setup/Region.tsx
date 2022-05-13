@@ -4,7 +4,6 @@ import Button from '../../components/Button';
 import TextField from "../../components/TextField";
 import Grid from "../../components/Grid";
 import Panel from "../../components/Panel";
-import ColorField from "../../components/ColorField";
 import {RegionRequest} from "../../../../declarations/dchanges/dchanges.did";
 
 interface Props {

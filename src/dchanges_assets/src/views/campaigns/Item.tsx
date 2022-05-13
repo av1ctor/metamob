@@ -7,6 +7,7 @@ import Category from "../categories/Category";
 import Tag from "../tags/Tag";
 import Card from "../../components/Card";
 import { CampaignResult, CampaignState } from "../../libs/campaigns";
+import Region from "../regions/Region";
 
 interface Props {
     campaign: Campaign
@@ -33,6 +34,7 @@ const Item = (props: Props) => {
             } 
             subtitle={<>
                 <Category id={campaign.categoryId} />
+                <Region id={campaign.regionId} />
                 {campaign.tags.map(id => <Tag key={id} id={id} />)}
             </>}
             img={

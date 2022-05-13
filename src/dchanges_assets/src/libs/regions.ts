@@ -24,12 +24,28 @@ export const findAll = async (
 };
 
 export const findById = async (
-    pubId: string
+    _id: number
 ): Promise<Region> => {
-    const res = await dchanges.regionFindById(pubId);
+    const res = await dchanges.regionFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }
     return res.ok; 
 };
 
+export const search = async (
+    value: string
+): Promise<{name: string, value: number}[]> => {
+    const regions = await findAll(
+        {
+            key: 'name',
+            op: 'contains',
+            value: typeof value === "number"? String(value): value
+        }
+    );
+
+    return regions.map(r => ({
+        name: r.name,
+        value: r._id
+    }));
+};

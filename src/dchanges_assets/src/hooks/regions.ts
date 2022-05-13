@@ -4,13 +4,14 @@ import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById } from '../libs/regions';
 
 export const useFindRegionById = (
-    queryKey: any[], _id: string
+    queryKey: any[], _id: number
 ): UseQueryResult<Region, Error> => {
     return useQuery<Region, Error>(
         queryKey, 
         () => findById(_id)
     );
 };
+
 export const useFindRegions = (
     queryKey: any[], filters?: Filter, orderBy?: Order, limit?: Limit
 ): UseQueryResult<Region [], Error> => {
