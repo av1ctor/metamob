@@ -111,7 +111,7 @@ const AutocompleteField = (props: Props) => {
                             <a 
                                 key={index} 
                                 className="dropdown-item"
-                                href="#"
+                                href={location.hash}
                                 data-value={opt.value}
                                 onClick={handleSelectSuggestion}
                             >
@@ -126,7 +126,7 @@ const AutocompleteField = (props: Props) => {
                                 <i className="la la-plus-circle" />&nbsp;Add
                             </Button>
                         :
-                        <a className="dropdown-item" href="#">
+                        <a className="dropdown-item" href={location.hash}>
                             <i>Nothing found</i>
                         </a>
                     }
