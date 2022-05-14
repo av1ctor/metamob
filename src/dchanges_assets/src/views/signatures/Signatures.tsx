@@ -1,10 +1,8 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback} from "react";
 import {Campaign, SignatureResponse} from '../../../../declarations/dchanges/dchanges.did';
 import {Limit, Order} from "../../libs/common";
-import {CampaignState} from "../../libs/campaigns";
 import {useFindSignaturesByCampaign} from "../../hooks/signatures";
 import { Item } from "./Item";
-import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
 import ReportForm from "../reports/Create";
@@ -17,7 +15,6 @@ interface Props {
 };
 
 const Signatures = (props: Props) => {
-    const [auth] = useContext(AuthContext);
     const [orderBy, ] = useState<Order>({
         key: '_id',
         dir: 'desc'

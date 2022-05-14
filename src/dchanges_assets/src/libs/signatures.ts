@@ -53,6 +53,9 @@ export const findByCampaignAndUser = async (
         userId);
     
     if('err' in res) {
+        if(res.err === 'Not found') {
+            return {} as SignatureResponse;
+        }
         throw new Error(res.err);
     }
 
