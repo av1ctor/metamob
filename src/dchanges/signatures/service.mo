@@ -37,7 +37,7 @@ module {
                                 #err(msg);
                             };
                             case _ {
-                                switch(repo.findByCampaignAndUser(req.campaignId, caller._id)) {
+                                switch(repo.findByCampaignAndUserEx(req.campaignId, caller._id, false)) {
                                     case (#ok(response)) {
                                         #err("Duplicated");
                                     };

@@ -21,6 +21,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "anonymous";
+                options = [#sortable];
+            },
+            {
                 name = "createdAt";
                 options = [#sortable];
             },
