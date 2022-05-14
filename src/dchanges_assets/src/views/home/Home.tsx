@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import {Routes, Route, Link} from "react-router-dom";
+import {Routes, Route} from "react-router-dom";
 import { AuthClient } from "@dfinity/auth-client"
 import { toast } from 'bulma-toast';
 import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
@@ -8,7 +8,6 @@ import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
 import { createMainActor } from "../../libs/backend";
-import Setup from "../setup/Setup";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import UserCampaigns from "../users/Campaigns";
@@ -16,6 +15,7 @@ import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
 import Profile from "../users/Profile";
+import Admin from "../admin/Admin";
 
 const showError = (e: any) => {
     if(e) {
@@ -56,7 +56,7 @@ const showSuccess = (text: string) => {
 export const Home = () => {
     const [, authDispatch] = useContext(AuthContext);
     const [, actorDispatch] = useContext(ActorContext);
-    const [categoriesState, categoriesDispatch] = useContext(CategoryContext);
+    const [, categoriesDispatch] = useContext(CategoryContext);
 
     const categories = useFindCategories(['categories']);
 
@@ -119,15 +119,6 @@ export const Home = () => {
         }
     }, [categories.status]);
 
-    if(categoriesState.categories.length === 0) {
-        return (
-            <Setup 
-                onSuccess={showSuccess}
-                onError={showError}
-            />
-        );
-    }    
-    
     return (
         <>
             <Header 
@@ -141,6 +132,7 @@ export const Home = () => {
                         <Route path="/user/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns />} />
                         <Route path="/c/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/admin" element={<Admin onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/" element={<Campaigns onSuccess={showSuccess} onError={showError} />} />
                     </Routes>
                 </div>
