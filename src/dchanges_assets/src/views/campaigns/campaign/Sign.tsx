@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useContext, useCallback} from "react";
+import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCreateSignature} from "../../../hooks/signatures";
@@ -85,6 +85,13 @@ const SignForm = (props: Props) => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
 
+    useEffect(() => {
+        setForm(form => ({
+            ...form,
+            body: props.body || ''
+        }));
+    }, [props.body]);
+
     const isLoggedIn = !!authState.user;
 
     return (
@@ -116,7 +123,7 @@ const SignForm = (props: Props) => {
                         <Button
                             color="danger"
                             onClick={isLoggedIn? handleSign: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || !form.body: false}
+                            disabled={isLoggedIn? createMut.isLoading || !!props.body: false}
                         >
                             <i className="la la-pen-fancy"/>&nbsp;SIGN
                         </Button>

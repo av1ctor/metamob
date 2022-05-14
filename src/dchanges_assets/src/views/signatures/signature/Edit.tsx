@@ -10,7 +10,7 @@ import CheckboxField from "../../../components/CheckboxField";
 
 interface Props {
     signature: SignatureResponse;
-    onCancel: () => void;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -72,7 +72,7 @@ const EditForm = (props: Props) => {
                 }
         });
             props.onSuccess('Signature updated!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -108,7 +108,7 @@ const EditForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onCancel}
+                            onClick={props.onClose}
                         >
                             Cancel
                         </Button>

@@ -9,7 +9,7 @@ import MarkdownField from "../../../components/MarkdownField";
 
 interface Props {
     update: Update;
-    onCancel: () => void;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -64,7 +64,7 @@ const EditForm = (props: Props) => {
                 }
         });
             props.onSuccess('Update updated!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -93,7 +93,7 @@ const EditForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onCancel}
+                            onClick={props.onClose}
                         >
                             Cancel
                         </Button>

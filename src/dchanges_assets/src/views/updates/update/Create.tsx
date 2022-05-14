@@ -7,10 +7,11 @@ import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
 import { CampaignResult } from "../../../libs/campaigns";
+import Grid from "../../../components/Grid";
 
 interface Props {
     campaign: Campaign;
-    body?: string;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -19,13 +20,13 @@ const formSchema = yup.object().shape({
     body: yup.string().min(3).max(256),
 });
 
-const UpdateForm = (props: Props) => {
+const Create = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [actorState, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<UpdateRequest>({
         campaignId: props.campaign._id,
-        body: props.body || '',
+        body: '',
     });
     
     const createMut = useCreateUpdate();
@@ -47,7 +48,7 @@ const UpdateForm = (props: Props) => {
         }
     };
 
-    const doUpdate = useCallback(async (result?: CampaignResult) => {
+    const doCreate = useCallback(async (result?: CampaignResult) => {
         try {
             await createMut.mutateAsync({
                 main: actorState.main,
@@ -64,13 +65,14 @@ const UpdateForm = (props: Props) => {
             });
 
             props.onSuccess('Campaign updated!');
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
         }
     }, [form]);
 
-    const handleUpdate = useCallback(async (e: any) => {
+    const handleCreate = useCallback(async (e: any) => {
         e.preventDefault();
 
         const errors = await validate(form);
@@ -79,7 +81,7 @@ const UpdateForm = (props: Props) => {
             return;
         }
 
-        doUpdate();
+        doCreate();
     }, [form]);    
 
     const handleEnd = useCallback(async (e: any) => {
@@ -91,7 +93,7 @@ const UpdateForm = (props: Props) => {
             return;
         }
 
-        doUpdate(CampaignResult.LOST);
+        doCreate(CampaignResult.LOST);
     }, [form]);    
 
     const handleFinish = useCallback(async (e: any) => {
@@ -103,7 +105,7 @@ const UpdateForm = (props: Props) => {
             return;
         }
 
-        doUpdate(CampaignResult.WON);
+        doCreate(CampaignResult.WON);
     }, [form]);    
 
     if(!authState.user) {
@@ -111,8 +113,8 @@ const UpdateForm = (props: Props) => {
     }
 
     return (
-        <form onSubmit={handleUpdate}>
-            <div>
+        <form onSubmit={handleCreate}>
+            <Grid container>
                 <MarkdownField
                     label="Message"
                     name="body"
@@ -124,12 +126,12 @@ const UpdateForm = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
-                            color="dark"
+                            color="success"
                             disabled={createMut.isLoading || !form.body}
                             title="Post an update message"
-                            onClick={handleUpdate}
+                            onClick={handleCreate}
                         >
-                            <i className="la la-pen"/>&nbsp;UPDATE
+                            Create
                         </Button>
                     </div>
                     <div className="control">
@@ -139,23 +141,31 @@ const UpdateForm = (props: Props) => {
                             disabled={createMut.isLoading || !form.body}
                             onClick={handleEnd}
                         >
-                            <i className="la la-thumbs-down"/>&nbsp;END
+                            <i className="la la-thumbs-down"/>&nbsp;End
                         </Button>
                     </div>
                     <div className="control">
                         <Button
-                            color="success"
+                            color="warning"
                             title="Post a final message if the goal was achieved and finish the campaign"
                             disabled={createMut.isLoading || !form.body}
                             onClick={handleFinish}
                         >
-                            <i className="la la-thumbs-up"/>&nbsp;FINISH
+                            <i className="la la-thumbs-up"/>&nbsp;Finish
+                        </Button>
+                    </div>
+                    <div className="control">
+                        <Button
+                            color="danger"
+                            onClick={props.onClose}
+                        >
+                            Cancel
                         </Button>
                     </div>
                 </div>
-            </div>
+            </Grid>
         </form>
     );
 };
 
-export default UpdateForm;
+export default Create;

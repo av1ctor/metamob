@@ -12,7 +12,11 @@ const Category = (props: Props) => {
 
     return (
         category?.isSuccess? 
-            <span className="tag is-rounded" style={{backgroundColor: category.data.color}} title={category.data.description}>
+            <span 
+                className="tag is-rounded" 
+                style={{backgroundColor: category.data.color}} 
+                title={`Category: ${category.data.name}`}
+            >
                 <b>{category.data.name}</b>
             </span>:
         null

@@ -1,11 +1,12 @@
 import React, { useCallback, useContext, useState } from "react"
 import * as yup from 'yup';
-import {dchanges} from "../../../../declarations/dchanges";
-import { AuthActionType, AuthContext } from "../../stores/auth";
-import Button from "../../components/Button";
-import Grid from "../../components/Grid";
-import TextField from "../../components/TextField";
-import {ProfileRequest } from "../../../../declarations/dchanges/dchanges.did";
+import { AuthActionType, AuthContext } from "../../../stores/auth";
+import Button from "../../../components/Button";
+import Grid from "../../../components/Grid";
+import TextField from "../../../components/TextField";
+import {ProfileRequest, Role } from "../../../../../declarations/dchanges/dchanges.did";
+import { ActorContext } from "../../../stores/actor";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -15,21 +16,25 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().min(3).max(64),
     email: yup.string().min(3).max(128),
-    avatar: yup.string().required(),
+    avatar: yup.array(yup.string()).required(),
 });
 
-const Create = (props: Props) => {
-    const [state, dispatch] = useContext(AuthContext);
+const User = (props: Props) => {
+    const [authState, authDispatch] = useContext(AuthContext);
+    const [actorState, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
         avatar: [],
-        roles: [],
+        roles: [] as any,
         active: [],
         banned: [],
-        countryId: 0
+        countryId: 0,
+        ...authState.user
     });
+
+    const navigate = useNavigate();
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -55,7 +60,7 @@ const Create = (props: Props) => {
         }
     };
 
-    const handleCreate = useCallback(async (e: any) => {
+    const handleUpdate = useCallback(async (e: any) => {
         e.preventDefault();
 
         const errors = await validate(form);
@@ -74,13 +79,17 @@ const Create = (props: Props) => {
                 banned: [],
                 countryId: 0,
             };
+
+            if(!actorState.main) {
+                return;
+            }
             
-            const res = await dchanges.userCreate(req);
+            const res = await actorState.main.userUpdateMe(req);
             
             if('ok' in res) {
                 const user = res.ok;
-                dispatch({type: AuthActionType.SET_USER, payload: user});
-                props.onSuccess('User created!');
+                authDispatch({type: AuthActionType.SET_USER, payload: user});
+                props.onSuccess('User updated!');
             }
             else {
                 props.onError(res.err);
@@ -91,12 +100,13 @@ const Create = (props: Props) => {
         }
     }, [form]);
 
-    if(!state.client || !state.identity) {
+    if(!authState.client || !authState.identity || !authState.user) {
+        navigate('/user/login');
         return null;
     }
 
     return (
-        <form onSubmit={handleCreate}>
+        <form onSubmit={handleUpdate}>
             <Grid container>
                 <TextField 
                     label="Name"
@@ -122,14 +132,14 @@ const Create = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
-                            onClick={handleCreate}>
-                            Create
+                            onClick={handleUpdate}>
+                            Update
                         </Button>
                     </div>
                 </div>
             </Grid>
-        </form>
-    );
+        </form>        
+    )
 };
 
-export default Create;
+export default User;

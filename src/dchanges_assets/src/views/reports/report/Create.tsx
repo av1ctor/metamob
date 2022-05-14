@@ -1,17 +1,17 @@
 import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
-import { ReportRequest } from "../../../../declarations/dchanges/dchanges.did";
-import Button from "../../components/Button";
-import Grid from "../../components/Grid";
-import TextAreaField from "../../components/TextAreaField";
-import { useCreateReport } from "../../hooks/reports";
-import { ReportType } from "../../libs/reports";
-import { ActorContext } from "../../stores/actor";
+import { ReportRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import Button from "../../../components/Button";
+import Grid from "../../../components/Grid";
+import TextAreaField from "../../../components/TextAreaField";
+import { useCreateReport } from "../../../hooks/reports";
+import { ReportType } from "../../../libs/reports";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     entityId: number;
     entityType: ReportType;
-    onCancel: () => void;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -63,7 +63,7 @@ const Report = (props: Props) => {
             });
 
             props.onSuccess('Report created!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -98,7 +98,7 @@ const Report = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onCancel}>
+                            onClick={props.onClose}>
                             Cancel
                         </Button>
                     </div>

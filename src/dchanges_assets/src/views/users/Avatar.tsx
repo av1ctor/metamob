@@ -21,7 +21,7 @@ const Avatar = (props: Props) => {
         <div className="is-flex is-align-items-center">
             <div className={`avatar ${props.size}`}>
                 {profile?.isSuccess && 
-                    <div className={`is-size-${size}`} title={profile.data.name}>
+                    <div className={`is-size-${size}`} title={`User: ${profile.data.name}`}>
                         <b>{profile.data.name.charAt(0).toUpperCase()}</b>
                     </div>
                 }

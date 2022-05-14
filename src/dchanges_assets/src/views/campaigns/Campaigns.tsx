@@ -5,7 +5,7 @@ import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
 import {Filter} from "../../libs/common";
 import {useFindCampaigns, useCreateCampaign} from "../../hooks/campaigns";
-import CreateForm from "./Create";
+import CreateForm from "./campaign/Create";
 import SearchForm from "./Search";
 import Item from "./Item";
 import Button from "../../components/Button";
@@ -121,7 +121,7 @@ const Campaigns = (props: Props) => {
                 <CreateForm
                     categories={categoryState.categories}
                     mutation={createCampaignMut}
-                    onCancel={toggleCreate}
+                    onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />

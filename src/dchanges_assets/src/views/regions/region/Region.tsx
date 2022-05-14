@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFindRegionById } from '../../hooks/regions';
+import { useFindRegionById } from '../../../hooks/regions';
 
 interface Props {
     id?: number
@@ -12,7 +12,10 @@ const Region = (props: Props) => {
 
     return (
         region?.isSuccess? 
-            <span className="tag is-rounded is-black">
+            <span 
+                className="tag is-rounded is-black"
+                title={`Region: ${region.data.name}`}
+            >
                 <b>{region.data.name}</b>
             </span>:
         null

@@ -1,20 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { RegionRequest } from "../../../../declarations/dchanges/dchanges.did";
-import AutocompleteField from "../../components/AutocompleteField";
-import Button from "../../components/Button";
-import CheckboxField from "../../components/CheckboxField";
-import SelectField, { Option } from "../../components/SelectField";
-import TextField from "../../components/TextField";
-import { useCreateRegion } from "../../hooks/regions";
-import { search } from "../../libs/regions";
-import { ActorContext } from "../../stores/actor";
+import { RegionRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import AutocompleteField from "../../../components/AutocompleteField";
+import Button from "../../../components/Button";
+import CheckboxField from "../../../components/CheckboxField";
+import SelectField, { Option } from "../../../components/SelectField";
+import TextField from "../../../components/TextField";
+import { useCreateRegion } from "../../../hooks/regions";
+import { search } from "../../../libs/regions";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     value: string;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
-    onCancel: () => void;
+    onClose: () => void;
 }
 
 const formSchema = yup.object().shape({
@@ -75,7 +75,7 @@ const Create = (props: Props) => {
             });
 
             props.onSuccess('Region created!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -135,7 +135,7 @@ const Create = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onCancel}
+                            onClick={props.onClose}
                         >
                             Cancel
                         </Button>

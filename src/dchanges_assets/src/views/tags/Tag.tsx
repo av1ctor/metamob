@@ -6,7 +6,12 @@ interface Props {
 
 const Tag = (props: Props) => {
     return (
-        <small className='tag'>#{props.id}</small>
+        <small 
+            className='tag'
+            title={`Tag: #${props.id}`}
+        >
+            #{props.id}
+        </small>
     );
 };
 

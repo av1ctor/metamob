@@ -5,7 +5,7 @@ import {useFindSignaturesByCampaign} from "../../hooks/signatures";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
-import ReportForm from "../reports/Create";
+import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
 
 interface Props {
@@ -83,7 +83,7 @@ const Signatures = (props: Props) => {
                 {signature && 
                     <EditForm
                         signature={signature} 
-                        onCancel={toggleEdit}
+                        onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
@@ -105,7 +105,7 @@ const Signatures = (props: Props) => {
                     <ReportForm
                         entityId={signature._id}
                         entityType={ReportType.SIGNATURES}
-                        onCancel={toggleReport}
+                        onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />

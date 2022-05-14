@@ -6,9 +6,11 @@ import {useFindUpdatesByCampaign} from "../../hooks/updates";
 import { Item } from "./Item";
 import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
+import CreateForm from "./update/Create";
 import EditForm from "./update/Edit";
-import ReportForm from "../reports/Create";
+import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
+import Button from "../../components/Button";
 
 interface Props {
     campaign: Campaign;
@@ -27,6 +29,7 @@ const Updates = (props: Props) => {
         size: 10
     });
     const [modals, setModals] = useState({
+        create: false,
         edit: false,
         delete: false,
         report: false,
@@ -41,13 +44,21 @@ const Updates = (props: Props) => {
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
 
+    const toggleCreate = useCallback(() => {
+        setModals({
+            ...modals,
+            create: !modals.create
+        });
+        setUpdate(undefined);
+    }, [modals]);
+
     const toggleEdit = useCallback((update: Update | undefined = undefined) => {
         setModals({
             ...modals,
             edit: !modals.edit
         });
         setUpdate(update);
-    }, [modals, update]);
+    }, [modals]);
 
     const toggleDelete = useCallback((update: Update | undefined = undefined) => {
         setModals({
@@ -55,7 +66,7 @@ const Updates = (props: Props) => {
             delete: !modals.delete
         });
         setUpdate(update);
-    }, [modals, update]);
+    }, [modals]);
 
     const toggleReport = useCallback((update: Update | undefined = undefined) => {
         setModals({
@@ -63,23 +74,50 @@ const Updates = (props: Props) => {
             report: !modals.report
         });
         setUpdate(update);
-    }, [modals, update]);
+    }, [modals]);
 
     return (
         <div className="updates">
-            {updates.status === 'success' && updates.data? 
-                updates.data.map((update) => 
-                    <Item
-                        key={update._id} 
-                        update={update}
-                        canEdit={canEdit? true: false}
-                        onEdit={toggleEdit}
-                        onDelete={toggleDelete}
-                        onReport={toggleReport}
-                    />
-                ):
-                <div>Loading...</div>
-            }
+            <div className="level">
+                <div className="level-left">
+                    <div>
+                    {updates.status === 'success' && updates.data? 
+                        updates.data.map((update) => 
+                            <Item
+                                key={update._id} 
+                                update={update}
+                                canEdit={canEdit? true: false}
+                                onEdit={toggleEdit}
+                                onDelete={toggleDelete}
+                                onReport={toggleReport}
+                            />
+                        ):
+                        <div>Loading...</div>
+                    }
+                    </div>
+                </div>
+                <div className="level-right is-align-self-baseline">
+                    {auth.user?._id === props.campaign.createdBy &&
+                        <Button
+                            onClick={toggleCreate}
+                        >
+                            <i className="la la-plus-circle" />&nbsp;Create
+                        </Button>
+                    }
+                </div>
+            </div>
+
+            <Modal
+                isOpen={modals.create}
+                onClose={toggleCreate}
+            >
+                <CreateForm
+                    campaign={props.campaign}
+                    onClose={toggleCreate}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Modal>
 
             <Modal
                 isOpen={modals.edit}
@@ -88,7 +126,7 @@ const Updates = (props: Props) => {
                 {update && 
                     <EditForm
                         update={update} 
-                        onCancel={toggleEdit}
+                        onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
@@ -110,7 +148,7 @@ const Updates = (props: Props) => {
                     <ReportForm
                         entityId={update._id}
                         entityType={ReportType.UPDATES}
-                        onCancel={toggleReport}
+                        onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />

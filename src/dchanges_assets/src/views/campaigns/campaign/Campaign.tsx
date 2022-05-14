@@ -15,13 +15,12 @@ import Category from "../../categories/Category";
 import Tag from "../../tags/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
-import UpdateForm from "./Update";
-import ReportForm from "../../reports/Create";
+import ReportForm from "../../reports/report/Create";
 import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 import Tabs from "../../../components/Tabs";
 import Result from "./Result";
 import { ReportType } from "../../../libs/reports";
-import Region from "../../regions/Region";
+import Region from "../../regions/region/Region";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -56,7 +55,7 @@ const Campaign = (props: Props) => {
         undefined;
 
     const userSignature = useFindSignatureByCampaignAndUser(
-        ['campaign-signature', campaign?._id || 0, auth.user?._id || 0], campaign?._id, auth.user?._id);
+        ['signatures', campaign?._id || 0, auth.user?._id || 0], campaign?._id, auth.user?._id);
 
     const toggleEdit = useCallback(() => {
         setModals({
@@ -124,16 +123,6 @@ const Campaign = (props: Props) => {
                                             onError={props.onError}
                                         />
                                     </Box>
-                                    <br />
-                                    {auth.user?._id === campaign.createdBy &&
-                                        <Box>
-                                            <UpdateForm 
-                                                campaign={campaign}
-                                                onSuccess={props.onSuccess}
-                                                onError={props.onError}
-                                            />
-                                        </Box>                                            
-                                    }
                                 </>
                             :
                                 <Result result={campaign.result} />
@@ -148,14 +137,14 @@ const Campaign = (props: Props) => {
                             {canEdit &&
                                 <>
                                     <a
-                                        title="edit"
+                                        title="Edit campaign"
                                         onClick={toggleEdit}
                                     >
                                         <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
                                     </a>
                                     &nbsp;·&nbsp;
                                     <a
-                                        title="delete"
+                                        title="Delete campaign"
                                         onClick={toggleDelete}
                                     >
                                         <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
@@ -166,7 +155,7 @@ const Campaign = (props: Props) => {
                             {auth.user && 
                                 <>
                                     <a
-                                        title="report"
+                                        title="Report campaign"
                                         onClick={toggleReport}
                                     >
                                         <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
@@ -215,7 +204,7 @@ const Campaign = (props: Props) => {
                 <EditForm 
                     campaign={campaign} 
                     categories={categories.categories} 
-                    onCancel={toggleEdit}
+                    onClose={toggleEdit}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />
@@ -235,7 +224,7 @@ const Campaign = (props: Props) => {
                 <ReportForm
                     entityId={campaign._id}
                     entityType={ReportType.CAMPAIGNS}
-                    onCancel={toggleReport}
+                    onClose={toggleReport}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />

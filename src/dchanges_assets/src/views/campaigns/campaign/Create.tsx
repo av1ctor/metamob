@@ -1,23 +1,23 @@
 import React, {useState, useCallback, useContext} from "react";
 import * as yup from 'yup';
-import Button from '../../components/Button';
-import TextField from "../../components/TextField";
-import SelectField, { Option } from "../../components/SelectField";
-import Grid from "../../components/Grid";
-import {Category, CampaignRequest} from "../../../../declarations/dchanges/dchanges.did";
-import NumberField from "../../components/NumberField";
-import MarkdownField from "../../components/MarkdownField";
-import { ActorContext } from "../../stores/actor";
-import TagsField from "../../components/TagsField";
-import { search } from "../../libs/regions";
-import RegionForm from '../regions/Create';
-import Modal from "../../components/Modal";
-import AutocompleteField from "../../components/AutocompleteField";
+import Button from '../../../components/Button';
+import TextField from "../../../components/TextField";
+import SelectField, { Option } from "../../../components/SelectField";
+import Grid from "../../../components/Grid";
+import {Category, CampaignRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import NumberField from "../../../components/NumberField";
+import MarkdownField from "../../../components/MarkdownField";
+import { ActorContext } from "../../../stores/actor";
+import TagsField from "../../../components/TagsField";
+import { search } from "../../../libs/regions";
+import RegionForm from '../../regions/region/Create';
+import Modal from "../../../components/Modal";
+import AutocompleteField from "../../../components/AutocompleteField";
 
 interface Props {
     mutation: any;
     categories: Category[];
-    onCancel: () => void;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -83,7 +83,7 @@ const CreateForm = (props: Props) => {
             });
 
             props.onSuccess('Campaign created!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -199,7 +199,7 @@ const CreateForm = (props: Props) => {
                         <div className="control">
                             <Button 
                                 color="danger"
-                                onClick={props.onCancel} 
+                                onClick={props.onClose} 
                             >
                                 Cancel
                             </Button>
@@ -216,7 +216,7 @@ const CreateForm = (props: Props) => {
                     value={regionValue}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
-                    onCancel={closeCreateRegion}
+                    onClose={closeCreateRegion}
                 />
             </Modal>            
         </>

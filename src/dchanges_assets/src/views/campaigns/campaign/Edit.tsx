@@ -12,14 +12,14 @@ import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { useFindRegionById, useFindRegions } from "../../../hooks/regions";
 import { search } from "../../../libs/regions";
-import RegionForm from '../../regions/Create';
+import RegionForm from '../../regions/region/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 
 interface Props {
     campaign: Campaign;
     categories: Category[];
-    onCancel: () => void;
+    onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -88,7 +88,7 @@ const EditForm = (props: Props) => {
                 }
             });
             props.onSuccess('Campaign updated!');
-            props.onCancel();
+            props.onClose();
         }
         catch(e) {
             props.onError(e);
@@ -190,7 +190,7 @@ const EditForm = (props: Props) => {
                         <div className="control">
                             <Button
                                 color="danger"
-                                onClick={props.onCancel}
+                                onClick={props.onClose}
                             >
                                 Cancel
                             </Button>
@@ -207,7 +207,7 @@ const EditForm = (props: Props) => {
                     value={regionValue}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
-                    onCancel={closeCreateRegion}
+                    onClose={closeCreateRegion}
                 />
             </Modal>            
         </>

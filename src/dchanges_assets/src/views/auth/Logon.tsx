@@ -5,7 +5,7 @@ import Button from "../../components/Button";
 import Grid from "../../components/Grid";
 import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
 import Steps, { Step } from "../../components/Steps";
-import UserCreateForm from "../users/Create";
+import UserCreateForm from "../users/user/Create";
 import { loginUser } from "../../libs/users";
 import { createMainActor } from "../../libs/backend";
 import { ActorActionType, ActorContext } from "../../stores/actor";

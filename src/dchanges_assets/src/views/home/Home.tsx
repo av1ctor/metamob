@@ -14,7 +14,7 @@ import UserCampaigns from "../users/Campaigns";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
-import Profile from "../users/Profile";
+import User from "../users/user/User";
 import Admin from "../admin/Admin";
 
 const showError = (e: any) => {
@@ -129,7 +129,7 @@ export const Home = () => {
                 <div className="container">
                     <Routes>
                         <Route path="/user/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/user/profile" element={<Profile onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/profile" element={<User onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns />} />
                         <Route path="/c/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
                         <Route path="/admin" element={<Admin onSuccess={showSuccess} onError={showError} />} />

@@ -46,14 +46,14 @@ export const Item = (props: ItemProps) => {
                             {canEdit && 
                                 <>
                                     <a
-                                        title="edit"
+                                        title="Edit signature"
                                         onClick={() => props.onEdit(signature)}
                                     >
                                         <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
                                     </a>
                                     &nbsp;·&nbsp;
                                     <a
-                                        title="delete"
+                                        title="Delete signature"
                                         onClick={() => props.onDelete(signature)}
                                     >
                                         <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
@@ -64,7 +64,7 @@ export const Item = (props: ItemProps) => {
                             {auth.user && 
                                 <>
                                     <a
-                                        title="report"
+                                        title="Report signature"
                                         onClick={() => props.onReport(signature)}
                                     >
                                         <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
