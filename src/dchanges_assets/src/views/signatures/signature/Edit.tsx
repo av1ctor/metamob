@@ -2,7 +2,7 @@ import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateSignature} from "../../../hooks/signatures";
 import {SignatureResponse, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
@@ -81,7 +81,7 @@ const EditForm = (props: Props) => {
 
     return (
         <form onSubmit={handleUpdate}>
-            <Grid container>
+            <Container>
                 <TextAreaField
                     label="Message"
                     name="body"
@@ -114,7 +114,7 @@ const EditForm = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>
     );
 };

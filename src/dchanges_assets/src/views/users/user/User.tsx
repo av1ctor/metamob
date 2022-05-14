@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useState } from "react"
 import * as yup from 'yup';
 import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {ProfileRequest, Role } from "../../../../../declarations/dchanges/dchanges.did";
 import { ActorContext } from "../../../stores/actor";
@@ -107,7 +107,7 @@ const User = (props: Props) => {
 
     return (
         <form onSubmit={handleUpdate}>
-            <Grid container>
+            <Container>
                 <TextField 
                     label="Name"
                     name="name"
@@ -137,7 +137,7 @@ const User = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>        
     )
 };

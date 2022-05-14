@@ -1,6 +1,6 @@
 import React, {useState, ChangeEvent} from "react";
 import Panel from "../../components/Panel";
-import Grid from "../../components/Grid";
+import Container from "../../components/Container";
 import SelectField from "../../components/SelectField";
 import {Order} from "../../libs/common";
 
@@ -30,36 +30,28 @@ const OrderForm = (props: Props) => {
             label="Order"
             collapsed={props.collapsed}
             onToggle={props.onToggle}>
-            <Grid container>
-                <Grid>
-                    <SelectField
-                        label="Column"
-                        name="key"
-                        value={form.key || ''}
-                        options={props.indexedColumns.map((col) => ({name: col, value: col}))}
-                        onChange={changeForm} 
-                    />
-                </Grid>
-            </Grid>
-            <Grid container>
-                <Grid>
-                    <SelectField
-                        label="Direction"
-                        name="dir"
-                        value={form.dir || 'asc'}
-                        options={[{name: "Asc", value: "asc"}, {name: "Desc", value: "desc"}]}
-                        onChange={changeForm} 
-                    />
-                </Grid>
-            </Grid>
+            <Container>
+                <SelectField
+                    label="Column"
+                    name="key"
+                    value={form.key || ''}
+                    options={props.indexedColumns.map((col) => ({name: col, value: col}))}
+                    onChange={changeForm} 
+                />
+                <SelectField
+                    label="Direction"
+                    name="dir"
+                    value={form.dir || 'asc'}
+                    options={[{name: "Asc", value: "asc"}, {name: "Desc", value: "desc"}]}
+                    onChange={changeForm} 
+                />
+            </Container>
             {error && 
-                <Grid container>
-                    <Grid>
-                        <div className="form-error">
-                            {error}
-                        </div>
-                    </Grid>
-                </Grid>
+                <Container>
+                    <div className="form-error">
+                        {error}
+                    </div>
+                </Container>
             }
         </Panel>
     );

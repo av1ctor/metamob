@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthActionType, AuthContext, AuthState } from "../../stores/auth";
 import Button from "../../components/Button";
-import Grid from "../../components/Grid";
+import Container from "../../components/Container";
 import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";
 import Steps, { Step } from "../../components/Steps";
 import UserCreateForm from "../users/user/Create";
@@ -119,7 +119,7 @@ const Logon = (props: Props) => {
                 step={step}
                 steps={steps}
             />
-            <Grid container>
+            <Container>
                 {step === 0 && 
                     <Button 
                         onClick={handleAuthenticate}>
@@ -138,7 +138,7 @@ const Logon = (props: Props) => {
                         <i className="la la-check"/>&nbsp;Return to previous page
                     </Button>
                 }
-            </Grid>
+            </Container>
         </div>
     );
 };

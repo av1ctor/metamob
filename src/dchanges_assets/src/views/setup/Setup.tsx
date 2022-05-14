@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext, useCallback} from "react";
 import { Link } from "react-router-dom";
 import { Category, CategoryRequest, DChanges, ProfileRequest, RegionRequest } from "../../../../declarations/dchanges/dchanges.did";
 import Button from "../../components/Button";
-import Grid from "../../components/Grid";
+import Container from "../../components/Container";
 import Steps, { Step } from "../../components/Steps";
 import { createMainActor } from "../../libs/backend";
 import { loginUser } from "../../libs/users";
@@ -189,7 +189,7 @@ const Setup = (props: Props) => {
                     step={step}
                     steps={steps}
                 />
-                <Grid container>
+                <Container>
                     {step === 0 && 
                         <Button 
                             onClick={handleAuthenticate}>
@@ -222,7 +222,7 @@ const Setup = (props: Props) => {
                             The setup have been finished! <Link to="/">Go the main page</Link>.
                         </div>
                     }
-                </Grid>
+                </Container>
             </div>
         </div>
     );

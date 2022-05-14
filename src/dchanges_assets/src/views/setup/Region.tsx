@@ -2,7 +2,7 @@ import React, {useCallback, useState} from "react";
 import * as yup from 'yup';
 import Button from '../../components/Button';
 import TextField from "../../components/TextField";
-import Grid from "../../components/Grid";
+import Container from "../../components/Container";
 import Panel from "../../components/Panel";
 import {RegionRequest} from "../../../../declarations/dchanges/dchanges.did";
 
@@ -65,7 +65,7 @@ const RegionSetupForm = (props: Props) => {
     return (
         <form onSubmit={handleCreate}>
             <Panel label="Region registration">
-                <Grid container>
+                <Container>
                     <TextField 
                         label="Name"
                         name="name"
@@ -81,7 +81,7 @@ const RegionSetupForm = (props: Props) => {
                             </Button>
                         </div>
                     </div>
-                </Grid>
+                </Container>
             </Panel>
 
         </form>

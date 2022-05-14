@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import {Category, CampaignRequest} from "../../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
@@ -120,7 +120,7 @@ const CreateForm = (props: Props) => {
     return (
         <>
             <form onSubmit={handleCreate}>
-                <Grid container>
+                <Container>
                     <TextField 
                         label="Title"
                         name="title"
@@ -180,13 +180,13 @@ const CreateForm = (props: Props) => {
                         maxTags={5}
                         onChange={changeForm} 
                     />
-                    <Grid container>
+                    <Container>
                         {props.mutation.isError && 
                             <div className="form-error">
                                 {props.mutation.error.message}
                             </div>
                         }
-                    </Grid>
+                    </Container>
                     <div className="field is-grouped mt-2">
                         <div className="control">
                             <Button 
@@ -205,7 +205,7 @@ const CreateForm = (props: Props) => {
                             </Button>
                         </div>
                     </div>
-                </Grid>
+                </Container>
             </form>
             
             <Modal

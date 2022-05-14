@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import {dchanges} from "../../../../../declarations/dchanges";
 import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
 
@@ -97,7 +97,7 @@ const Create = (props: Props) => {
 
     return (
         <form onSubmit={handleCreate}>
-            <Grid container>
+            <Container>
                 <TextField 
                     label="Name"
                     name="name"
@@ -127,7 +127,7 @@ const Create = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>
     );
 };

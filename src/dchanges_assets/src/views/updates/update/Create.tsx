@@ -7,7 +7,7 @@ import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
 import { CampaignResult } from "../../../libs/campaigns";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 
 interface Props {
     campaign: Campaign;
@@ -114,7 +114,7 @@ const Create = (props: Props) => {
 
     return (
         <form onSubmit={handleCreate}>
-            <Grid container>
+            <Container>
                 <MarkdownField
                     label="Message"
                     name="body"
@@ -163,7 +163,7 @@ const Create = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>
     );
 };

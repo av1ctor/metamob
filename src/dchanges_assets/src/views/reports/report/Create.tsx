@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
 import { ReportRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import Button from "../../../components/Button";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateReport } from "../../../hooks/reports";
 import { ReportType } from "../../../libs/reports";
@@ -79,7 +79,7 @@ const Report = (props: Props) => {
 
     return (
         <form onSubmit={handleCreate}>
-            <Grid container>
+            <Container>
                 <TextAreaField
                     label="Description"
                     name="description"
@@ -103,7 +103,7 @@ const Report = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>    
     )
 };

@@ -2,7 +2,7 @@ import React, {useState, ChangeEvent, useCallback, useContext} from "react";
 import * as yup from 'yup';
 import {useUpdateUpdate} from "../../../hooks/updates";
 import {Update, UpdateRequest} from "../../../../../declarations/dchanges/dchanges.did";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
@@ -73,7 +73,7 @@ const EditForm = (props: Props) => {
 
     return (
         <form onSubmit={handleUpdate}>
-            <Grid container>
+            <Container>
                 <MarkdownField
                     label="Body"
                     name="body"
@@ -99,7 +99,7 @@ const EditForm = (props: Props) => {
                         </Button>
                     </div>
                 </div>
-            </Grid>
+            </Container>
         </form>
     );
 };

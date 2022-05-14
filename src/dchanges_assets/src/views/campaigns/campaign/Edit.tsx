@@ -4,7 +4,7 @@ import {useUpdateCampaign} from "../../../hooks/campaigns";
 import {Category, CampaignRequest, Campaign, Region} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import Grid from "../../../components/Grid";
+import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
@@ -118,7 +118,7 @@ const EditForm = (props: Props) => {
     return (
         <>
             <form onSubmit={handleUpdate}>
-                <Grid container>
+                <Container>
                     <TextField 
                         label="Title" 
                         name="title"
@@ -196,7 +196,7 @@ const EditForm = (props: Props) => {
                             </Button>
                         </div>
                     </div>
-                </Grid>
+                </Container>
             </form>
 
             <Modal
