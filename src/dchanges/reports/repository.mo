@@ -241,34 +241,30 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Report], Text> {
 
-            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "campaignId";
-                        op = #eq;
-                        value = #nat32(campaignId);
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "campaignId";
+                    op = #eq;
+                    value = #nat32(campaignId);
+                }
+            ];
             
-            return reports.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return reports.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func countByCampaign(
             campaignId: Nat32
         ): Result.Result<Nat, Text> {
 
-            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "campaignId";
-                        op = #eq;
-                        value = #nat32(campaignId);
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "campaignId";
+                    op = #eq;
+                    value = #nat32(campaignId);
+                }
+            ];
             
-            return reports.count(buildCriterias(campaignId));
+            return reports.count(criterias);
         };
 
         public func findByUser(
@@ -277,17 +273,15 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Report], Text> {
 
-            func buildCriterias(userId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "createdBy";
-                        op = #eq;
-                        value = #nat32(userId);
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "createdBy";
+                    op = #eq;
+                    value = #nat32(userId);
+                }
+            ];
             
-            return reports.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return reports.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(

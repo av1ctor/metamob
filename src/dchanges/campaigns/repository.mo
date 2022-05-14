@@ -272,22 +272,20 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
-            func buildCriterias(categoryId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "categoryId";
-                        op = #eq;
-                        value = #nat32(categoryId);
-                    },
-                    {       
-                        key = "deletedAt";
-                        op = #eq;
-                        value = #nil;
-                    }                    
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "categoryId";
+                    op = #eq;
+                    value = #nat32(categoryId);
+                },
+                {       
+                    key = "deletedAt";
+                    op = #eq;
+                    value = #nil;
+                }                    
+            ];
             
-            return campaigns.find(buildCriterias(categoryId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByRegion(
@@ -296,22 +294,20 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
-            func buildCriterias(regionId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "regionId";
-                        op = #eq;
-                        value = #nat32(regionId);
-                    },
-                    {       
-                        key = "deletedAt";
-                        op = #eq;
-                        value = #nil;
-                    }                    
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "regionId";
+                    op = #eq;
+                    value = #nat32(regionId);
+                },
+                {       
+                    key = "deletedAt";
+                    op = #eq;
+                    value = #nil;
+                }                    
+            ];
             
-            return campaigns.find(buildCriterias(regionId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByTag(
@@ -320,22 +316,20 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
-            func buildCriterias(tagId: Text): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "tagId";
-                        op = #eq;
-                        value = #text(tagId);
-                    },
-                    {       
-                        key = "deletedAt";
-                        op = #eq;
-                        value = #nil;
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "tagId";
+                    op = #eq;
+                    value = #text(tagId);
+                },
+                {       
+                    key = "deletedAt";
+                    op = #eq;
+                    value = #nil;
+                }
+            ];
             
-            return campaigns.find(buildCriterias(tagId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByUser(
@@ -344,22 +338,20 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
-            func buildCriterias(userId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "createdBy";
-                        op = #eq;
-                        value = #nat32(userId);
-                    },
-                    {       
-                        key = "deletedAt";
-                        op = #eq;
-                        value = #nil;
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "createdBy";
+                    op = #eq;
+                    value = #nat32(userId);
+                },
+                {       
+                    key = "deletedAt";
+                    op = #eq;
+                    value = #nil;
+                }
+            ];
             
-            return campaigns.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func onSignatureInserted(

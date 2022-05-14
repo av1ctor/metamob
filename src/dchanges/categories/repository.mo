@@ -213,17 +213,15 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Category], Text> {
 
-            func buildCriterias(userId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "createdBy";
-                        op = #eq;
-                        value = #nat32(userId);
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "createdBy";
+                    op = #eq;
+                    value = #nat32(userId);
+                }
+            ];
             
-            return categories.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return categories.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
