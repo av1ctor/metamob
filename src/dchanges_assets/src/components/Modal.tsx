@@ -17,7 +17,7 @@ export default function(props: Props) {
                 <div className="modal-card">
                     {props.header? 
                         <header className="modal-card-head">
-                            <p className="modal-card-title">{props.header}</p>
+                            <div className="modal-card-title">{props.header}</div>
                             <button 
                                 className="delete" 
                                 aria-label="close"
