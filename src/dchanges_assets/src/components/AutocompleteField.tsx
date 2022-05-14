@@ -39,6 +39,7 @@ const AutocompleteField = (props: Props) => {
     }, [props.onSearch]);
 
     const handleSelectSuggestion = useCallback((e: any) => {
+        e.preventDefault();
         const text = e.target.text;
         const value = e.target.dataset.value;
         setSuggestion(text);
@@ -69,6 +70,10 @@ const AutocompleteField = (props: Props) => {
             props.onAdd(suggestion)
         }
     }, [suggestion]);
+
+    const handleNop = useCallback((e: any) => {
+        e.preventDefault();
+    }, [])
 
     useEffect(() => {
         setSuggestion(String(props.value));
@@ -111,7 +116,7 @@ const AutocompleteField = (props: Props) => {
                             <a 
                                 key={index} 
                                 className="dropdown-item"
-                                href={location.hash}
+                                href="#"
                                 data-value={opt.value}
                                 onClick={handleSelectSuggestion}
                             >
@@ -126,7 +131,11 @@ const AutocompleteField = (props: Props) => {
                                 <i className="la la-plus-circle" />&nbsp;Add
                             </Button>
                         :
-                        <a className="dropdown-item" href={location.hash}>
+                        <a 
+                            className="dropdown-item" 
+                            href="#" 
+                            onClick={handleNop}
+                        >
                             <i>Nothing found</i>
                         </a>
                     }
