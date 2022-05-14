@@ -36,7 +36,7 @@ const Signatures = (props: Props) => {
             edit: !modals.edit
         });
         setSignature(signature);
-    }, [modals, signature]);
+    }, [modals]);
 
     const toggleDelete = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals({
@@ -44,7 +44,7 @@ const Signatures = (props: Props) => {
             delete: !modals.delete
         });
         setSignature(signature);
-    }, [modals, signature]);
+    }, [modals]);
 
     const toggleReport = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals({
@@ -52,7 +52,7 @@ const Signatures = (props: Props) => {
             report: !modals.report
         });
         setSignature(signature);
-    }, [modals, signature]);
+    }, [modals]);
 
     const campaign = props.campaign;
 
@@ -77,6 +77,7 @@ const Signatures = (props: Props) => {
             }
 
             <Modal
+                header={<span>Edit signature</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -91,6 +92,7 @@ const Signatures = (props: Props) => {
             </Modal>
 
             <Modal
+                header={<span>Delete signature</span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -98,6 +100,7 @@ const Signatures = (props: Props) => {
             </Modal>            
 
             <Modal
+                header={<span>Report signature</span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

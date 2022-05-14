@@ -46,21 +46,31 @@
     margin-left: 4px;
 }
 
-.ReactModal__Overlay {
-    z-index: 1000;
+.modal {
+    position: fixed;    
 }
 
-.ReactModal__Content {
-    background-color: white;
-    border-radius: 6px !important;
-    box-shadow: 0 0.5em 1em -0.125em #4a4a4a88, 0 0px 0 1px #4a4a4a44;
+.modal-card {
+    inset: 1rem;
+    border-radius: 6px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 1.5rem;
+    z-index: 50;
 }
 
 @media screen and (max-width: 768px) {
-    .ReactModal__Content {
-        inset: 0 !important;
-        width: 100vw;
-        height: 100vh;
+    .modal-card {
+        margin: 0;
+        inset: 0;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+    .modal-card-head {
+        border-radius: 0;
     }
 }
 

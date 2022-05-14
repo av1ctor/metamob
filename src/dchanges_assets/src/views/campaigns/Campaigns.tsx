@@ -115,6 +115,7 @@ const Campaigns = (props: Props) => {
             </div>
 
             <Modal
+                header={<span>Create campaign</span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >

@@ -49,6 +49,12 @@ const Create = (props: Props) => {
     };
 
     const doCreate = useCallback(async (result?: CampaignResult) => {
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
+        }
+        
         try {
             await createMut.mutateAsync({
                 main: actorState.main,
@@ -70,43 +76,27 @@ const Create = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form]);
+    }, [form, props.onClose]);
 
     const handleCreate = useCallback(async (e: any) => {
         e.preventDefault();
-
-        const errors = await validate(form);
-        if(errors.length > 0) {
-            props.onError(errors);
-            return;
-        }
-
         doCreate();
-    }, [form]);    
+    }, [doCreate]);    
 
     const handleEnd = useCallback(async (e: any) => {
         e.preventDefault();
-
-        const errors = await validate(form);
-        if(errors.length > 0) {
-            props.onError(errors);
-            return;
-        }
-
         doCreate(CampaignResult.LOST);
-    }, [form]);    
+    }, [doCreate]);    
 
     const handleFinish = useCallback(async (e: any) => {
         e.preventDefault();
-
-        const errors = await validate(form);
-        if(errors.length > 0) {
-            props.onError(errors);
-            return;
-        }
-
         doCreate(CampaignResult.WON);
-    }, [form]);    
+    }, [doCreate]);    
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
 
     if(!authState.user) {
         return null;
@@ -157,7 +147,7 @@ const Create = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onClose}
+                            onClick={handleClose}
                         >
                             Cancel
                         </Button>

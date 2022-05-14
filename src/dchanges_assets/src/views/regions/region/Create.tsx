@@ -80,7 +80,7 @@ const Create = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form]);
+    }, [form, props.onClose]);
 
     const handleSearchRegion = useCallback(async (
         value: string
@@ -93,6 +93,11 @@ const Create = (props: Props) => {
             return [];
         }
     }, []);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
 
     useEffect(() => {
         setForm(form => ({
@@ -135,7 +140,7 @@ const Create = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onClose}
+                            onClick={handleClose}
                         >
                             Cancel
                         </Button>

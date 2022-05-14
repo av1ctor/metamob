@@ -68,7 +68,12 @@ const Report = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form, actorState.main]);
+    }, [form, actorState.main, props.onClose]);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -98,7 +103,7 @@ const Report = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onClose}>
+                            onClick={handleClose}>
                             Cancel
                         </Button>
                     </div>

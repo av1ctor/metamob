@@ -69,13 +69,18 @@ const EditForm = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form]);
+    }, [form, props.onClose]);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);    
 
     return (
         <form onSubmit={handleUpdate}>
             <Container>
                 <MarkdownField
-                    label="Body"
+                    label="Message"
                     name="body"
                     value={form.body || ''}
                     rows={6}
@@ -93,7 +98,7 @@ const EditForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={props.onClose}
+                            onClick={handleClose}
                         >
                             Cancel
                         </Button>

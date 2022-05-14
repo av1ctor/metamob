@@ -88,7 +88,7 @@ const CreateForm = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form, actorState.main]);
+    }, [form, actorState.main, props.onClose]);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -108,6 +108,11 @@ const CreateForm = (props: Props) => {
             return [];
         }
     }, []);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
     
     const showCreateRegion = useCallback((value: string) => {
         setRegionValue(value);
@@ -199,7 +204,7 @@ const CreateForm = (props: Props) => {
                         <div className="control">
                             <Button 
                                 color="danger"
-                                onClick={props.onClose} 
+                                onClick={handleClose} 
                             >
                                 Cancel
                             </Button>
@@ -209,6 +214,7 @@ const CreateForm = (props: Props) => {
             </form>
             
             <Modal
+                header={<span>Create region</span>}
                 isOpen={!!regionValue}
                 onClose={closeCreateRegion}
             >

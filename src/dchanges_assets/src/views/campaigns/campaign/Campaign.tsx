@@ -198,6 +198,7 @@ const Campaign = (props: Props) => {
             </div>
             
             <Modal
+                header={<span>Edit campaign</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -211,6 +212,7 @@ const Campaign = (props: Props) => {
             </Modal>
 
             <Modal
+                header={<span>Delete campaign</span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -218,6 +220,7 @@ const Campaign = (props: Props) => {
             </Modal>
 
             <Modal
+                header={<span>Report campaign</span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

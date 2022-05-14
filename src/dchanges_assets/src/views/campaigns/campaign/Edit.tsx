@@ -93,7 +93,7 @@ const EditForm = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form, actorContext.main]);
+    }, [form, actorContext.main, props.onClose]);
 
     const handleSearchRegion = useCallback(async (
         value: string
@@ -106,6 +106,11 @@ const EditForm = (props: Props) => {
             return [];
         }
     }, []);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
     
     const showCreateRegion = useCallback((value: string) => {
         setRegionValue(value);
@@ -190,7 +195,7 @@ const EditForm = (props: Props) => {
                         <div className="control">
                             <Button
                                 color="danger"
-                                onClick={props.onClose}
+                                onClick={handleClose}
                             >
                                 Cancel
                             </Button>
@@ -200,6 +205,7 @@ const EditForm = (props: Props) => {
             </form>
 
             <Modal
+                header={<span>Create region</span>}
                 isOpen={!!regionValue}
                 onClose={closeCreateRegion}
             >
