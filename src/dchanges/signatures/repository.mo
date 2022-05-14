@@ -137,23 +137,49 @@ module {
                 };
             };
         };
-
-        public func findByCampaignAndUser(
+        
+        public func findByCampaignAndUserEx(
             campaignId: Nat32,
-            createdBy: Nat32
+            createdBy: Nat32,
+            ignoreAnonymous: Bool
         ): Result.Result<Types.Signature, Text> {
-            switch(signatures.findOne([
-                {
-                    key = "campaignId";
-                    op = #eq;
-                    value = #nat32(campaignId);
-                },
-                {
-                    key = "createdBy";
-                    op = #eq;
-                    value = #nat32(createdBy);
-                }
-            ])) {
+            let criterias = switch(ignoreAnonymous) {
+                case true {
+                    [
+                        {
+                            key = "campaignId";
+                            op = #eq;
+                            value = #nat32(campaignId);
+                        },
+                        {
+                            key = "createdBy";
+                            op = #eq;
+                            value = #nat32(createdBy);
+                        },
+                        {
+                            key = "anonymous";
+                            op = #eq;
+                            value = #bool(false);
+                        }
+                    ];
+                };
+                case _ {
+                    [
+                        {
+                            key = "campaignId";
+                            op = #eq;
+                            value = #nat32(campaignId);
+                        },
+                        {
+                            key = "createdBy";
+                            op = #eq;
+                            value = #nat32(createdBy);
+                        }
+                    ];
+                };
+            };
+            
+            switch(signatures.findOne(criterias)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -168,7 +194,14 @@ module {
                     };
                 };
             };
-        };        
+        };
+
+        public func findByCampaignAndUser(
+            campaignId: Nat32,
+            createdBy: Nat32
+        ): Result.Result<Types.Signature, Text> {
+            findByCampaignAndUserEx(campaignId, createdBy, true);
+        };
 
         func _getCriterias(
             criterias: ?[(Text, Text, Variant.Variant)]
@@ -277,34 +310,66 @@ module {
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
 
-            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "campaignId";
-                        op = #eq;
-                        value = #nat32(campaignId);
-                    }
-                ]
-            };
+            let criterias = ?[
+                {       
+                    key = "campaignId";
+                    op = #eq;
+                    value = #nat32(campaignId);
+                }
+            ];
             
-            return signatures.find(buildCriterias(campaignId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return signatures.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func countByCampaign(
             campaignId: Nat32
         ): Result.Result<Nat, Text> {
 
-            func buildCriterias(campaignId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "campaignId";
-                        op = #eq;
-                        value = #nat32(campaignId);
-                    }
-                ]
+            let criterias = ?[
+                {       
+                    key = "campaignId";
+                    op = #eq;
+                    value = #nat32(campaignId);
+                }
+            ];
+            
+            return signatures.count(criterias);
+        };
+
+        public func findByUserEx(
+            userId: Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat),
+            ignoreAnonymous: Bool
+        ): Result.Result<[Types.Signature], Text> {
+
+            let criterias = switch(ignoreAnonymous) {
+                case true {
+                    ?[
+                        {  
+                            key = "createdBy";
+                            op = #eq;
+                            value = #nat32(userId);
+                        },
+                        {  
+                            key = "anonymous";
+                            op = #eq;
+                            value = #bool(false);
+                        }
+                    ];
+                };
+                case _ {
+                    ?[
+                        {  
+                            key = "createdBy";
+                            op = #eq;
+                            value = #nat32(userId);
+                        }
+                    ];
+                };
             };
             
-            return signatures.count(buildCriterias(campaignId));
+            return signatures.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func findByUser(
@@ -312,18 +377,7 @@ module {
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
-
-            func buildCriterias(userId: Nat32): ?[Table.Criteria] {
-                ?[
-                    {       
-                        key = "createdBy";
-                        op = #eq;
-                        value = #nat32(userId);
-                    }
-                ]
-            };
-            
-            return signatures.find(buildCriterias(userId), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            findByUserEx(userId, sortBy, limit, true);
         };
 
         public func backup(
