@@ -50,6 +50,10 @@
     position: fixed;    
 }
 
+.modal-over-modal {
+    z-index: 50;
+}
+
 .modal-card {
     inset: 1rem;
     border-radius: 6px;
@@ -59,7 +63,7 @@
     position: absolute;
     top: 0.5rem;
     right: 1.5rem;
-    z-index: 50;
+    z-index: 41;
 }
 
 @media screen and (max-width: 768px) {

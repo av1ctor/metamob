@@ -207,6 +207,7 @@ const EditForm = (props: Props) => {
             <Modal
                 header={<span>Create region</span>}
                 isOpen={!!regionValue}
+                isOverOtherModal={true}
                 onClose={closeCreateRegion}
             >
                 <RegionForm 

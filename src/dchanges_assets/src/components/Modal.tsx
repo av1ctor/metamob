@@ -5,6 +5,7 @@ interface Props {
     header?: ReactNode;
     footer?: ReactNode;
     isOpen: boolean;
+    isOverOtherModal?: boolean;
     children: any;
     onClose: () => void;
 };
@@ -12,8 +13,8 @@ interface Props {
 export default function(props: Props) {
     return (
         createPortal(
-            <div className={`modal ${props.isOpen? 'is-block': 'is-hidden'}`}>
-                <div className="modal-background"></div>
+            <div className={`modal ${props.isOpen? 'is-block': 'is-hidden'} ${props.isOverOtherModal? 'modal-over-modal': ''}`}>
+                <div className="modal-background"/>
                 <div className="modal-card">
                     {props.header? 
                         <header className="modal-card-head">

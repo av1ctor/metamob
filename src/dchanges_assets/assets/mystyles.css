@@ -10493,6 +10493,9 @@ span[data-tooltip] {
 .modal {
   position: fixed; }
 
+.modal-over-modal {
+  z-index: 50; }
+
 .modal-card {
   inset: 1rem;
   border-radius: 6px; }
@@ -10501,7 +10504,7 @@ span[data-tooltip] {
   position: absolute;
   top: 0.5rem;
   right: 1.5rem;
-  z-index: 50; }
+  z-index: 41; }
 
 @media screen and (max-width: 768px) {
   .modal-card {
