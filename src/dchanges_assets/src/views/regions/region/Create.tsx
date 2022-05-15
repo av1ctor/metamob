@@ -7,7 +7,7 @@ import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
 import { useCreateRegion } from "../../../hooks/regions";
-import { search } from "../../../libs/regions";
+import { kinds, RegionKind, search } from "../../../libs/regions";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
+    kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     private: yup.bool(),
 });
@@ -28,6 +29,7 @@ const Create = (props: Props) => {
     
     const [form, setForm] = useState<RegionRequest>({
         name: props.value,
+        kind: RegionKind.OTHER,
         private: false,
         parentId: [],
     });
@@ -69,6 +71,7 @@ const Create = (props: Props) => {
                 main: actorState.main,
                 req: {
                     name: form.name,
+                    kind: Number(form.kind),
                     private: form.private,
                     parentId: form.parentId,
                 }
@@ -116,6 +119,13 @@ const Create = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />            
+                <SelectField
+                    label="Kind"
+                    id="kind"
+                    value={form.kind}
+                    options={kinds}
+                    onChange={changeForm}
+                />
                 <CheckboxField 
                     label="Private"
                     id="private"

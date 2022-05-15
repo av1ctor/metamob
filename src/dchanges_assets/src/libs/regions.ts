@@ -2,6 +2,34 @@ import {dchanges} from "../../../declarations/dchanges";
 import {Region, Variant} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "./common";
 
+export enum RegionKind {
+    PLANET = 0,
+    CONTINENT = 1,
+    COUNTRY = 2,
+    STATE = 3,
+    CITY = 4,
+    DISTRICT = 5,
+    STREET = 6,
+    BUILDING = 7,
+    FLOOR = 8,
+    ROOM = 9,
+    OTHER = 10,
+}
+
+export const kinds: {name: string, value: any}[] = [
+    {name: 'Planet', value: RegionKind.PLANET},
+    {name: 'Continent', value: RegionKind.CONTINENT},
+    {name: 'Country', value: RegionKind.COUNTRY},
+    {name: 'State', value: RegionKind.STATE},
+    {name: 'City', value: RegionKind.CITY},
+    {name: 'District', value: RegionKind.DISTRICT},
+    {name: 'Street', value: RegionKind.STREET},
+    {name: 'Building', value: RegionKind.BUILDING},
+    {name: 'Floor', value: RegionKind.FLOOR},
+    {name: 'Room', value: RegionKind.ROOM},
+    {name: 'Other', value: RegionKind.OTHER},
+];
+
 export const findAll = async (
     filters?: Filter, 
     orderBy?: Order, 
@@ -43,6 +71,10 @@ export const findTreeById = async (
     return res.ok; 
 };
 
+const kindToText = (kind: RegionKind): string => {
+    return kinds.find(k => k.value === kind)?.name || 'Other';
+};
+
 export const search = async (
     value: string
 ): Promise<{name: string, value: number}[]> => {
@@ -55,7 +87,7 @@ export const search = async (
     );
 
     return regions.map(r => ({
-        name: r.name,
+        name: `${r.name} (${kindToText(r.kind)})`,
         value: r._id
     }));
 };

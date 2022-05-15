@@ -245,13 +245,13 @@ module {
     ): Variant.Variant {
         switch(role) {
             case (#admin) {
-                #text("admin");
+                #nat32(0);
             };
             case (#moderator) {
-                #text("moderator");
+                #nat32(1);
             };
             case (#user) {
-                #text("user");
+                #nat32(2);
             };
         };
     };
@@ -260,10 +260,10 @@ module {
         val: Variant.Variant
     ): Types.Role {
         switch(val) {
-            case (#text(text)) {
-                switch(text) {
-                    case "user" #user;
-                    case "admin" #admin;
+            case (#nat32(value)) {
+                switch(value) {
+                    case 0 #admin;
+                    case 1 #moderator;
                     case _ #user;
                 };
             };

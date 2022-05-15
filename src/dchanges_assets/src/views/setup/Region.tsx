@@ -5,6 +5,8 @@ import TextField from "../../components/TextField";
 import Container from "../../components/Container";
 import Panel from "../../components/Panel";
 import {RegionRequest} from "../../../../declarations/dchanges/dchanges.did";
+import { kinds, RegionKind } from "../../libs/regions";
+import SelectField from "../../components/SelectField";
 
 interface Props {
     onCreate: (req: RegionRequest) => void,
@@ -14,6 +16,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     name: yup.string().min(3).max(32),
+    kind: yup.number().required(),
     private: yup.bool().required(),
     parent: yup.array(yup.number().required()).max(1),
 });
@@ -21,6 +24,7 @@ const formSchema = yup.object().shape({
 const RegionSetupForm = (props: Props) => {
     const [form, setForm] = useState<RegionRequest>({
         name: '',
+        kind: RegionKind.OTHER,
         private: false,
         parentId: [],
     });
@@ -56,7 +60,8 @@ const RegionSetupForm = (props: Props) => {
         }
 
         props.onCreate({
-            name: form.name, 
+            name: form.name,
+            kind: form.kind, 
             parentId: form.parentId,
             private: form.private,
         });
@@ -72,6 +77,13 @@ const RegionSetupForm = (props: Props) => {
                         value={form.name || ''}
                         required={true}
                         onChange={changeForm} 
+                    />
+                    <SelectField
+                        label="Kind"
+                        id="kind"
+                        value={form.kind}
+                        options={kinds}
+                        onChange={changeForm}
                     />
                     <div className="field is-grouped mt-2">
                         <div className="control">

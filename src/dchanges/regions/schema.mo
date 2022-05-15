@@ -21,6 +21,10 @@ module {
                 options = [#unique, #partial, #min(3), #max(4096)];
             },
             {
+                name = "kind";
+                options = [#sortable];
+            },
+            {
                 name = "createdAt";
                 options = [#sortable];
             },

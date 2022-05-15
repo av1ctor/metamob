@@ -261,6 +261,7 @@ module {
                 _id = regions.nextId();
                 pubId = ulid.next();
                 name = req.name;
+                kind = req.kind;
                 private_ = req.private_;
                 parentId = req.parentId;
                 createdAt = Time.now();
@@ -279,6 +280,7 @@ module {
                 _id = e._id;
                 pubId = e.pubId;
                 name = req.name;
+                kind = req.kind;
                 private_ = req.private_;
                 parentId = e.parentId;
                 createdAt = e.createdAt;
@@ -298,6 +300,7 @@ module {
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
+        res.put("kind", #nat8(e.kind));
         res.put("private_", #bool(e.private_));
         res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
         res.put("createdAt", #int(e.createdAt));
@@ -315,6 +318,7 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             name = Variant.getOptText(map.get("name"));
+            kind = Variant.getOptNat8(map.get("kind"));
             private_ = Variant.getOptBool(map.get("private_"));
             parentId = Variant.getOptNat32Opt(map.get("parentId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
