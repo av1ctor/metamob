@@ -1,4 +1,5 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Option "mo:base/Option";
@@ -99,6 +100,40 @@ module {
                     };
                 };
             };
+        };
+
+        public func findTreeById(
+            _id: Nat32
+        ): Result.Result<[Types.Region], Text> {
+            let res = Buffer.Buffer<Types.Region>(5);
+            var id = ?_id;
+            label l while(true) {
+                switch(id) {
+                    case null {
+                        break l;
+                    };
+                    case (?_id) {
+                        switch(regions.get(_id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(e)) {
+                                switch(e) {
+                                    case null {
+                                        break l
+                                    };
+                                    case (?e) {
+                                        res.add(e);
+                                        id := e.parentId;
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+
+            #ok(res.toArray());
         };
 
         func _getCriterias(

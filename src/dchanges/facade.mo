@@ -467,6 +467,12 @@ shared({caller = owner}) actor class DChanges() {
         regionService.findByPubId(pubId);
     };
 
+    public query func regionFindTreeById(
+        _id: Nat32
+    ): async Result.Result<[RegionTypes.Region], Text> {
+        regionService.findTreeById(_id);
+    };
+
     public shared query(msg) func regionFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?(Text, Text),

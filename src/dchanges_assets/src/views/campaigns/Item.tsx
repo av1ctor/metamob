@@ -33,9 +33,13 @@ const Item = (props: Props) => {
                 <Link to={`/c/${campaign.pubId}`}>{campaign.title}</Link>
             } 
             subtitle={<>
-                <Category id={campaign.categoryId} />
-                <Region id={campaign.regionId} />
-                {campaign.tags.map(id => <Tag key={id} id={id} />)}
+                <div>
+                    <Category id={campaign.categoryId} />
+                    {campaign.tags.map(id => <Tag key={id} id={id} />)}
+                </div>
+                <div className="mt-2">
+                    <Region id={campaign.regionId} />
+                </div>
             </>}
             img={
                 <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover || "1280x960.png"}/></Link>

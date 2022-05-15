@@ -67,9 +67,9 @@ module {
         };
 
         public func findById(
-            id_: Nat32
+            _id: Nat32
         ): Result.Result<Types.Region, Text> {
-            repo.findById(id_);
+            repo.findById(_id);
         };
 
         public func findByPubId(
@@ -77,6 +77,13 @@ module {
         ): Result.Result<Types.Region, Text> {
             repo.findByPubId(pubId);
         };
+
+        public func findTreeById(
+            _id: Nat32
+        ): Result.Result<[Types.Region], Text> {
+            repo.findTreeById(_id);
+        };
+
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),

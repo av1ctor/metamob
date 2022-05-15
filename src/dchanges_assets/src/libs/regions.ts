@@ -33,6 +33,16 @@ export const findById = async (
     return res.ok; 
 };
 
+export const findTreeById = async (
+    _id: number
+): Promise<Region[]> => {
+    const res = await dchanges.regionFindTreeById(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
 export const search = async (
     value: string
 ): Promise<{name: string, value: number}[]> => {

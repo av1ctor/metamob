@@ -1,7 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {Region, RegionRequest, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findById } from '../libs/regions';
+import { findAll, findById, findTreeById } from '../libs/regions';
 
 export const useFindRegionById = (
     queryKey: any[], _id: number
@@ -9,6 +9,15 @@ export const useFindRegionById = (
     return useQuery<Region, Error>(
         queryKey, 
         () => findById(_id)
+    );
+};
+
+export const useFindRegionTreeById = (
+    queryKey: any[], _id: number
+): UseQueryResult<Region[], Error> => {
+    return useQuery<Region[], Error>(
+        queryKey, 
+        () => findTreeById(_id)
     );
 };
 
@@ -69,4 +78,3 @@ export const useUpdateRegion = (
         }
     );
 };
-

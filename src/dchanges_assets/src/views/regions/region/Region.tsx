@@ -13,7 +13,7 @@ const Region = (props: Props) => {
     return (
         region?.isSuccess? 
             <span 
-                className="tag is-rounded is-black"
+                className="tag is-rounded is-warning"
                 title={`Region: ${region.data.name}`}
             >
                 <b>{region.data.name}</b>
