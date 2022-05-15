@@ -18,9 +18,13 @@ const FullRegion = (props: Props) => {
     return (
         regions?.isSuccess && regions?.data? 
             <nav className="breadcrumb" aria-label="breadcrumbs">
-                <ul>
+                <ul className='is-size-7'>
                     {reversed(regions.data).map((region, index) => 
-                        <li key={region._id} className={index == regions.data.length-1? 'is-active': ''}><a href="#">{region.name}</a></li>
+                        <li 
+                            key={region._id} 
+                            className={index == regions.data.length-1? 'is-active': ''}>
+                                <a href="#">{region.name}</a>
+                        </li>
                     )}
                 </ul>
             </nav>

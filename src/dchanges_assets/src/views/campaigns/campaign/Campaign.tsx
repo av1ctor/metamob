@@ -97,7 +97,7 @@ const Campaign = (props: Props) => {
                     <Category id={campaign.categoryId} />
                     {campaign.tags.map(id => <Tag key={id} id={id} />)}
                 </div>
-                <div className="mb-2 overflow-hidden">
+                <div className="mt-1 mb-2 overflow-hidden">
                     <FullRegion id={campaign.regionId} />
                 </div>
                 <div className="columns">

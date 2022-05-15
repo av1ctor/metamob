@@ -7,7 +7,7 @@ interface Props {
 const Tag = (props: Props) => {
     return (
         <small 
-            className='tag'
+            className='tag is-rounded'
             title={`Tag: #${props.id}`}
         >
             #{props.id}
