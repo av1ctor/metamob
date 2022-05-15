@@ -5,6 +5,11 @@ interface Props {
     id?: number
 };
 
+const reversed = (arr: any[]) => {
+    const copy = Array.from(arr);
+    return copy.reverse();
+}
+
 const FullRegion = (props: Props) => {
     const regions = props.id?
         useFindRegionTreeById(['regions', 'tree', props.id], props.id):
@@ -12,15 +17,13 @@ const FullRegion = (props: Props) => {
 
     return (
         regions?.isSuccess && regions?.data? 
-            <span className="tag is-rounded is-warning">
-                {regions.data.reverse().map((region, index) => 
-                    <span 
-                        key={index}
-                    >
-                        <b>{region.name}{index < regions.data.length-1? '/': ''}</b>
-                    </span>            
-                )}
-            </span>
+            <nav className="breadcrumb" aria-label="breadcrumbs">
+                <ul>
+                    {reversed(regions.data).map((region, index) => 
+                        <li key={region._id} className={index == regions.data.length-1? 'is-active': ''}><a href="#">{region.name}</a></li>
+                    )}
+                </ul>
+            </nav>
         :
             null
     );
