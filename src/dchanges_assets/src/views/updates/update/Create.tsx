@@ -8,6 +8,8 @@ import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
 import { CampaignResult } from "../../../libs/campaigns";
 import Container from "../../../components/Container";
+import CheckboxField from "../../../components/CheckboxField";
+import SwitchField from "../../../components/SwitchField";
 
 interface Props {
     campaign: Campaign;
@@ -23,6 +25,7 @@ const formSchema = yup.object().shape({
 const Create = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [actorState, ] = useContext(ActorContext);
+    const [result, setResult] = useState(CampaignResult.NONE);
 
     const [form, setForm] = useState<UpdateRequest>({
         campaignId: props.campaign._id,
@@ -48,13 +51,15 @@ const Create = (props: Props) => {
         }
     };
 
-    const doCreate = useCallback(async (result?: CampaignResult) => {
+    const handleCreate = useCallback(async (e: any) => {
+        e.preventDefault();
+
         const errors = await validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
         }
-        
+
         try {
             await createMut.mutateAsync({
                 main: actorState.main,
@@ -76,22 +81,24 @@ const Create = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form, props.onClose]);
+    }, [form, result, props.onClose]);
 
-    const handleCreate = useCallback(async (e: any) => {
-        e.preventDefault();
-        doCreate();
-    }, [doCreate]);    
+    const toggleResult = useCallback(() => {
+        setResult(result => 
+            result === CampaignResult.NONE? 
+                CampaignResult.WON 
+            : 
+                CampaignResult.NONE
+        );
+    }, []);
+    
+    const changeResultToEnded = useCallback(() => {
+        setResult(CampaignResult.LOST);
+    }, []);
 
-    const handleEnd = useCallback(async (e: any) => {
-        e.preventDefault();
-        doCreate(CampaignResult.LOST);
-    }, [doCreate]);    
-
-    const handleFinish = useCallback(async (e: any) => {
-        e.preventDefault();
-        doCreate(CampaignResult.WON);
-    }, [doCreate]);    
+    const changeResultToFinished = useCallback(() => {
+        setResult(CampaignResult.WON);
+    }, []);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -113,6 +120,30 @@ const Create = (props: Props) => {
                     onChange={changeForm}
                 />
 
+                <SwitchField
+                    label="Close the campaign"
+                    id="close"
+                    value={result !== CampaignResult.NONE? true: false}
+                    onChange={toggleResult}
+                />
+
+                <CheckboxField
+                    label="Goal accomplished! 🤗"
+                    id="finished"
+                    value={result === CampaignResult.WON? true: false}
+                    disabled={result === CampaignResult.NONE}
+                    onChange={changeResultToFinished}
+                />
+
+                <CheckboxField
+                    label="Goal failed 😢"
+                    id="ended"
+                    color="danger"
+                    value={result === CampaignResult.LOST? true: false}
+                    disabled={result === CampaignResult.NONE}
+                    onChange={changeResultToEnded}
+                />
+
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
@@ -122,26 +153,6 @@ const Create = (props: Props) => {
                             onClick={handleCreate}
                         >
                             Create
-                        </Button>
-                    </div>
-                    <div className="control">
-                        <Button
-                            color="danger"
-                            title="Post a final message if the goal was not achieved and end the campaign"
-                            disabled={createMut.isLoading || !form.body}
-                            onClick={handleEnd}
-                        >
-                            <i className="la la-thumbs-down"/>&nbsp;End
-                        </Button>
-                    </div>
-                    <div className="control">
-                        <Button
-                            color="warning"
-                            title="Post a final message if the goal was achieved and finish the campaign"
-                            disabled={createMut.isLoading || !form.body}
-                            onClick={handleFinish}
-                        >
-                            <i className="la la-thumbs-up"/>&nbsp;Finish
                         </Button>
                     </div>
                     <div className="control">

@@ -1,7 +1,5 @@
 import React from "react";
 
-import "bulma-checkradio/dist/css/bulma-checkradio.min.css";
-
 interface Props {
     id?: string;
     name?: string;
@@ -13,11 +11,11 @@ interface Props {
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
 };
 
-const CheckboxField = (props: Props) => {
+const SwitchField = (props: Props) => {
     return (
         <div className="field">
                 <input 
-                    className={`is-checkradio is-circle is-${props.color || 'primary'}`}
+                    className={`switch is-${props.color || 'primary'}`}
                     id={props.id}
                     name={props.name}
                     checked={props.value} 
@@ -36,4 +34,4 @@ const CheckboxField = (props: Props) => {
 };
 
 
-export default CheckboxField;
+export default SwitchField;

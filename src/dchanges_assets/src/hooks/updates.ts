@@ -41,7 +41,7 @@ export const useCreateUpdate = () => {
                 throw Error('Main actor undefined');
             }
                 
-            const res = options.result === undefined?
+            const res = options.result === undefined || options.result === CampaignResult.NONE?
                 await options.main.updateCreate(options.req):
                 await options.main.updateCreateAndFinishCampaign(options.req, options.result);
             
