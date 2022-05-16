@@ -138,7 +138,7 @@ const EditForm = (props: Props) => {
                         onClick={handleUpdate}
                         disabled={closeMut.isLoading}
                     >
-                        Edit
+                        Update
                     </Button>
                 </div>
                 <div className="control">

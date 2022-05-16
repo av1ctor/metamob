@@ -101,3 +101,30 @@ export const loginUser = async (
 
 };
 
+export const isAdmin = (
+    user: ProfileResponse
+): boolean => {
+    if(user.roles.length === 0) {
+        return false;
+    }
+    
+    if(user.roles.find(r => 'admin' in r)) {
+        return true;
+    }
+
+    return false;
+}
+
+export const isModerator = (
+    user: ProfileResponse
+): boolean => {
+    if(user.roles.length === 0) {
+        return false;
+    }
+    
+    if(user.roles.find(r => 'admin' in r || 'moderator' in r)) {
+        return true;
+    }
+
+    return false;
+}

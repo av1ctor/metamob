@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import { CategoryContext } from "../../stores/category";
 import Setup from "../setup/Setup";
@@ -14,7 +15,7 @@ const Admin = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [categoriesState, ] = useContext(CategoryContext);
 
-    if(!authState.user) {
+    if(!authState.user || !isModerator(authState.user)) {
         return <span>Forbidden</span>;
     }
 
