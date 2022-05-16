@@ -57,6 +57,12 @@ shared({caller = owner}) actor class DChanges() {
         _transformUserReponse(userService.findById(_id));
     };
 
+    public shared query(msg) func userFindByIdEx(
+        _id: Nat32
+    ): async Result.Result<UserTypes.Profile, Text> {
+        userService.findByIdEx(_id, msg.caller);
+    };
+
     public query func userFindByPubId(
         pubId: Text
     ): async Result.Result<UserTypes.ProfileResponse, Text> {

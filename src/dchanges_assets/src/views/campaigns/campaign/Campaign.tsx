@@ -58,25 +58,25 @@ const Campaign = (props: Props) => {
         ['signatures', campaign?._id || 0, auth.user?._id || 0], campaign?._id, auth.user?._id);
 
     const toggleEdit = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const toggleDelete = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             delete: !modals.delete
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const toggleReport = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             report: !modals.report
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
         auth.user && auth.user._id === campaign?.createdBy;

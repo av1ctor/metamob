@@ -7,7 +7,6 @@ import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
 import { useUpdateUser } from "../../../hooks/users";
 import { ActorContext } from "../../../stores/actor";
-import User from "../../users/user/User";
 
 function rolesToString(
     roles: Role[] | undefined

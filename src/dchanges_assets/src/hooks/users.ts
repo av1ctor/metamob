@@ -1,14 +1,14 @@
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from 'react-query'
 import {DChanges, ProfileResponse, Profile, ProfileRequest} from "../../../declarations/dchanges/dchanges.did";
 import { Filter, Limit, Order } from '../libs/common';
-import { findById, findAll } from '../libs/users';
+import { findById, findAll, findByIdEx } from '../libs/users';
 
 export const useFindUserById = (
-    queryKey: any[], _id: number
-): UseQueryResult<ProfileResponse, Error> => {
-    return useQuery<ProfileResponse, Error>(
+    queryKey: any[], _id: number, main?: DChanges
+): UseQueryResult<ProfileResponse|Profile, Error> => {
+    return useQuery<ProfileResponse|Profile, Error>(
         queryKey, 
-        () => findById(_id)
+        () => main? findByIdEx(main, _id): findById(_id)
     );
 };
 

@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useCallback, useContext } from 'react';
+import { Profile } from '../../../../declarations/dchanges/dchanges.did';
 import { useFindUserById } from '../../hooks/users';
+import { ActorContext } from '../../stores/actor';
 
 interface Props {
     id: number;
     size?: string;
     noName?: boolean;
+    onClick?: (profile: Profile) => void;
 };
 
 const Avatar = (props: Props) => {
-    const profile = useFindUserById(['users', props.id], props.id);
+    const [actorState, ] = useContext(ActorContext);
+    
+    const profile = useFindUserById(['users', props.id, props.onClick? 'full': 'redacted'], props.id, props.onClick? actorState.main: undefined);
 
     let size = 6;
     switch(props.size) {
@@ -16,6 +21,10 @@ const Avatar = (props: Props) => {
             size = 3;
             break;
     }
+
+    const handleClick = useCallback(() => {
+        props.onClick && profile.data && props.onClick(profile.data as Profile);
+    }, [profile.data]);
     
     return (
         <div className="is-flex is-align-items-center">
@@ -28,7 +37,18 @@ const Avatar = (props: Props) => {
             </div>
             {!props.noName && profile?.isSuccess && props.size === 'lg' &&
                 <div className="ml-2">
-                    <b>{profile.data.name}</b>
+                    <b>
+                        {!props.onClick?
+                            profile.data.name
+                        :
+                            profile.data && 
+                                <span 
+                                    className="is-clickable"
+                                    onClick={handleClick}>
+                                    {profile.data.name} <i className="la la-pen" />
+                                </span>
+                        }
+                    </b>
                 </div>                    
             }
         </div>

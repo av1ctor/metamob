@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
-import { Report, ReportCloseRequest } from "../../../../../../declarations/dchanges/dchanges.did";
+import { Profile, Report, ReportCloseRequest } from "../../../../../../declarations/dchanges/dchanges.did";
 import Button from "../../../../components/Button";
+import { CampaignLink } from "../../../../components/CampaignLink";
 import SelectField, { Option } from "../../../../components/SelectField";
 import TextAreaField from "../../../../components/TextAreaField";
 import TextField from "../../../../components/TextField";
@@ -12,6 +13,7 @@ import Avatar from "../../../users/Avatar";
 
 interface Props {
     report: Report;
+    onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -85,26 +87,37 @@ const EditForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    const {report} = props;
     
     return (
         <form onSubmit={handleUpdate}>
             <TextField
                 label="Id"
                 name="id"
-                value={props.report.pubId}
+                value={report.pubId}
                 disabled
             />
             <TextAreaField
                 label="Description"
                 name="description"
                 rows={5}
-                value={props.report.description}
+                value={report.description}
                 disabled
             />
-            <Avatar 
-                id={props.report.createdBy} 
-                size='lg'
-            />
+            <div className="field">
+                <label className="label">
+                    User
+                </label>
+                <div className="control">
+                    <Avatar 
+                        id={report.createdBy} 
+                        size='lg'
+                        onClick={props.onEditUser}
+                    />
+                </div>
+            </div>
+            <CampaignLink id={report.entityId} />
             <TextAreaField
                 label="Resolution"
                 name="resolution"

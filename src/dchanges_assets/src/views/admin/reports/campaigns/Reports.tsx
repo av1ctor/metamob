@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
-import { Report } from "../../../../../../declarations/dchanges/dchanges.did";
+import { Profile, Report } from "../../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindReports } from "../../../../hooks/reports";
@@ -9,6 +9,7 @@ import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import AssignForm from "./Assign";
 import EditForm from "./Edit";
+import EditUserForm from "../../users/Edit";
 
 const orderBy: Order = {
     key: '_id',
@@ -53,27 +54,36 @@ interface Props {
 
 const Reports = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
-    const [authState ,] = useContext(AuthContext);
+    const [authState, ] = useContext(AuthContext);
     
+    const [user, setUser] = useState<Profile>();
     const [report, setReport] = useState<Report>();
     const [modals, setModals] = useState({
         assign: false,
         edit: false,
+        editUser: false,
     });
     
     const toggleAssign = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             assign: !modals.assign
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const toggleEdit = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
+        }));
+    }, []);
+
+    const toggleEditUser = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            editUser: !modals.editUser
+        }));
+    }, []);
 
     const createdReports = useFindReports(['reports', ReportState.CREATED], createdFilters, orderBy, limit, actorState.main);
     const assignedReports = useFindReports(['reports', ReportState.ASSIGNED], assignedFilters, orderBy, limit, actorState.main);
@@ -86,6 +96,11 @@ const Reports = (props: Props) => {
     const handleEditReport = useCallback((report: Report) => {
         setReport(report);
         toggleEdit();
+    }, []);
+
+    const handleEditUser = useCallback((user: Profile) => {
+        setUser(user);
+        toggleEditUser();
     }, []);
 
     return (
@@ -173,12 +188,28 @@ const Reports = (props: Props) => {
                 {report &&
                     <EditForm
                         report={report}
+                        onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
                 }
             </Modal>            
+
+            <Modal
+                header={<span>Edit user</span>}
+                isOpen={modals.editUser}
+                onClose={toggleEditUser}
+            >
+                {user &&
+                    <EditUserForm
+                        user={user}
+                        onClose={toggleEditUser}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
+            </Modal>
         </>
     );
 };

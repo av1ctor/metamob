@@ -31,28 +31,28 @@ const Signatures = (props: Props) => {
     const [signature, setSignature] = useState<SignatureResponse | undefined>(undefined);
 
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
+        }));
         setSignature(signature);
-    }, [modals]);
+    }, []);
 
     const toggleDelete = useCallback((signature: SignatureResponse | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             delete: !modals.delete
-        });
+        }));
         setSignature(signature);
-    }, [modals]);
+    }, []);
 
     const toggleReport = useCallback((signature: SignatureResponse | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             report: !modals.report
-        });
+        }));
         setSignature(signature);
-    }, [modals]);
+    }, []);
 
     const campaign = props.campaign;
 

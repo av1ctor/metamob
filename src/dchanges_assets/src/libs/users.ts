@@ -27,6 +27,18 @@ export const findById = async (
     return res.ok; 
 };
 
+export const findByIdEx = async (
+    main: DChanges,
+    _id: number
+): Promise<Profile> => {
+    const res = await main.userFindByIdEx(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
+
 export const findAll = async (
     main: DChanges,
     filters?: Filter[], 

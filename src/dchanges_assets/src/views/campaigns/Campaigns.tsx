@@ -54,11 +54,11 @@ const Campaigns = (props: Props) => {
     }, []);
 
     const toggleCreate = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             create: !modals.create
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const redirectToLogon = useCallback(() => {
         navigate('/user/login');

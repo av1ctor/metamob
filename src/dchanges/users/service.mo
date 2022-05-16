@@ -120,6 +120,33 @@ module {
             repo.findById(_id);
         };
 
+        public func findByIdEx(
+            _id: Nat32,
+            invoker: Principal
+        ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
+            let caller = repo.findByPrincipal(Principal.toText(invoker));
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden: not active");
+                    };
+
+                    if(not Utils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+            
+                    repo.findById(_id);
+                };
+            };
+        };
+
         public func findByPubId(
             pubId: Text
         ): Result.Result<Types.Profile, Text> {
