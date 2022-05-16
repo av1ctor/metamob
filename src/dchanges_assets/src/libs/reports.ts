@@ -1,5 +1,6 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Report, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {DChanges, Report, Variant} from "../../../declarations/dchanges/dchanges.did";
+import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
 export enum ReportState {
@@ -22,15 +23,16 @@ export enum ReportType {
 }
 
 export const findAll = async (
-    filters?: Filter, 
-    orderBy?: 
-    Order, limit?: Limit
+    main: DChanges,
+    filters?: Filter[], 
+    orderBy?: Order, 
+    limit?: Limit,
 ): Promise<Report[]> => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
+    const criterias: [] | [Array<[string, string, Variant]>]  = filters?
+        [filters.map(filter => [filter.key, filter.op, valueToVariant(filter.value)])]:
         [];
 
-    const res = await dchanges.reportFind(
+    const res = await main.reportFind(
         criterias, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
@@ -43,9 +45,10 @@ export const findAll = async (
 }
 
 export const findById = async (
+    main: DChanges,
     pubId: string
 ): Promise<Report> => {
-    const res = await dchanges.reportFindById(pubId);
+    const res = await main.reportFindById(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }

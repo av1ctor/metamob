@@ -31,25 +31,27 @@ const Campaigns = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
 
-    const [filters, setFilters] = useState<Filter>({
-        key: 'title',
-        op: 'contains',
-        value: ''
-    });
+    const [filters, setFilters] = useState<Filter[]>([
+        {
+            key: 'title',
+            op: 'contains',
+            value: ''
+        }
+    ]);
     const [modals, setModals] = useState({
         create: false,
     });
 
     const navigate = useNavigate();
 
-    const queryKey = ['campaigns', filters.key, filters.op, filters.value, orderBy.key, orderBy.dir];
+    const queryKey = ['campaigns', filters[0].key, filters[0].op, filters[0].value, orderBy.key, orderBy.dir];
 
     const campaigns = useFindCampaigns(queryKey, filters, orderBy, limit);
     const createCampaignMut = useCreateCampaign();
 
-    const searchCampaigns = useCallback((filters: React.SetStateAction<Filter>) => {
-        setFilters(filters);
-    }, [filters]);
+    const searchCampaigns = useCallback((filters: Filter) => {
+        setFilters([filters]);
+    }, []);
 
     const toggleCreate = useCallback(() => {
         setModals({
@@ -71,10 +73,10 @@ const Campaigns = (props: Props) => {
                     <div className="level">
                         <div className="level-left">
                             <SearchForm 
-                                    filters={filters}
-                                    indexedColumns={indexedColumns}
-                                    onSearch={searchCampaigns} 
-                                />
+                                filters={filters[0]}
+                                indexedColumns={indexedColumns}
+                                onSearch={searchCampaigns} 
+                            />
                         </div>
                         <div className="level-right">
                             <Button 

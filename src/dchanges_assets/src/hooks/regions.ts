@@ -22,7 +22,7 @@ export const useFindRegionTreeById = (
 };
 
 export const useFindRegions = (
-    queryKey: any[], filters?: Filter, orderBy?: Order, limit?: Limit
+    queryKey: any[], filters?: Filter[], orderBy?: Order, limit?: Limit
 ): UseQueryResult<Region [], Error> => {
     return useQuery<Region[], Error>(
         queryKey,

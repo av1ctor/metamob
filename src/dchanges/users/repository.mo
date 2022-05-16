@@ -122,6 +122,105 @@ module {
             };
         };        
 
+        func _getCriterias(
+            criterias: ?[(Text, Text, Variant.Variant)]
+        ): ?[Table.Criteria] {
+
+            switch(criterias) {
+                case null {
+                    null;
+                };
+                case (?criterias) {
+                    ?Array.map(
+                        criterias, 
+                        func (crit: (Text, Text, Variant.Variant)): Table.Criteria {
+                            {
+                                key = crit.0;
+                                op = switch(crit.1) {
+                                    case "contains" #contains; 
+                                    case _ #eq;
+                                };
+                                value = crit.2;
+                            }
+                        }
+                    )
+                };
+            };
+        };
+
+        func _getComparer(
+            column: Text,
+            dir: Int
+        ): (Types.Profile, Types.Profile) -> Int {
+            switch(column) {
+                case "_id" func(a: Types.Profile, b: Types.Profile): Int  = 
+                    Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
+                case "pubId" func(a: Types.Profile, b: Types.Profile): Int = 
+                    Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
+                case "createdAt" func(a: Types.Profile, b: Types.Profile): Int = 
+                    Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
+                case _ {
+                    func(a: Types.Profile, b: Types.Profile): Int = 0;
+                };
+            };
+        };
+
+        func _getDir(
+            sortBy: ?(Text, Text)
+        ): Int {
+            switch(sortBy) {
+                case null {
+                    1;
+                };
+                case (?sortBy) {
+                    switch(sortBy.1) {
+                        case "desc" -1;
+                        case _ 1;
+                    };
+                };
+            };
+        };
+
+        func _getSortBy(
+            sortBy: ?(Text, Text)
+        ): ?[Table.SortBy<Types.Profile>] {
+            let dir = _getDir(sortBy);
+            
+            switch(sortBy) {
+                case null {
+                    null;
+                };
+                case (?sortBy) {
+                    ?[{
+                        key = sortBy.0;
+                        dir = if(dir == 1) #asc else #desc;
+                        cmp = _getComparer(sortBy.0, dir);
+                    }]
+                };
+            };
+        };
+
+        func _getLimit(
+            limit: ?(Nat, Nat)
+        ): ?Table.Limit {
+            switch(limit) {
+                case null null;
+                case (?limit) 
+                    ?{
+                        offset = limit.0;
+                        size = limit.1;
+                    }
+            };
+        };
+
+        public func find(
+            criterias: ?[(Text, Text, Variant.Variant)],
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Profile], Text> {
+            return users.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             return users.backup();

@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext} from "react";
 import {useParams} from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
-import {useFindCampaignById} from "../../../hooks/campaigns";
+import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import Modal from "../../../components/Modal";
@@ -49,7 +49,7 @@ const Campaign = (props: Props) => {
         report: false
     });
     
-    const res = useFindCampaignById(['campaign', id], id || '');
+    const res = useFindCampaignByPubId(['campaign', id], id || '');
     const campaign = res.status === 'success' && res.data?
         res.data:
         undefined;

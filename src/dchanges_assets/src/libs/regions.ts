@@ -1,5 +1,6 @@
 import {dchanges} from "../../../declarations/dchanges";
 import {Region, Variant} from "../../../declarations/dchanges/dchanges.did";
+import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
 export enum RegionKind {
@@ -31,12 +32,12 @@ export const kinds: {name: string, value: any}[] = [
 ];
 
 export const findAll = async (
-    filters?: Filter, 
+    filters?: Filter[], 
     orderBy?: Order, 
     limit?: Limit
 ) => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
+    const criterias: [] | [Array<[string, string, Variant]>]  = filters?
+        [filters.map(filter => [filter.key, filter.op, valueToVariant(filter.value)])]:
         [];
 
     const res = await dchanges.regionFind(
@@ -78,13 +79,13 @@ const kindToText = (kind: RegionKind): string => {
 export const search = async (
     value: string
 ): Promise<{name: string, value: number}[]> => {
-    const regions = await findAll(
+    const regions = await findAll([
         {
             key: 'name',
             op: 'contains',
-            value: typeof value === "number"? String(value): value
+            value: value
         }
-    );
+    ]);
 
     return regions.map(r => ({
         name: `${r.name} (${kindToText(r.kind)})`,

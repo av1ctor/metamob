@@ -3,7 +3,7 @@ import { useFindUserById } from '../../hooks/users';
 
 interface Props {
     id: number;
-    size?: 'lg';
+    size?: string;
     noName?: boolean;
 };
 

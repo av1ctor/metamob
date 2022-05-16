@@ -14,7 +14,7 @@ export const useFindUpdateById = (
 };
 
 export const useFindUpdates = (
-    queryKey: any[], filters: Filter, orderBy: Order, limit: Limit
+    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
 ): UseQueryResult<Update[], Error> => {
     return useQuery<Update[], Error>(
         queryKey, 

@@ -44,7 +44,7 @@ const EditForm = (props: Props) => {
     });
     
     const updateMut = useUpdateCampaign();
-    const region = useFindRegionById(['region-id', props.campaign.regionId], props.campaign.regionId);
+    const region = useFindRegionById(['regions', props.campaign.regionId], props.campaign.regionId);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({

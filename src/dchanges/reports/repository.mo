@@ -348,7 +348,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                state = e.state;
+                state = Types.STATE_ASSIGNED;
                 result = e.result;
                 description = e.description;
                 resolution = e.resolution;
@@ -371,7 +371,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                state = e.state;
+                state = Types.STATE_CLOSED;
                 result = req.result;
                 description = e.description;
                 resolution = req.resolution;
@@ -395,11 +395,11 @@ module {
         
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
-        res.put("state", #nat8(e.state));
-        res.put("result", #nat8(e.result));
+        res.put("state", #nat32(e.state));
+        res.put("result", #nat32(e.result));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("resolution", #text(if ignoreCase Utils.toLower(e.resolution) else e.resolution));
-        res.put("entityType", #nat8(e.entityType));
+        res.put("entityType", #nat32(e.entityType));
         res.put("entityId", #nat32(e.entityId));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -417,11 +417,11 @@ module {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
-            state = Variant.getOptNat8(map.get("state"));
-            result = Variant.getOptNat8(map.get("result"));
+            state = Variant.getOptNat32(map.get("state"));
+            result = Variant.getOptNat32(map.get("result"));
             description = Variant.getOptText(map.get("description"));
             resolution = Variant.getOptText(map.get("resolution"));
-            entityType = Variant.getOptNat8(map.get("entityType"));
+            entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

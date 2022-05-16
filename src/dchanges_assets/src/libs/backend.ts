@@ -1,6 +1,6 @@
 import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
 import { idlFactory, canisterId } from "../../../declarations/dchanges";
-import { DChanges } from "../../../declarations/dchanges/dchanges.did";
+import { DChanges, Variant } from "../../../declarations/dchanges/dchanges.did";
 
 export const createMainActor = (
     identity: Identity
@@ -21,4 +21,25 @@ export const createMainActor = (
     });    
 
     return actor;
+};
+
+export const valueToVariant = (
+    value: any
+): Variant => {
+    if(value === undefined || value === null) {
+        return {nil: null};
+    }
+
+    switch(typeof value) {
+        case "string":
+            return {text: value};
+        case "number":
+            return {nat32: value};
+        case "bigint":
+            return {nat64: value};
+        case "boolean":
+            return {bool: value};
+        default:
+            throw Error('Unsupported type');
+    }    
 };

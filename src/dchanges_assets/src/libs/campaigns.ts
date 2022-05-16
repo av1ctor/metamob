@@ -1,5 +1,6 @@
 import {dchanges} from "../../../declarations/dchanges";
 import {Campaign, Variant} from "../../../declarations/dchanges/dchanges.did";
+import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
 export enum CampaignState {
@@ -18,12 +19,12 @@ export enum CampaignResult {
 }
 
 export const findAll = async (
-    filters?: Filter, 
+    filters?: Filter[], 
     orderBy?: Order, 
     limit?: Limit
 ): Promise<Campaign[]> => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
+    const criterias: [] | [Array<[string, string, Variant]>]  = filters?
+        [filters.filter(filter => !!filter.value).map(filter => [filter.key, filter.op, valueToVariant(filter.value)])]:
         [];
 
     const res = await dchanges.campaignFind(
@@ -56,9 +57,19 @@ export const findByUser = async (
 }
 
 export const findById = async (
+    _id: number
+): Promise<Campaign> => {
+    const res = await dchanges.campaignFindById(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
+export const findByPubId = async (
     pubId: string
 ): Promise<Campaign> => {
-    const res = await dchanges.campaignFindById(pubId);
+    const res = await dchanges.campaignFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }

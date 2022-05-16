@@ -103,9 +103,15 @@ module {
         };
 
         public func findById(
-            id: Text
+            _id: Nat32
         ): Result.Result<Types.Campaign, Text> {
-            repo.findByPubId(id);
+            repo.findById(_id);
+        };
+
+        public func findByPubId(
+            pubId: Text
+        ): Result.Result<Types.Campaign, Text> {
+            repo.findByPubId(pubId);
         };
 
         public func find(

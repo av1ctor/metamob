@@ -102,17 +102,16 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not UserUtils.isAdmin(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
                         return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(e)) {
-                                repo.assign(e, toUserId, caller._id);
-                            };
+                    };
+
+                    switch(repo.findByPubId(id)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(e)) {
+                            repo.assign(e, toUserId, caller._id);
                         };
                     };
                 };
@@ -130,17 +129,16 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not UserUtils.isAdmin(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
                         return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(e)) {
-                                repo.close(e, req, caller._id);
-                            };
+                    };
+                    
+                    switch(repo.findByPubId(id)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(e)) {
+                            repo.close(e, req, caller._id);
                         };
                     };
                 };
@@ -148,17 +146,41 @@ module {
         };        
 
         public func findById(
-            id: Text
+            id: Text,
+            invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            repo.findByPubId(id);
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+                    repo.findByPubId(id);
+                };
+            };
         };
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
-            limit: ?(Nat, Nat)
+            limit: ?(Nat, Nat),
+            invoker: Principal
         ): Result.Result<[Types.Report], Text> {
-            repo.find(criterias, sortBy, limit);
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+                    repo.find(criterias, sortBy, limit);
+                };
+            };
         };
 
         public func backup(

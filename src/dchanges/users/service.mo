@@ -132,6 +132,35 @@ module {
             repo.findByPrincipal(Principal.toText(principal));
         };
 
+        public func find(
+            criterias: ?[(Text, Text, Variant.Variant)],
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Profile], Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
+            let caller = repo.findByPrincipal(Principal.toText(invoker));
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden: not active");
+                    };
+
+                    if(not Utils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    repo.find(criterias, sortBy, limit);
+                };
+            };
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             repo.backup();

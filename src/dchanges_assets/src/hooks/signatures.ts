@@ -13,7 +13,7 @@ export const useFindSignatureById = (
 };
 
 export const useFindSignatures = (
-    queryKey: any[], filters: Filter, orderBy: Order, limit: Limit
+    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
         queryKey, 

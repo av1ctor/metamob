@@ -1,13 +1,14 @@
 import {dchanges} from "../../../declarations/dchanges";
 import {Category, Variant} from "../../../declarations/dchanges/dchanges.did";
+import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
 export const findAll = async (
-    filters?: Filter, 
+    filters?: Filter[], 
     orderBy?: Order, limit?: Limit
 ) => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters && filters.value?
-        [[[filters.key, filters.op, {text: filters.value}]]]:
+    const criterias: [] | [Array<[string, string, Variant]>]  = filters?
+        [filters.map(filter => [filter.key, filter.op, valueToVariant(filter.value)])]:
         [];
 
     const res = await dchanges.categoryFind(

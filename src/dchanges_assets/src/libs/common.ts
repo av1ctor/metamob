@@ -1,7 +1,7 @@
 export interface Filter {
     key: string;
     op: string;
-    value: string;
+    value: any;
 };
 
 export interface Order {

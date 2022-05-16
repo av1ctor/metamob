@@ -1,0 +1,144 @@
+import React, { useCallback, useContext, useState } from "react";
+import * as yup from 'yup';
+import { Report, ReportCloseRequest } from "../../../../../../declarations/dchanges/dchanges.did";
+import Button from "../../../../components/Button";
+import SelectField, { Option } from "../../../../components/SelectField";
+import TextAreaField from "../../../../components/TextAreaField";
+import TextField from "../../../../components/TextField";
+import { useCloseReport } from "../../../../hooks/reports";
+import { ReportResult } from "../../../../libs/reports";
+import { ActorContext } from "../../../../stores/actor";
+import Avatar from "../../../users/Avatar";
+
+interface Props {
+    report: Report;
+    onClose: () => void;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+}
+
+const formSchema = yup.object().shape({
+    resolution: yup.string().required().min(10).max(2048),
+    result: yup.number().required(),
+});
+
+const results: Option[] = [
+    {name: 'Unsolved', value: ReportResult.NOTSOLVED},
+    {name: 'Solved', value: ReportResult.SOLVED},
+    {name: 'Duplicated', value: ReportResult.DUPLICATED},
+];
+
+const EditForm = (props: Props) => {
+    const [actorContext, ] = useContext(ActorContext);
+    
+    const [form, setForm] = useState<ReportCloseRequest>({
+        resolution: '',
+        result: ReportResult.NOTSOLVED
+    });
+
+    const closeMut = useCloseReport();
+
+    const changeForm = useCallback((e: any) => {
+        setForm(form => ({
+            ...form, 
+            [e.target.name]: e.target.value
+        }));
+    }, []);
+
+    const validate = async (form: ReportCloseRequest): Promise<string[]> => {
+        try {
+            await formSchema.validate(form, {abortEarly: false});
+            return [];
+        }
+        catch(e: any) {
+            return e.errors;
+        }
+    };
+
+    const handleUpdate = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = await validate(form);
+        if(errors.length > 0) {
+            props.onError(errors);
+            return;
+        }
+
+        try {
+            await closeMut.mutateAsync({
+                main: actorContext.main,
+                pubId: props.report.pubId, 
+                req: {
+                    resolution: form.resolution,
+                    result: form.result,
+                }
+            });
+            props.onSuccess('Report updated!');
+            props.onClose();
+        }
+        catch(e) {
+            props.onError(e);
+        }
+    }, [form, actorContext.main, props.onClose]);
+
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
+    
+    return (
+        <form onSubmit={handleUpdate}>
+            <TextField
+                label="Id"
+                name="id"
+                value={props.report.pubId}
+                disabled
+            />
+            <TextAreaField
+                label="Description"
+                name="description"
+                rows={5}
+                value={props.report.description}
+                disabled
+            />
+            <Avatar 
+                id={props.report.createdBy} 
+                size='lg'
+            />
+            <TextAreaField
+                label="Resolution"
+                name="resolution"
+                rows={5}
+                value={form.resolution}
+                onChange={changeForm}
+            />
+            <SelectField
+                label="Result"
+                name="result"
+                value={form.result}
+                options={results}
+                onChange={changeForm}
+            />
+            <div className="field is-grouped mt-2">
+                <div className="control">
+                    <Button
+                        onClick={handleUpdate}
+                        disabled={closeMut.isLoading}
+                    >
+                        Edit
+                    </Button>
+                </div>
+                <div className="control">
+                    <Button
+                        color="danger"
+                        onClick={handleClose}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </div>
+        </form>
+    );
+};
+
+export default EditForm;

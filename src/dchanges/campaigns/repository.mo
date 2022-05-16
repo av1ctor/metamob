@@ -193,9 +193,9 @@ module {
                 case "title" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Text.compare(a.title, b.title)) * dir;
                 case "state" func(a: Types.Campaign, b: Types.Campaign): Int = 
-                    Utils.order2Int(Nat8.compare(a.state, b.state)) * dir;
+                    Utils.order2Int(Nat32.compare(a.state, b.state)) * dir;
                 case "result" func(a: Types.Campaign, b: Types.Campaign): Int = 
-                    Utils.order2Int(Nat8.compare(a.result, b.result)) * dir;
+                    Utils.order2Int(Nat32.compare(a.result, b.result)) * dir;
                 case "publishedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
                 case "createdAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
@@ -683,8 +683,8 @@ module {
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("categoryId", #nat32(e.categoryId));
         res.put("regionId", #nat32(e.regionId));
-        res.put("state", #nat8(e.state));
-        res.put("result", #nat8(e.result));
+        res.put("state", #nat32(e.state));
+        res.put("result", #nat32(e.result));
         res.put("duration", #nat32(e.duration));
         res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
         res.put("signaturesCnt", #nat32(e.signaturesCnt));
@@ -717,8 +717,8 @@ module {
             body = Variant.getOptText(map.get("body"));
             categoryId = Variant.getOptNat32(map.get("categoryId"));
             regionId = Variant.getOptNat32(map.get("regionId"));
-            state = Variant.getOptNat8(map.get("state"));
-            result = Variant.getOptNat8(map.get("result"));
+            state = Variant.getOptNat32(map.get("state"));
+            result = Variant.getOptNat32(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
             signaturesCnt = Variant.getOptNat32(map.get("signaturesCnt"));

@@ -66,7 +66,29 @@ shared({caller = owner}) actor class DChanges() {
     public shared query(msg) func userFindMe(
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
         _transformUserReponse(userService.findByPrincipal(msg.caller));
-    };    
+    };
+
+    public shared query(msg) func userFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[UserTypes.Profile], Text> {
+        userService.find(criterias, sortBy, limit, msg.caller);
+    };
+
+    private func _redactUser(
+        prof: UserTypes.Profile
+    ): UserTypes.ProfileResponse {
+        {
+            _id = prof._id;
+            pubId = prof.pubId;
+            name = prof.name;
+            email = "";
+            avatar = prof.avatar;
+            roles = prof.roles;
+            countryId = prof.countryId;
+        }
+    };
 
     private func _transformUserReponse(
         res: Result.Result<UserTypes.Profile, Text>
@@ -77,15 +99,20 @@ shared({caller = owner}) actor class DChanges() {
                 #err(msg);
             };
             case (#ok(prof)) {
-                #ok({
-                    _id = prof._id;
-                    pubId = prof.pubId;
-                    name = prof.name;
-                    email = prof.email;
-                    avatar = prof.avatar;
-                    roles = prof.roles;
-                    countryId = prof.countryId;
-                });
+                #ok(_redactUser(prof));
+            };
+        };
+    };
+
+    func _transformUserResponses(
+        res: Result.Result<[UserTypes.Profile], Text>
+    ): Result.Result<[UserTypes.ProfileResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(entities, _redactUser));
             };
         };
     };
@@ -151,9 +178,15 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     public query func campaignFindById(
-        id: Text
+        _id: Nat32
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.findById(id);
+        campaignService.findById(_id);
+    };
+    
+    public query func campaignFindByPubId(
+        pubId: Text
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        campaignService.findByPubId(pubId);
     };
 
     public shared query(msg) func campaignFind(
@@ -425,10 +458,10 @@ shared({caller = owner}) actor class DChanges() {
         reportService.close(id, req, msg.caller);
     };
 
-    public query func reportFindById(
+    public shared query(msg) func reportFindById(
         id: Text
     ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.findById(id);
+        reportService.findById(id, msg.caller);
     };
 
     public shared query(msg) func reportFind(
@@ -436,7 +469,7 @@ shared({caller = owner}) actor class DChanges() {
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[ReportTypes.Report], Text> {
-        reportService.find(criterias, sortBy, limit);
+        reportService.find(criterias, sortBy, limit, msg.caller);
     };
 
     //

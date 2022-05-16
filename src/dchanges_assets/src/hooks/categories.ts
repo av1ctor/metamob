@@ -13,7 +13,7 @@ export const useFindCategoryById = (
 };
 
 export const useFindCategories = (
-    queryKey: any[], filters?: Filter, orderBy?: Order, limit?: Limit
+    queryKey: any[], filters?: Filter[], orderBy?: Order, limit?: Limit
 ): UseQueryResult<Category [], Error> => {
     return useQuery<Category[], Error>(
         queryKey,

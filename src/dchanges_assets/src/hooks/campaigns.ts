@@ -1,19 +1,28 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {CampaignRequest, Campaign, DChanges} from "../../../declarations/dchanges/dchanges.did";
-import { findAll, findById, findByUser } from '../libs/campaigns';
+import { findAll, findById, findByPubId as findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCampaignById = (
+    queryKey: any[], _id: number
+): UseQueryResult<Campaign, Error> => {
+    return useQuery<Campaign, Error>(
+        queryKey, 
+        () => findById(_id)
+    );
+};
+
+export const useFindCampaignByPubId = (
     queryKey: any[], pubId: string
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
         queryKey, 
-        () => findById(pubId)
+        () => findByPubId(pubId)
     );
 };
 
 export const useFindCampaigns = (
-    queryKey: any[], filters: Filter, orderBy: Order, limit: Limit
+    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
         queryKey, 
