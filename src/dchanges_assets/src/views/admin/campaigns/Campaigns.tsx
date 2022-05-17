@@ -1,15 +1,13 @@
-import React, { useCallback, useContext, useState } from "react";
-import { Profile, Report } from "../../../../../declarations/dchanges/dchanges.did";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import TimeFromNow from "../../../components/TimeFromNow";
-import { useFindReports } from "../../../hooks/reports";
 import { Filter, Limit, Order } from "../../../libs/common";
-import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
-import { ActorContext } from "../../../stores/actor";
-import AssignForm from "./Assign";
-import EditForm from "./Edit";
+import { Campaign, Profile } from "../../../../../declarations/dchanges/dchanges.did";
+import TextField from "../../../components/TextField";
+import { useFindCampaigns } from "../../../hooks/campaigns";
+import { CampaignState, campaignStateToText } from "../../../libs/campaigns";
+import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
-import Badge from "../../../components/Badge";
+import View from "./View";
 import SelectField, {Option} from "../../../components/SelectField";
 
 const orderBy: Order = {
@@ -23,9 +21,12 @@ const limit: Limit = {
 };
 
 const states: Option[] = [
-    {name: 'Created', value: ReportState.CREATED},
-    {name: 'Assigned', value: ReportState.ASSIGNED},
-    {name: 'Closed', value: ReportState.CLOSED},
+    {name: 'Created', value: CampaignState.CREATED},
+    {name: 'Published', value: CampaignState.PUBLISHED},
+    {name: 'Finished', value: CampaignState.FINISHED},
+    {name: 'Canceled', value: CampaignState.CANCELED},
+    {name: 'Deleted', value: CampaignState.DELETED},
+    {name: 'Banned', value: CampaignState.BANNED},
 ];
 
 interface Props {
@@ -33,23 +34,44 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Reports = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    
+const Campaigns = (props: Props) => {
     const [user, setUser] = useState<Profile>();
-    const [report, setReport] = useState<Report>();
+    const [campaign, setCampaign] = useState<Campaign>();
     const [modals, setModals] = useState({
-        assign: false,
         edit: false,
         editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
+            key: 'pubId',
+            op: 'eq',
+            value: ''
+        },
+        {
+            key: 'title',
+            op: 'contains',
+            value: ''
+        },
+        {
             key: 'state',
             op: 'eq',
-            value: null
-        }
+            value: CampaignState.CREATED
+        },
     ]);
+
+    const handleChangePubIdFilter = useCallback((e: any) => {
+        const value = e.target.value;
+        setFilters(filters => 
+            filters.map(f => f.key !== 'pubId'? f: {...f, value: value})
+        );
+    }, []);
+
+    const handleChangeTitleFilter = useCallback((e: any) => {
+        const value = e.target.value;
+        setFilters(filters => 
+            filters.map(f => f.key !== 'title'? f: {...f, value: value})
+        );
+    }, []);
 
     const handleChangeStateFilter = useCallback((e: any) => {
         const value = e.target.value === ''? 
@@ -60,19 +82,12 @@ const Reports = (props: Props) => {
         );
     }, []);
     
-    const toggleAssign = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            assign: !modals.assign
-        }));
-    }, []);
-
     const toggleEdit = useCallback(() => {
-        setModals(modals => ({
+        setModals({
             ...modals,
             edit: !modals.edit
-        }));
-    }, []);
+        });
+    }, [modals]);
 
     const toggleEditUser = useCallback(() => {
         setModals(modals => ({
@@ -81,16 +96,9 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const handleReport = useCallback((report: Report) => {
-        setReport(report);
-        switch(report.state) {
-            case ReportState.CREATED:
-                toggleAssign();
-                break;
-            case ReportState.ASSIGNED:
-                toggleEdit();
-                break;
-        }
+    const handleEditCampaign = useCallback((report: Campaign) => {
+        setCampaign(report);
+        toggleEdit();
     }, []);
 
     const handleEditUser = useCallback((user: Profile) => {
@@ -98,35 +106,51 @@ const Reports = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const reports = useFindReports(['reports', ...filters], filters, orderBy, limit, actorState.main);
+    const campaigns = useFindCampaigns(['campaigns', ...filters], filters, orderBy, limit);
 
     return (
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Reports</b></div>
+                    <div className="is-size-2"><b>Campaigns</b></div>
                 </div>
                 <div className="level-right">
                     <div>
+                        <b>PubId</b>
+                        <TextField
+                            name="pubId"
+                            value={filters[0].value}
+                            onChange={handleChangePubIdFilter}
+                        />
+                    </div>
+                    <div className="ml-2">
+                        <b>Title</b>
+                        <TextField
+                            name="title"
+                            value={filters[1].value}
+                            onChange={handleChangeTitleFilter}
+                        />
+                    </div>
+                    <div className="ml-2">
                         <b>State</b>
                         <SelectField
                             name="state"
-                            value={filters[0].value !== null? filters[0].value: ''}
+                            value={filters[2].value !== null? filters[2].value: ''}
                             options={states}
                             onChange={handleChangeStateFilter}
                         />
                     </div>
                 </div>
-            </div>
+            </div>            
             <div>
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column">
-                                Description
+                            <div className="column is-3">
+                                Id
                             </div>
-                            <div className="column is-2">
-                                Type
+                            <div className="column is-6">
+                                Title
                             </div>
                             <div className="column is-2">
                                 State
@@ -137,25 +161,21 @@ const Reports = (props: Props) => {
                         </div>
                     </div>
                     <div className="body">
-                        {reports.isSuccess && reports.data && 
-                            reports.data.map((item, index) => 
+                        {campaigns.isSuccess && campaigns.data && 
+                            campaigns.data.map((item, index) => 
                                 <div 
                                     className="columns" 
                                     key={index}
-                                    onClick={() => handleReport(item)}
+                                    onClick={() => handleEditCampaign(item)}
                                 >
-                                    <div className="column">
-                                        {item.description}
+                                    <div className="column is-3">
+                                        {item.pubId}
+                                    </div>
+                                    <div className="column is-6">
+                                        {item.title}
                                     </div>
                                     <div className="column is-2">
-                                        <Badge 
-                                            color={entityTypeToColor(item.entityType)}
-                                        >
-                                            {entityTypeToText(item.entityType)}
-                                        </Badge>
-                                    </div>
-                                    <div className="column is-2">
-                                        {reportStateToText(item.state)}
+                                        {campaignStateToText(item.state)}
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={item.createdAt}/>
@@ -166,38 +186,24 @@ const Reports = (props: Props) => {
                     </div>
                 </div>
             </div>
+            <br />
 
 
             <Modal
-                header={<span>Assign report</span>}
-                isOpen={modals.assign}
-                onClose={toggleAssign}
-            >
-                {report &&
-                    <AssignForm
-                        report={report}
-                        onClose={toggleAssign}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                    />
-                }
-            </Modal>
-
-            <Modal
-                header={<span>Edit report</span>}
+                header={<span>Edit campaign</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
-                {report &&
-                    <EditForm
-                        report={report}
+                {campaign &&
+                    <View
+                        campaign={campaign}
                         onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
                 }
-            </Modal>            
+            </Modal>
 
             <Modal
                 header={<span>Edit user</span>}
@@ -217,4 +223,4 @@ const Reports = (props: Props) => {
     );
 };
 
-export default Reports;
+export default Campaigns;

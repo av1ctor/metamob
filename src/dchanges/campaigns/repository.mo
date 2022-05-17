@@ -406,7 +406,10 @@ module {
                 body = req.body;
                 categoryId = req.categoryId;
                 regionId = req.regionId;
-                state = Types.STATE_PUBLISHED;
+                state = switch(req.state) { 
+                    case null Types.STATE_CREATED;
+                    case (?state) state;
+                };
                 result = Types.RESULT_NONE;
                 duration = req.duration;
                 tags = req.tags;
@@ -441,7 +444,10 @@ module {
                 body = req.body;
                 categoryId = req.categoryId;
                 regionId = req.regionId;
-                state = e.state;
+                state = switch(req.state) { 
+                    case null e.state;
+                    case (?state) state;
+                };
                 result = e.result;
                 duration = e.duration;
                 tags = req.tags;

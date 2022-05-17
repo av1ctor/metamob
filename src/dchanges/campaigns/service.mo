@@ -32,6 +32,11 @@ module {
                         #err("Forbidden");
                     }
                     else {
+                        if(Option.isSome(req.state)) {
+                            if(not UserUtils.isModerator(caller)) {
+                                return #err("Invalid field: state");
+                            };
+                        };
                         repo.create(req, caller._id);
                     };
                 };
@@ -60,6 +65,12 @@ module {
                             case (#ok(campaign)) {
                                 if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
+                                };
+
+                                if(Option.isSome(req.state)) {
+                                    if(not UserUtils.isModerator(caller)) {
+                                        return #err("Invalid field: state");
+                                    };
                                 };
                                 
                                 return repo.update(campaign, req, caller._id);

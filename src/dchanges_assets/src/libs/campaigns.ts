@@ -18,6 +18,27 @@ export enum CampaignResult {
     LOST = 2,
 }
 
+export const campaignStateToText = (
+    state: CampaignState
+): string => {
+    switch(state) {
+        case CampaignState.BANNED:
+            return 'Banned';
+        case CampaignState.CANCELED:
+            return 'Canceled';
+        case CampaignState.CREATED:
+            return 'Created';
+        case CampaignState.DELETED:
+            return 'Deleted';
+        case CampaignState.FINISHED:
+            return 'Finished';
+        case CampaignState.PUBLISHED:
+            return 'Published';
+        default:
+            return 'Unknown';
+    }
+};
+
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order, 

@@ -42,6 +42,7 @@ module {
     };
 
     public type CampaignRequest = {
+        state: ?CampaignState;
         title: Text;
         target: Text;
         cover: Text;

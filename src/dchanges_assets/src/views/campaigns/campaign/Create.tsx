@@ -23,6 +23,7 @@ interface Props {
 };
 
 const formSchema = yup.object().shape({
+    state: yup.array().required(),
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
     body: yup.string().min(100).max(4096),
@@ -38,6 +39,7 @@ const CreateForm = (props: Props) => {
     
     const [regionValue, setRegionValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
+        state: [],
         title: '',
         target: '',
         body: '',
@@ -71,6 +73,7 @@ const CreateForm = (props: Props) => {
             await props.mutation.mutateAsync({
                 main: actorState.main,
                 req: {
+                    state: form.state,
                     title: form.title,
                     target: form.target,
                     body: form.body,

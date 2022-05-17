@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, CampaignRequest, Campaign, Region} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Container from "../../../components/Container";
@@ -10,11 +10,14 @@ import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
-import { useFindRegionById, useFindRegions } from "../../../hooks/regions";
+import { useFindRegionById } from "../../../hooks/regions";
 import { search } from "../../../libs/regions";
 import RegionForm from '../../regions/region/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
+import { AuthContext } from "../../../stores/auth";
+import { isModerator } from "../../../libs/users";
+import { CampaignState } from "../../../libs/campaigns";
 
 interface Props {
     campaign: Campaign;
@@ -24,7 +27,17 @@ interface Props {
     onError: (message: any) => void;
 };
 
+const states: Option[] = [
+    {name: 'Created', value: CampaignState.CREATED},
+    {name: 'Canceled', value: CampaignState.CANCELED},
+    {name: 'Deleted', value: CampaignState.DELETED},
+    {name: 'Published', value: CampaignState.PUBLISHED},
+    {name: 'Finished', value: CampaignState.FINISHED},
+    {name: 'Banned', value: CampaignState.BANNED},
+];
+
 const formSchema = yup.object().shape({
+    state: yup.array(yup.number().min(1)).required(),
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
     body: yup.string().min(100).max(4096),
@@ -36,11 +49,13 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
+    const [actorState, ] = useContext(ActorContext)
+    const [authState, ] = useContext(AuthContext);
     
     const [regionValue, setRegionValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
-        ...props.campaign
+        ...props.campaign,
+        state: [props.campaign.state]
     });
     
     const updateMut = useUpdateCampaign();
@@ -50,6 +65,13 @@ const EditForm = (props: Props) => {
         setForm(form => ({
             ...form, 
             [e.target.name]: e.target.value
+        }));
+    }, []);
+
+    const changeFormOpt = useCallback((e: any) => {
+        setForm(form => ({
+            ...form, 
+            [e.target.name]: [e.target.value]
         }));
     }, []);
 
@@ -74,9 +96,10 @@ const EditForm = (props: Props) => {
 
         try {
             await updateMut.mutateAsync({
-                main: actorContext.main,
+                main: actorState.main,
                 pubId: props.campaign.pubId, 
                 req: {
+                    state: form.state.length > 0? [Number(form.state[0])]: [],
                     categoryId: Number(form.categoryId),
                     regionId: Number(form.regionId),
                     title: form.title,
@@ -93,7 +116,7 @@ const EditForm = (props: Props) => {
         catch(e) {
             props.onError(e);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, actorState.main, props.onClose]);
 
     const handleSearchRegion = useCallback(async (
         value: string
@@ -122,7 +145,8 @@ const EditForm = (props: Props) => {
 
     useEffect(() => {
         setForm({
-            ...props.campaign
+            ...props.campaign,
+            state: [props.campaign.state]
         });
     }, [props.campaign]);
 
@@ -189,6 +213,15 @@ const EditForm = (props: Props) => {
                         maxTags={5}
                         onChange={changeForm} 
                     />
+                    {authState.user && isModerator(authState.user) &&
+                        <SelectField
+                            label="State"
+                            name="state"
+                            value={form.state.length > 0 ? form.state[0] || 0: 0}
+                            options={states}
+                            onChange={changeFormOpt}
+                        />                    
+                    }
                     <div className="field is-grouped mt-2">
                         <div className="control">
                             <Button

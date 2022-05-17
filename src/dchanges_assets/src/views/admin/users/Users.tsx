@@ -6,6 +6,8 @@ import { Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import { useFindUsers } from "../../../hooks/users";
 import EditForm from "./Edit";
 import TextField from "../../../components/TextField";
+import TimeFromNow from "../../../components/TimeFromNow";
+import Badge from "../../../components/Badge";
 
 const orderBy: Order = {
     key: '_id',
@@ -63,12 +65,12 @@ const Users = (props: Props) => {
         });
     }, [modals]);
 
-    const users = useFindUsers(['users', ...filters], filters, orderBy, limit, actorState.main);
-
     const handleEditProfile = useCallback((report: Profile) => {
         setUser(report);
         toggleEdit();
     }, []);
+
+    const users = useFindUsers(['users', ...filters], filters, orderBy, limit, actorState.main);
 
     return (
         <>
@@ -99,11 +101,17 @@ const Users = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column is-6">
+                            <div className="column is-3">
                                 Id
                             </div>
-                            <div className="column is-6">
+                            <div className="column">
                                 Name
+                            </div>
+                            <div className="column is-2">
+                                State
+                            </div>
+                            <div className="column is-1">
+                                Age
                             </div>
                         </div>
                     </div>
@@ -115,8 +123,25 @@ const Users = (props: Props) => {
                                     key={index}
                                     onClick={() => handleEditProfile(item)}
                                 >
-                                    <div className="column is-6">{item.pubId}</div>
-                                    <div className="column is-6">{item.name}</div>
+                                    <div className="column is-3">
+                                        {item.pubId}
+                                    </div>
+                                    <div className="column">
+                                        {item.name}
+                                    </div>
+                                    <div className="column is-2">
+                                        {item.banned && 
+                                            <Badge color="danger">Banned</Badge>
+                                        }
+                                        <Badge 
+                                            color={item.active? 'success': 'warning'}
+                                        >
+                                            {item.active? 'Active': 'Inactive'}
+                                        </Badge>
+                                    </div>
+                                    <div className="column is-1">
+                                        <TimeFromNow date={item.createdAt}/>
+                                    </div>
                                 </div>
                             )
                         }
