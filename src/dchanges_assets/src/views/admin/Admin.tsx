@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import Box from "../../components/Box";
 import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import { CategoryContext } from "../../stores/category";
@@ -30,21 +31,21 @@ const Admin = (props: Props) => {
     
     return (
         <>
-            <div>
+            <Box>
                 <div className="is-size-2"><b>Reports</b></div>
                 <Reports 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />
-            </div>
+            </Box>
 
-            <div>
+            <Box>
                 <div className="is-size-2"><b>Users</b></div>
                 <Users 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />
-            </div>
+            </Box>
 
         </>
     );

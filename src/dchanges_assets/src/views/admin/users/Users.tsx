@@ -54,7 +54,6 @@ const Users = (props: Props) => {
     return (
         <>
             <div>
-                <div className="has-text-centered is-size-4"><b>Created</b></div>
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">

@@ -25,7 +25,7 @@ const formSchema = yup.object().shape({
 });
 
 const results: Option[] = [
-    {name: 'Unsolved', value: ReportResult.NOTSOLVED},
+    {name: 'Verifying', value: ReportResult.VERIFYING},
     {name: 'Solved', value: ReportResult.SOLVED},
     {name: 'Duplicated', value: ReportResult.DUPLICATED},
 ];
@@ -34,8 +34,8 @@ const EditForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
-        resolution: '',
-        result: ReportResult.NOTSOLVED
+        resolution: props.report.resolution,
+        result: props.report.result
     });
 
     const closeMut = useCloseReport();

@@ -303,7 +303,7 @@ module {
                 _id = reports.nextId();
                 pubId = ulid.next();
                 state = Types.STATE_CREATED;
-                result = Types.RESULT_NOTSOLVED;
+                result = Types.RESULT_VERIFYING;
                 description = req.description;
                 resolution = "";
                 entityType = req.entityType;
@@ -371,7 +371,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                state = Types.STATE_CLOSED;
+                state = if(req.result == Types.RESULT_VERIFYING) Types.STATE_ASSIGNED else Types.STATE_CLOSED;
                 result = req.result;
                 description = e.description;
                 resolution = req.resolution;

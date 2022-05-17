@@ -5,7 +5,7 @@ module {
     public let STATE_CLOSED: Nat32 = 2;
     
     public type ReportResult = Nat32;
-    public let RESULT_NOTSOLVED: Nat32 = 0;
+    public let RESULT_VERIFYING: Nat32 = 0;
     public let RESULT_SOLVED: Nat32 = 1;
     public let RESULT_DUPLICATED: Nat32 = 2;
 

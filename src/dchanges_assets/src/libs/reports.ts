@@ -10,7 +10,7 @@ export enum ReportState {
 }
 
 export enum ReportResult {
-    NOTSOLVED = 0,
+    VERIFYING = 0,
     SOLVED = 1,
     DUPLICATED = 2,
 }

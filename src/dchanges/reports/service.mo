@@ -1,6 +1,7 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
 import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
@@ -81,6 +82,9 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
+                                        if(e.state != Types.STATE_CREATED) {
+                                            return #err("Invalid state");
+                                        };
                                         repo.update(e, req, caller._id);
                                     };
                                 };
@@ -111,6 +115,10 @@ module {
                             #err(msg);
                         };
                         case (#ok(e)) {
+                            if(e.state == Types.STATE_CLOSED) {
+                                return #err("Invalid state");
+                            };
+
                             repo.assign(e, toUserId, caller._id);
                         };
                     };
@@ -138,6 +146,10 @@ module {
                             #err(msg);
                         };
                         case (#ok(e)) {
+                            if(e.state != Types.STATE_ASSIGNED) {
+                                return #err("Invalid state");
+                            };
+
                             repo.close(e, req, caller._id);
                         };
                     };
