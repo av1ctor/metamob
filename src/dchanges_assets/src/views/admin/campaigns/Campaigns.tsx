@@ -112,7 +112,7 @@ const Campaigns = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Campaigns</b></div>
+                    <div className="is-size-2"><b><i className="la la-volume-up"/> Campaigns</b></div>
                 </div>
                 <div className="level-right">
                     <div>

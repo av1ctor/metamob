@@ -87,7 +87,7 @@ const Categories = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Categories</b></div>
+                    <div className="is-size-2"><b><i className="la la-list"/> Categories</b></div>
                 </div>
                 <div className="level-right">
                     <div>

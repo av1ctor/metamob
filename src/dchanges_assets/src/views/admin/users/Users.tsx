@@ -76,7 +76,7 @@ const Users = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Users</b></div>
+                    <div className="is-size-2"><b><i className="la la-users"/> Users</b></div>
                 </div>
                 <div className="level-right">
                     <div>

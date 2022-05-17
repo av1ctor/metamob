@@ -104,7 +104,7 @@ const Reports = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Reports</b></div>
+                    <div className="is-size-2"><i className="la la-flag"/> <b>Reports</b></div>
                 </div>
                 <div className="level-right">
                     <div>

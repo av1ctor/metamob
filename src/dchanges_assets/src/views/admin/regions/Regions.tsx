@@ -88,7 +88,7 @@ const Regions = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Regions</b></div>
+                    <div className="is-size-2"><i className="la la-globe"/> <b>Regions</b></div>
                 </div>
                 <div className="level-right">
                     <div>
