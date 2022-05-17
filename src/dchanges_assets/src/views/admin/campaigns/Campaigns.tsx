@@ -146,13 +146,13 @@ const Campaigns = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column is-3">
+                            <div className="column is-2">
                                 Id
                             </div>
-                            <div className="column is-6">
+                            <div className="column">
                                 Title
                             </div>
-                            <div className="column is-2">
+                            <div className="column is-1">
                                 State
                             </div>
                             <div className="column is-1">
@@ -168,13 +168,13 @@ const Campaigns = (props: Props) => {
                                     key={index}
                                     onClick={() => handleEditCampaign(item)}
                                 >
-                                    <div className="column is-3">
+                                    <div className="column is-2 is-size-7">
                                         {item.pubId}
                                     </div>
-                                    <div className="column is-6">
+                                    <div className="column">
                                         {item.title}
                                     </div>
-                                    <div className="column is-2">
+                                    <div className="column is-1">
                                         {campaignStateToText(item.state)}
                                     </div>
                                     <div className="column is-1">

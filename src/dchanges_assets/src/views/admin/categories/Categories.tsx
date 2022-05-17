@@ -112,7 +112,7 @@ const Categories = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column is-3">
+                            <div className="column is-2">
                                 Id
                             </div>
                             <div className="column">
@@ -131,7 +131,7 @@ const Categories = (props: Props) => {
                                     key={index}
                                     onClick={() => handleEdit(item)}
                                 >
-                                    <div className="column is-3">
+                                    <div className="column is-2 is-size-7">
                                         {item.pubId}
                                     </div>
                                     <div className="column">

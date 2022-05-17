@@ -101,14 +101,17 @@ const Users = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column is-3">
+                            <div className="column is-2">
                                 Id
                             </div>
                             <div className="column">
                                 Name
                             </div>
-                            <div className="column is-2">
-                                State
+                            <div className="column is-1">
+                                Active
+                            </div>
+                            <div className="column is-1">
+                                Banned
                             </div>
                             <div className="column is-1">
                                 Age
@@ -123,21 +126,25 @@ const Users = (props: Props) => {
                                     key={index}
                                     onClick={() => handleEditProfile(item)}
                                 >
-                                    <div className="column is-3">
+                                    <div className="column is-2 is-size-7">
                                         {item.pubId}
                                     </div>
                                     <div className="column">
                                         {item.name}
                                     </div>
-                                    <div className="column is-2">
-                                        {item.banned && 
-                                            <Badge color="danger">Banned</Badge>
-                                        }
+                                    <div className="column is-1">
                                         <Badge 
                                             color={item.active? 'success': 'warning'}
                                         >
-                                            {item.active? 'Active': 'Inactive'}
+                                            {item.active? 'true': 'false'}
                                         </Badge>
+                                    </div>
+                                    <div className="column is-1">
+                                        {item.banned? 
+                                            <Badge color="danger">true</Badge>
+                                        :
+                                            <span></span>
+                                        }
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={item.createdAt}/>

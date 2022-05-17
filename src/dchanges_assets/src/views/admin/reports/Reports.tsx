@@ -122,13 +122,16 @@ const Reports = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
+                            <div className="column is-2">
+                                Id
+                            </div>
                             <div className="column">
                                 Description
                             </div>
-                            <div className="column is-2">
+                            <div className="column is-1">
                                 Type
                             </div>
-                            <div className="column is-2">
+                            <div className="column is-1">
                                 State
                             </div>
                             <div className="column is-1">
@@ -144,17 +147,20 @@ const Reports = (props: Props) => {
                                     key={index}
                                     onClick={() => handleReport(item)}
                                 >
+                                    <div className="column is-2 is-size-7">
+                                        {item.pubId}
+                                    </div>
                                     <div className="column">
                                         {item.description}
                                     </div>
-                                    <div className="column is-2">
+                                    <div className="column is-1">
                                         <Badge 
                                             color={entityTypeToColor(item.entityType)}
                                         >
                                             {entityTypeToText(item.entityType)}
                                         </Badge>
                                     </div>
-                                    <div className="column is-2">
+                                    <div className="column is-1">
                                         {reportStateToText(item.state)}
                                     </div>
                                     <div className="column is-1">

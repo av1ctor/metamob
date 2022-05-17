@@ -113,13 +113,13 @@ const Regions = (props: Props) => {
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
-                            <div className="column is-3">
+                            <div className="column is-2">
                                 Id
                             </div>
                             <div className="column">
                                 Name
                             </div>
-                            <div className="column is-2">
+                            <div className="column is-1">
                                 Kind
                             </div>
                             <div className="column is-1">
@@ -135,13 +135,13 @@ const Regions = (props: Props) => {
                                     key={index}
                                     onClick={() => handleEdit(item)}
                                 >
-                                    <div className="column is-3">
+                                    <div className="column is-2 is-size-7">
                                         {item.pubId}
                                     </div>
                                     <div className="column">
                                         {item.name}
                                     </div>
-                                    <div className="column is-2">
+                                    <div className="column is-1">
                                         {kindToText(item.kind)}
                                     </div>
                                     <div className="column is-1">
