@@ -147,7 +147,7 @@ const Campaigns = (props: Props) => {
                     <div className="header">
                         <div className="columns">
                             <div className="column is-2">
-                                Id
+                                PubId
                             </div>
                             <div className="column">
                                 Title

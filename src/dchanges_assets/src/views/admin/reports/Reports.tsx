@@ -123,7 +123,7 @@ const Reports = (props: Props) => {
                     <div className="header">
                         <div className="columns">
                             <div className="column is-2">
-                                Id
+                                PubId
                             </div>
                             <div className="column">
                                 Description
@@ -172,7 +172,6 @@ const Reports = (props: Props) => {
                     </div>
                 </div>
             </div>
-
 
             <Modal
                 header={<span>Assign report</span>}

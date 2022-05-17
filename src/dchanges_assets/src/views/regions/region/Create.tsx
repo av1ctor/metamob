@@ -11,7 +11,7 @@ import { kinds, RegionKind, search } from "../../../libs/regions";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
-    value: string;
+    value?: string;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     onClose: () => void;
@@ -28,7 +28,7 @@ const Create = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<RegionRequest>({
-        name: props.value,
+        name: props.value || '',
         kind: RegionKind.OTHER,
         private: false,
         parentId: [],
@@ -105,7 +105,7 @@ const Create = (props: Props) => {
     useEffect(() => {
         setForm(form => ({
             ...form,
-            name: props.value
+            name: props.value || ''
         }));
     }, [props.value]);
    

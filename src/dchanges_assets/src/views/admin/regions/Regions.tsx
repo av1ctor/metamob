@@ -6,8 +6,10 @@ import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import { useFindRegions } from "../../../hooks/regions";
-import EditForm from "./Edit";
 import { kindToText } from "../../../libs/regions";
+import Button from "../../../components/Button";
+import CreateForm from "../../regions/region/Create";
+import EditForm from "./Edit";
 
 const orderBy: Order = {
     key: '_id',
@@ -28,6 +30,7 @@ const Regions = (props: Props) => {
     const [user, setUser] = useState<Profile>();
     const [region, setRegion] = useState<Region>();
     const [modals, setModals] = useState({
+        create: false,
         edit: false,
         editUser: false,
     });
@@ -58,6 +61,13 @@ const Regions = (props: Props) => {
         );
     }, []);
     
+    const toggleCreate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            create: !modals.create
+        }));
+    }, []);
+
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
             ...modals,
@@ -114,7 +124,7 @@ const Regions = (props: Props) => {
                     <div className="header">
                         <div className="columns">
                             <div className="column is-2">
-                                Id
+                                PubId
                             </div>
                             <div className="column">
                                 Name
@@ -153,8 +163,30 @@ const Regions = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <br />
+            
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <Button 
+                        onClick={toggleCreate}
+                    >
+                        <i className="la la-plus-circle" />&nbsp;Create
+                    </Button>
+                </div>
+            </div>
 
+            <Modal
+                header={<span>Create region</span>}
+                isOpen={modals.create}
+                onClose={toggleCreate}
+            >
+                <CreateForm
+                    onClose={toggleCreate}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Modal>
 
             <Modal
                 header={<span>Edit region</span>}

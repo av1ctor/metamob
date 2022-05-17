@@ -6,6 +6,8 @@ import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import { useFindCategories } from "../../../hooks/categories";
+import Button from "../../../components/Button";
+import CreateForm from "../../categories/Create";
 import EditForm from "./Edit";
 
 const orderBy: Order = {
@@ -28,6 +30,7 @@ const Categories = (props: Props) => {
     const [category, setCategory] = useState<Category>();
     const [modals, setModals] = useState({
         edit: false,
+        create: false,
         editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
@@ -61,6 +64,13 @@ const Categories = (props: Props) => {
         setModals(modals => ({
             ...modals,
             edit: !modals.edit
+        }));
+    }, []);
+
+    const toggleCreate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            create: !modals.create
         }));
     }, []);
 
@@ -113,7 +123,7 @@ const Categories = (props: Props) => {
                     <div className="header">
                         <div className="columns">
                             <div className="column is-2">
-                                Id
+                                PubId
                             </div>
                             <div className="column">
                                 Name
@@ -146,9 +156,31 @@ const Categories = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <br />
 
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <Button 
+                        onClick={toggleCreate}
+                    >
+                        <i className="la la-plus-circle" />&nbsp;Create
+                    </Button>
+                </div>
+            </div>
 
+            <Modal
+                header={<span>Create category</span>}
+                isOpen={modals.create}
+                onClose={toggleCreate}
+            >
+                <CreateForm
+                    onClose={toggleCreate}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Modal>
+            
             <Modal
                 header={<span>Edit category</span>}
                 isOpen={modals.edit}
