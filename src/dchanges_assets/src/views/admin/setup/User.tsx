@@ -17,7 +17,7 @@ const formSchema = yup.object().shape({
     avatar: yup.array(yup.string()).required(),
 });
 
-const AdminSetupForm = (props: Props) => {
+const UserSetupForm = (props: Props) => {
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
@@ -109,4 +109,4 @@ const AdminSetupForm = (props: Props) => {
     );
 };
 
-export default AdminSetupForm;
+export default UserSetupForm;

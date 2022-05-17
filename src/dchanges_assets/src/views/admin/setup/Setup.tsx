@@ -9,7 +9,7 @@ import { loginUser } from "../../../libs/users";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import { AuthActionType, AuthContext } from "../../../stores/auth";
 import { CategoryActionType, CategoryContext } from "../../../stores/category";
-import AdminSetupForm from "./Admin";
+import UserSetupForm from "./User";
 import CategorySetupForm from "./Category";
 import RegionSetupForm from "./Region";
 
@@ -197,7 +197,7 @@ const Setup = (props: Props) => {
                         </Button>
                     }
                     {step === 1 && 
-                        <AdminSetupForm 
+                        <UserSetupForm 
                             onCreate={createUser}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
