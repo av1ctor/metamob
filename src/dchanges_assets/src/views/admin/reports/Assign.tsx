@@ -1,44 +1,39 @@
 import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Report, ReportCloseRequest } from "../../../../../../declarations/dchanges/dchanges.did";
-import Button from "../../../../components/Button";
-import { CampaignLink } from "../../../../components/CampaignLink";
-import SelectField, { Option } from "../../../../components/SelectField";
-import TextAreaField from "../../../../components/TextAreaField";
-import TextField from "../../../../components/TextField";
-import { useCloseReport } from "../../../../hooks/reports";
-import { ReportResult } from "../../../../libs/reports";
-import { ActorContext } from "../../../../stores/actor";
-import Avatar from "../../../users/Avatar";
+import { Report } from "../../../../../declarations/dchanges/dchanges.did";
+import AutocompleteField from "../../../components/AutocompleteField";
+import Button from "../../../components/Button";
+import { Option } from "../../../components/SelectField";
+import TextAreaField from "../../../components/TextAreaField";
+import TextField from "../../../components/TextField";
+import { useAssignReport } from "../../../hooks/reports";
+import { useFindUserById } from "../../../hooks/users";
+import { search } from "../../../libs/users";
+import { ActorContext } from "../../../stores/actor";
+import Avatar from "../../users/Avatar";
+import Entity from "./Entity";
 
 interface Props {
     report: Report;
-    onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 }
 
 const formSchema = yup.object().shape({
-    resolution: yup.string().required().min(10).max(2048),
-    result: yup.number().required(),
+    userId: yup.number().required(),
 });
 
-const results: Option[] = [
-    {name: 'Verifying', value: ReportResult.VERIFYING},
-    {name: 'Solved', value: ReportResult.SOLVED},
-    {name: 'Duplicated', value: ReportResult.DUPLICATED},
-];
 
-const EditForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
+const AssignForm = (props: Props) => {
+    const [actorState, ] = useContext(ActorContext);
     
-    const [form, setForm] = useState<ReportCloseRequest>({
-        resolution: props.report.resolution,
-        result: props.report.result
+    const [form, setForm] = useState({
+        userId: 0,
     });
 
-    const closeMut = useCloseReport();
+    const assignMut = useAssignReport();
+    const assignedTo = useFindUserById(['users', form.userId], form.userId);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -47,7 +42,7 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: ReportCloseRequest): Promise<string[]> => {
+    const validate = async (form: Object): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -57,7 +52,7 @@ const EditForm = (props: Props) => {
         }
     };
 
-    const handleUpdate = useCallback(async (e: any) => {
+    const handleAssign = useCallback(async (e: any) => {
         e.preventDefault();
 
         const errors = await validate(form);
@@ -67,31 +62,43 @@ const EditForm = (props: Props) => {
         }
 
         try {
-            await closeMut.mutateAsync({
-                main: actorContext.main,
+            await assignMut.mutateAsync({
+                main: actorState.main,
                 pubId: props.report.pubId, 
-                req: {
-                    resolution: form.resolution,
-                    result: form.result,
-                }
+                userId: form.userId
             });
-            props.onSuccess('Report updated!');
+            props.onSuccess('Report assigned!');
             props.onClose();
         }
         catch(e) {
             props.onError(e);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, actorState.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
 
+    const handleSearchUser = useCallback(async (
+        value: string
+    ): Promise<Option[]> => {
+        try {
+            if(!actorState.main) {
+                throw Error("Main actor undefined");
+            }
+            return search(actorState.main, value);
+        }
+        catch(e) {
+            props.onError(e);
+            return [];
+        }
+    }, [actorState.main]);
+
     const {report} = props;
     
     return (
-        <form onSubmit={handleUpdate}>
+        <form onSubmit={handleAssign}>
             <TextField
                 label="Id"
                 name="id"
@@ -113,32 +120,32 @@ const EditForm = (props: Props) => {
                     <Avatar 
                         id={report.createdBy} 
                         size='lg'
-                        onClick={props.onEditUser}
                     />
                 </div>
             </div>
-            <CampaignLink id={report.entityId} />
-            <TextAreaField
-                label="Resolution"
-                name="resolution"
-                rows={5}
-                value={form.resolution}
+
+            <Entity 
+                report={report} 
+                onSuccess={props.onSuccess}
+                onError={props.onError}
+            />
+
+            <AutocompleteField
+                label="Moderator"
+                name="assignedTo"
+                value={assignedTo.data?.name || ''}
+                required={true}
+                onSearch={handleSearchUser}
                 onChange={changeForm}
             />
-            <SelectField
-                label="Result"
-                name="result"
-                value={form.result}
-                options={results}
-                onChange={changeForm}
-            />
+            
             <div className="field is-grouped mt-2">
                 <div className="control">
                     <Button
-                        onClick={handleUpdate}
-                        disabled={closeMut.isLoading}
+                        onClick={handleAssign}
+                        disabled={assignMut.isLoading}
                     >
-                        Update
+                        Assign
                     </Button>
                 </div>
                 <div className="control">
@@ -154,4 +161,4 @@ const EditForm = (props: Props) => {
     );
 };
 
-export default EditForm;
+export default AssignForm;

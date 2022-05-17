@@ -12,7 +12,7 @@ import Updates from "../../updates/Updates";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/Category";
-import Tag from "../../tags/Tag";
+import Tag from "../../../components/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";
 import ReportForm from "../../reports/report/Create";
@@ -89,7 +89,7 @@ const Campaign = (props: Props) => {
 
     return (
         <>
-            <div className="container">
+            <div className="container mb-2">
                 <div className="is-size-2 overflow-hidden">
                     {campaign.title}
                 </div>
@@ -176,7 +176,7 @@ const Campaign = (props: Props) => {
                 </p>                            
 
             </div>
-
+            
             <Tabs
                 tabs={[
                     {title: 'Signatures', icon: 'signature', badge: campaign.signaturesCnt > 0? campaign.signaturesCnt.toString(): ''},

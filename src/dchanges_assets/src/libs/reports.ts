@@ -1,4 +1,3 @@
-import {dchanges} from "../../../declarations/dchanges";
 import {DChanges, Report, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -21,6 +20,40 @@ export enum ReportType {
     SIGNATURES = 2,
     UPDATES = 3,
 }
+
+export const entityTypeToText = (
+    type: ReportType
+): string => {
+    switch(type) {
+        case ReportType.CAMPAIGNS:
+            return 'Campaign';
+        case ReportType.SIGNATURES:
+            return 'Signature';
+        case ReportType.UPDATES:
+            return 'Update';
+        case ReportType.USERS:
+            return 'User';
+        default:
+            return 'Unknown';
+    }
+};
+
+export const entityTypeToColor = (
+    type: ReportType
+): string => {
+    switch(type) {
+        case ReportType.CAMPAIGNS:
+            return 'success';
+        case ReportType.SIGNATURES:
+            return 'danger';
+        case ReportType.UPDATES:
+            return 'warning';
+        case ReportType.USERS:
+            return 'dark';
+        default:
+            return 'black';
+    }
+};
 
 export const findAll = async (
     main: DChanges,

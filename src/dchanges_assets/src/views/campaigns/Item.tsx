@@ -4,7 +4,7 @@ import { Campaign } from "../../../../declarations/dchanges/dchanges.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import Avatar from "../users/Avatar";
 import Category from "../categories/Category";
-import Tag from "../tags/Tag";
+import Tag from "../../components/Tag";
 import Card from "../../components/Card";
 import { CampaignResult, CampaignState } from "../../libs/campaigns";
 import FullRegion from "../regions/region/FullRegion";
