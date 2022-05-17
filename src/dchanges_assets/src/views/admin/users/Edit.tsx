@@ -165,6 +165,12 @@ const EditForm = (props: Props) => {
     return (
         <form onSubmit={handleUpdate}>
             <TextField 
+                label="Id"
+                name="id"
+                value={props.user.pubId}
+                disabled={true}
+            />
+            <TextField 
                 label="Name"
                 name="name"
                 value={form.name || ''}

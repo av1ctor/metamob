@@ -86,7 +86,6 @@ module {
                     return #err(msg);
                 };
                 case _ {
-                    //FIXME: delete campaign's signatures
                     return #ok();
                 };
             };

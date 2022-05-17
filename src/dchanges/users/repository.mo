@@ -140,7 +140,14 @@ module {
                                     case "contains" #contains; 
                                     case _ #eq;
                                 };
-                                value = crit.2;
+                                value = switch(crit.2) {
+                                    case (#text(text)) {
+                                        #text(Utils.toLower(text));
+                                    };
+                                    case _ {
+                                        crit.2;
+                                    };
+                                };
                             }
                         }
                     )

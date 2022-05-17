@@ -32,7 +32,6 @@ const Admin = (props: Props) => {
     return (
         <>
             <Box>
-                <div className="is-size-2"><b>Reports</b></div>
                 <Reports 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
@@ -40,7 +39,6 @@ const Admin = (props: Props) => {
             </Box>
 
             <Box>
-                <div className="is-size-2"><b>Users</b></div>
                 <Users 
                     onSuccess={props.onSuccess}
                     onError={props.onError}

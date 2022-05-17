@@ -51,7 +51,7 @@ const Reports = (props: Props) => {
         }
     ]);
 
-    const handleChangeState = useCallback((e: any) => {
+    const handleChangeStateFilter = useCallback((e: any) => {
         const value = e.target.value === ''? 
             null:
             Number(e.target.value);
@@ -81,7 +81,7 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const reports = useFindReports(['reports', filters[0].key, filters[0].op, filters[0].value], filters, orderBy, limit, actorState.main);
+    const reports = useFindReports(['reports', ...filters], filters, orderBy, limit, actorState.main);
 
     const handleReport = useCallback((report: Report) => {
         setReport(report);
@@ -104,15 +104,18 @@ const Reports = (props: Props) => {
         <>
             <div className="level">
                 <div className="level-left">
-                    
+                    <div className="is-size-2"><b>Reports</b></div>
                 </div>
                 <div className="level-right">
-                    <SelectField
-                        name="state"
-                        value={filters[0].value !== ''? filters[0].value: ''}
-                        options={states}
-                        onChange={handleChangeState}
-                    />
+                    <div>
+                        <b>State</b>
+                        <SelectField
+                            name="state"
+                            value={filters[0].value !== null? filters[0].value: ''}
+                            options={states}
+                            onChange={handleChangeStateFilter}
+                        />
+                    </div>
                 </div>
             </div>
             <div>
