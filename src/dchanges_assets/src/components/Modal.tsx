@@ -13,8 +13,13 @@ interface Props {
 export default function(props: Props) {
     return (
         createPortal(
-            <div className={`modal ${props.isOpen? 'is-block': 'is-hidden'} ${props.isOverOtherModal? 'modal-over-modal': ''}`}>
-                <div className="modal-background"/>
+            <div 
+                className={`modal ${props.isOpen? 'is-block': 'is-hidden'} ${props.isOverOtherModal? 'modal-over-modal': ''}`}
+            >
+                <div 
+                    className="modal-background" 
+                    onClick={props.onClose} 
+                />
                 <div className="modal-card">
                     {props.header? 
                         <header className="modal-card-head">
