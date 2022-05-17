@@ -1,9 +1,9 @@
 import React, {useCallback, useState} from "react";
 import * as yup from 'yup';
-import Button from '../../components/Button';
-import TextField from "../../components/TextField";
-import Container from "../../components/Container";
-import {ProfileRequest} from "../../../../declarations/dchanges/dchanges.did";
+import Button from '../../../components/Button';
+import TextField from "../../../components/TextField";
+import Container from "../../../components/Container";
+import {ProfileRequest} from "../../../../../declarations/dchanges/dchanges.did";
 
 interface Props {
     onCreate: (req: ProfileRequest) => void,

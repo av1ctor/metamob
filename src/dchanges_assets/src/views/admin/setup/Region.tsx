@@ -1,12 +1,12 @@
 import React, {useCallback, useState} from "react";
 import * as yup from 'yup';
-import Button from '../../components/Button';
-import TextField from "../../components/TextField";
-import Container from "../../components/Container";
-import Panel from "../../components/Panel";
-import {RegionRequest} from "../../../../declarations/dchanges/dchanges.did";
-import { kinds, RegionKind } from "../../libs/regions";
-import SelectField from "../../components/SelectField";
+import Button from '../../../components/Button';
+import TextField from "../../../components/TextField";
+import Container from "../../../components/Container";
+import Panel from "../../../components/Panel";
+import {RegionRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import { kinds, RegionKind } from "../../../libs/regions";
+import SelectField from "../../../components/SelectField";
 
 interface Props {
     onCreate: (req: RegionRequest) => void,

@@ -3,7 +3,7 @@ import Box from "../../components/Box";
 import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import { CategoryContext } from "../../stores/category";
-import Setup from "../setup/Setup";
+import Setup from "./setup/Setup";
 import Campaigns from "./campaigns/Campaigns";
 import Reports from "./reports/Reports";
 import Users from "./users/Users";
