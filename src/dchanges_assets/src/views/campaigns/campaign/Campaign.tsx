@@ -11,7 +11,7 @@ import Signatures from "../../signatures/Signatures";
 import Updates from "../../updates/Updates";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
-import Category from "../../categories/Category";
+import Category from "../../categories/category/Category";
 import Tag from "../../../components/Tag";
 import { CampaignState } from "../../../libs/campaigns";
 import SignForm from "./Sign";

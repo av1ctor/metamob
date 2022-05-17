@@ -7,7 +7,7 @@ import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import { useFindCategories } from "../../../hooks/categories";
 import Button from "../../../components/Button";
-import CreateForm from "../../categories/Create";
+import CreateForm from "../../categories/category/Create";
 import EditForm from "./Edit";
 
 const orderBy: Order = {

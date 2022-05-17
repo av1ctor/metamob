@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFindCategoryById } from '../../hooks/categories';
+import { useFindCategoryById } from '../../../hooks/categories';
 
 interface Props {
     id?: number

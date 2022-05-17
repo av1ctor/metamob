@@ -1,11 +1,11 @@
 import React, {useCallback, useContext, useState} from "react";
 import * as yup from 'yup';
-import Button from '../../components/Button';
-import TextField from "../../components/TextField";
-import ColorField from "../../components/ColorField";
-import {CategoryRequest} from "../../../../declarations/dchanges/dchanges.did";
-import { ActorContext } from "../../stores/actor";
-import { useCreateCategory } from "../../hooks/categories";
+import Button from '../../../components/Button';
+import TextField from "../../../components/TextField";
+import ColorField from "../../../components/ColorField";
+import {CategoryRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import { ActorContext } from "../../../stores/actor";
+import { useCreateCategory } from "../../../hooks/categories";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -74,6 +74,11 @@ const Create = (props: Props) => {
         }
     }, [actorState.main, form]);
 
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
+
     return (
         <form onSubmit={handleCreate}>
             <div>
@@ -103,6 +108,14 @@ const Create = (props: Props) => {
                         <Button
                             onClick={handleCreate}>
                             Create
+                        </Button>
+                    </div>
+                    <div className="control">
+                        <Button
+                            color="danger"
+                            onClick={handleClose}
+                        >
+                            Cancel
                         </Button>
                     </div>
                 </div>

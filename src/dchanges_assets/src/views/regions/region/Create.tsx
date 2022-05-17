@@ -103,10 +103,12 @@ const Create = (props: Props) => {
     }, [props.onClose]);
 
     useEffect(() => {
-        setForm(form => ({
-            ...form,
-            name: props.value || ''
-        }));
+        setForm({
+            name: props.value || '',
+            kind: RegionKind.OTHER,
+            private: false,
+            parentId: [],
+        });
     }, [props.value]);
    
     return (
