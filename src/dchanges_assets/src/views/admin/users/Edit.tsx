@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { ProfileRequest, Profile, Role } from "../../../../../declarations/dchanges/dchanges.did";
 import Button from "../../../components/Button";
@@ -149,6 +149,18 @@ const EditForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    useEffect(() => {
+        setForm({
+            name: props.user.name,
+            email: props.user.email,
+            avatar: props.user.avatar,
+            roles: [props.user.roles],
+            active: [props.user.active],
+            banned: [props.user.banned],
+            countryId: props.user.countryId
+        });
+    }, [props.user]);
     
     return (
         <form onSubmit={handleUpdate}>

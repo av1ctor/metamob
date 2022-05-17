@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useCallback, useContext} from "react";
+import React, {useState, ChangeEvent, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateSignature} from "../../../hooks/signatures";
 import {SignatureResponse, SignatureRequest} from "../../../../../declarations/dchanges/dchanges.did";
@@ -24,7 +24,7 @@ const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<SignatureRequest>({
-        campaignId: 0,
+        campaignId: props.signature.campaignId,
         body: props.signature.body,
         anonymous: props.signature.anonymous,
     });
@@ -83,6 +83,14 @@ const EditForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    useEffect(() => {
+        setForm({
+            campaignId: props.signature.campaignId,
+            body: props.signature.body,
+            anonymous: props.signature.anonymous,
+        });
+    }, [props.signature]);
 
     return (
         <form onSubmit={handleUpdate}>

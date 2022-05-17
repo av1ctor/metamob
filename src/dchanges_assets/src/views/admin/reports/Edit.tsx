@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { Profile, Report, ReportCloseRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import Button from "../../../components/Button";
@@ -72,7 +72,7 @@ const EditForm = (props: Props) => {
                 pubId: props.report.pubId, 
                 req: {
                     resolution: form.resolution,
-                    result: form.result,
+                    result: Number(form.result),
                 }
             });
             props.onSuccess('Report updated!');
@@ -87,6 +87,13 @@ const EditForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+    
+    useEffect(() => {
+        setForm({
+            resolution: props.report.resolution,
+            result: props.report.result
+        });
+    }, [props.report]);
 
     const {report} = props;
     

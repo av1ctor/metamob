@@ -11,6 +11,7 @@ import EditForm from "./update/Edit";
 import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
 import Button from "../../components/Button";
+import { isModerator } from "../../libs/users";
 
 interface Props {
     campaign: Campaign;
@@ -42,7 +43,9 @@ const Updates = (props: Props) => {
 
     const updates = useFindUpdatesByCampaign(queryKey, campaign._id, orderBy, limit);
 
-    const canEdit = campaign?.state === CampaignState.PUBLISHED && auth.user && auth.user._id === campaign?.createdBy;
+    const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && auth.user._id === campaign?.createdBy) ||
+        (auth.user && isModerator(auth.user));
 
     const toggleCreate = useCallback(() => {
         setModals({

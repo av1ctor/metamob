@@ -4,13 +4,13 @@ import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
 import { Filter, Limit, Order } from "../../../libs/common";
-import { entityTypeToColor, entityTypeToText, ReportState } from "../../../libs/reports";
+import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import AssignForm from "./Assign";
 import EditForm from "./Edit";
 import EditUserForm from "../users/Edit";
-import Tag from "../../../components/Tag";
 import Badge from "../../../components/Badge";
+import SelectField, {Option} from "../../../components/SelectField";
 
 const orderBy: Order = {
     key: '_id',
@@ -22,20 +22,10 @@ const limit: Limit = {
     size: 10
 };
 
-const createdFilters: Filter[] = [
-    {
-        key: 'state',
-        op: 'eq',
-        value: ReportState.CREATED
-    }
-];
-
-const assignedFilters: Filter[] = [
-    {
-        key: 'state',
-        op: 'eq',
-        value: ReportState.ASSIGNED
-    }
+const states: Option[] = [
+    {name: 'Created', value: ReportState.CREATED},
+    {name: 'Assigned', value: ReportState.ASSIGNED},
+    {name: 'Closed', value: ReportState.CLOSED},
 ];
 
 interface Props {
@@ -53,6 +43,22 @@ const Reports = (props: Props) => {
         edit: false,
         editUser: false,
     });
+    const [filters, setFilters] = useState<Filter[]>([
+        {
+            key: 'state',
+            op: 'eq',
+            value: null
+        }
+    ]);
+
+    const handleChangeState = useCallback((e: any) => {
+        const value = e.target.value === ''? 
+            null:
+            Number(e.target.value);
+        setFilters(filters => 
+            filters.map(f => f.key !== 'state'? f: {...f, value: value})
+        );
+    }, []);
     
     const toggleAssign = useCallback(() => {
         setModals(modals => ({
@@ -75,17 +81,18 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const createdReports = useFindReports(['reports', ReportState.CREATED], createdFilters, orderBy, limit, actorState.main);
-    const assignedReports = useFindReports(['reports', ReportState.ASSIGNED], assignedFilters, orderBy, limit, actorState.main);
+    const reports = useFindReports(['reports', filters[0].key, filters[0].op, filters[0].value], filters, orderBy, limit, actorState.main);
 
-    const handleAssignReport = useCallback((report: Report) => {
+    const handleReport = useCallback((report: Report) => {
         setReport(report);
-        toggleAssign();
-    }, []);
-
-    const handleEditReport = useCallback((report: Report) => {
-        setReport(report);
-        toggleEdit();
+        switch(report.state) {
+            case ReportState.CREATED:
+                toggleAssign();
+                break;
+            case ReportState.ASSIGNED:
+                toggleEdit();
+                break;
+        }
     }, []);
 
     const handleEditUser = useCallback((user: Profile) => {
@@ -95,8 +102,20 @@ const Reports = (props: Props) => {
 
     return (
         <>
+            <div className="level">
+                <div className="level-left">
+                    
+                </div>
+                <div className="level-right">
+                    <SelectField
+                        name="state"
+                        value={filters[0].value !== ''? filters[0].value: ''}
+                        options={states}
+                        onChange={handleChangeState}
+                    />
+                </div>
+            </div>
             <div>
-                <div className="has-text-centered is-size-4"><b>Created</b></div>
                 <div className="tabled">
                     <div className="header">
                         <div className="columns">
@@ -106,24 +125,34 @@ const Reports = (props: Props) => {
                             <div className="column is-2">
                                 Type
                             </div>
+                            <div className="column is-2">
+                                State
+                            </div>
                             <div className="column is-1">
                                 Age
                             </div>
                         </div>
                     </div>
                     <div className="body">
-                        {createdReports.isSuccess && createdReports.data && 
-                            createdReports.data.map((item, index) => 
+                        {reports.isSuccess && reports.data && 
+                            reports.data.map((item, index) => 
                                 <div 
                                     className="columns" 
                                     key={index}
-                                    onClick={() => handleAssignReport(item)}
+                                    onClick={() => handleReport(item)}
                                 >
                                     <div className="column">
                                         {item.description}
-                                        </div>
+                                    </div>
                                     <div className="column is-2">
-                                        <Badge color={entityTypeToColor(item.entityType)}>{entityTypeToText(item.entityType)}</Badge>
+                                        <Badge 
+                                            color={entityTypeToColor(item.entityType)}
+                                        >
+                                            {entityTypeToText(item.entityType)}
+                                        </Badge>
+                                    </div>
+                                    <div className="column is-2">
+                                        {reportStateToText(item.state)}
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={item.createdAt}/>
@@ -134,46 +163,7 @@ const Reports = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <br />
-            <div>
-                <div className="has-text-centered is-size-4"><b>Assigned</b></div>
-                <div className="tabled">
-                    <div className="header">
-                        <div className="columns">
-                            <div className="column">
-                                Description
-                            </div>
-                            <div className="column is-2">
-                                Type
-                            </div>                            
-                            <div className="column is-1">
-                                Age
-                            </div>
-                        </div>
-                    </div>
-                    <div className="body">
-                        {assignedReports.isSuccess && assignedReports.data && 
-                            assignedReports.data.map((item, index) => 
-                                <div 
-                                    className="columns" 
-                                    key={index}
-                                    onClick={() => handleEditReport(item)}
-                                >
-                                    <div className="column">
-                                        {item.description}
-                                    </div>
-                                    <div className="column is-2">
-                                        <Badge color={entityTypeToColor(item.entityType)}>{entityTypeToText(item.entityType)}</Badge>
-                                    </div>
-                                    <div className="column is-1">
-                                        <TimeFromNow date={item.createdAt}/>
-                                    </div>
-                                </div>
-                            )
-                        }
-                    </div>
-                </div>
-            </div>
+
 
             <Modal
                 header={<span>Assign report</span>}

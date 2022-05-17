@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
 import {Category, CampaignRequest, Campaign, Region} from "../../../../../declarations/dchanges/dchanges.did";
@@ -118,7 +118,13 @@ const EditForm = (props: Props) => {
 
     const closeCreateRegion = useCallback(() => {
         setRegionValue('');
-    }, []);    
+    }, []);
+
+    useEffect(() => {
+        setForm({
+            ...props.campaign
+        });
+    }, [props.campaign]);
 
     return (
         <>

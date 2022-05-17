@@ -25,9 +25,9 @@ const SelectField = (props: Props) => {
                     {props.label}
                 </label>
             }
-            <div className="control">
+            <div className="control select">
                 <select 
-                    className="input"
+                    className="input is-clickable"
                     id={props.id}
                     name={props.name}
                     value={props.value} 

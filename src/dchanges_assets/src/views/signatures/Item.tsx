@@ -4,6 +4,7 @@ import {Campaign, SignatureResponse} from "../../../../declarations/dchanges/dch
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
+import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
@@ -26,8 +27,9 @@ export const Item = (props: ItemProps) => {
 
     const profile = useFindUserById(['users', author], author);
 
-    const canEdit = props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0);
+    const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === author && author !== 0)) ||
+        (auth.user && isModerator(auth.user));
 
     return (
         <article className="media">

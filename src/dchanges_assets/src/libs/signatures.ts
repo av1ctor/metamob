@@ -8,8 +8,16 @@ export const findAll = async (
     orderBy?: 
     Order, limit?: Limit
 ): Promise<SignatureResponse[]> => {
-    const criterias: [] | [Array<[string, string, Variant]>]  = filters?
-        [filters.map(filter => [filter.key, filter.op, valueToVariant(filter.value)])]:
+    const criterias: [] | [Array<[string, string, Variant]>] = filters?
+        [
+            filters
+                .filter(filter => filter.value !== null && filter.value !== '')
+                .map(filter => [
+                    filter.key, 
+                    filter.op, 
+                    valueToVariant(filter.value)
+                ])
+        ]:
         [];
 
     const res = await dchanges.signatureFind(

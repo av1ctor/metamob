@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useCallback, useContext} from "react";
+import React, {useState, ChangeEvent, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateUpdate} from "../../../hooks/updates";
 import {Update, UpdateRequest} from "../../../../../declarations/dchanges/dchanges.did";
@@ -22,7 +22,7 @@ const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<UpdateRequest>({
-        campaignId: 0,
+        campaignId: props.update.campaignId,
         body: props.update.body,
     });
     
@@ -74,7 +74,14 @@ const EditForm = (props: Props) => {
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
-    }, [props.onClose]);    
+    }, [props.onClose]);
+    
+    useEffect(() => {
+        setForm({
+            campaignId: props.update.campaignId,
+            body: props.update.body,
+        });
+    }, [props.update]);
 
     return (
         <form onSubmit={handleUpdate}>

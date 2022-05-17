@@ -88,7 +88,7 @@ const AutocompleteField = (props: Props) => {
             }
             <div className="dropdown is-flex">
                 <div 
-                    className={`control dropdown-trigger is-flex-grow-1 ${isLoading? 'has-icons-right': ''}`}
+                    className={`select control dropdown-trigger is-flex-grow-1 ${isLoading? 'has-icons-right': ''}`}
                 >
                     <input 
                         className="input"
