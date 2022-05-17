@@ -186,8 +186,6 @@ const Campaigns = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <br />
-
 
             <Modal
                 header={<span>Edit campaign</span>}

@@ -155,8 +155,6 @@ const Users = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <br />
-
 
             <Modal
                 header={<span>Edit user</span>}
