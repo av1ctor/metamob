@@ -31,6 +31,10 @@ export const kinds: {name: string, value: any}[] = [
     {name: 'Other', value: RegionKind.OTHER},
 ];
 
+export const kindToText = (kind: RegionKind): string => {
+    return kinds.find(k => k.value === kind)?.name || 'Other';
+};
+
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order, 
@@ -78,10 +82,6 @@ export const findTreeById = async (
         throw new Error(res.err);
     }
     return res.ok; 
-};
-
-const kindToText = (kind: RegionKind): string => {
-    return kinds.find(k => k.value === kind)?.name || 'Other';
 };
 
 export const search = async (

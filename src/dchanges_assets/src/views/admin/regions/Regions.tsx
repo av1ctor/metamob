@@ -1,13 +1,13 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import { Filter, Limit, Order } from "../../..//libs/common";
-import { ActorContext } from "../../../stores/actor";
-import { Profile } from "../../../../../declarations/dchanges/dchanges.did";
-import { useFindUsers } from "../../../hooks/users";
-import EditForm from "./Edit";
+import { Filter, Limit, Order } from "../../../libs/common";
+import { Region, Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
-import Badge from "../../../components/Badge";
+import EditUserForm from "../users/Edit";
+import { useFindRegions } from "../../../hooks/regions";
+import EditForm from "./Edit";
+import { kindToText } from "../../../libs/regions";
 
 const orderBy: Order = {
     key: '_id',
@@ -24,12 +24,12 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Users = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    
+const Regions = (props: Props) => {
     const [user, setUser] = useState<Profile>();
+    const [region, setRegion] = useState<Region>();
     const [modals, setModals] = useState({
         edit: false,
+        editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -59,24 +59,36 @@ const Users = (props: Props) => {
     }, []);
     
     const toggleEdit = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
+        }));
+    }, []);
 
-    const handleEditProfile = useCallback((item: Profile) => {
-        setUser(item);
+    const toggleEditUser = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            editUser: !modals.editUser
+        }));
+    }, []);
+
+    const handleEdit = useCallback((item: Region) => {
+        setRegion(item);
         toggleEdit();
     }, []);
 
-    const users = useFindUsers(['users', ...filters], filters, orderBy, limit, actorState.main);
+    const handleEditUser = useCallback((user: Profile) => {
+        setUser(user);
+        toggleEditUser();
+    }, []);
+
+    const regions = useFindRegions(['regions', ...filters], filters, orderBy, limit);
 
     return (
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Users</b></div>
+                    <div className="is-size-2"><b>Regions</b></div>
                 </div>
                 <div className="level-right">
                     <div>
@@ -108,7 +120,7 @@ const Users = (props: Props) => {
                                 Name
                             </div>
                             <div className="column is-2">
-                                State
+                                Kind
                             </div>
                             <div className="column is-1">
                                 Age
@@ -116,12 +128,12 @@ const Users = (props: Props) => {
                         </div>
                     </div>
                     <div className="body">
-                        {users.isSuccess && users.data && 
-                            users.data.map((item, index) => 
+                        {regions.isSuccess && regions.data && 
+                            regions.data.map((item, index) => 
                                 <div 
                                     className="columns" 
                                     key={index}
-                                    onClick={() => handleEditProfile(item)}
+                                    onClick={() => handleEdit(item)}
                                 >
                                     <div className="column is-3">
                                         {item.pubId}
@@ -130,14 +142,7 @@ const Users = (props: Props) => {
                                         {item.name}
                                     </div>
                                     <div className="column is-2">
-                                        {item.banned && 
-                                            <Badge color="danger">Banned</Badge>
-                                        }
-                                        <Badge 
-                                            color={item.active? 'success': 'warning'}
-                                        >
-                                            {item.active? 'Active': 'Inactive'}
-                                        </Badge>
+                                        {kindToText(item.kind)}
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={item.createdAt}/>
@@ -152,21 +157,37 @@ const Users = (props: Props) => {
 
 
             <Modal
-                header={<span>Edit user</span>}
+                header={<span>Edit region</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
-                {user &&
+                {region &&
                     <EditForm
-                        user={user}
+                        region={region}
+                        onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
                 }
-            </Modal>            
+            </Modal>
+
+            <Modal
+                header={<span>Edit user</span>}
+                isOpen={modals.editUser}
+                onClose={toggleEditUser}
+            >
+                {user &&
+                    <EditUserForm
+                        user={user}
+                        onClose={toggleEditUser}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
+            </Modal>
         </>
     );
 };
 
-export default Users;
+export default Regions;

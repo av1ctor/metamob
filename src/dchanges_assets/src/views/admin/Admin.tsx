@@ -7,6 +7,8 @@ import Setup from "./setup/Setup";
 import Campaigns from "./campaigns/Campaigns";
 import Reports from "./reports/Reports";
 import Users from "./users/Users";
+import Categories from "./categories/Categories";
+import Regions from "./regions/Regions";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -48,6 +50,20 @@ const Admin = (props: Props) => {
 
             <Box>
                 <Users 
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Box>
+
+            <Box>
+                <Regions 
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                />
+            </Box>
+
+            <Box>
+                <Categories 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />

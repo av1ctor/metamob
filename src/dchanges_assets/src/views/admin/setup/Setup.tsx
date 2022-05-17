@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext, useCallback} from "react";
 import { Link } from "react-router-dom";
-import { Category, CategoryRequest, DChanges, ProfileRequest, RegionRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import { DChanges, ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import Steps, { Step } from "../../../components/Steps";
@@ -8,10 +8,7 @@ import { createMainActor } from "../../../libs/backend";
 import { loginUser } from "../../../libs/users";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import { AuthActionType, AuthContext } from "../../../stores/auth";
-import { CategoryActionType, CategoryContext } from "../../../stores/category";
 import UserSetupForm from "./User";
-import CategorySetupForm from "./Category";
-import RegionSetupForm from "./Region";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -28,14 +25,6 @@ const steps: Step[] = [
         icon: 'user',
     },
     {
-        title: 'Category creation',
-        icon: 'list',
-    },
-    {
-        title: 'Region creation',
-        icon: 'globe',
-    },
-    {
         title: 'Done',
         icon: 'check',
     },
@@ -43,11 +32,9 @@ const steps: Step[] = [
 
 const Setup = (props: Props) => {
     const [authState, authDispatch] = useContext(AuthContext);
-    const [, categoryDispatch] = useContext(CategoryContext);
     const [actorState, actorDispatch] = useContext(ActorContext);
 
     const [step, setStep] = useState(0);
-    const [, setCategory] = useState<Category>({} as Category);
     
     const createUser = useCallback(async (req: ProfileRequest) => {
         try {
@@ -64,52 +51,6 @@ const Setup = (props: Props) => {
                     payload: user
                 });
                 props.onSuccess('Admin created!');
-                setStep(step => step + 1);
-            }
-            else {
-                props.onError(res.err);
-            }
-        }
-        catch(e: any) {
-            props.onError(e);
-        }
-    }, [actorState.main]);
-
-    const createCategory = useCallback(async (req: CategoryRequest) => {
-        try {
-            if(!actorState.main) {
-                throw Error('Main actor undefined');
-            }
-            
-            const res = await actorState.main.categoryCreate(req);
-            
-            if('ok' in res) {
-                setCategory(res.ok);
-                categoryDispatch({
-                    type: CategoryActionType.SET, 
-                    payload: [res.ok]
-                });
-                props.onSuccess('Category created!');
-                setStep(step => step + 1);
-            }
-            else {
-                props.onError(res.err);
-            }
-        }
-        catch(e: any) {
-            props.onError(e);
-        }
-    }, [actorState.main]);
-
-    const createRegion = useCallback(async (req: RegionRequest) => {
-        try {
-            if(!actorState.main) {
-                throw Error('Main actor undefined');
-            }
-            
-            const res = await actorState.main.regionCreate(req);
-            
-            if('ok' in res) {
                 setStep(step => step + 1);
             }
             else {
@@ -204,20 +145,6 @@ const Setup = (props: Props) => {
                         />
                     }
                     {step === 2 && 
-                        <CategorySetupForm 
-                            onCreate={createCategory}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                        />
-                    }
-                    {step === 3 && 
-                        <RegionSetupForm 
-                            onCreate={createRegion}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                        />
-                    }
-                    {step === 4 && 
                         <div>
                             The setup have been finished! <Link to="/">Go the main page</Link>.
                         </div>

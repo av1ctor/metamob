@@ -81,9 +81,9 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const handleReport = useCallback((report: Report) => {
-        setReport(report);
-        switch(report.state) {
+    const handleReport = useCallback((item: Report) => {
+        setReport(item);
+        switch(item.state) {
             case ReportState.CREATED:
                 toggleAssign();
                 break;
@@ -93,8 +93,8 @@ const Reports = (props: Props) => {
         }
     }, []);
 
-    const handleEditUser = useCallback((user: Profile) => {
-        setUser(user);
+    const handleEditUser = useCallback((item: Profile) => {
+        setUser(item);
         toggleEditUser();
     }, []);
 

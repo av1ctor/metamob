@@ -83,11 +83,11 @@ const Campaigns = (props: Props) => {
     }, []);
     
     const toggleEdit = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
+        }));
+    }, []);
 
     const toggleEditUser = useCallback(() => {
         setModals(modals => ({

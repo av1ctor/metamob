@@ -65,12 +65,12 @@ export const useUpdateRegion = (
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, req: Region}) => {
+        async (options: {main?: DChanges, pubId: string, req: RegionRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.regionUpdate(options.req.pubId, options.req);
+            const res = await options.main.regionUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }

@@ -1,13 +1,12 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
 import { Filter, Limit, Order } from "../../..//libs/common";
-import { ActorContext } from "../../../stores/actor";
-import { Profile } from "../../../../../declarations/dchanges/dchanges.did";
-import { useFindUsers } from "../../../hooks/users";
-import EditForm from "./Edit";
+import { Category, Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
-import Badge from "../../../components/Badge";
+import EditUserForm from "../users/Edit";
+import { useFindCategories } from "../../../hooks/categories";
+import EditForm from "./Edit";
 
 const orderBy: Order = {
     key: '_id',
@@ -24,12 +23,12 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Users = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    
+const Categories = (props: Props) => {
     const [user, setUser] = useState<Profile>();
+    const [category, setCategory] = useState<Category>();
     const [modals, setModals] = useState({
         edit: false,
+        editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -59,24 +58,36 @@ const Users = (props: Props) => {
     }, []);
     
     const toggleEdit = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
-    }, [modals]);
+        }));
+    }, []);
 
-    const handleEditProfile = useCallback((item: Profile) => {
-        setUser(item);
+    const toggleEditUser = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            editUser: !modals.editUser
+        }));
+    }, []);
+
+    const handleEdit = useCallback((item: Category) => {
+        setCategory(item);
         toggleEdit();
     }, []);
 
-    const users = useFindUsers(['users', ...filters], filters, orderBy, limit, actorState.main);
+    const handleEditUser = useCallback((user: Profile) => {
+        setUser(user);
+        toggleEditUser();
+    }, []);
+
+    const categories = useFindCategories(['categories', ...filters], filters, orderBy, limit);
 
     return (
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><b>Users</b></div>
+                    <div className="is-size-2"><b>Categories</b></div>
                 </div>
                 <div className="level-right">
                     <div>
@@ -107,37 +118,24 @@ const Users = (props: Props) => {
                             <div className="column">
                                 Name
                             </div>
-                            <div className="column is-2">
-                                State
-                            </div>
                             <div className="column is-1">
                                 Age
                             </div>
                         </div>
                     </div>
                     <div className="body">
-                        {users.isSuccess && users.data && 
-                            users.data.map((item, index) => 
+                        {categories.isSuccess && categories.data && 
+                            categories.data.map((item, index) => 
                                 <div 
                                     className="columns" 
                                     key={index}
-                                    onClick={() => handleEditProfile(item)}
+                                    onClick={() => handleEdit(item)}
                                 >
                                     <div className="column is-3">
                                         {item.pubId}
                                     </div>
                                     <div className="column">
                                         {item.name}
-                                    </div>
-                                    <div className="column is-2">
-                                        {item.banned && 
-                                            <Badge color="danger">Banned</Badge>
-                                        }
-                                        <Badge 
-                                            color={item.active? 'success': 'warning'}
-                                        >
-                                            {item.active? 'Active': 'Inactive'}
-                                        </Badge>
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={item.createdAt}/>
@@ -152,21 +150,37 @@ const Users = (props: Props) => {
 
 
             <Modal
-                header={<span>Edit user</span>}
+                header={<span>Edit category</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
-                {user &&
+                {category &&
                     <EditForm
-                        user={user}
+                        category={category}
+                        onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                     />
                 }
-            </Modal>            
+            </Modal>
+
+            <Modal
+                header={<span>Edit user</span>}
+                isOpen={modals.editUser}
+                onClose={toggleEditUser}
+            >
+                {user &&
+                    <EditUserForm
+                        user={user}
+                        onClose={toggleEditUser}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
+            </Modal>
         </>
     );
 };
 
-export default Users;
+export default Categories;
