@@ -151,9 +151,36 @@ module {
         };
 
         public func findById(
-            id: Text
+            _id: Nat32, 
+            invoker: Principal
         ): Result.Result<Types.Update, Text> {
-            repo.findByPubId(id);
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden: not active");
+                    };
+
+                    if(not UserUtils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    repo.findById(_id);
+                };
+            };
+        };        
+
+        public func findByPubId(
+            pubId: Text
+        ): Result.Result<Types.Update, Text> {
+            repo.findByPubId(pubId);
         };
 
         public func find(

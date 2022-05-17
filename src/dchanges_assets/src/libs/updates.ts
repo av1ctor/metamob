@@ -1,5 +1,5 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Update, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {DChanges, Update, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -42,9 +42,20 @@ export const findByCampaign = async (
 };
 
 export const findById = async (
+    _id: number, 
+    main: DChanges
+): Promise<Update> => {
+    const res = await main.updateFindById(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
+export const findByPubId = async (
     pubId: string
 ): Promise<Update> => {
-    const res = await dchanges.updateFindById(pubId);
+    const res = await dchanges.updateFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }

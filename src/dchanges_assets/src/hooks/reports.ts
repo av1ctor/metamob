@@ -4,7 +4,9 @@ import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById } from '../libs/reports';
 
 export const useFindReportById = (
-    queryKey: any[], pubId: string, main?: DChanges
+    queryKey: any[], 
+    pubId: string, 
+    main?: DChanges
 ): UseQueryResult<Report, Error> => {
     if(!main) {
         throw Error('Main actor undefined');
@@ -12,12 +14,16 @@ export const useFindReportById = (
     
     return useQuery<Report, Error>(
         queryKey, 
-        () => findById(main, pubId)
+        () => findById(pubId, main)
     );
 };
 
 export const useFindReports = (
-    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit, main?: DChanges
+    queryKey: any[], 
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit, 
+    main?: DChanges
 ): UseQueryResult<Report[], Error> => {
     if(!main) {
         throw Error('Main actor undefined');

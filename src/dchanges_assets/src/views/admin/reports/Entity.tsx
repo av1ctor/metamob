@@ -1,6 +1,8 @@
 import React from "react";
 import { Profile, Report } from "../../../../../declarations/dchanges/dchanges.did";
-import { Preview } from "../../campaigns/campaign/Preview";
+import { Preview as CampaignPreview } from "../../campaigns/campaign/Preview";
+import { Preview as SignaturePreview } from "../../signatures/signature/Preview";
+import { Preview as UpdatePreview } from "../../updates/update/Preview";
 import { ReportType } from "../../../libs/reports";
 
 interface Props {
@@ -16,7 +18,19 @@ const Entity = (props: Props) => {
     return (
         <>
             {report.entityType === ReportType.CAMPAIGNS &&
-                <Preview 
+                <CampaignPreview 
+                    id={report.entityId} 
+                    onEditUser={props.onEditUser}
+                />
+            }
+            {report.entityType === ReportType.SIGNATURES &&
+                <SignaturePreview 
+                    id={report.entityId} 
+                    onEditUser={props.onEditUser}
+                />
+            }
+            {report.entityType === ReportType.UPDATES &&
+                <UpdatePreview 
                     id={report.entityId} 
                     onEditUser={props.onEditUser}
                 />

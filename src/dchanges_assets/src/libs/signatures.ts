@@ -1,5 +1,5 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Variant, SignatureResponse} from "../../../declarations/dchanges/dchanges.did";
+import {Variant, SignatureResponse, Signature, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -64,9 +64,20 @@ export const findByCampaignAndUser = async (
 }
 
 export const findById = async (
+    _id: number, 
+    main: DChanges
+): Promise<Signature> => {
+    const res = await main.signatureFindById(_id);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
+export const findByPubId = async (
     pubId: string
 ): Promise<SignatureResponse> => {
-    const res = await dchanges.signatureFindById(pubId);
+    const res = await dchanges.signatureFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }

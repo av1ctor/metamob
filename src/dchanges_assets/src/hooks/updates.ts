@@ -2,19 +2,39 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query
 import {UpdateRequest, Update, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findByCampaign, findById } from '../libs/updates';
+import { findAll, findByCampaign, findById, findByPubId } from '../libs/updates';
 
 export const useFindUpdateById = (
-    queryKey: any[], pubId: string
+    queryKey: any[], 
+    _id: number, 
+    main?: DChanges
 ): UseQueryResult<Update, Error> => {
+    if(!main) {
+        throw Error('Main actor undefined');
+    }
+    
     return useQuery<Update, Error>(
         queryKey, 
-        () => findById(pubId)
+        () => findById(_id, main)
     );
 };
 
+export const useFindUpdateByPubId = (
+    queryKey: any[], 
+    pubId: string
+): UseQueryResult<Update, Error> => {
+    return useQuery<Update, Error>(
+        queryKey, 
+        () => findByPubId(pubId)
+    );
+};
+
+
 export const useFindUpdates = (
-    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
+    queryKey: any[], 
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Update[], Error> => {
     return useQuery<Update[], Error>(
         queryKey, 
@@ -24,7 +44,10 @@ export const useFindUpdates = (
 };
 
 export const useFindUpdatesByCampaign = (
-    queryKey: any[], topicId: number, orderBy: Order, limit: Limit
+    queryKey: any[], 
+    topicId: number, 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Update[], Error> => {
     return useQuery<Update[], Error>(
         queryKey, 

@@ -78,8 +78,8 @@ export const findAll = async (
 }
 
 export const findById = async (
-    main: DChanges,
-    pubId: string
+    pubId: string,
+    main: DChanges
 ): Promise<Report> => {
     const res = await main.reportFindById(pubId);
     if('err' in res) {

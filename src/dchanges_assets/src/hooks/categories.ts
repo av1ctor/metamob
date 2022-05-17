@@ -4,7 +4,8 @@ import { findAll, findById } from '../libs/categories';
 import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCategoryById = (
-    queryKey: any[], _id: number
+    queryKey: any[], 
+    _id: number
 ): UseQueryResult<Category, Error> => {
     return useQuery<Category, Error>(
         queryKey, 
@@ -13,7 +14,10 @@ export const useFindCategoryById = (
 };
 
 export const useFindCategories = (
-    queryKey: any[], filters?: Filter[], orderBy?: Order, limit?: Limit
+    queryKey: any[], 
+    filters?: Filter[], 
+    orderBy?: Order, 
+    limit?: Limit
 ): UseQueryResult<Category [], Error> => {
     return useQuery<Category[], Error>(
         queryKey,

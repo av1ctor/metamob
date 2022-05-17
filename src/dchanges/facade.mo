@@ -249,10 +249,16 @@ shared({caller = owner}) actor class DChanges() {
         _transformSignatureResponseEx(signatureService.update(id, req, msg.caller), false);
     };
 
-    public query func signatureFindById(
-        id: Text
+    public shared query(msg) func signatureFindById(
+        _id: Nat32
+    ): async Result.Result<SignatureTypes.Signature, Text> {
+        signatureService.findById(_id, msg.caller);
+    };
+
+    public query func signatureFindByPubId(
+        pubId: Text
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponse(signatureService.findById(id));
+        _transformSignatureResponse(signatureService.findByPubId(pubId));
     };
 
     public shared query(msg) func signatureFind(
@@ -392,10 +398,16 @@ shared({caller = owner}) actor class DChanges() {
         updateService.update(id, req, msg.caller);
     };
 
-    public query func updateFindById(
-        id: Text
+    public shared query(msg) func updateFindById(
+        _id: Nat32
     ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.findById(id);
+        updateService.findById(_id, msg.caller);
+    };
+
+    public query func updateFindByPubId(
+        pubId: Text
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.findByPubId(pubId);
     };
 
     public shared query(msg) func updateFind(

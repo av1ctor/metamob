@@ -4,7 +4,8 @@ import { findAll, findById, findByPubId as findByPubId, findByUser } from '../li
 import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCampaignById = (
-    queryKey: any[], _id: number
+    queryKey: any[], 
+    _id: number
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
         queryKey, 
@@ -13,7 +14,8 @@ export const useFindCampaignById = (
 };
 
 export const useFindCampaignByPubId = (
-    queryKey: any[], pubId: string
+    queryKey: any[], 
+    pubId: string
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
         queryKey, 
@@ -22,7 +24,10 @@ export const useFindCampaignByPubId = (
 };
 
 export const useFindCampaigns = (
-    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
+    queryKey: any[], 
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
         queryKey, 
@@ -32,7 +37,9 @@ export const useFindCampaigns = (
 };
 
 export const useFindUserCampaigns = (
-    userId: number, orderBy: Order, limit: Limit
+    userId: number, 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
         ['user-campaigns', userId, orderBy.key, orderBy.dir], 

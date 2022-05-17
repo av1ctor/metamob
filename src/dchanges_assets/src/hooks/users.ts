@@ -4,7 +4,9 @@ import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx } from '../libs/users';
 
 export const useFindUserById = (
-    queryKey: any[], _id: number, main?: DChanges
+    queryKey: any[], 
+    _id: number, 
+    main?: DChanges
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
     return useQuery<ProfileResponse|Profile, Error>(
         queryKey, 
@@ -13,7 +15,11 @@ export const useFindUserById = (
 };
 
 export const useFindUsers = (
-    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit, main?: DChanges
+    queryKey: any[], 
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit, 
+    main?: DChanges
 ): UseQueryResult<Profile[], Error> => {
     if(!main) {
         throw Error('Main actor undefined');

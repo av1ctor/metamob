@@ -4,7 +4,8 @@ import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findTreeById } from '../libs/regions';
 
 export const useFindRegionById = (
-    queryKey: any[], _id: number
+    queryKey: any[], 
+    _id: number
 ): UseQueryResult<Region, Error> => {
     return useQuery<Region, Error>(
         queryKey, 
@@ -13,7 +14,8 @@ export const useFindRegionById = (
 };
 
 export const useFindRegionTreeById = (
-    queryKey: any[], _id: number
+    queryKey: any[], 
+    _id: number
 ): UseQueryResult<Region[], Error> => {
     return useQuery<Region[], Error>(
         queryKey, 
@@ -22,7 +24,10 @@ export const useFindRegionTreeById = (
 };
 
 export const useFindRegions = (
-    queryKey: any[], filters?: Filter[], orderBy?: Order, limit?: Limit
+    queryKey: any[], 
+    filters?: Filter[], 
+    orderBy?: Order, 
+    limit?: Limit
 ): UseQueryResult<Region [], Error> => {
     return useQuery<Region[], Error>(
         queryKey,

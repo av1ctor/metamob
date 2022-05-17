@@ -1,19 +1,38 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {SignatureRequest, DChanges, SignatureResponse} from "../../../declarations/dchanges/dchanges.did";
+import {SignatureRequest, DChanges, SignatureResponse, Signature} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findByCampaign, findByCampaignAndUser, findById } from '../libs/signatures';
+import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId } from '../libs/signatures';
 
 export const useFindSignatureById = (
-    queryKey: any[], pubId: string
+    queryKey: any[], 
+    _id: number, 
+    main?: DChanges
+): UseQueryResult<Signature, Error> => {
+    if(!main) {
+        throw Error('Main actor undefined');
+    }
+    
+    return useQuery<Signature, Error>(
+        queryKey, 
+        () => findById(_id, main)
+    );
+};
+
+export const useFindSignatureByPubId = (
+    queryKey: any[], 
+    pubId: string
 ): UseQueryResult<SignatureResponse, Error> => {
     return useQuery<SignatureResponse, Error>(
         queryKey, 
-        () => findById(pubId)
+        () => findByPubId(pubId)
     );
 };
 
 export const useFindSignatures = (
-    queryKey: any[], filters: Filter[], orderBy: Order, limit: Limit
+    queryKey: any[], 
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
         queryKey, 
@@ -23,7 +42,10 @@ export const useFindSignatures = (
 };
 
 export const useFindSignaturesByCampaign = (
-    queryKey: any[], topicId: number, orderBy: Order, limit: Limit
+    queryKey: any[], 
+    topicId: number, 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
         queryKey, 
@@ -33,7 +55,9 @@ export const useFindSignaturesByCampaign = (
 };
 
 export const useFindSignatureByCampaignAndUser = (
-    queryKey: any[], topicId?: number, userId?: number
+    queryKey: any[], 
+    topicId?: number, 
+    userId?: number
 ): UseQueryResult<SignatureResponse, Error> => {
     return useQuery<SignatureResponse, Error>(
         queryKey, 
