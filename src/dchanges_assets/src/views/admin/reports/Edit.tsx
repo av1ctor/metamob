@@ -107,7 +107,7 @@ const EditForm = (props: Props) => {
             />
             <div className="field">
                 <label className="label">
-                    User
+                    Reporter
                 </label>
                 <div className="control">
                     <Avatar 
@@ -120,6 +120,7 @@ const EditForm = (props: Props) => {
             
             <Entity 
                 report={report} 
+                onEditUser={props.onEditUser}
                 onSuccess={props.onSuccess}
                 onError={props.onError}
             />

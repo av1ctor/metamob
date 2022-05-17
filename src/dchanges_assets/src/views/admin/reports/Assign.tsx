@@ -114,7 +114,7 @@ const AssignForm = (props: Props) => {
             />
             <div className="field">
                 <label className="label">
-                    User
+                    Reporter
                 </label>
                 <div className="control">
                     <Avatar 
