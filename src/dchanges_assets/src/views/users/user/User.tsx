@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -70,6 +71,8 @@ const User = (props: Props) => {
         }
 
         try {
+            props.toggleLoading(true);
+
             const req: ProfileRequest = {
                 name: form.name, 
                 email: form.email, 
@@ -97,6 +100,9 @@ const User = (props: Props) => {
         }
         catch(e: any) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [form]);
 

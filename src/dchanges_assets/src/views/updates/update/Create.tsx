@@ -16,6 +16,7 @@ interface Props {
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -61,6 +62,8 @@ const Create = (props: Props) => {
         }
 
         try {
+            props.toggleLoading(true);
+
             await createMut.mutateAsync({
                 main: actorState.main,
                 req: {
@@ -80,6 +83,9 @@ const Create = (props: Props) => {
         }
         catch(e) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [form, result, props.onClose]);
 

@@ -11026,6 +11026,23 @@ span[data-tooltip] {
 .control span[data-tooltip] {
   border-bottom: none; }
 
+.loading {
+  position: absolute;
+  left: 50vw;
+  top: 50vh;
+  transform: translate(-50%, -50%);
+  z-index: 100000; }
+
+.loading img {
+  width: 50vw;
+  height: 50vh; }
+
+.loading.visible {
+  display: block; }
+
+.loading.hidden {
+  display: none; }
+
 .avatar {
   background-color: #ccc;
   border-radius: 50%;

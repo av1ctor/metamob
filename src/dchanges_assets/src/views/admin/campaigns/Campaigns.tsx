@@ -32,6 +32,7 @@ const states: Option[] = [
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const Campaigns = (props: Props) => {
@@ -214,6 +215,7 @@ const Campaigns = (props: Props) => {
                         onClose={toggleEditUser}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>

@@ -18,6 +18,7 @@ interface Props {
     campaign: Campaign;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const Updates = (props: Props) => {
@@ -121,6 +122,7 @@ const Updates = (props: Props) => {
                     onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
 
@@ -135,6 +137,7 @@ const Updates = (props: Props) => {
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -150,6 +153,7 @@ const Updates = (props: Props) => {
                         onClose={toggleDelete}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            
@@ -166,6 +170,7 @@ const Updates = (props: Props) => {
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            

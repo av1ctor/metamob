@@ -13,6 +13,7 @@ import Places from "./places/Places";
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const Admin = (props: Props) => {
@@ -30,43 +31,34 @@ const Admin = (props: Props) => {
                 onError={props.onError}
             />
         );
-    }    
+    }
+
+    const subProps = {
+        onSuccess: props.onSuccess,
+        onError: props.onError,
+        toggleLoading: props.toggleLoading,
+    }
     
     return (
         <>
             <Box>
-                <Campaigns 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                />
+                <Campaigns {...subProps} />
             </Box>
 
             <Box>
-                <Reports 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                />
+                <Reports {...subProps} />
             </Box>
 
             <Box>
-                <Users 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                />
+                <Users {...subProps} />
             </Box>
 
             <Box>
-                <Places 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                />
+                <Places {...subProps} />
             </Box>
 
             <Box>
-                <Categories 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                />
+                <Categories {...subProps} />
             </Box>
 
         </>

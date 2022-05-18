@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
@@ -25,6 +25,7 @@ const limit = {
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const Campaigns = (props: Props) => {
@@ -64,6 +65,13 @@ const Campaigns = (props: Props) => {
         navigate('/user/login');
     }, []);
 
+    useEffect(() => {
+        props.toggleLoading(campaigns.status === "loading");
+        if(campaigns.status === "error") {
+            props.onError(campaigns.error.message);
+        }
+    }, [campaigns.status]);
+
     const isLoggedIn = !!authState.user;
 
     return (
@@ -88,18 +96,6 @@ const Campaigns = (props: Props) => {
                     </div>
 
                     <div>
-                        {campaigns.status === 'loading' &&
-                            <div>
-                                Loading...
-                            </div>
-                        }
-
-                        {campaigns.status === 'error' &&
-                            <div className="form-error">
-                                {campaigns.error.message}
-                            </div>
-                        }
-                        
                         <div className="columns is-desktop is-multiline is-align-items-center">
                             {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                                 <div 
@@ -127,6 +123,7 @@ const Campaigns = (props: Props) => {
                     onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
 

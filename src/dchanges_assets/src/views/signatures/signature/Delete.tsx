@@ -10,6 +10,7 @@ interface Props {
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 
@@ -22,6 +23,8 @@ const DeleteForm = (props: Props) => {
         e.preventDefault();
 
         try {
+            props.toggleLoading(true);
+
             await deleteMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.signature.pubId, 
@@ -32,6 +35,9 @@ const DeleteForm = (props: Props) => {
         }
         catch(e) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [props.onClose]);
 

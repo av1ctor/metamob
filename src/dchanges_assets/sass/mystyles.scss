@@ -6,6 +6,27 @@
 @import "./node_modules/@creativebulma/bulma-badge/src/sass/index.sass";
 @import "./node_modules/@creativebulma/bulma-tooltip/src/sass/index.sass";
 
+.loading {
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    z-index: 100000;
+}
+  
+.loading img {
+    width: 50vw;
+    height: 50vh;
+}
+
+.loading.visible {
+    display: block;
+}
+
+.loading.hidden {
+    display: none;
+}
+  
 .avatar {
     background-color: #ccc;
     border-radius: 50%;

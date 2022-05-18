@@ -13,6 +13,7 @@ interface Props {
     campaign: Campaign;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const Signatures = (props: Props) => {
@@ -88,6 +89,7 @@ const Signatures = (props: Props) => {
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -103,6 +105,7 @@ const Signatures = (props: Props) => {
                         onClose={toggleDelete}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            
@@ -119,6 +122,7 @@ const Signatures = (props: Props) => {
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            

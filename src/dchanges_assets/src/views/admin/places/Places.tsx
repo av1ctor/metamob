@@ -24,6 +24,7 @@ const limit: Limit = {
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const Places = (props: Props) => {
@@ -185,6 +186,7 @@ const Places = (props: Props) => {
                     onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
 
@@ -200,6 +202,7 @@ const Places = (props: Props) => {
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -215,6 +218,7 @@ const Places = (props: Props) => {
                         onClose={toggleEditUser}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>

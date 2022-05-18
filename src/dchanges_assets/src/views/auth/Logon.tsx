@@ -13,6 +13,7 @@ import { ActorActionType, ActorContext } from "../../stores/actor";
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const steps: Step[] = [
@@ -48,6 +49,8 @@ const Logon = (props: Props) => {
         main: DChanges        
     ): Promise<ProfileResponse|undefined> => {
         try {
+            props.toggleLoading(true);
+
             const res = await main.userFindMe();
             if('ok' in res) {
                 return res.ok;
@@ -55,39 +58,49 @@ const Logon = (props: Props) => {
         }
         catch(e) {
         }
+        finally {
+            props.toggleLoading(false);
+        }
 
         return undefined;
     };
 
     const handleAuthenticated = useCallback(async () => {
-        const identity = authState.client?.getIdentity();
-        if(!identity) {
-            props.onError('IC Identity should not be null');
-            return;
-        }
+        try {
+            props.toggleLoading(true);
 
-        authDispatch({
-            type: AuthActionType.SET_IDENTITY, 
-            payload: identity
-        });
-        props.onSuccess('User authenticated!');
+            const identity = authState.client?.getIdentity();
+            if(!identity) {
+                props.onError('IC Identity should not be null');
+                return;
+            }
 
-        const main = createMainActor(identity);
-        actorDispatch({
-            type: ActorActionType.SET_MAIN,
-            payload: main
-        });        
-
-        const user = await loadAuthenticatedUser(main);
-        if(user) {
             authDispatch({
-                type: AuthActionType.SET_USER, 
-                payload: user
+                type: AuthActionType.SET_IDENTITY, 
+                payload: identity
             });
-            setStep(2);
+            props.onSuccess('User authenticated!');
+
+            const main = createMainActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_MAIN,
+                payload: main
+            });        
+
+            const user = await loadAuthenticatedUser(main);
+            if(user) {
+                authDispatch({
+                    type: AuthActionType.SET_USER, 
+                    payload: user
+                });
+                setStep(2);
+            }
+            else {
+                setStep(step => step + 1);
+            }
         }
-        else {
-            setStep(step => step + 1);
+        finally {
+            props.toggleLoading(false);
         }
     }, [authState.client]);
 
@@ -130,6 +143,7 @@ const Logon = (props: Props) => {
                     <UserCreateForm
                         onSuccess={handleRegistered} 
                         onError={props.onError} 
+                        toggleLoading={props.toggleLoading}
                     />
                 }
                 {step === 2 && 

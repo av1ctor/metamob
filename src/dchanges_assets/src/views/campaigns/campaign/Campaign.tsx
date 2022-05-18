@@ -39,6 +39,7 @@ const calcMaxSignatures = (signatures: number): number => {
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const Campaign = (props: Props) => {
@@ -106,7 +107,7 @@ const Campaign = (props: Props) => {
                 <div className="columns">
                     <div className="column is-two-thirds overflow-hidden">
                         <div className="image campaign-cover mb-2">
-                            <img src={campaign.cover || "1280x960.png"} />
+                            <img src={campaign.cover} />
                         </div>
                         <ReactMarkdown className="campaign-body" children={campaign.body}/>
                     </div>
@@ -125,6 +126,7 @@ const Campaign = (props: Props) => {
                                         body={userSignature?.data?.body} 
                                         onSuccess={props.onSuccess}
                                         onError={props.onError}
+                                        toggleLoading={props.toggleLoading}
                                     />
                                 </Box>
                             </>
@@ -190,12 +192,14 @@ const Campaign = (props: Props) => {
                     campaign={campaign} 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
 
                 <Updates
                     campaign={campaign} 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Tabs>
 
@@ -210,6 +214,7 @@ const Campaign = (props: Props) => {
                     onClose={toggleEdit}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
 
@@ -223,6 +228,7 @@ const Campaign = (props: Props) => {
                     onClose={toggleDelete}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
 
@@ -237,6 +243,7 @@ const Campaign = (props: Props) => {
                     onClose={toggleReport}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
         </>

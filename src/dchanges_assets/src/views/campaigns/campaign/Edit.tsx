@@ -25,6 +25,7 @@ interface Props {
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const states: Option[] = [
@@ -95,6 +96,8 @@ const EditForm = (props: Props) => {
         }
 
         try {
+            props.toggleLoading(true);
+
             await updateMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.campaign.pubId, 
@@ -115,6 +118,9 @@ const EditForm = (props: Props) => {
         }
         catch(e) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [form, actorState.main, props.onClose]);
 
@@ -254,6 +260,7 @@ const EditForm = (props: Props) => {
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                     onClose={closeCreatePlace}
+                    toggleLoading={props.toggleLoading}
                 />
             </Modal>            
         </>

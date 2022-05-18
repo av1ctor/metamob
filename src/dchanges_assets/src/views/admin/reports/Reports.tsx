@@ -31,6 +31,7 @@ const states: Option[] = [
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const Reports = (props: Props) => {
@@ -184,6 +185,7 @@ const Reports = (props: Props) => {
                         onClose={toggleAssign}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -200,6 +202,7 @@ const Reports = (props: Props) => {
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            
@@ -215,6 +218,7 @@ const Reports = (props: Props) => {
                         onClose={toggleEditUser}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>

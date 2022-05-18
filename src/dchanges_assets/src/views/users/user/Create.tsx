@@ -10,6 +10,7 @@ import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did
 interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -65,6 +66,8 @@ const Create = (props: Props) => {
         }
 
         try {
+            props.toggleLoading(true);
+
             const req: ProfileRequest = {
                 name: form.name, 
                 email: form.email, 
@@ -88,6 +91,9 @@ const Create = (props: Props) => {
         }
         catch(e: any) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [form]);
 

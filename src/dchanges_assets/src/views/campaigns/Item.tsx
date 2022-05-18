@@ -42,7 +42,7 @@ const Item = (props: Props) => {
                 </div>
             </>}
             img={
-                <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover || "1280x960.png"}/></Link>
+                <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover}/></Link>
             }
         >
             <div className="level">

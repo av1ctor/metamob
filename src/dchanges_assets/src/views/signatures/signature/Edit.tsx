@@ -13,6 +13,7 @@ interface Props {
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -62,6 +63,8 @@ const EditForm = (props: Props) => {
         }
         
         try {
+            props.toggleLoading(true);
+
             await updateMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.signature.pubId, 
@@ -76,6 +79,9 @@ const EditForm = (props: Props) => {
         }
         catch(e) {
             props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
         }
     }, [form, props.onClose]);
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {Routes, Route} from "react-router-dom";
 import { AuthClient } from "@dfinity/auth-client"
 import { toast } from 'bulma-toast';
@@ -39,6 +39,7 @@ const showError = (e: any) => {
             duration: 5000,
             dismissible: true,
             pauseOnHover: true,
+            position: 'top-center'
         });
     }
 };
@@ -50,6 +51,7 @@ const showSuccess = (text: string) => {
         duration: 5000,
         dismissible: true,
         pauseOnHover: true,
+        position: 'top-center'
     });
 }
 
@@ -58,7 +60,13 @@ export const Home = () => {
     const [, actorDispatch] = useContext(ActorContext);
     const [, categoriesDispatch] = useContext(CategoryContext);
 
+    const [loading, setLoading] = useState(false);
+
     const categories = useFindCategories(['categories']);
+    
+    const toggleLoading = useCallback((to: boolean) => {
+        setLoading(to);
+    }, []);
 
     const loadAuthenticatedUser = async (
         main: DChanges
@@ -119,6 +127,12 @@ export const Home = () => {
         }
     }, [categories.status]);
 
+    const props = {
+        onSuccess: showSuccess,
+        onError: showError,
+        toggleLoading: toggleLoading
+    };
+
     return (
         <>
             <Header 
@@ -128,16 +142,20 @@ export const Home = () => {
             <section className="section">
                 <div className="container">
                     <Routes>
-                        <Route path="/user/login" element={<Logon onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/user/profile" element={<User onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/user/campaigns" element={<UserCampaigns />} />
-                        <Route path="/c/:id" element={<Campaign onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/admin" element={<Admin onSuccess={showSuccess} onError={showError} />} />
-                        <Route path="/" element={<Campaigns onSuccess={showSuccess} onError={showError} />} />
+                        <Route path="/user/login" element={<Logon {...props} />} />
+                        <Route path="/user/profile" element={<User {...props} />} />
+                        <Route path="/user/campaigns" element={<UserCampaigns {...props} />} />
+                        <Route path="/c/:id" element={<Campaign {...props} />} />
+                        <Route path="/admin" element={<Admin {...props} />} />
+                        <Route path="/" element={<Campaigns {...props} />} />
                     </Routes>
                 </div>
             </section>
             <Footer />
+
+            <div className={`loading ${loading? 'visible': 'hidden'}`}>
+                <img src="/loading.svg" />
+            </div>
         </>            
     );
 }
