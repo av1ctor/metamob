@@ -24,15 +24,15 @@ import Debug "mo:base/Debug";
 module {
     public class Repository(
     ) {
-        let regions = Table.Table<Types.Region>(Schema.schema, serialize, deserialize);
-        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("regions")));
+        let places = Table.Table<Types.Place>(Schema.schema, serialize, deserialize);
+        let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("places")));
 
         public func create(
-            req: Types.RegionRequest,
+            req: Types.PlaceRequest,
             callerId: Nat32
-        ): Result.Result<Types.Region, Text> {
+        ): Result.Result<Types.Place, Text> {
             let e = _createEntity(req, callerId);
-            switch(regions.insert(e._id, e)) {
+            switch(places.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -43,12 +43,12 @@ module {
         };
 
         public func update(
-            region: Types.Region, 
-            req: Types.RegionRequest,
+            place: Types.Place, 
+            req: Types.PlaceRequest,
             callerId: Nat32
-        ): Result.Result<Types.Region, Text> {
-            let e = _updateEntity(region, req, callerId);
-            switch(regions.replace(region._id, e)) {
+        ): Result.Result<Types.Place, Text> {
+            let e = _updateEntity(place, req, callerId);
+            switch(places.replace(place._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -60,8 +60,8 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Region, Text> {
-            switch(regions.get(_id)) {
+        ): Result.Result<Types.Place, Text> {
+            switch(places.get(_id)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -80,8 +80,8 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Region, Text> {
-            switch(regions.findOne([{
+        ): Result.Result<Types.Place, Text> {
+            switch(places.findOne([{
                 key = "pubId";
                 op = #eq;
                 value = #text(Utils.toLower(pubId));
@@ -104,8 +104,8 @@ module {
 
         public func findTreeById(
             _id: Nat32
-        ): Result.Result<[Types.Region], Text> {
-            let res = Buffer.Buffer<Types.Region>(5);
+        ): Result.Result<[Types.Place], Text> {
+            let res = Buffer.Buffer<Types.Place>(5);
             var id = ?_id;
             label l while(true) {
                 switch(id) {
@@ -113,7 +113,7 @@ module {
                         break l;
                     };
                     case (?_id) {
-                        switch(regions.get(_id)) {
+                        switch(places.get(_id)) {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
@@ -172,16 +172,16 @@ module {
         func _getComparer(
             column: Text,
             dir: Int
-        ): (Types.Region, Types.Region) -> Int {
+        ): (Types.Place, Types.Place) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Region, b: Types.Region): Int  = 
+                case "_id" func(a: Types.Place, b: Types.Place): Int  = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Region, b: Types.Region): Int = 
+                case "pubId" func(a: Types.Place, b: Types.Place): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "createdAt" func(a: Types.Region, b: Types.Region): Int = 
+                case "createdAt" func(a: Types.Place, b: Types.Place): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
                 case _ {
-                    func(a: Types.Region, b: Types.Region): Int = 0;
+                    func(a: Types.Place, b: Types.Place): Int = 0;
                 };
             };
         };
@@ -204,7 +204,7 @@ module {
 
         func _getSortBy(
             sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Region>] {
+        ): ?[Table.SortBy<Types.Place>] {
             let dir = _getDir(sortBy);
             
             switch(sortBy) {
@@ -238,27 +238,27 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Region], Text> {
-            return regions.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        ): Result.Result<[Types.Place], Text> {
+            return places.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
         };
 
         public func backup(
         ): [[(Text, Variant.Variant)]] {
-            return regions.backup();
+            return places.backup();
         };
 
         public func restore(
             entities: [[(Text, Variant.Variant)]]
         ) {
-            regions.restore(entities);
+            places.restore(entities);
         };
 
         func _createEntity(
-            req: Types.RegionRequest,
+            req: Types.PlaceRequest,
             callerId: Nat32
-        ): Types.Region {
+        ): Types.Place {
             {
-                _id = regions.nextId();
+                _id = places.nextId();
                 pubId = ulid.next();
                 name = req.name;
                 kind = req.kind;
@@ -272,10 +272,10 @@ module {
         };
 
         func _updateEntity(
-            e: Types.Region, 
-            req: Types.RegionRequest,
+            e: Types.Place, 
+            req: Types.PlaceRequest,
             callerId: Nat32
-        ): Types.Region {
+        ): Types.Place {
             {
                 _id = e._id;
                 pubId = e.pubId;
@@ -292,7 +292,7 @@ module {
     };
 
     func serialize(
-        e: Types.Region,
+        e: Types.Place,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {
         let res = HashMap.HashMap<Text, Variant.Variant>(Schema.schema.columns.size(), Text.equal, Text.hash);
@@ -313,7 +313,7 @@ module {
 
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
-    ): Types.Region {
+    ): Types.Place {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));

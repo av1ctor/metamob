@@ -1,7 +1,7 @@
 module {
     public let schema = 
     {
-        name = "regions";
+        name = "places";
         version = 1.0;
         columns = [
             {

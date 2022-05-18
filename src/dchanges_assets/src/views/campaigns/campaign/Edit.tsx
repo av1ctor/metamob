@@ -10,9 +10,9 @@ import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
-import { useFindRegionById } from "../../../hooks/regions";
-import { search } from "../../../libs/regions";
-import RegionForm from '../../regions/region/Create';
+import { useFindPlaceById } from "../../../hooks/places";
+import { search } from "../../../libs/places";
+import PlaceForm from '../../places/place/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
@@ -44,7 +44,7 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required().min(1),
-    regionId: yup.number().required().min(1),
+    placeId: yup.number().required().min(1),
     tags: yup.array(yup.string().max(12)).max(5),
 });
 
@@ -52,14 +52,14 @@ const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext)
     const [authState, ] = useContext(AuthContext);
     
-    const [regionValue, setRegionValue] = useState('');
+    const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
         state: [props.campaign.state]
     });
     
     const updateMut = useUpdateCampaign();
-    const region = useFindRegionById(['regions', props.campaign.regionId], props.campaign.regionId);
+    const place = useFindPlaceById(['places', props.campaign.placeId], props.campaign.placeId);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -101,7 +101,7 @@ const EditForm = (props: Props) => {
                 req: {
                     state: form.state.length > 0? [Number(form.state[0])]: [],
                     categoryId: Number(form.categoryId),
-                    regionId: Number(form.regionId),
+                    placeId: Number(form.placeId),
                     title: form.title,
                     target: form.target,
                     body: form.body,
@@ -118,7 +118,7 @@ const EditForm = (props: Props) => {
         }
     }, [form, actorState.main, props.onClose]);
 
-    const handleSearchRegion = useCallback(async (
+    const handleSearchPlace = useCallback(async (
         value: string
     ): Promise<Option[]> => {
         try {
@@ -135,12 +135,12 @@ const EditForm = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
     
-    const showCreateRegion = useCallback((value: string) => {
-        setRegionValue(value);
+    const showCreatePlace = useCallback((value: string) => {
+        setPlaceValue(value);
     }, []);
 
-    const closeCreateRegion = useCallback(() => {
-        setRegionValue('');
+    const closeCreatePlace = useCallback(() => {
+        setPlaceValue('');
     }, []);
 
     useEffect(() => {
@@ -198,13 +198,13 @@ const EditForm = (props: Props) => {
                         onChange={changeForm}
                     />
                     <AutocompleteField
-                        label="Region"
-                        name="regionId"
-                        value={region.data?.name || ''}
+                        label="Place"
+                        name="placeId"
+                        value={place.data?.name || ''}
                         required={true}
-                        onSearch={handleSearchRegion}
+                        onSearch={handleSearchPlace}
                         onChange={changeForm}
-                        onAdd={showCreateRegion}
+                        onAdd={showCreatePlace}
                     />
                     <TagsField 
                         label="Tags"
@@ -244,16 +244,16 @@ const EditForm = (props: Props) => {
             </form>
 
             <Modal
-                header={<span>Create region</span>}
-                isOpen={!!regionValue}
+                header={<span>Create place</span>}
+                isOpen={!!placeValue}
                 isOverOtherModal={true}
-                onClose={closeCreateRegion}
+                onClose={closeCreatePlace}
             >
-                <RegionForm 
-                    value={regionValue}
+                <PlaceForm 
+                    value={placeValue}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
-                    onClose={closeCreateRegion}
+                    onClose={closeCreatePlace}
                 />
             </Modal>            
         </>

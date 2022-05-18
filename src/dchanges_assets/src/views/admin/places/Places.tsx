@@ -1,14 +1,14 @@
 import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
 import { Filter, Limit, Order } from "../../../libs/common";
-import { Region, Profile } from "../../../../../declarations/dchanges/dchanges.did";
+import { Place, Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
-import { useFindRegions } from "../../../hooks/regions";
-import { kindToText } from "../../../libs/regions";
+import { useFindPlaces } from "../../../hooks/places";
+import { kindToText } from "../../../libs/places";
 import Button from "../../../components/Button";
-import CreateForm from "../../regions/region/Create";
+import CreateForm from "../../places/place/Create";
 import EditForm from "./Edit";
 
 const orderBy: Order = {
@@ -26,9 +26,9 @@ interface Props {
     onError: (message: any) => void;
 }
 
-const Regions = (props: Props) => {
+const Places = (props: Props) => {
     const [user, setUser] = useState<Profile>();
-    const [region, setRegion] = useState<Region>();
+    const [place, setPlace] = useState<Place>();
     const [modals, setModals] = useState({
         create: false,
         edit: false,
@@ -82,8 +82,8 @@ const Regions = (props: Props) => {
         }));
     }, []);
 
-    const handleEdit = useCallback((item: Region) => {
-        setRegion(item);
+    const handleEdit = useCallback((item: Place) => {
+        setPlace(item);
         toggleEdit();
     }, []);
 
@@ -92,13 +92,13 @@ const Regions = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const regions = useFindRegions(['regions', ...filters], filters, orderBy, limit);
+    const places = useFindPlaces(['places', ...filters], filters, orderBy, limit);
 
     return (
         <>
             <div className="level">
                 <div className="level-left">
-                    <div className="is-size-2"><i className="la la-globe"/> <b>Regions</b></div>
+                    <div className="is-size-2"><i className="la la-globe"/> <b>Places</b></div>
                 </div>
                 <div className="level-right">
                     <div>
@@ -138,8 +138,8 @@ const Regions = (props: Props) => {
                         </div>
                     </div>
                     <div className="body">
-                        {regions.isSuccess && regions.data && 
-                            regions.data.map((item, index) => 
+                        {places.isSuccess && places.data && 
+                            places.data.map((item, index) => 
                                 <div 
                                     className="columns" 
                                     key={index}
@@ -177,7 +177,7 @@ const Regions = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Create region</span>}
+                header={<span>Create place</span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >
@@ -189,13 +189,13 @@ const Regions = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Edit region</span>}
+                header={<span>Edit place</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
-                {region &&
+                {place &&
                     <EditForm
-                        region={region}
+                        place={place}
                         onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
@@ -222,4 +222,4 @@ const Regions = (props: Props) => {
     );
 };
 
-export default Regions;
+export default Places;

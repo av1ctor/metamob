@@ -1,5 +1,5 @@
 module {
-    public type RegionKind = Nat32; 
+    public type PlaceKind = Nat32; 
     public let KIND_PLANET: Nat32 = 0;
     public let KIND_CONTINENT: Nat32 = 1;
     public let KIND_COUNTRY: Nat32 = 2;
@@ -12,23 +12,23 @@ module {
     public let KIND_ROOM: Nat32 = 9;
     public let KIND_OTHER: Nat32 = 10;
 
-    public type Region = {
+    public type Place = {
         _id: Nat32;
         pubId: Text;
         parentId: ?Nat32;
         private_: Bool;
         name: Text;
-        kind: RegionKind;
+        kind: PlaceKind;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
         updatedBy: ?Nat32;
     };
 
-    public type RegionRequest = {
+    public type PlaceRequest = {
         parentId: ?Nat32;
         name: Text;
-        kind: RegionKind;
+        kind: PlaceKind;
         private_: Bool;
     };
 };

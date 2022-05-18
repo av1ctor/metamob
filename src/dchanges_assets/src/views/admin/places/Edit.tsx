@@ -1,18 +1,18 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Region, RegionRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import { Profile, Place, PlaceRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
-import { useFindRegionById, useUpdateRegion } from "../../../hooks/regions";
-import { kinds, search } from "../../../libs/regions";
+import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
+import { kinds, search } from "../../../libs/places";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 
 interface Props {
-    region: Region;
+    place: Place;
     onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
@@ -29,15 +29,15 @@ const formSchema = yup.object().shape({
 const EditForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
-    const [form, setForm] = useState<RegionRequest>({
-        name: props.region.name,
-        kind: props.region.kind,
-        private: props.region.private,
-        parentId: props.region.parentId,
+    const [form, setForm] = useState<PlaceRequest>({
+        name: props.place.name,
+        kind: props.place.kind,
+        private: props.place.private,
+        parentId: props.place.parentId,
     });
 
-    const updateMut = useUpdateRegion(['regions']);
-    const parent = useFindRegionById(['regions', props.region.parentId], props.region.parentId.length > 0? props.region.parentId[0] || 0: 0);
+    const updateMut = useUpdatePlace(['places']);
+    const parent = useFindPlaceById(['places', props.place.parentId], props.place.parentId.length > 0? props.place.parentId[0] || 0: 0);
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -61,7 +61,7 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: RegionRequest): Promise<string[]> => {
+    const validate = async (form: PlaceRequest): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -83,7 +83,7 @@ const EditForm = (props: Props) => {
         try {
             await updateMut.mutateAsync({
                 main: actorContext.main,
-                pubId: props.region.pubId,
+                pubId: props.place.pubId,
                 req: {
                     name: form.name,
                     kind: Number(form.kind),
@@ -91,7 +91,7 @@ const EditForm = (props: Props) => {
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
                 }
             });
-            props.onSuccess('Region updated!');
+            props.onSuccess('Place updated!');
             props.onClose();
         }
         catch(e) {
@@ -99,7 +99,7 @@ const EditForm = (props: Props) => {
         }
     }, [form, actorContext.main, props.onClose]);
 
-    const handleSearchRegion = useCallback(async (
+    const handleSearchPlace = useCallback(async (
         value: string
     ): Promise<Option[]> => {
         try {
@@ -118,21 +118,21 @@ const EditForm = (props: Props) => {
     
     useEffect(() => {
         setForm({
-            name: props.region.name,
-            kind: props.region.kind,
-            private: props.region.private,
-            parentId: props.region.parentId,
+            name: props.place.name,
+            kind: props.place.kind,
+            private: props.place.private,
+            parentId: props.place.parentId,
         });
-    }, [props.region]);
+    }, [props.place]);
 
-    const {region} = props;
+    const {place} = props;
     
     return (
         <form onSubmit={handleUpdate}>
             <TextField
                 label="Id"
                 name="id"
-                value={region.pubId}
+                value={place.pubId}
                 disabled
             />
             <TextField 
@@ -159,7 +159,7 @@ const EditForm = (props: Props) => {
                 label="Parent"
                 name="parentId"
                 value={parent.data?.name || ''}
-                onSearch={handleSearchRegion}
+                onSearch={handleSearchPlace}
                 onChange={changeFormOpt}
             />      
             <div className="field">
@@ -168,7 +168,7 @@ const EditForm = (props: Props) => {
                 </label>
                 <div className="control">
                     <Avatar 
-                        id={region.createdBy} 
+                        id={place.createdBy} 
                         size='lg'
                         onClick={props.onEditUser}
                     />

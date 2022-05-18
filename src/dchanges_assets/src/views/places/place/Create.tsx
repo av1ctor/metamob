@@ -1,13 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { RegionRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import { PlaceRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
-import { useCreateRegion } from "../../../hooks/regions";
-import { kinds, RegionKind, search } from "../../../libs/regions";
+import { useCreatePlace } from "../../../hooks/places";
+import { kinds, PlaceKind, search } from "../../../libs/places";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
@@ -27,14 +27,14 @@ const formSchema = yup.object().shape({
 const Create = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const [form, setForm] = useState<RegionRequest>({
+    const [form, setForm] = useState<PlaceRequest>({
         name: props.value || '',
-        kind: RegionKind.OTHER,
+        kind: PlaceKind.OTHER,
         private: false,
         parentId: [],
     });
 
-    const mutation = useCreateRegion(['regions']);
+    const mutation = useCreatePlace(['places']);
     
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -47,7 +47,7 @@ const Create = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: RegionRequest): Promise<string[]> => {
+    const validate = async (form: PlaceRequest): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -77,7 +77,7 @@ const Create = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Region created!');
+            props.onSuccess('Place created!');
             props.onClose();
         }
         catch(e) {
@@ -85,7 +85,7 @@ const Create = (props: Props) => {
         }
     }, [form, props.onClose]);
 
-    const handleSearchRegion = useCallback(async (
+    const handleSearchPlace = useCallback(async (
         value: string
     ): Promise<Option[]> => {
         try {
@@ -105,7 +105,7 @@ const Create = (props: Props) => {
     useEffect(() => {
         setForm({
             name: props.value || '',
-            kind: RegionKind.OTHER,
+            kind: PlaceKind.OTHER,
             private: false,
             parentId: [],
         });
@@ -138,7 +138,7 @@ const Create = (props: Props) => {
                     label="Parent"
                     name="parentId"
                     value=""
-                    onSearch={handleSearchRegion}
+                    onSearch={handleSearchPlace}
                     onChange={changeForm}
                 />            
                 <div className="field is-grouped mt-2">

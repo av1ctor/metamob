@@ -15,9 +15,9 @@ module {
         let repo = Repository.Repository();
 
         public func create(
-            req: Types.RegionRequest,
+            req: Types.PlaceRequest,
             invoker: Principal
-        ): Result.Result<Types.Region, Text> {
+        ): Result.Result<Types.Place, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -36,9 +36,9 @@ module {
 
         public func update(
             id: Text, 
-            req: Types.RegionRequest,
+            req: Types.PlaceRequest,
             invoker: Principal
-        ): Result.Result<Types.Region, Text> {
+        ): Result.Result<Types.Place, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -68,19 +68,19 @@ module {
 
         public func findById(
             _id: Nat32
-        ): Result.Result<Types.Region, Text> {
+        ): Result.Result<Types.Place, Text> {
             repo.findById(_id);
         };
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Region, Text> {
+        ): Result.Result<Types.Place, Text> {
             repo.findByPubId(pubId);
         };
 
         public func findTreeById(
             _id: Nat32
-        ): Result.Result<[Types.Region], Text> {
+        ): Result.Result<[Types.Place], Text> {
             repo.findTreeById(_id);
         };
 
@@ -88,7 +88,7 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Region], Text> {
+        ): Result.Result<[Types.Place], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
@@ -128,7 +128,7 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            e: Types.Region
+            e: Types.Place
         ): Bool {
             if(caller._id == e.createdBy) {
                 return true;

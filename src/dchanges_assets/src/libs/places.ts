@@ -1,9 +1,9 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Region, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {Place, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
-export enum RegionKind {
+export enum PlaceKind {
     PLANET = 0,
     CONTINENT = 1,
     COUNTRY = 2,
@@ -18,20 +18,20 @@ export enum RegionKind {
 }
 
 export const kinds: {name: string, value: any}[] = [
-    {name: 'Planet', value: RegionKind.PLANET},
-    {name: 'Continent', value: RegionKind.CONTINENT},
-    {name: 'Country', value: RegionKind.COUNTRY},
-    {name: 'State', value: RegionKind.STATE},
-    {name: 'City', value: RegionKind.CITY},
-    {name: 'District', value: RegionKind.DISTRICT},
-    {name: 'Street', value: RegionKind.STREET},
-    {name: 'Building', value: RegionKind.BUILDING},
-    {name: 'Floor', value: RegionKind.FLOOR},
-    {name: 'Room', value: RegionKind.ROOM},
-    {name: 'Other', value: RegionKind.OTHER},
+    {name: 'Planet', value: PlaceKind.PLANET},
+    {name: 'Continent', value: PlaceKind.CONTINENT},
+    {name: 'Country', value: PlaceKind.COUNTRY},
+    {name: 'State', value: PlaceKind.STATE},
+    {name: 'City', value: PlaceKind.CITY},
+    {name: 'District', value: PlaceKind.DISTRICT},
+    {name: 'Street', value: PlaceKind.STREET},
+    {name: 'Building', value: PlaceKind.BUILDING},
+    {name: 'Floor', value: PlaceKind.FLOOR},
+    {name: 'Room', value: PlaceKind.ROOM},
+    {name: 'Other', value: PlaceKind.OTHER},
 ];
 
-export const kindToText = (kind: RegionKind): string => {
+export const kindToText = (kind: PlaceKind): string => {
     return kinds.find(k => k.value === kind)?.name || 'Other';
 };
 
@@ -52,7 +52,7 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await dchanges.regionFind(
+    const res = await dchanges.placeFind(
         criterias, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
@@ -66,8 +66,8 @@ export const findAll = async (
 
 export const findById = async (
     _id: number
-): Promise<Region> => {
-    const res = await dchanges.regionFindById(_id);
+): Promise<Place> => {
+    const res = await dchanges.placeFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -76,8 +76,8 @@ export const findById = async (
 
 export const findTreeById = async (
     _id: number
-): Promise<Region[]> => {
-    const res = await dchanges.regionFindTreeById(_id);
+): Promise<Place[]> => {
+    const res = await dchanges.placeFindTreeById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -87,7 +87,7 @@ export const findTreeById = async (
 export const search = async (
     value: string
 ): Promise<{name: string, value: number}[]> => {
-    const regions = await findAll([
+    const places = await findAll([
         {
             key: 'name',
             op: 'contains',
@@ -95,7 +95,7 @@ export const search = async (
         }
     ]);
 
-    return regions.map(r => ({
+    return places.map(r => ({
         name: `${r.name} (${kindToText(r.kind)})`,
         value: r._id
     }));

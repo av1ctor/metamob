@@ -9,14 +9,14 @@ import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
 import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
-import RegionTypes "./regions/types";
+import PlaceTypes "./places/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
 import UpdateService "./updates/service";
 import ReportService "./reports/service";
-import RegionService "./regions/service";
+import PlaceService "./places/service";
 
 shared({caller = owner}) actor class DChanges() {
 
@@ -27,7 +27,7 @@ shared({caller = owner}) actor class DChanges() {
     let signatureService = SignatureService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
     let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
-    let regionService = RegionService.Service(userService);
+    let placeService = PlaceService.Service(userService);
 
     //
     // users facade
@@ -211,12 +211,12 @@ shared({caller = owner}) actor class DChanges() {
         campaignService.findByCategory(categoryId, sortBy, limit);
     };
 
-    public query func campaignFindByRegion(
-        regionId: Nat32,
+    public query func campaignFindByPlace(
+        placeId: Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
-        campaignService.findByRegion(regionId, sortBy, limit);
+        campaignService.findByPlace(placeId, sortBy, limit);
     };
 
     public query func campaignFindByUser(
@@ -491,45 +491,45 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     //
-    // regions facade
+    // places facade
     //
-    public shared(msg) func regionCreate(
-        req: RegionTypes.RegionRequest
-    ): async Result.Result<RegionTypes.Region, Text> {
-        regionService.create(req, msg.caller);
+    public shared(msg) func placeCreate(
+        req: PlaceTypes.PlaceRequest
+    ): async Result.Result<PlaceTypes.Place, Text> {
+        placeService.create(req, msg.caller);
     };
 
-    public shared(msg) func regionUpdate(
+    public shared(msg) func placeUpdate(
         id: Text, 
-        req: RegionTypes.RegionRequest
-    ): async Result.Result<RegionTypes.Region, Text> {
-        regionService.update(id, req, msg.caller);
+        req: PlaceTypes.PlaceRequest
+    ): async Result.Result<PlaceTypes.Place, Text> {
+        placeService.update(id, req, msg.caller);
     };
 
-    public query func regionFindById(
+    public query func placeFindById(
         _id: Nat32
-    ): async Result.Result<RegionTypes.Region, Text> {
-        regionService.findById(_id);
+    ): async Result.Result<PlaceTypes.Place, Text> {
+        placeService.findById(_id);
     };
 
-    public query func regionFindByPubId(
+    public query func placeFindByPubId(
         pubId: Text
-    ): async Result.Result<RegionTypes.Region, Text> {
-        regionService.findByPubId(pubId);
+    ): async Result.Result<PlaceTypes.Place, Text> {
+        placeService.findByPubId(pubId);
     };
 
-    public query func regionFindTreeById(
+    public query func placeFindTreeById(
         _id: Nat32
-    ): async Result.Result<[RegionTypes.Region], Text> {
-        regionService.findTreeById(_id);
+    ): async Result.Result<[PlaceTypes.Place], Text> {
+        placeService.findTreeById(_id);
     };
 
-    public shared query(msg) func regionFind(
+    public shared query(msg) func placeFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
-    ): async Result.Result<[RegionTypes.Region], Text> {
-        regionService.find(criterias, sortBy, limit);
+    ): async Result.Result<[PlaceTypes.Place], Text> {
+        placeService.find(criterias, sortBy, limit);
     };
 
     //
@@ -541,7 +541,7 @@ shared({caller = owner}) actor class DChanges() {
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
-    stable var regionEntities: [[(Text, Variant.Variant)]] = [];
+    stable var placeEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
@@ -550,7 +550,7 @@ shared({caller = owner}) actor class DChanges() {
         signatureEntities := signatureService.backup();
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
-        regionEntities := regionService.backup();
+        placeEntities := placeService.backup();
     };
 
     system func postupgrade() {
@@ -572,7 +572,7 @@ shared({caller = owner}) actor class DChanges() {
         reportService.restore(reportEntities);
         reportEntities := [];
         
-        regionService.restore(regionEntities);
-        regionEntities := [];
+        placeService.restore(placeEntities);
+        placeEntities := [];
     };      
 };

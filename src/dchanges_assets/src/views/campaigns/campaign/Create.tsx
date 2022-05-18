@@ -9,8 +9,8 @@ import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
-import { search } from "../../../libs/regions";
-import RegionForm from '../../regions/region/Create';
+import { search } from "../../../libs/places";
+import PlaceForm from '../../places/place/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 
@@ -30,14 +30,14 @@ const formSchema = yup.object().shape({
     cover: yup.string().min(7).max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required().min(1),
-    regionId: yup.number().required().min(1),
+    placeId: yup.number().required().min(1),
     tags: yup.array(yup.string().max(12)).max(5),
 });
 
 const CreateForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const [regionValue, setRegionValue] = useState('');
+    const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
         state: [],
         title: '',
@@ -46,7 +46,7 @@ const CreateForm = (props: Props) => {
         cover: '',
         duration: 7,
         categoryId: 0,
-        regionId: 0,
+        placeId: 0,
         tags: []
     });
 
@@ -80,7 +80,7 @@ const CreateForm = (props: Props) => {
                     cover: form.cover,
                     duration: Number(form.duration),
                     categoryId: Number(form.categoryId),
-                    regionId: Number(form.regionId),
+                    placeId: Number(form.placeId),
                     tags: form.tags
                 }
             });
@@ -100,7 +100,7 @@ const CreateForm = (props: Props) => {
         }));
     }, []);
 
-    const handleSearchRegion = useCallback(async (
+    const handleSearchPlace = useCallback(async (
         value: string
     ): Promise<Option[]> => {
         try {
@@ -117,12 +117,12 @@ const CreateForm = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
     
-    const showCreateRegion = useCallback((value: string) => {
-        setRegionValue(value);
+    const showCreatePlace = useCallback((value: string) => {
+        setPlaceValue(value);
     }, []);
 
-    const closeCreateRegion = useCallback(() => {
-        setRegionValue('');
+    const closeCreatePlace = useCallback(() => {
+        setPlaceValue('');
     }, []);    
   
     return (
@@ -173,13 +173,13 @@ const CreateForm = (props: Props) => {
                         onChange={changeForm} 
                     />
                     <AutocompleteField
-                        label="Region"
-                        name="regionId"
+                        label="Place"
+                        name="placeId"
                         value=""
                         required={true}
-                        onSearch={handleSearchRegion}
+                        onSearch={handleSearchPlace}
                         onChange={changeForm}
-                        onAdd={showCreateRegion}
+                        onAdd={showCreatePlace}
                     />
                     <TagsField 
                         label="Tags"
@@ -217,16 +217,16 @@ const CreateForm = (props: Props) => {
             </form>
             
             <Modal
-                header={<span>Create region</span>}
-                isOpen={!!regionValue}
+                header={<span>Create place</span>}
+                isOpen={!!placeValue}
                 isOverOtherModal={true}
-                onClose={closeCreateRegion}
+                onClose={closeCreatePlace}
             >
-                <RegionForm 
-                    value={regionValue}
+                <PlaceForm 
+                    value={placeValue}
                     onSuccess={props.onSuccess}
                     onError={props.onError}
-                    onClose={closeCreateRegion}
+                    onClose={closeCreatePlace}
                 />
             </Modal>            
         </>

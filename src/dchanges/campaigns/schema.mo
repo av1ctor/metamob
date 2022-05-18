@@ -33,7 +33,7 @@ module {
                 options = [#sortable];
             },
             {
-                name = "regionId";
+                name = "placeId";
                 options = [#sortable];
             },
             {

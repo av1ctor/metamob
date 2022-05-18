@@ -8,7 +8,7 @@ import Campaigns from "./campaigns/Campaigns";
 import Reports from "./reports/Reports";
 import Users from "./users/Users";
 import Categories from "./categories/Categories";
-import Regions from "./regions/Regions";
+import Places from "./places/Places";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -56,7 +56,7 @@ const Admin = (props: Props) => {
             </Box>
 
             <Box>
-                <Regions 
+                <Places 
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                 />

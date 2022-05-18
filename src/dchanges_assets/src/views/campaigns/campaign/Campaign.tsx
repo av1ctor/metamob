@@ -20,7 +20,7 @@ import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 import Tabs from "../../../components/Tabs";
 import Result from "./Result";
 import { ReportType } from "../../../libs/reports";
-import FullRegion from "../../regions/region/FullRegion";
+import FullPlace from "../../places/place/FullPlace";
 import { isModerator } from "../../../libs/users";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
@@ -100,7 +100,7 @@ const Campaign = (props: Props) => {
                     {campaign.tags.map(id => <Tag key={id} id={id} />)}
                 </div>
                 <div className="mt-1 mb-2 overflow-hidden">
-                    <FullRegion id={campaign.regionId} />
+                    <FullPlace id={campaign.placeId} />
                 </div>
                 <div className="columns">
                     <div className="column is-two-thirds overflow-hidden">

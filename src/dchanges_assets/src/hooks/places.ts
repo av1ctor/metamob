@@ -1,52 +1,52 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {Region, RegionRequest, DChanges} from "../../../declarations/dchanges/dchanges.did";
+import {Place, PlaceRequest, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findById, findTreeById } from '../libs/regions';
+import { findAll, findById, findTreeById } from '../libs/places';
 
-export const useFindRegionById = (
+export const useFindPlaceById = (
     queryKey: any[], 
     _id: number
-): UseQueryResult<Region, Error> => {
-    return useQuery<Region, Error>(
+): UseQueryResult<Place, Error> => {
+    return useQuery<Place, Error>(
         queryKey, 
         () => findById(_id)
     );
 };
 
-export const useFindRegionTreeById = (
+export const useFindPlaceTreeById = (
     queryKey: any[], 
     _id: number
-): UseQueryResult<Region[], Error> => {
-    return useQuery<Region[], Error>(
+): UseQueryResult<Place[], Error> => {
+    return useQuery<Place[], Error>(
         queryKey, 
         () => findTreeById(_id)
     );
 };
 
-export const useFindRegions = (
+export const useFindPlaces = (
     queryKey: any[], 
     filters?: Filter[], 
     orderBy?: Order, 
     limit?: Limit
-): UseQueryResult<Region [], Error> => {
-    return useQuery<Region[], Error>(
+): UseQueryResult<Place [], Error> => {
+    return useQuery<Place[], Error>(
         queryKey,
         () => findAll(filters, orderBy, limit)
     );
 
 };
 
-export const useCreateRegion = (
+export const useCreatePlace = (
     queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, req: RegionRequest}) => {
+        async (options: {main?: DChanges, req: PlaceRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.regionCreate(options.req);
+            const res = await options.main.placeCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -60,17 +60,17 @@ export const useCreateRegion = (
     );
 };
 
-export const useUpdateRegion = (
+export const useUpdatePlace = (
     queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, pubId: string, req: RegionRequest}) => {
+        async (options: {main?: DChanges, pubId: string, req: PlaceRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.regionUpdate(options.pubId, options.req);
+            const res = await options.main.placeUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
