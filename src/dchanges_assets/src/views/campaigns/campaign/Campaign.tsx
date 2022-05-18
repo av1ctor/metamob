@@ -23,6 +23,7 @@ import { ReportType } from "../../../libs/reports";
 import FullPlace from "../../places/place/FullPlace";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
+import Share from "./Share";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -127,6 +128,11 @@ const Campaign = (props: Props) => {
                                         onSuccess={props.onSuccess}
                                         onError={props.onError}
                                         toggleLoading={props.toggleLoading}
+                                    />
+                                </Box>
+                                <Box>
+                                    <Share
+                                        campaign={campaign}
                                     />
                                 </Box>
                             </>

@@ -152,3 +152,28 @@
     border-radius: 4px;
     padding: 4px;
 }
+
+.share {
+    display: inline-block;
+    width: 8rem;
+    color: #fff;
+    font-weight: bold;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.share.facebook {
+    background-color: #3b5998;
+}
+
+.share.twitter {
+    background-color: #00aced;
+}
+
+.share.email {
+    background-color: #428a42;
+}
+
+.share:hover {
+    color: #ff0;
+}
