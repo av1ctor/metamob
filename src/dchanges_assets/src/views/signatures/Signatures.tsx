@@ -7,6 +7,7 @@ import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
 import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
+import DeleteForm from "./signature/Delete";
 
 interface Props {
     campaign: Campaign;
@@ -96,7 +97,14 @@ const Signatures = (props: Props) => {
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
-                delete
+                {signature && 
+                    <DeleteForm
+                        signature={signature} 
+                        onClose={toggleDelete}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
             </Modal>            
 
             <Modal

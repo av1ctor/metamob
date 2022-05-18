@@ -12,6 +12,7 @@ import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
 import Button from "../../components/Button";
 import { isModerator } from "../../libs/users";
+import DeleteForm from "./update/Delete";
 
 interface Props {
     campaign: Campaign;
@@ -143,7 +144,14 @@ const Updates = (props: Props) => {
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
-                delete
+                {update && 
+                    <DeleteForm
+                        update={update}
+                        onClose={toggleDelete}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                    />
+                }
             </Modal>            
 
             <Modal
