@@ -25,7 +25,7 @@ ${config.BASE_URL}/#/c/${camp.pubId}`;
 const genTwitter = (camp: Campaign): string => {
     const uri = encodeURI(`${config.BASE_URL}/#/c/${camp.pubId}`);
     const text = encodeURI(`${camp.title}. Sign the campaign now!`);
-    return `https://twitter.com/share?related=d-changes&url=${uri}&text=${text} @dchanges`;
+    return `https://twitter.com/share?related=d-changes&url=${uri}&text=${text} @dchangesdotorg`;
 };
 
 const Share = (props: Props) => {

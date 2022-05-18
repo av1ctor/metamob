@@ -11163,3 +11163,19 @@ span[data-tooltip] {
 
 .share:hover {
   color: #ff0; }
+
+.footer li {
+  margin-bottom: 0.5rem; }
+
+.footer a {
+  color: #fff; }
+
+.footer a:hover {
+  color: #ff0; }
+
+.footer .icon {
+  display: inline;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  padding: 3px 8px 3px 8px;
+  margin-left: 4px; }
