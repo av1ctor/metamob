@@ -1,6 +1,5 @@
-import React, { useContext, useCallback, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Button from "../../components/Button";
+import React, { useContext, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
@@ -50,7 +49,7 @@ const Header = (props: Props) => {
         <nav className="navbar is-warning has-shadow is-fixed-top" role="navigation" aria-label="main navigation">
             <div className="navbar-brand">
                 <a className="navbar-item" href="/">
-                    <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28"/>
+                    <img src="logo.svg" width="112" height="28"/>
                 </a>
 
                 <a 

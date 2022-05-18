@@ -6,7 +6,7 @@ const Footer = () => {
         <footer className="footer has-background-dark has-text-white is-size-7">
             <div className="container">
                 <div className="columns">
-                    <div className="column is-8">
+                    <div className="column is-4">
                         <ul>
                             <li>
                                 <Link to="/about">
@@ -19,8 +19,27 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
+                                <Link to="/team">
+                                    Team
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+                    <div className="column is-4">
+                        <ul>
+                            <li>
                                 <Link to="/policies">
                                     Policies
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/privacy">
+                                    Privacy
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/contact">
+                                    Contact
                                 </Link>
                             </li>
                         </ul>
@@ -47,7 +66,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <div>
-                    © 2022 D-Changes
+                    © 2022 dchanges
                 </div>
             </div>
         </footer>
