@@ -71,7 +71,7 @@ const Users = (props: Props) => {
         toggleEdit();
     }, []);
 
-    const users = useFindUsers(['users', ...filters], filters, orderBy, limit, actorState.main);
+    const users = useFindUsers(filters, orderBy, limit, actorState.main);
 
     return (
         <>

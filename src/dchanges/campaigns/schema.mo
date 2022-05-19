@@ -26,7 +26,7 @@ module {
             },
             {
                 name = "body";
-                options = [#partial, #min(100), #max(4096)];
+                options = [#min(100), #max(4096)];
             },
             {
                 name = "categoryId";

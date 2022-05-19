@@ -4,30 +4,24 @@ import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx } from '../libs/users';
 
 export const useFindUserById = (
-    queryKey: any[], 
     _id: number, 
     main?: DChanges
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
     return useQuery<ProfileResponse|Profile, Error>(
-        queryKey, 
+        ['users', main? 'full': 'redacted', _id],
         () => main? findByIdEx(main, _id): findById(_id)
     );
 };
 
 export const useFindUsers = (
-    queryKey: any[], 
     filters: Filter[], 
     orderBy: Order, 
     limit: Limit, 
     main?: DChanges
 ): UseQueryResult<Profile[], Error> => {
-    if(!main) {
-        throw Error('Main actor undefined');
-    }
-    
     return useQuery<Profile[], Error>(
-        queryKey, 
-        () => findAll(main, filters, orderBy, limit)
+        ['users', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size],
+        () => findAll(filters, orderBy, limit, main)
     );
 };
 
@@ -47,7 +41,7 @@ export const useUpdateUser = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['users']);
             }   
         }
     );

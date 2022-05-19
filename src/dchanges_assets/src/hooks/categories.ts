@@ -14,19 +14,17 @@ export const useFindCategoryById = (
 };
 
 export const useFindCategories = (
-    queryKey: any[], 
-    filters?: Filter[], 
-    orderBy?: Order, 
-    limit?: Limit
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Category [], Error> => {
     return useQuery<Category[], Error>(
-        queryKey,
+        ['categories', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size],
         () => findAll(filters, orderBy, limit)
     );
 };
 
 export const useCreateCategory = (
-    queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -43,14 +41,13 @@ export const useCreateCategory = (
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
+                queryClient.invalidateQueries(['categories']);
             }   
         }
     );
 };
 
 export const useUpdateCategory = (
-    queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -67,14 +64,13 @@ export const useUpdateCategory = (
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
+                queryClient.invalidateQueries(['categories']);
             }   
         }
     );
 };
 
 export const useDeleteCategory = (
-    queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -91,7 +87,7 @@ export const useDeleteCategory = (
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
+                queryClient.invalidateQueries(['categories']);
             }   
         }
     );

@@ -19,7 +19,7 @@ const limitText = (text: string, chars: number): string => {
 export const Preview = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const update = useFindUpdateById(['updates', props.id], props.id, actorState.main);
+    const update = useFindUpdateById(props.id, actorState.main);
     
     return (
         <div className="mb-2">

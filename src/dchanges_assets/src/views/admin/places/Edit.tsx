@@ -5,6 +5,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, {Option} from "../../../components/SelectField";
+import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
 import { kinds, search } from "../../../libs/places";
@@ -22,6 +23,8 @@ interface Props {
 
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
+    description: yup.string().required().min(3).max(1024),
+    icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     private: yup.bool(),
@@ -32,13 +35,15 @@ const EditForm = (props: Props) => {
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.place.name,
+        description: props.place.description,
+        icon: props.place.icon,
         kind: props.place.kind,
         private: props.place.private,
         parentId: props.place.parentId,
     });
 
-    const updateMut = useUpdatePlace(['places']);
-    const parent = useFindPlaceById(['places', props.place.parentId], props.place.parentId.length > 0? props.place.parentId[0] || 0: 0);
+    const updateMut = useUpdatePlace();
+    const parent = useFindPlaceById(props.place.parentId.length > 0? props.place.parentId[0] || 0: 0);
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -89,6 +94,8 @@ const EditForm = (props: Props) => {
                 pubId: props.place.pubId,
                 req: {
                     name: form.name,
+                    description: form.description,
+                    icon: form.icon,
                     kind: Number(form.kind),
                     private: form.private,
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
@@ -125,6 +132,8 @@ const EditForm = (props: Props) => {
     useEffect(() => {
         setForm({
             name: props.place.name,
+            description: props.place.description,
+            icon: props.place.icon,
             kind: props.place.kind,
             private: props.place.private,
             parentId: props.place.parentId,
@@ -145,6 +154,21 @@ const EditForm = (props: Props) => {
                 label="Name"
                 name="name"
                 value={form.name}
+                required={true}
+                onChange={changeForm}
+            />            
+            <TextAreaField
+                label="Description"
+                name="description"
+                value={form.description}
+                required={true}
+                rows={5}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Icon"
+                name="icon"
+                value={form.icon}
                 required={true}
                 onChange={changeForm}
             />            

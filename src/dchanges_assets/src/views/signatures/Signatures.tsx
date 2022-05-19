@@ -58,9 +58,7 @@ const Signatures = (props: Props) => {
 
     const campaign = props.campaign;
 
-    const queryKey = ['signatures', campaign._id, orderBy.key, orderBy.dir];
-
-    const signatures = useFindSignaturesByCampaign(queryKey, campaign._id, orderBy, limit);
+    const signatures = useFindSignaturesByCampaign(campaign._id, orderBy, limit);
 
     return (
         <div className="signatures">

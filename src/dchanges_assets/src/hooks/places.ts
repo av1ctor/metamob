@@ -1,43 +1,59 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {Place, PlaceRequest, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findById, findTreeById } from '../libs/places';
+import { findAll, findById, findByPubId, findByUser, findTreeById } from '../libs/places';
 
 export const useFindPlaceById = (
-    queryKey: any[], 
     _id: number
 ): UseQueryResult<Place, Error> => {
     return useQuery<Place, Error>(
-        queryKey, 
+        ['places', _id], 
         () => findById(_id)
     );
 };
 
 export const useFindPlaceTreeById = (
-    queryKey: any[], 
     _id: number
 ): UseQueryResult<Place[], Error> => {
     return useQuery<Place[], Error>(
-        queryKey, 
+        ['places', 'tree', _id], 
         () => findTreeById(_id)
     );
 };
 
+export const useFindPlaceByPubId = (
+    pubId?: string
+): UseQueryResult<Place, Error> => {
+    return useQuery<Place, Error>(
+        ['places', pubId], 
+        () => findByPubId(pubId)
+    );
+};
+
+export const useFindUserPlaces = (
+    userId: number, 
+    orderBy: Order, 
+    limit: Limit,
+    main?: DChanges
+): UseQueryResult<Place[], Error> => {
+   return useQuery<Place[], Error>(
+        ['places', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        () => userId === -1? []: findByUser(userId, orderBy, limit, main)
+    );
+};
+
 export const useFindPlaces = (
-    queryKey: any[], 
-    filters?: Filter[], 
-    orderBy?: Order, 
-    limit?: Limit
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit
 ): UseQueryResult<Place [], Error> => {
     return useQuery<Place[], Error>(
-        queryKey,
+        ['places', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
-
 };
 
 export const useCreatePlace = (
-    queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -54,14 +70,13 @@ export const useCreatePlace = (
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
+                queryClient.invalidateQueries(['places']);
             }   
         }
     );
 };
 
 export const useUpdatePlace = (
-    queryKey: any[]
 ) => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -78,7 +93,7 @@ export const useUpdatePlace = (
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(queryKey);
+                queryClient.invalidateQueries(['places']);
             }   
         }
     );

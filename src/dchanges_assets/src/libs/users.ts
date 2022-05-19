@@ -5,19 +5,21 @@ import { config } from "../config";
 import { valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
 
+const anonymous: ProfileResponse = {
+    _id: 0,
+    pubId: '',
+    name: 'Anonymous',
+    email: '',
+    avatar: ['anonymous'],
+    roles: [],
+    countryId: 0,
+};
+
 export const findById = async (
     _id: number
 ): Promise<ProfileResponse> => {
     if(_id === 0) {
-        return {
-            _id: 0,
-            pubId: '',
-            name: 'Anonymous',
-            email: '',
-            avatar: ['anonymous'],
-            roles: [],
-            countryId: 0,
-        };
+        return anonymous;
     }
 
     const res = await dchanges.userFindById(_id);
@@ -31,6 +33,10 @@ export const findByIdEx = async (
     main: DChanges,
     _id: number
 ): Promise<Profile> => {
+    if(_id === 0) {
+        return anonymous as Profile;
+    }
+    
     const res = await main.userFindByIdEx(_id);
     if('err' in res) {
         throw new Error(res.err);
@@ -40,11 +46,15 @@ export const findByIdEx = async (
 
 
 export const findAll = async (
-    main: DChanges,
     filters?: Filter[], 
     orderBy?: Order, 
-    limit?: Limit
+    limit?: Limit,
+    main?: DChanges
 ): Promise<Profile[]> => {
+    if(!main) {
+        return [];
+    }    
+
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
             filters
@@ -70,18 +80,20 @@ export const findAll = async (
 };
 
 export const search = async (
-    main: DChanges,
-    value: string
+    value: string,
+    main?: DChanges
 ): Promise<{name: string, value: number}[]> => {
     const users = await findAll(
-        main,
         [
             {
                 key: 'name',
                 op: 'contains',
                 value: value
             }
-        ]
+        ],
+        undefined,
+        undefined,
+        main
     );
 
     return users.map(u => ({

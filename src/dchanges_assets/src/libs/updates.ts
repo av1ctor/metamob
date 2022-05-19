@@ -51,8 +51,12 @@ export const findByCampaign = async (
 
 export const findById = async (
     _id: number, 
-    main: DChanges
+    main?: DChanges
 ): Promise<Update> => {
+    if(!main) {
+        return {} as Update;
+    }
+    
     const res = await main.updateFindById(_id);
     if('err' in res) {
         throw new Error(res.err);

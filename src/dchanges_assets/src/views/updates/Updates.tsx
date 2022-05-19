@@ -43,7 +43,7 @@ const Updates = (props: Props) => {
 
     const queryKey = ['updates', campaign._id, orderBy.key, orderBy.dir];
 
-    const updates = useFindUpdatesByCampaign(queryKey, campaign._id, orderBy, limit);
+    const updates = useFindUpdatesByCampaign(campaign._id, orderBy, limit);
 
     const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
         auth.user && auth.user._id === campaign?.createdBy) ||

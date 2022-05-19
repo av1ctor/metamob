@@ -1,5 +1,5 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Campaign, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {Campaign, DChanges, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -71,9 +71,14 @@ export const findAll = async (
 export const findByUser = async (
     userId: number, 
     orderBy?: Order, 
-    limit?: Limit
+    limit?: Limit,
+    main?: DChanges
 ): Promise<Campaign[]> => {
-    const res = await dchanges.campaignFindByUser(
+    if(!main) {
+        return [];
+    }
+
+    const res = await main.campaignFindByUser(
         userId, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
@@ -96,11 +101,28 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId: string
+    pubId?: string
 ): Promise<Campaign> => {
+    if(pubId === undefined) {
+        return {} as Campaign;
+    }
+    
     const res = await dchanges.campaignFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }
     return res.ok; 
 };
+
+export const findByPlaceId = async (
+    placeId?: number,
+    filters?: Filter[], 
+    orderBy?: Order, 
+    limit?: Limit
+): Promise<Campaign[]> => {
+    if(placeId === undefined) {
+        return [];
+    }
+
+    return findAll(filters?.concat({key: 'placeId', op: 'eq', value: placeId}), orderBy, limit);
+}

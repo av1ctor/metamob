@@ -37,6 +37,14 @@ const Header = (props: Props) => {
         navigate('/user/campaigns');
     }, []);
 
+    const redirectToSignatures = useCallback(() => {
+        navigate('/user/signatures');
+    }, []);
+
+    const redirectToPlaces = useCallback(() => {
+        navigate('/user/places');
+    }, []);
+
     const handleToggleMenu = useCallback(() => {
         burgerRef.current?.classList.toggle('is-active');
         menuRef.current?.classList.toggle('is-active');
@@ -85,8 +93,15 @@ const Header = (props: Props) => {
 
                             <div className="navbar-dropdown is-right">
                                 <a className="navbar-item" onClick={redirectToCampaigns}>
-                                    <i className="la la-list"/>&nbsp;Campaigns
+                                    <i className="la la-volume-up"/>&nbsp;Campaigns
                                 </a>
+                                <a className="navbar-item" onClick={redirectToSignatures}>
+                                    <i className="la la-signature"/>&nbsp;Signatures
+                                </a>
+                                <a className="navbar-item" onClick={redirectToPlaces}>
+                                    <i className="la la-globe"/>&nbsp;Places
+                                </a>
+                                <hr className="navbar-divider"/>
                                 <a className="navbar-item" onClick={redirectToProfile}>
                                     <i className="la la-user"/>&nbsp;Profile
                                 </a>

@@ -60,7 +60,7 @@ const EditForm = (props: Props) => {
     });
     
     const updateMut = useUpdateCampaign();
-    const place = useFindPlaceById(['places', props.campaign.placeId], props.campaign.placeId);
+    const place = useFindPlaceById(props.campaign.placeId);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({

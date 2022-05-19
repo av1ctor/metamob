@@ -18,7 +18,7 @@ interface Props {
 
 const steps: Step[] = [
     {
-        title: 'IC Identity authentication',
+        title: 'IC Identity',
         icon: 'key',
     },
     {
@@ -149,7 +149,7 @@ const Logon = (props: Props) => {
                 {step === 2 && 
                     <Button 
                         onClick={handleReturn}>
-                        <i className="la la-check"/>&nbsp;Return to previous page
+                        <i className="la la-check"/>&nbsp;Return
                     </Button>
                 }
             </Container>

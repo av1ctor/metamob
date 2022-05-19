@@ -4,34 +4,24 @@ import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById } from '../libs/reports';
 
 export const useFindReportById = (
-    queryKey: any[], 
     pubId: string, 
     main?: DChanges
 ): UseQueryResult<Report, Error> => {
-    if(!main) {
-        throw Error('Main actor undefined');
-    }
-    
     return useQuery<Report, Error>(
-        queryKey, 
+        ['reports', pubId], 
         () => findById(pubId, main)
     );
 };
 
 export const useFindReports = (
-    queryKey: any[], 
     filters: Filter[], 
     orderBy: Order, 
     limit: Limit, 
     main?: DChanges
 ): UseQueryResult<Report[], Error> => {
-    if(!main) {
-        throw Error('Main actor undefined');
-    }
-    
     return useQuery<Report[], Error>(
-        queryKey, 
-        () => findAll(main, filters, orderBy, limit)
+        ['reports', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        () => findAll(filters, orderBy, limit, main)
     );
 };
 
@@ -51,7 +41,7 @@ export const useCreateReport = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['reports']);
             }   
         }
     );
@@ -73,7 +63,7 @@ export const useUpdateReport = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['reports']);
             }   
         }
     );
@@ -95,7 +85,7 @@ export const useCloseReport = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['reports']);
             }   
         }
     );
@@ -117,7 +107,7 @@ export const useAssignReport = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['reports']);
             }   
         }
     );

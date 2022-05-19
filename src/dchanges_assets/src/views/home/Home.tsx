@@ -10,12 +10,16 @@ import {useFindCategories} from "../../hooks/categories";
 import { createMainActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
-import UserCampaigns from "../users/Campaigns";
+import UserCampaigns from "../users/user/Campaigns";
+import UserSignatures from "../users/user/Signatures";
+import UserPlaces from "../users/user/Places";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
 import User from "../users/user/User";
 import Admin from "../admin/Admin";
+import Place from "../places/Place";
+import { Limit, Order } from "../../libs/common";
 
 const showError = (e: any) => {
     if(e) {
@@ -55,6 +59,16 @@ const showSuccess = (text: string) => {
     });
 }
 
+const orderBy: Order = {
+    key: '_id',
+    dir: 'desc'
+};
+
+const limit: Limit = {
+    offset: 0,
+    size: 100
+};
+
 export const Home = () => {
     const [, authDispatch] = useContext(AuthContext);
     const [, actorDispatch] = useContext(ActorContext);
@@ -62,7 +76,7 @@ export const Home = () => {
 
     const [loading, setLoading] = useState(false);
 
-    const categories = useFindCategories(['categories']);
+    const categories = useFindCategories([], orderBy, limit);
     
     const toggleLoading = useCallback((to: boolean) => {
         setLoading(to);
@@ -145,7 +159,10 @@ export const Home = () => {
                         <Route path="/user/login" element={<Logon {...props} />} />
                         <Route path="/user/profile" element={<User {...props} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns {...props} />} />
+                        <Route path="/user/signatures" element={<UserSignatures {...props} />} />
+                        <Route path="/user/places" element={<UserPlaces {...props} />} />
                         <Route path="/c/:id" element={<Campaign {...props} />} />
+                        <Route path="/p/:id" element={<Place {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />
                         <Route path="/" element={<Campaigns {...props} />} />
                     </Routes>

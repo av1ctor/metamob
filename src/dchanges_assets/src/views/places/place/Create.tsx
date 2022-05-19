@@ -5,6 +5,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
+import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCreatePlace } from "../../../hooks/places";
 import { kinds, PlaceKind, search } from "../../../libs/places";
@@ -20,6 +21,8 @@ interface Props {
 
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
+    description: yup.string().required().min(3).max(1024),
+    icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     private: yup.bool(),
@@ -30,12 +33,14 @@ const Create = (props: Props) => {
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.value || '',
+        description: '',
+        icon: '',
         kind: PlaceKind.OTHER,
         private: false,
         parentId: [],
     });
 
-    const mutation = useCreatePlace(['places']);
+    const mutation = useCreatePlace();
     
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -74,6 +79,8 @@ const Create = (props: Props) => {
                 main: actorState.main,
                 req: {
                     name: form.name,
+                    description: form.description,
+                    icon: form.icon,
                     kind: Number(form.kind),
                     private: form.private,
                     parentId: form.parentId,
@@ -111,6 +118,8 @@ const Create = (props: Props) => {
     useEffect(() => {
         setForm({
             name: props.value || '',
+            description: '',
+            icon: '',
             kind: PlaceKind.OTHER,
             private: false,
             parentId: [],
@@ -127,6 +136,21 @@ const Create = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />            
+                <TextAreaField
+                    label="Description"
+                    name="description"
+                    value={form.description}
+                    required={true}
+                    rows={5}
+                    onChange={changeForm}
+                />
+                <TextField 
+                    label="Icon"
+                    name="icon"
+                    value={form.icon}
+                    required={true}
+                    onChange={changeForm}
+                />
                 <SelectField
                     label="Kind"
                     id="kind"

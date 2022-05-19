@@ -17,7 +17,7 @@ const limitText = (text: string, chars: number): string => {
 
 export const Preview = (props: Props) => {
     
-    const campaign = useFindCampaignById(['campaigns', props.id], props.id);
+    const campaign = useFindCampaignById(props.id);
     
     return (
         <div className="mb-2">

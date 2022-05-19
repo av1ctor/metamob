@@ -71,10 +71,36 @@ export const findByCampaignAndUser = async (
     return res.ok; 
 }
 
+export const findByUser = async (
+    userId: number, 
+    orderBy?: Order, 
+    limit?: Limit,
+    main?: DChanges
+): Promise<SignatureResponse[]> => {
+    if(!main) {
+        return [];
+    }   
+
+    const res = await main.signatureFindByUser(
+        userId, 
+        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
 export const findById = async (
     _id: number, 
-    main: DChanges
+    main?: DChanges
 ): Promise<Signature> => {
+    if(!main) {
+        return {} as Signature;
+    }
+        
     const res = await main.signatureFindById(_id);
     if('err' in res) {
         throw new Error(res.err);

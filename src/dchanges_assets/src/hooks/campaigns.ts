@@ -1,51 +1,60 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {CampaignRequest, Campaign, DChanges} from "../../../declarations/dchanges/dchanges.did";
-import { findAll, findById, findByPubId as findByPubId, findByUser } from '../libs/campaigns';
+import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCampaignById = (
-    queryKey: any[], 
     _id: number
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
-        queryKey, 
+        ['campaigns', _id], 
         () => findById(_id)
     );
 };
 
 export const useFindCampaignByPubId = (
-    queryKey: any[], 
-    pubId: string
+    pubId?: string
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
-        queryKey, 
+        ['campaigns', pubId], 
         () => findByPubId(pubId)
     );
 };
 
+export const useFindCampaignsByPlaceId = (
+    filters: Filter[], 
+    orderBy: Order, 
+    limit: Limit,
+    placeId?: number
+): UseQueryResult<Campaign[], Error> => {
+    return useQuery<Campaign[], Error>(
+        ['campaigns', placeId, ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        () => findByPlaceId(placeId, filters, orderBy, limit)
+    );
+};
+
 export const useFindCampaigns = (
-    queryKey: any[], 
     filters: Filter[], 
     orderBy: Order, 
     limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
-        queryKey, 
+        ['campaigns', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
 };
 
-export const useFindUserCampaigns = (
+export const useFindCampaignsByUserId = (
     userId: number, 
     orderBy: Order, 
-    limit: Limit
+    limit: Limit,
+    main?: DChanges
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
-        ['user-campaigns', userId, orderBy.key, orderBy.dir], 
-        () => userId === -1? []: findByUser(userId, orderBy, limit)
+        ['campaigns', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
-
 };
 
 export const useCreateCampaign = () => {
@@ -65,7 +74,7 @@ export const useCreateCampaign = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['campaigns']);
             }   
         }
     );
@@ -87,7 +96,7 @@ export const useUpdateCampaign = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['campaigns']);
             }   
         }
     );
@@ -109,7 +118,7 @@ export const useDeleteCampaign = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['campaigns']);
             }   
         }
     );

@@ -7,7 +7,7 @@ import Category from "../categories/category/Category";
 import Tag from "../../components/Tag";
 import Card from "../../components/Card";
 import { CampaignResult, CampaignState } from "../../libs/campaigns";
-import FullPlace from "../places/place/FullPlace";
+import PlaceTree from "../places/place/PlaceTree";
 
 interface Props {
     campaign: Campaign
@@ -34,7 +34,7 @@ const Item = (props: Props) => {
             } 
             subtitle={<>
                 <div className="mb-1">
-                    <FullPlace id={campaign.placeId} />
+                    <PlaceTree id={campaign.placeId} />
                 </div>
                 <div>
                     <Category id={campaign.categoryId} />

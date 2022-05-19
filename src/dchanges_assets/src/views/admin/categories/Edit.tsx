@@ -33,7 +33,7 @@ const EditForm = (props: Props) => {
         color: props.category.color,
     });
 
-    const updateMut = useUpdateCategory(['categories']);
+    const updateMut = useUpdateCategory();
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({

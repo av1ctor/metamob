@@ -92,7 +92,7 @@ const Categories = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const categories = useFindCategories(['categories', ...filters], filters, orderBy, limit);
+    const categories = useFindCategories(filters, orderBy, limit);
 
     return (
         <>

@@ -150,9 +150,28 @@ module {
         public func findByUser(
             userId: /* Text */ Nat32,
             sortBy: ?(Text, Text),
-            limit: ?(Nat, Nat)
+            limit: ?(Nat, Nat),
+            invoker: Principal
         ): Result.Result<[Types.Signature], Text> {
-            repo.findByUser(userId, sortBy, limit);
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    if(caller._id != userId) {
+                        if(not UserUtils.isAdmin(caller)) {
+                            return #err("Forbidden");
+                        };
+                    };            
+                    
+                    repo.findByUser(userId, sortBy, limit);
+                };
+            };
         };
 
         public func findByCampaignAndUser(

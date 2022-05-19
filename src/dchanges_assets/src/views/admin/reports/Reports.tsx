@@ -99,7 +99,7 @@ const Reports = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const reports = useFindReports(['reports', ...filters], filters, orderBy, limit, actorState.main);
+    const reports = useFindReports(filters, orderBy, limit, actorState.main);
 
     return (
         <>

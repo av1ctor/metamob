@@ -1,67 +1,71 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {SignatureRequest, DChanges, SignatureResponse, Signature} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
-import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId } from '../libs/signatures';
+import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/signatures';
 
 export const useFindSignatureById = (
-    queryKey: any[], 
     _id: number, 
     main?: DChanges
 ): UseQueryResult<Signature, Error> => {
-    if(!main) {
-        throw Error('Main actor undefined');
-    }
-    
     return useQuery<Signature, Error>(
-        queryKey, 
+        ['signatures', _id], 
         () => findById(_id, main)
     );
 };
 
 export const useFindSignatureByPubId = (
-    queryKey: any[], 
     pubId: string
 ): UseQueryResult<SignatureResponse, Error> => {
     return useQuery<SignatureResponse, Error>(
-        queryKey, 
+        ['signatures', pubId], 
         () => findByPubId(pubId)
     );
 };
 
 export const useFindSignatures = (
-    queryKey: any[], 
     filters: Filter[], 
     orderBy: Order, 
     limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
-        queryKey, 
+        ['signatures', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
 };
 
 export const useFindSignaturesByCampaign = (
-    queryKey: any[], 
     topicId: number, 
     orderBy: Order, 
     limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
-        queryKey, 
+        ['signatures', topicId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
         () => findByCampaign(topicId, orderBy, limit)
     );
 
 };
 
 export const useFindSignatureByCampaignAndUser = (
-    queryKey: any[], 
     topicId?: number, 
     userId?: number
 ): UseQueryResult<SignatureResponse, Error> => {
     return useQuery<SignatureResponse, Error>(
-        queryKey, 
+        ['signatures', topicId, userId], 
         () => findByCampaignAndUser(topicId, userId)
+    );
+
+};
+
+export const useFindUserSignatures = (
+    userId: number, 
+    orderBy: Order, 
+    limit: Limit,
+    main?: DChanges
+): UseQueryResult<SignatureResponse[], Error> => {
+   return useQuery<SignatureResponse[], Error>(
+        ['signatures', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 
 };
@@ -82,7 +86,7 @@ export const useCreateSignature = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['signatures']);
             }   
         }
     );
@@ -104,7 +108,7 @@ export const useUpdateSignature = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['signatures']);
             }   
         }
     );
@@ -126,7 +130,7 @@ export const useDeleteSignature = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries();
+                queryClient.invalidateQueries(['signatures']);
             }   
         }
     );

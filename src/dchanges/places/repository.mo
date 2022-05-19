@@ -234,6 +234,23 @@ module {
             };
         };
 
+        public func findByUser(
+            userId: Nat32,
+            sortBy: ?(Text, Text),
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Place], Text> {
+
+            let criterias = ?[
+                {       
+                    key = "createdBy";
+                    op = #eq;
+                    value = #nat32(userId);
+                }
+            ];
+            
+            return places.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+        };
+
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
@@ -260,10 +277,13 @@ module {
             {
                 _id = places.nextId();
                 pubId = ulid.next();
-                name = req.name;
-                kind = req.kind;
-                private_ = req.private_;
                 parentId = req.parentId;
+                private_ = req.private_;
+                kind = req.kind;
+                name = req.name;
+                description = req.description;
+                icon = req.icon;
+                active = true;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -279,10 +299,13 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                name = req.name;
-                kind = req.kind;
-                private_ = req.private_;
                 parentId = e.parentId;
+                private_ = req.private_;
+                kind = req.kind;
+                name = req.name;
+                description = req.description;
+                icon = req.icon;
+                active = e.active;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -299,10 +322,13 @@ module {
         
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
-        res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
+        res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
         res.put("kind", #nat32(e.kind));
         res.put("private_", #bool(e.private_));
-        res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
+        res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
+        res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
+        res.put("icon", #text(e.icon));
+        res.put("active", #bool(e.active));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -317,10 +343,13 @@ module {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
-            name = Variant.getOptText(map.get("name"));
+            parentId = Variant.getOptNat32Opt(map.get("parentId"));
             kind = Variant.getOptNat32(map.get("kind"));
             private_ = Variant.getOptBool(map.get("private_"));
-            parentId = Variant.getOptNat32Opt(map.get("parentId"));
+            name = Variant.getOptText(map.get("name"));
+            description = Variant.getOptText(map.get("description"));
+            icon = Variant.getOptText(map.get("icon"));
+            active = Variant.getOptBool(map.get("active"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

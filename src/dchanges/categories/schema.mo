@@ -21,8 +21,12 @@ module {
                 options = [];
             },
             {
+                name = "description";
+                options = [#max(1024)];
+            },
+            {
                 name = "color";
-                options = [];
+                options = [#max(10)];
             },
             {
                 name = "createdAt";

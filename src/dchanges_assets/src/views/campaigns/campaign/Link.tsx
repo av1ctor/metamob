@@ -8,7 +8,7 @@ interface Props {
 
 export const CampaignLink = (props: Props) => {
     
-    const campaign = useFindCampaignById(['campaigns', props.id], props.id);
+    const campaign = useFindCampaignById(props.id);
     
     return (
         <>

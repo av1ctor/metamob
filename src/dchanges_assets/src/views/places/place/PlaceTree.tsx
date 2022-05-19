@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useFindPlaceTreeById } from '../../../hooks/places';
 
 interface Props {
@@ -10,9 +11,9 @@ const reversed = (arr: any[]) => {
     return copy.reverse();
 }
 
-const FullPlace = (props: Props) => {
+const PlaceTree = (props: Props) => {
     const places = props.id?
-        useFindPlaceTreeById(['places', 'tree', props.id], props.id):
+        useFindPlaceTreeById(props.id):
         undefined;
 
     return (
@@ -22,8 +23,8 @@ const FullPlace = (props: Props) => {
                     {reversed(places.data).map((place, index) => 
                         <li 
                             key={place._id} 
-                            className={index == places.data.length-1? 'is-active': ''}>
-                                <a href="#">{place.name}</a>
+                        >
+                            <Link to={`/p/${place.pubId}`}>{place.name}</Link>
                         </li>
                     )}
                 </ul>
@@ -33,4 +34,4 @@ const FullPlace = (props: Props) => {
     );
 };
 
-export default FullPlace;
+export default PlaceTree;

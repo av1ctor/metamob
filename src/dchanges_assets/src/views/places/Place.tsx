@@ -1,8 +1,10 @@
 import React, {useState, useCallback, useEffect} from "react";
 import {Filter} from "../../libs/common";
-import {useFindCampaigns} from "../../hooks/campaigns";
-import Item from "./Item";
-import { Bar } from "./Bar";
+import {useFindCampaigns, useFindCampaignsByPlaceId} from "../../hooks/campaigns";
+import Item from "../campaigns/Item";
+import { Bar } from "../campaigns/Bar";
+import { useParams } from "react-router-dom";
+import { useFindPlaceById, useFindPlaceByPubId } from "../../hooks/places";
 
 const orderBy = {
     key: '_id',
@@ -21,6 +23,8 @@ interface Props {
 }
 
 const Campaigns = (props: Props) => {
+    const {id} = useParams();
+    const [placeId, setPlaceId] = useState<number>();
     const [filters, setFilters] = useState<Filter[]>([
         {
             key: 'title',
@@ -29,11 +33,19 @@ const Campaigns = (props: Props) => {
         }
     ]);
 
-    const campaigns = useFindCampaigns(filters, orderBy, limit);
+    const place = useFindPlaceByPubId(id);
+
+    const campaigns = useFindCampaignsByPlaceId(filters, orderBy, limit, placeId);
 
     const handleChangeFilters = useCallback((filters: Filter) => {
         setFilters([filters]);
     }, []);
+
+    useEffect(() => {
+        if(place.status === "success") {
+            setPlaceId(place.data._id);
+        }
+    }, [place.status]);
 
     useEffect(() => {
         props.toggleLoading(campaigns.status === "loading");

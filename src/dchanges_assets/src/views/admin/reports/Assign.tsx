@@ -34,7 +34,7 @@ const AssignForm = (props: Props) => {
     });
 
     const assignMut = useAssignReport();
-    const assignedTo = useFindUserById(['users', form.userId], form.userId);
+    const assignedTo = useFindUserById(form.userId);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -90,10 +90,7 @@ const AssignForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            if(!actorState.main) {
-                throw Error("Main actor undefined");
-            }
-            return search(actorState.main, value);
+            return search(value, actorState.main);
         }
         catch(e) {
             props.onError(e);

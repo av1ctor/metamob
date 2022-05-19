@@ -13,7 +13,7 @@ interface Props {
 const Avatar = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const profile = useFindUserById(['users', props.id, props.onClick? 'full': 'redacted'], props.id, props.onClick? actorState.main: undefined);
+    const profile = useFindUserById(props.id, props.onClick? actorState.main: undefined);
 
     let size = 6;
     switch(props.size) {

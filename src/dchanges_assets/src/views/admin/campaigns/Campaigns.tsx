@@ -107,7 +107,7 @@ const Campaigns = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const campaigns = useFindCampaigns(['campaigns', ...filters], filters, orderBy, limit);
+    const campaigns = useFindCampaigns(filters, orderBy, limit);
 
     return (
         <>

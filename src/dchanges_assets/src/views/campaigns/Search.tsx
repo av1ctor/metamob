@@ -1,23 +1,22 @@
 import React, {useCallback, useState} from "react";
 import Button from "../../components/Button";
-import SelectField from "../../components/SelectField";
 import TextField from "../../components/TextField";
 import {Filter} from "../../libs/common";
 
 interface Props {
-    filters: Filter;
+    filters: Filter[];
     indexedColumns: string[];
-    onSearch: (filters: Filter) => unknown
+    onSearch: (filters: Filter[]) => unknown
 };
 
 const SearchForm = (props: Props) => {
     const [form, setForm] = useState(props.filters);
 
-    const changeForm = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            [e.target.name]: e.target.value
-        }));
+    const changeTitleFilter = useCallback((e: any) => {
+        const value = e.target.value;
+        setForm(filters => 
+            filters.map(f => f.key !== 'title'? f: {...f, value: value})
+        );
     }, []);
 
     const handleSubmit = useCallback((e: any) => {
@@ -31,9 +30,9 @@ const SearchForm = (props: Props) => {
                 <div className="level-left">
                     <div className="level-item">
                         <TextField
-                            name="value"
-                            value={form.value || ''}
-                            onChange={changeForm} 
+                            name="title"
+                            value={form[0].value || ''}
+                            onChange={changeTitleFilter} 
                         />
                     </div>
                     <div className="level-item">

@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { useFindUserCampaigns } from "../../hooks/campaigns";
-import { AuthContext } from "../../stores/auth";
-import Item from "../campaigns/Item";
+import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
+import { ActorContext } from "../../../stores/actor";
+import { AuthContext } from "../../../stores/auth";
+import Item from "../../campaigns/Item";
 
 interface Props {
 };
@@ -18,15 +18,13 @@ const limit = {
 };
 
 const Campaigns = (props: Props) => {
+    const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
 
-    const navigate = useNavigate();
-
-    const campaigns = useFindUserCampaigns(authState.user?._id || -1, orderBy, limit);
+    const campaigns = useFindCampaignsByUserId(authState.user?._id || 0, orderBy, limit, actorState.main);
     
-    if(!authState.client || !authState.identity || !authState.user) {
-        navigate('/user/login');
-        return null;
+    if(!authState.user) {
+        return <div>Forbidden</div>;
     }
     
     return (
@@ -51,8 +49,8 @@ const Campaigns = (props: Props) => {
                             key={campaign._id}
                         >
                             <Item 
-                                key={campaign._id} 
-                                campaign={campaign} />
+                                campaign={campaign} 
+                            />
                         </div>
                     )}
                 </div>        

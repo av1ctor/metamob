@@ -17,8 +17,11 @@ module {
         pubId: Text;
         parentId: ?Nat32;
         private_: Bool;
-        name: Text;
         kind: PlaceKind;
+        name: Text;
+        description: Text;
+        icon: Text;
+        active: Bool;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -27,8 +30,10 @@ module {
 
     public type PlaceRequest = {
         parentId: ?Nat32;
-        name: Text;
-        kind: PlaceKind;
         private_: Bool;
+        kind: PlaceKind;
+        name: Text;
+        description: Text;
+        icon: Text;
     };
 };

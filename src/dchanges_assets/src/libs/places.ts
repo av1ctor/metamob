@@ -1,5 +1,5 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {Place, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {DChanges, Place, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -67,6 +67,10 @@ export const findAll = async (
 export const findById = async (
     _id: number
 ): Promise<Place> => {
+    if(_id === 0) {
+       return {} as Place;
+    }
+    
     const res = await dchanges.placeFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
@@ -83,6 +87,42 @@ export const findTreeById = async (
     }
     return res.ok; 
 };
+
+export const findByPubId = async (
+    pubId?: string
+): Promise<Place> => {
+    if(!pubId) {
+        return {} as Place;
+    }
+    
+    const res = await dchanges.placeFindByPubId(pubId);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
+
+export const findByUser = async (
+    userId: number, 
+    orderBy?: Order, 
+    limit?: Limit,
+    main?: DChanges
+): Promise<Place[]> => {
+    if(!main) {
+        return [];
+    }   
+
+    const res = await main.placeFindByUser(
+        userId, 
+        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
 
 export const search = async (
     value: string

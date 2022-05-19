@@ -153,12 +153,12 @@ shared({caller = owner}) actor class DChanges() {
         categoryService.find(criterias, sortBy, limit, msg.caller);
     };
 
-    public query func categoryFindByUser(
+    public shared query(msg) func categoryFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[CategoryTypes.Category], Text> {
-        categoryService.findByUser(userId, sortBy, limit);
+        categoryService.findByUser(userId, sortBy, limit, msg.caller);
     };
 
     public shared(msg) func categoryDelete(
@@ -219,12 +219,12 @@ shared({caller = owner}) actor class DChanges() {
         campaignService.findByPlace(placeId, sortBy, limit);
     };
 
-    public query func campaignFindByUser(
+    public shared query(msg) func campaignFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
-        campaignService.findByUser(userId, sortBy, limit);
+        campaignService.findByUser(userId, sortBy, limit, msg.caller);
     };
 
     public shared(msg) func campaignDelete(
@@ -283,12 +283,12 @@ shared({caller = owner}) actor class DChanges() {
         signatureService.countByCampaign(campaignId);
     };
 
-    public query func signatureFindByUser(
+    public shared query(msg) func signatureFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
-        _transformSignatureResponses(signatureService.findByUser(userId, sortBy, limit));
+        _transformSignatureResponses(signatureService.findByUser(userId, sortBy, limit, msg.caller));
     };
 
     public query func signatureFindByCampaignAndUser(
@@ -432,12 +432,12 @@ shared({caller = owner}) actor class DChanges() {
         updateService.countByCampaign(campaignId);
     };
 
-    public query func updateFindByUser(
+    public shared query(msg) func updateFindByUser(
         userId: /* Text */ Nat32,
         sortBy: ?(Text, Text),
         limit: ?(Nat, Nat)
     ): async Result.Result<[UpdateTypes.Update], Text> {
-        updateService.findByUser(userId, sortBy, limit);
+        updateService.findByUser(userId, sortBy, limit, msg.caller);
     };
 
     public shared(msg) func updateDelete(
@@ -522,6 +522,14 @@ shared({caller = owner}) actor class DChanges() {
         _id: Nat32
     ): async Result.Result<[PlaceTypes.Place], Text> {
         placeService.findTreeById(_id);
+    };
+
+    public shared query(msg) func placeFindByUser(
+        userId: /* Text */ Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[PlaceTypes.Place], Text> {
+        placeService.findByUser(userId, sortBy, limit, msg.caller);
     };
 
     public shared query(msg) func placeFind(

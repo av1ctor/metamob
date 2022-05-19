@@ -5,9 +5,9 @@ interface Props {
     id?: number
 };
 
-const Place = (props: Props) => {
+const PlaceTag = (props: Props) => {
     const place = props.id?
-        useFindPlaceById(['places', props.id], props.id):
+        useFindPlaceById(props.id):
         undefined;
 
     return (
@@ -22,4 +22,4 @@ const Place = (props: Props) => {
     );
 };
 
-export default Place;
+export default PlaceTag;

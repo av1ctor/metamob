@@ -93,7 +93,7 @@ const Places = (props: Props) => {
         toggleEditUser();
     }, []);
 
-    const places = useFindPlaces(['places', ...filters], filters, orderBy, limit);
+    const places = useFindPlaces(filters, orderBy, limit);
 
     return (
         <>

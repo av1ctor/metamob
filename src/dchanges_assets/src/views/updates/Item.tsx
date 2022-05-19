@@ -19,7 +19,7 @@ export const Item = (props: ItemProps) => {
 
     const update = props.update;
 
-    const profile = useFindUserById(['users', update.createdBy], update.createdBy);
+    const profile = useFindUserById(update.createdBy);
 
     return (
         <article className="media">

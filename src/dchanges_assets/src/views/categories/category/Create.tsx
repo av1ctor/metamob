@@ -28,7 +28,7 @@ const Create = (props: Props) => {
         description: '',
     });
 
-    const mutation = useCreateCategory(['categories']);
+    const mutation = useCreateCategory();
     
     const changeForm = useCallback((e: any) => {
         setForm(form => ({

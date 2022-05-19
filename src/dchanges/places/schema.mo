@@ -18,11 +18,23 @@ module {
             },
             {
                 name = "name";
-                options = [#unique, #partial, #min(3), #max(4096)];
+                options = [#unique, #partial, #min(3), #max(96)];
             },
             {
                 name = "kind";
                 options = [#sortable];
+            },
+            {
+                name = "description";
+                options = [#min(3), #max(1024)];
+            },
+            {
+                name = "active";
+                options = [];
+            },
+            {
+                name = "icon";
+                options = [#max(512)];
             },
             {
                 name = "createdAt";

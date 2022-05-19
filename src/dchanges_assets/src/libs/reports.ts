@@ -71,11 +71,15 @@ export const entityTypeToColor = (
 };
 
 export const findAll = async (
-    main: DChanges,
     filters?: Filter[], 
     orderBy?: Order, 
     limit?: Limit,
+    main?: DChanges
 ): Promise<Report[]> => {
+    if(!main) {
+        return [];
+    }
+
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
             filters
@@ -102,8 +106,12 @@ export const findAll = async (
 
 export const findById = async (
     pubId: string,
-    main: DChanges
+    main?: DChanges
 ): Promise<Report> => {
+    if(!main) {
+        return {} as Report;
+    }
+
     const res = await main.reportFindById(pubId);
     if('err' in res) {
         throw new Error(res.err);

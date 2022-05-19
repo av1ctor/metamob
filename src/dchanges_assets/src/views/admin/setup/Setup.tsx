@@ -17,7 +17,7 @@ interface Props {
 
 const steps: Step[] = [
     {
-        title: 'IC Identity authentication',
+        title: 'IC Identity',
         icon: 'key',
     },
     {
