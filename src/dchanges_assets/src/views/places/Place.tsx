@@ -5,6 +5,7 @@ import Item from "../campaigns/Item";
 import { Bar } from "../campaigns/Bar";
 import { useParams } from "react-router-dom";
 import { useFindPlaceById, useFindPlaceByPubId } from "../../hooks/places";
+import { PlaceBar } from "./place/PlaceBar";
 
 const orderBy = {
     key: '_id',
@@ -58,6 +59,9 @@ const Campaigns = (props: Props) => {
         <div className="container">
             <div>
                 <div>
+                    <PlaceBar
+                        place={place.data}
+                    />
                     <Bar
                         filters={filters}
                         onSearch={handleChangeFilters}

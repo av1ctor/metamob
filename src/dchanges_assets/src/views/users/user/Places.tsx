@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useFindUserPlaces } from "../../../hooks/places";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
+import { PlaceButton } from "../../places/place/PlaceButton";
 
 interface Props {
 };
@@ -28,7 +29,11 @@ const Places = (props: Props) => {
     }
     
     return (
-        <div className="container">
+        <>
+            <div className="page-title has-text-info-dark">
+                My places
+            </div>
+            
             <div>
                 {places.status === 'loading' &&
                     <div>
@@ -46,14 +51,16 @@ const Places = (props: Props) => {
                     {places.status === 'success' && places.data && places.data.map((place) => 
                         <div 
                             key={place._id}
-                            className="column is-6"
+                            className="column is-4"
                         >
-                            <Link to={`/p/${place.pubId}`}>{place.name}</Link>
+                            <PlaceButton
+                                place={place}
+                            />
                         </div>
                     )}
                 </div>        
             </div>
-        </div>
+        </>    
     );
 };
 

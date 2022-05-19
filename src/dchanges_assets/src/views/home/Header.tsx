@@ -48,7 +48,6 @@ const Header = (props: Props) => {
     const handleToggleMenu = useCallback(() => {
         burgerRef.current?.classList.toggle('is-active');
         menuRef.current?.classList.toggle('is-active');
-        console.log(burgerRef.current)
     }, [burgerRef.current, menuRef.current]);
 
     const isLogged = !!authState.user;

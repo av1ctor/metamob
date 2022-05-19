@@ -41,6 +41,10 @@ const Admin = (props: Props) => {
     
     return (
         <>
+            <div className="page-title has-text-info-dark">
+                Admin
+            </div>         
+            
             <Box>
                 <Campaigns {...subProps} />
             </Box>

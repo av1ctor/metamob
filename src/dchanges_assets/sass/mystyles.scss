@@ -197,3 +197,55 @@
     padding: 3px 8px 3px 8px;
     margin-left: 4px;
 }
+
+.place-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    font-weight: bold;
+}
+
+.place-bar .place-icon {
+    flex: 0 0 4rem;
+    font-size: 4rem;
+}
+
+.place-bar .place-name {
+    flex: 1 0 auto;
+    font-size: 2rem;
+}
+
+.place-button {
+    margin: auto;
+    width: 10rem;
+    height: 6rem;
+    line-height: 3rem;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #428a42;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.place-button:hover {
+    border-color: #000;
+}
+
+.place-button .place-icon {
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.place-button .place-name {
+    font-size: 1rem;
+}
+
+.page-title {
+    font-size: 2rem; 
+    font-variant: small-caps;
+    font-weight: bold; 
+    text-align: center;
+}
+

@@ -1,12 +1,11 @@
-import React, { useCallback, useContext, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState } from "react"
 import * as yup from 'yup';
 import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
-import {ProfileRequest, Role } from "../../../../../declarations/dchanges/dchanges.did";
+import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import { ActorContext } from "../../../stores/actor";
-import { useNavigate } from "react-router-dom";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -35,8 +34,6 @@ const User = (props: Props) => {
         ...authState.user
     });
 
-    const navigate = useNavigate();
-    
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
             ...form, 
@@ -106,45 +103,63 @@ const User = (props: Props) => {
         }
     }, [form]);
 
-    if(!authState.client || !authState.identity || !authState.user) {
-        navigate('/user/login');
+    useEffect(() => {
+        setForm({
+            name: '',
+            email: '',
+            avatar: [],
+            roles: [] as any,
+            active: [],
+            banned: [],
+            countryId: 0,
+            ...authState.user
+        });
+    }, [authState.user]);
+
+    if(!authState.user) {
         return null;
     }
 
     return (
-        <form onSubmit={handleUpdate}>
-            <Container>
-                <TextField 
-                    label="Name"
-                    name="name"
-                    value={form.name || ''}
-                    required={true}
-                    onChange={changeForm} 
-                />
-                <TextField 
-                    label="E-mail"
-                    name="email"
-                    value={form.email || ''}
-                    required={true}
-                    onChange={changeForm} 
-                />
-                <TextField 
-                    label="Avatar"
-                    name="avatar"
-                    value={form.avatar[0] || ''}
-                    required={true}
-                    onChange={changeFormOpt} 
-                />
-                <div className="field is-grouped mt-2">
-                    <div className="control">
-                        <Button
-                            onClick={handleUpdate}>
-                            Update
-                        </Button>
+        <>
+            <div className="page-title has-text-info-dark">
+                My profile
+            </div>
+            
+            <form onSubmit={handleUpdate}>
+                <Container>
+                    <TextField 
+                        label="Name"
+                        name="name"
+                        value={form.name || ''}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <TextField 
+                        label="E-mail"
+                        name="email"
+                        value={form.email || ''}
+                        required={true}
+                        onChange={changeForm} 
+                    />
+                    <TextField 
+                        label="Avatar"
+                        name="avatar"
+                        value={form.avatar[0] || ''}
+                        required={true}
+                        onChange={changeFormOpt} 
+                    />
+                    <div className="field is-grouped mt-2">
+                        <div className="control">
+                            <Button
+                                onClick={handleUpdate}>
+                                Update
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </Container>
-        </form>        
+                </Container>
+            </form>        
+        </>
     )
 };
 

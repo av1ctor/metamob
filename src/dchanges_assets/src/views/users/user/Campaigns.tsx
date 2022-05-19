@@ -28,7 +28,11 @@ const Campaigns = (props: Props) => {
     }
     
     return (
-        <div className="container">
+        <>
+            <div className="page-title has-text-info-dark">
+                My campaigns
+            </div>
+            
             <div>
                 {campaigns.status === 'loading' &&
                     <div>
@@ -55,7 +59,7 @@ const Campaigns = (props: Props) => {
                     )}
                 </div>        
             </div>
-        </div>
+        </>
     );
 };
 

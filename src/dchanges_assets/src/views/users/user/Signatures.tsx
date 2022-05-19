@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserSignatures } from "../../../hooks/signatures";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
@@ -29,7 +30,11 @@ const Signatures = (props: Props) => {
     }
     
     return (
-        <div className="container">
+        <>
+            <div className="page-title has-text-info-dark">
+                My signatures
+            </div>
+
             <div>
                 {signatures.status === 'loading' &&
                     <div>
@@ -43,26 +48,35 @@ const Signatures = (props: Props) => {
                     </div>
                 }
                 
-                <div className="columns is-desktop is-multiline is-align-items-center">
+                <div className="signatures">
                     {signatures.status === 'success' && signatures.data && signatures.data.map((signature) => 
-                        <div 
+                        <BaseItem 
                             key={signature._id}    
-                            className="column is-6"
+                            user={authState.user}
+                            signature={signature} 
                         >
-                            <BaseItem 
-                                user={authState.user}
-                                signature={signature} 
-                            >
-                                <CampaignLink 
-                                    id={signature.campaignId} 
+                            <p>
+                                <small>
+                                <TimeFromNow 
+                                    date={BigInt.asIntN(64, signature.createdAt)}
                                 />
-                                
-                            </BaseItem>
-                        </div>
+                                {signature.updatedBy && signature.updatedBy.length > 0 &&
+                                    <>
+                                        &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                    </>
+                                }
+                                </small>
+                            </p>
+
+                            Campaign: <CampaignLink 
+                                id={signature.campaignId} 
+                            />
+                            
+                        </BaseItem>
                     )}
                 </div>        
             </div>
-        </div>
+        </>
     );
 };
 
