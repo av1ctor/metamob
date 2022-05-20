@@ -39,8 +39,8 @@ const Place = (props: Props) => {
 
     const campaigns = useFindCampaignsByPlaceId(filters, orderBy, limit, placeId);
 
-    const handleChangeFilters = useCallback((filters: Filter) => {
-        setFilters([filters]);
+    const handleChangeFilters = useCallback((filters: Filter[]) => {
+        setFilters(filters);
     }, []);
 
     useEffect(() => {

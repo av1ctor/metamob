@@ -13,7 +13,7 @@ const indexedColumns = ['title'];
 
 interface Props {
     filters: Filter[];
-    onSearch: (e: any) => void;
+    onSearch: (e: Filter[]) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;

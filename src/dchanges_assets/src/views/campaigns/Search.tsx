@@ -31,6 +31,8 @@ const SearchForm = (props: Props) => {
                     <div className="level-item">
                         <TextField
                             name="title"
+                            placeholder="Title"
+                            leftIcon="signature"
                             value={form[0].value || ''}
                             onChange={changeTitleFilter} 
                         />

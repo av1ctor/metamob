@@ -31,8 +31,8 @@ const Campaigns = (props: Props) => {
 
     const campaigns = useFindCampaigns(filters, orderBy, limit);
 
-    const handleChangeFilters = useCallback((filters: Filter) => {
-        setFilters([filters]);
+    const handleChangeFilters = useCallback((filters: Filter[]) => {
+        setFilters(filters);
     }, []);
 
     useEffect(() => {
