@@ -32,8 +32,12 @@ export const findAll = async (
 };
 
 export const findById = async (
-    _id: number
+    _id?: number
 ): Promise<Category> => {
+    if(!_id) {
+        return {} as Category;
+    }
+    
     const res = await dchanges.categoryFindById(_id);
     if('err' in res) {
         throw new Error(res.err);

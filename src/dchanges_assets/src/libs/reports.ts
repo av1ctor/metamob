@@ -105,10 +105,10 @@ export const findAll = async (
 }
 
 export const findById = async (
-    pubId: string,
+    pubId?: string,
     main?: DChanges
 ): Promise<Report> => {
-    if(!main) {
+    if(!main || !pubId) {
         return {} as Report;
     }
 

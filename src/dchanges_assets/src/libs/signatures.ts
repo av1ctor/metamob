@@ -33,10 +33,14 @@ export const findAll = async (
 }
 
 export const findByCampaign = async (
-    topicId: number, 
+    topicId?: number, 
     orderBy?: Order, 
     limit?: Limit
 ): Promise<SignatureResponse[]> => {
+    if(!topicId) {
+        return [];
+    }
+    
     const res = await dchanges.signatureFindByCampaign(
         topicId, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
@@ -53,7 +57,7 @@ export const findByCampaignAndUser = async (
     topicId?: number, 
     userId?: number
 ): Promise<SignatureResponse> => {
-    if(topicId === undefined || userId === undefined) {
+    if(!topicId || !userId) {
         return {} as SignatureResponse;
     }
     
@@ -72,12 +76,12 @@ export const findByCampaignAndUser = async (
 }
 
 export const findByUser = async (
-    userId: number, 
+    userId?: number, 
     orderBy?: Order, 
     limit?: Limit,
     main?: DChanges
 ): Promise<SignatureResponse[]> => {
-    if(!main) {
+    if(!main || !userId) {
         return [];
     }   
 
@@ -94,10 +98,10 @@ export const findByUser = async (
 }
 
 export const findById = async (
-    _id: number, 
+    _id?: number, 
     main?: DChanges
 ): Promise<Signature> => {
-    if(!main) {
+    if(!main || !_id) {
         return {} as Signature;
     }
         
@@ -109,8 +113,12 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId: string
+    pubId?: string
 ): Promise<SignatureResponse> => {
+    if(!pubId) {
+        return {} as SignatureResponse;
+    }
+
     const res = await dchanges.signatureFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);

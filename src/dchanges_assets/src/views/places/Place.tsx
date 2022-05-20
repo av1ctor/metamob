@@ -1,10 +1,10 @@
 import React, {useState, useCallback, useEffect} from "react";
 import {Filter} from "../../libs/common";
-import {useFindCampaigns, useFindCampaignsByPlaceId} from "../../hooks/campaigns";
+import {useFindCampaignsByPlaceId} from "../../hooks/campaigns";
 import Item from "../campaigns/Item";
 import { Bar } from "../campaigns/Bar";
 import { useParams } from "react-router-dom";
-import { useFindPlaceById, useFindPlaceByPubId } from "../../hooks/places";
+import { useFindPlaceByPubId } from "../../hooks/places";
 import { PlaceBar } from "./place/PlaceBar";
 
 const orderBy = {
@@ -23,8 +23,9 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 }
 
-const Campaigns = (props: Props) => {
+const Place = (props: Props) => {
     const {id} = useParams();
+
     const [placeId, setPlaceId] = useState<number>();
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -90,5 +91,5 @@ const Campaigns = (props: Props) => {
     );
 };
 
-export default Campaigns;
+export default Place;
   

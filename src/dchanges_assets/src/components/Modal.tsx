@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import {createPortal} from "react-dom";
 
 interface Props {
@@ -11,6 +11,10 @@ interface Props {
 };
 
 export default function(props: Props) {
+    const handleClose = useCallback((e: any) => {
+        props.onClose();
+    }, [props.onClose]);
+    
     return (
         createPortal(
             <div 
@@ -18,7 +22,7 @@ export default function(props: Props) {
             >
                 <div 
                     className="modal-background" 
-                    onClick={props.onClose} 
+                    onClick={handleClose} 
                 />
                 <div className="modal-card">
                     {props.header? 
@@ -27,7 +31,7 @@ export default function(props: Props) {
                             <button 
                                 className="delete" 
                                 aria-label="close"
-                                onClick={props.onClose}
+                                onClick={handleClose}
                             />
                         </header>
                     :
@@ -35,7 +39,7 @@ export default function(props: Props) {
                             <button 
                                 className="delete" 
                                 aria-label="close"
-                                onClick={props.onClose}
+                                onClick={handleClose}
                             />                            
                         </div>
                     }

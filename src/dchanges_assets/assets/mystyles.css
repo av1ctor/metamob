@@ -11196,26 +11196,10 @@ span[data-tooltip] {
   flex: 1 0 auto;
   font-size: 2rem; }
 
-.place-button {
-  margin: auto;
-  width: 10rem;
-  height: 6rem;
-  line-height: 3rem;
-  padding: 8px;
+.place-icon {
   text-align: center;
-  border: 1px solid #428a42;
-  border-radius: 4px;
-  overflow: hidden; }
-
-.place-button:hover {
-  border-color: #000; }
-
-.place-button .place-icon {
   font-size: 3rem;
   font-weight: bold; }
-
-.place-button .place-name {
-  font-size: 1rem; }
 
 .page-title {
   font-size: 2rem;

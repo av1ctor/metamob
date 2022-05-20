@@ -33,10 +33,14 @@ export const findAll = async (
 };
 
 export const findByCampaign = async (
-    campaignId: number, 
+    campaignId?: number, 
     orderBy?: Order, 
     limit?: Limit
 ): Promise<Update[]> => {
+    if(!campaignId) {
+        return [];
+    }
+
     const res = await dchanges.updateFindByCampaign(
         campaignId, 
         orderBy? [[orderBy.key, orderBy.dir]]: [], 
@@ -50,10 +54,10 @@ export const findByCampaign = async (
 };
 
 export const findById = async (
-    _id: number, 
+    _id?: number, 
     main?: DChanges
 ): Promise<Update> => {
-    if(!main) {
+    if(!main || !_id) {
         return {} as Update;
     }
     
@@ -65,8 +69,12 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId: string
+    pubId?: string
 ): Promise<Update> => {
+    if(!pubId) {
+        return {} as Update;
+    }
+
     const res = await dchanges.updateFindByPubId(pubId);
     if('err' in res) {
         throw new Error(res.err);

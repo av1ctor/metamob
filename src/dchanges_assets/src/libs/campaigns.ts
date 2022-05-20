@@ -69,12 +69,12 @@ export const findAll = async (
 }
 
 export const findByUser = async (
-    userId: number, 
+    userId?: number, 
     orderBy?: Order, 
     limit?: Limit,
     main?: DChanges
 ): Promise<Campaign[]> => {
-    if(!main) {
+    if(!main || !userId) {
         return [];
     }
 
@@ -91,8 +91,12 @@ export const findByUser = async (
 }
 
 export const findById = async (
-    _id: number
+    _id?: number
 ): Promise<Campaign> => {
+    if(!_id) {
+        return {} as Campaign;
+    }
+
     const res = await dchanges.campaignFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
@@ -103,7 +107,7 @@ export const findById = async (
 export const findByPubId = async (
     pubId?: string
 ): Promise<Campaign> => {
-    if(pubId === undefined) {
+    if(!pubId) {
         return {} as Campaign;
     }
     
@@ -120,7 +124,7 @@ export const findByPlaceId = async (
     orderBy?: Order, 
     limit?: Limit
 ): Promise<Campaign[]> => {
-    if(placeId === undefined) {
+    if(!placeId) {
         return [];
     }
 

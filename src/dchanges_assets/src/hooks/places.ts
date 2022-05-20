@@ -38,7 +38,7 @@ export const useFindUserPlaces = (
 ): UseQueryResult<Place[], Error> => {
    return useQuery<Place[], Error>(
         ['places', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
-        () => userId === -1? []: findByUser(userId, orderBy, limit, main)
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 };
 

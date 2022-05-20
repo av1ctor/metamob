@@ -65,9 +65,9 @@ export const findAll = async (
 };
 
 export const findById = async (
-    _id: number
+    _id?: number
 ): Promise<Place> => {
-    if(_id === 0) {
+    if(!_id) {
        return {} as Place;
     }
     
@@ -79,8 +79,12 @@ export const findById = async (
 };
 
 export const findTreeById = async (
-    _id: number
+    _id?: number
 ): Promise<Place[]> => {
+    if(!_id) {
+        return [];
+    }
+    
     const res = await dchanges.placeFindTreeById(_id);
     if('err' in res) {
         throw new Error(res.err);
@@ -103,12 +107,12 @@ export const findByPubId = async (
 };
 
 export const findByUser = async (
-    userId: number, 
+    userId?: number, 
     orderBy?: Order, 
     limit?: Limit,
     main?: DChanges
 ): Promise<Place[]> => {
-    if(!main) {
+    if(!main || !userId) {
         return [];
     }   
 

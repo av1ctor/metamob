@@ -16,9 +16,9 @@ const anonymous: ProfileResponse = {
 };
 
 export const findById = async (
-    _id: number
+    _id?: number
 ): Promise<ProfileResponse> => {
-    if(_id === 0) {
+    if(!_id) {
         return anonymous;
     }
 
@@ -31,9 +31,9 @@ export const findById = async (
 
 export const findByIdEx = async (
     main: DChanges,
-    _id: number
+    _id?: number
 ): Promise<Profile> => {
-    if(_id === 0) {
+    if(!_id) {
         return anonymous as Profile;
     }
     
