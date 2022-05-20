@@ -11206,3 +11206,6 @@ span[data-tooltip] {
   font-variant: small-caps;
   font-weight: bold;
   text-align: center; }
+
+.select {
+  height: unset !important; }

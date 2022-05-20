@@ -1,10 +1,13 @@
 import React, {useCallback, useState} from "react";
+import { Category } from "../../../../declarations/dchanges/dchanges.did";
 import Button from "../../components/Button";
+import SelectField from "../../components/SelectField";
 import TextField from "../../components/TextField";
 import {Filter} from "../../libs/common";
 
 interface Props {
     filters: Filter[];
+    categories: Category[];
     indexedColumns: string[];
     onSearch: (filters: Filter[]) => unknown
 };
@@ -14,8 +17,15 @@ const SearchForm = (props: Props) => {
 
     const changeTitleFilter = useCallback((e: any) => {
         const value = e.target.value;
-        setForm(filters => 
-            filters.map(f => f.key !== 'title'? f: {...f, value: value})
+        setForm(form => 
+            form.map(f => f.key !== 'title'? f: {...f, value: value})
+        );
+    }, []);
+
+    const changeCategoryFilter = useCallback((e: any) => {
+        const value = e.target.value;
+        setForm(form => 
+            form.map(f => f.key !== 'categoryId'? f: {...f, value: value? Number(value): null})
         );
     }, []);
 
@@ -35,6 +45,14 @@ const SearchForm = (props: Props) => {
                             leftIcon="signature"
                             value={form[0].value || ''}
                             onChange={changeTitleFilter} 
+                        />
+                    </div>
+                    <div className="level-item">
+                        <SelectField 
+                            name="categoryId"
+                            value={form[1].value || ''}
+                            options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                            onChange={changeCategoryFilter} 
                         />
                     </div>
                     <div className="level-item">

@@ -50,6 +50,7 @@ export const Bar = (props: Props) => {
                 <div className="level-left">
                     <SearchForm 
                         filters={props.filters}
+                        categories={categoryState.categories}
                         indexedColumns={indexedColumns}
                         onSearch={props.onSearch} 
                     />
