@@ -1,19 +1,23 @@
 import React, {useCallback, useState} from "react";
 import { Category } from "../../../../declarations/dchanges/dchanges.did";
+import AutocompleteField from "../../components/AutocompleteField";
 import Button from "../../components/Button";
-import SelectField from "../../components/SelectField";
+import SelectField, {Option} from "../../components/SelectField";
 import TextField from "../../components/TextField";
 import {Filter} from "../../libs/common";
+import { search } from "../../libs/places";
 
 interface Props {
     filters: Filter[];
     categories: Category[];
     indexedColumns: string[];
     onSearch: (filters: Filter[]) => unknown
+    onError: (message: any) => void;
 };
 
 const SearchForm = (props: Props) => {
     const [form, setForm] = useState(props.filters);
+    const [placeName, setPlaceName] = useState('');
 
     const changeTitleFilter = useCallback((e: any) => {
         const value = e.target.value;
@@ -27,6 +31,26 @@ const SearchForm = (props: Props) => {
         setForm(form => 
             form.map(f => f.key !== 'categoryId'? f: {...f, value: value? Number(value): null})
         );
+    }, []);
+
+    const changePlaceFilter = useCallback((e: any) => {
+        const value = e.target.value;
+        setForm(form => 
+            form.map(f => f.key !== 'placeId'? f: {...f, value: value? Number(value): null})
+        );
+        setPlaceName(e.target.text);
+    }, []);
+
+    const handleSearchPlace = useCallback(async (
+        value: string
+    ): Promise<Option[]> => {
+        try {
+            return search(value);
+        }
+        catch(e) {
+            props.onError(e);
+            return [];
+        }
     }, []);
 
     const handleSubmit = useCallback((e: any) => {
@@ -59,10 +83,28 @@ const SearchForm = (props: Props) => {
                             onChange={changeCategoryFilter} 
                         />
                     </div>
+                    {props.filters.length >= 3 && 
+                        <div className="level-item">
+                            <AutocompleteField 
+                                name="placeId"
+                                placeholder="Any"
+                                title="Place filter"
+                                leftIcon="globe"
+                                value={placeName}
+                                onSearch={handleSearchPlace}
+                                onChange={changePlaceFilter} 
+                            />
+                        </div>
+                    }
                     <div className="level-item">
                         <div className="field">
                             <div className="control">
-                                <Button onClick={handleSubmit}><i className="la la-search" /></Button>
+                                <Button 
+                                    title="Filter"
+                                    onClick={handleSubmit}
+                                >
+                                    <i className="la la-search" />
+                                </Button>
                             </div>
                         </div>
                     </div>

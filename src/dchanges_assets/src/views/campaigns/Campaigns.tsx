@@ -31,6 +31,11 @@ const Campaigns = (props: Props) => {
             key: 'categoryId',
             op: 'eq',
             value: null
+        },
+        {
+            key: 'placeId',
+            op: 'eq',
+            value: null
         }
     ]);
 

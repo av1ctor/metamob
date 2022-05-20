@@ -53,6 +53,7 @@ export const Bar = (props: Props) => {
                         categories={categoryState.categories}
                         indexedColumns={indexedColumns}
                         onSearch={props.onSearch} 
+                        onError={props.onError}
                     />
                 </div>
                 <div className="level-right">

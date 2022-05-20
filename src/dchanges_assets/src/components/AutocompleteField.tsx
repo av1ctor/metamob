@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { string } from "yup";
 import Button from "./Button";
 import { Option } from "./SelectField";
 
@@ -6,7 +7,10 @@ interface Props {
     id?: string;
     name?: string;
     label?: string;
+    placeholder?: string;
+    title?: string;
     value: string | number;
+    leftIcon?: string;
     required?: boolean;
     disabled?: boolean;
     onSearch: (value: string) => Promise<Option[]>;
@@ -35,6 +39,18 @@ const AutocompleteField = (props: Props) => {
                 setIsLoading(false);
             }
         }
+        else if(suggestion.length === 0) {
+            if(props.onChange) {
+                props.onChange({
+                    target: {
+                        id: props.id, 
+                        name: props.name, 
+                        value: '',
+                        text: ''
+                    }
+                });
+            }
+        }
         setSuggestion(suggestion);
     }, [props.onSearch]);
 
@@ -46,7 +62,14 @@ const AutocompleteField = (props: Props) => {
         setSuggestions([]);
         setIsVisible(false);
         if(props.onChange) {
-            props.onChange({target: {id: props.id, name: props.name, value: value}});
+            props.onChange({
+                target: {
+                    id: props.id, 
+                    name: props.name, 
+                    value: value,
+                    text: text
+                }
+            });
         }
     }, [props.onChange, props.id, props.name]);
 
@@ -88,12 +111,14 @@ const AutocompleteField = (props: Props) => {
             }
             <div className="dropdown is-flex">
                 <div 
-                    className={`select control dropdown-trigger is-flex-grow-1 ${isLoading? 'has-icons-right': ''}`}
+                    className={`control dropdown-trigger is-flex-grow-1 ${props.leftIcon? 'has-icons-left': ''} has-icons-right`}
                 >
                     <input 
                         className="input"
                         id={props.id}
                         name={props.name}
+                        placeholder={props.placeholder}
+                        title={props.title}
                         value={suggestion} 
                         required={props.required}
                         disabled={props.disabled}
@@ -102,6 +127,11 @@ const AutocompleteField = (props: Props) => {
                         onBlur={handleHideMenu}
                         onFocus={handleShowMenu}
                     />
+                    {props.leftIcon && 
+                        <span className="icon is-left">
+                            <i className={`la la-${props.leftIcon}`}></i>
+                        </span>
+                    }
                     {isLoading &&
                         <span className="icon is-right">
                             <i className="la la-spinner"></i>
