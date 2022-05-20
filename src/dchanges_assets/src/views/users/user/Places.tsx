@@ -81,49 +81,51 @@ const Places = (props: Props) => {
                     </div>
                 }
                 
-                <div>
+                <div className="columns is-multiline is-align-items-center">
                     {places.status === 'success' && places.data && places.data.map((place) => 
-                        <article key={place._id} className="media">
-                            <div className="media-left">
-                                <div className="place-icon has-text-primary-dark">
-                                    <i className={`la la-${place.icon || 'map'}`} />
+                        <div key={place._id} className="column is-6-desktop">
+                            <article className="media">
+                                <div className="media-left">
+                                    <div className="place-icon has-text-primary-dark">
+                                        <i className={`la la-${place.icon || 'map'}`} />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="media-content">
-                                <div className="content">
-                                    <strong>{place.name}</strong>
-                                    <p>{place.description}</p>
-                                    <p>
-                                        <small>
-                                            <a
-                                                title="View place"
-                                                onClick={() => handleRedirect(place)}
-                                            >
-                                                <span className="whitespace-nowrap has-text-primary-dark"><i className="la la-eye" /> View</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                            <a
-                                                title="Edit place"
-                                                onClick={() => toggleEdit(place)}
-                                            >
-                                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                            <a
-                                                title="Delete place"
-                                                onClick={() => toggleDelete(place)}
-                                            >
-                                                <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                            <TimeFromNow 
-                                                date={BigInt.asIntN(64, place.createdAt)}
-                                            />
-                                        </small>
-                                    </p>
+                                <div className="media-content">
+                                    <div className="content">
+                                        <strong>{place.name}</strong>
+                                        <p>{place.description}</p>
+                                        <p>
+                                            <small>
+                                                <a
+                                                    title="View place"
+                                                    onClick={() => handleRedirect(place)}
+                                                >
+                                                    <span className="whitespace-nowrap has-text-primary-dark"><i className="la la-eye" /> View</span>
+                                                </a>
+                                                &nbsp;·&nbsp;
+                                                <a
+                                                    title="Edit place"
+                                                    onClick={() => toggleEdit(place)}
+                                                >
+                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                                </a>
+                                                &nbsp;·&nbsp;
+                                                <a
+                                                    title="Delete place"
+                                                    onClick={() => toggleDelete(place)}
+                                                >
+                                                    <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                                </a>
+                                                &nbsp;·&nbsp;
+                                                <TimeFromNow 
+                                                    date={BigInt.asIntN(64, place.createdAt)}
+                                                />
+                                            </small>
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
+                            </article>
+                        </div>
                     )}
                 </div>        
             </div>
