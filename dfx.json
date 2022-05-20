@@ -5,6 +5,11 @@
       "candid": "internet_identity.did",
       "wasm": "internet_identity.wasm"
     },    
+    "ledger": {
+      "type": "custom",
+      "wasm": "ledger.wasm",
+      "candid": "ledger.public.did"
+    },
     "dchanges": {
       "main": "src/dchanges/facade.mo",
       "type": "motoko"

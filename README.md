@@ -53,3 +53,6 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### deploying the local internet_identity canister:
 - Run: II_ENV=development dfx deploy --no-wallet --argument '(null)' internet_identity
 - Copy the local II address and replace the II_URL_LOCAL variable at .env with http://localhost:8000/?canisterId={II_CANISTER_ID}&id={II_CANISTER_ID}
+
+### deploying the local ledger canister:
+- Follow: https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally
