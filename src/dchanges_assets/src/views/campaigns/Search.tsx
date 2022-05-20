@@ -42,6 +42,7 @@ const SearchForm = (props: Props) => {
                         <TextField
                             name="title"
                             placeholder="Title"
+                            title="Title filter"
                             leftIcon="signature"
                             value={form[0].value || ''}
                             onChange={changeTitleFilter} 
@@ -50,6 +51,9 @@ const SearchForm = (props: Props) => {
                     <div className="level-item">
                         <SelectField 
                             name="categoryId"
+                            placeholder="All"
+                            title="Category filter"
+                            leftIcon="list"
                             value={form[1].value || ''}
                             options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
                             onChange={changeCategoryFilter} 

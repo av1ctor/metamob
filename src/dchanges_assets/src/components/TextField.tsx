@@ -5,6 +5,7 @@ interface Props {
     name?: string;
     label?: string;
     placeholder?: string;
+    title?: string;
     value: string;
     leftIcon?: string;
     rightIcon?: string;
@@ -27,6 +28,7 @@ const TextField = (props: Props) => {
                     id={props.id}
                     name={props.name}
                     placeholder={props.placeholder}
+                    title={props.title}
                     value={props.value} 
                     type="text"
                     required={props.required}

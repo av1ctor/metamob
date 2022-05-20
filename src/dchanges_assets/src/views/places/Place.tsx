@@ -32,6 +32,11 @@ const Place = (props: Props) => {
             key: 'title',
             op: 'contains',
             value: ''
+        },
+        {
+            key: 'categoryId',
+            op: 'eq',
+            value: null
         }
     ]);
 
