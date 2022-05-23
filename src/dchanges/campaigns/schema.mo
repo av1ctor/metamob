@@ -13,6 +13,10 @@ module {
                 options = [#unique];
             },
             {
+                name = "kind";
+                options = [];
+            },
+            {
                 name = "title";
                 options = [#partial, #min(10), #max(128)];
             },
@@ -53,28 +57,8 @@ module {
                 options = [#multiple, #sortable, #max(5)];
             },
             {
-                name = "signaturesCnt";
-                options = [#sortable];
-            },
-            {
-                name = "firstSignatureAt";
-                options = [#nullable];
-            },
-            {
-                name = "lastSignatureAt";
-                options = [#nullable];
-            },
-            {
-                name = "lastSignatureBy";
-                options = [#nullable];
-            },
-            {
-                name = "signaturers";
-                options = [#multiple];
-            },
-            {
                 name = "updatesCnt";
-                options = [#sortable];
+                options = [];
             },
             {
                 name = "publishedAt";

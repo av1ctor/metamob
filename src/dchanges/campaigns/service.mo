@@ -72,6 +72,12 @@ module {
                                         return #err("Invalid field: state");
                                     };
                                 };
+
+                                if(req.kind != campaign.kind) {
+                                    if(campaign.state != CampaignTypes.STATE_CREATED) {
+                                        return #err("Kind can not be changed after the campaign is published");
+                                    };
+                                };
                                 
                                 return repo.update(campaign, req, caller._id);
                             };

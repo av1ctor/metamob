@@ -1,28 +1,31 @@
 import Array "mo:base/Array";
-import Buffer "mo:base/Buffer";
-import HashMap "mo:base/HashMap";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
 import Bool "mo:base/Bool";
+import Buffer "mo:base/Buffer";
+import Debug "mo:base/Debug";
+import DonationTypes "../donations/types";
+import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
-import Nat8 "mo:base/Nat8";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Float";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
-import Time "mo:base/Time";
-import Variant "mo:mo-table/variant";
-import Table "mo:mo-table/table";
+import Nat8 "mo:base/Nat8";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
 import Random "../common/random";
-import ULID "../common/ulid";
-import Utils "../common/utils";
-import Types "./types";
+import Result "mo:base/Result";
 import Schema "./schema";
 import SignatureTypes "../signatures/types";
+import Table "mo:mo-table/table";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
+import Types "./types";
+import ULID "../common/ulid";
 import UpdateTypes "../updates/types";
-import Debug "mo:base/Debug";
+import Utils "../common/utils";
+import Variant "mo:mo-table/variant";
+import VoteTypes "../votes/types";
 
 module {
     public class Repository() {
@@ -367,6 +370,34 @@ module {
             ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureDeleted(campaign, signature));
         };
 
+        public func onVoteInserted(
+            campaign: Types.Campaign,
+            signature: VoteTypes.Vote
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteInserted(campaign, signature));
+        };
+
+        public func onVoteDeleted(
+            campaign: Types.Campaign,
+            signature: VoteTypes.Vote
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteDeleted(campaign, signature));
+        };
+
+        public func onDonationInserted(
+            campaign: Types.Campaign,
+            donation: DonationTypes.Donation
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenDonationInserted(campaign, donation));
+        };
+
+        public func onDonationDeleted(
+            campaign: Types.Campaign,
+            donation: DonationTypes.Donation
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenDonationDeleted(campaign, donation));
+        };
+
         public func onUpdateInserted(
             campaign: Types.Campaign,
             update: UpdateTypes.Update
@@ -392,6 +423,63 @@ module {
             campaigns.restore(entities);
         };
 
+        func _createStatsEntity(
+            kind: Types.CampaignKind,
+            goal: Nat
+        ): Types.CampaignInfo {
+            if(kind == Types.KIND_SIGNATURES) {
+                #signatures({
+                    total = 0;
+                    goal = Nat32.fromNat(goal);
+                    firstAt = null;
+                    lastAt = null;
+                    lastBy = null;
+                    signers = [];
+                });
+            }
+            else if(kind == Types.KIND_VOTES) {
+                #votes({
+                    pro = 0;
+                    against = 0;
+                    goal = Nat32.fromNat(goal);
+                    firstAt = null;
+                    lastAt = null;
+                    lastBy = null;
+                    voters = [];
+                });
+            }
+            else if(kind == Types.KIND_ANON_VOTES) {
+                #anonVotes({
+                    pro = 0;
+                    against = 0;
+                    goal = Nat32.fromNat(goal);
+                    firstAt = null;
+                    lastAt = null;
+                });
+            }
+            else if(kind == Types.KIND_WEIGHTED_VOTES) {
+                #weightedVotes({
+                    pro = 0;
+                    against = 0;
+                    goal = goal;
+                    firstAt = null;
+                    lastAt = null;
+                    lastBy = null;
+                    voters = [];
+                });
+            }
+            else {
+                #donations({
+                    total = 0;
+                    goal = goal;
+                    firstAt = null;
+                    lastAt = null;
+                    lastBy = null;
+                    donors = [];
+                });
+            };
+        };
+
         func _createEntity(
             req: Types.CampaignRequest,
             callerId: Nat32
@@ -400,6 +488,7 @@ module {
             {
                 _id = campaigns.nextId();
                 pubId = ulid.next();
+                kind = req.kind;
                 title = req.title;
                 target = req.target;
                 cover = req.cover;
@@ -413,11 +502,7 @@ module {
                 result = Types.RESULT_NONE;
                 duration = req.duration;
                 tags = req.tags;
-                signaturesCnt = 0;
-                firstSignatureAt = null;
-                lastSignatureAt = null;
-                lastSignatureBy = null;
-                signaturers = [];
+                info = _createStatsEntity(req.kind, req.goal);
                 updatesCnt = 0;
                 publishedAt = ?now;
                 expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000)))));
@@ -438,6 +523,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = req.kind;
                 title = req.title;
                 target = req.target;
                 cover = req.cover;
@@ -451,11 +537,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = req.tags;
-                signaturesCnt = e.signaturesCnt;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = e.signaturers;
+                info = e.info;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -475,6 +557,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = "";
                 target = "";
                 cover = "";
@@ -485,11 +568,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = e.signaturers;
+                info = e.info;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -509,6 +588,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = e.title;
                 target = e.target;
                 cover = e.cover;
@@ -519,11 +599,20 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt + 1;
-                firstSignatureAt = switch(e.firstSignatureAt) {case null {?signature.createdAt}; case (?at) {?at};};
-                lastSignatureAt = ?signature.createdAt;
-                lastSignatureBy = ?signature.createdBy;
-                signaturers = Utils.addToArray(e.signaturers, signature.createdBy);
+                info = switch(e.info) {
+                    case (#signatures(info)) {
+                        #signatures({
+                            total = info.total + 1;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?signature.createdAt}; case (?at) {?at};};
+                            lastAt = ?signature.createdAt;
+                            lastBy = ?signature.createdBy;
+                        });
+                    };
+                    case _ {
+                        e.info;
+                    };
+                };
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -543,6 +632,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = e.title;
                 target = e.target;
                 cover = e.cover;
@@ -553,11 +643,20 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = if(e.signaturesCnt > 0) e.signaturesCnt - 1 else 0;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = Utils.delFromArray(e.signaturers, signature.createdBy, Nat32.equal);
+                info = switch(e.info) {
+                    case (#signatures(info)) {
+                        #signatures({
+                            total = if(info.total > 0) info.total - 1 else 0;
+                            goal = info.goal;
+                            firstAt = info.firstAt;
+                            lastAt = info.lastAt;
+                            lastBy = info.lastBy;
+                        });
+                    };
+                    case _ {
+                        e.info;
+                    };
+                };
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -568,15 +667,16 @@ module {
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
             }  
-        };     
+        };
 
-        func _updateEntityWhenUpdateInserted(
+        func _updateEntityWhenVoteInserted(
             e: Types.Campaign, 
-            update: UpdateTypes.Update
+            vote: VoteTypes.Vote
         ): Types.Campaign {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = e.title;
                 target = e.target;
                 cover = e.cover;
@@ -587,11 +687,229 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = e.signaturers;
+                info = switch(e.info) {
+                    case (#votes(info)) {
+                        let value = Nat32.fromNat(Int.abs(vote.value));
+                        #votes({
+                            pro = if(vote.value >= 0) info.pro + value else info.pro;
+                            against = if(vote.value < 0) info.against + value else info.against;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                            lastBy = ?vote.createdBy;
+                        });
+                    };
+                    case (#anonVotes(info)) {
+                        let value = Nat32.fromNat(Int.abs(vote.value));
+                        #anonVotes({
+                            pro = if(vote.value >= 0) info.pro + value else info.pro;
+                            against = if(vote.value < 0) info.against + value else info.against;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                        });
+                    };
+                    case (#weightedVotes(info)) {
+                        let value = Int.abs(vote.value);
+                        #weightedVotes({
+                            pro = if(vote.value >= 0) info.pro + value else info.pro;
+                            against = if(vote.value < 0) info.against + value else info.against;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                            lastBy = ?vote.createdBy;
+                        });
+                    };                    
+                    case _ {
+                        e.info;
+                    };
+                };
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };        
+
+        func _updateEntityWhenVoteDeleted(
+            e: Types.Campaign, 
+            vote: VoteTypes.Vote
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = switch(e.info) {
+                    case (#votes(info)) {
+                        let value = Nat32.fromNat(Int.abs(vote.value));
+                        #votes({
+                            pro = if(vote.value >= 0) info.pro - value else info.pro;
+                            against = if(vote.value < 0) info.against - value else info.against;
+                            goal = info.goal;
+                            firstAt = info.firstAt;
+                            lastAt = info.lastAt;
+                            lastBy = info.lastBy;
+                        });
+                    };
+                    case (#anonVotes(info)) {
+                        let value = Nat32.fromNat(Int.abs(vote.value));
+                        #anonVotes({
+                            pro = if(vote.value >= 0) info.pro - value else info.pro;
+                            against = if(vote.value < 0) info.against - value else info.against;
+                            goal = info.goal;
+                            firstAt = info.firstAt;
+                            lastAt = info.lastAt;
+                        });
+                    };
+                    case (#weightedVotes(info)) {
+                        let value = Int.abs(vote.value);
+                        #weightedVotes({
+                            pro = if(vote.value >= 0) info.pro - value else info.pro;
+                            against = if(vote.value < 0) info.against - value else info.against;
+                            goal = info.goal;
+                            firstAt = info.firstAt;
+                            lastAt = info.lastAt;
+                            lastBy = info.lastBy;
+                        });
+                    };                    
+                    case _ {
+                        e.info;
+                    };
+                };
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };
+
+        func _updateEntityWhenDonationInserted(
+            e: Types.Campaign, 
+            donation: DonationTypes.Donation
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = switch(e.info) {
+                    case (#donations(info)) {
+                        #donations({
+                            total = info.total + donation.value;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?donation.createdAt}; case (?at) {?at};};
+                            lastAt = ?donation.createdAt;
+                            lastBy = ?donation.createdBy;
+                        });
+                    };
+                    case _ {
+                        e.info;
+                    };
+                };
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };        
+
+        func _updateEntityWhenDonationDeleted(
+            e: Types.Campaign, 
+            donation: DonationTypes.Donation
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = switch(e.info) {
+                    case (#donations(info)) {
+                        #donations({
+                            total = info.total - donation.value;
+                            goal = info.goal;
+                            firstAt = info.firstAt;
+                            lastAt = info.lastAt;
+                            lastBy = info.lastBy;
+                        });
+                    };
+                    case _ {
+                        e.info;
+                    };
+                };
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };
+
+        func _updateEntityWhenUpdateInserted(
+            e: Types.Campaign, 
+            update: UpdateTypes.Update
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
                 updatesCnt = e.updatesCnt + 1;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -611,6 +929,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = e.title;
                 target = e.target;
                 cover = e.cover;
@@ -621,11 +940,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = e.signaturers;
+                info = e.info;
                 updatesCnt = if(e.updatesCnt > 0) e.updatesCnt - 1 else 0;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -646,6 +961,7 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                kind = e.kind;
                 title = e.title;
                 target = e.target;
                 cover = e.cover;
@@ -656,11 +972,7 @@ module {
                 result = result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt;
-                firstSignatureAt = e.firstSignatureAt;
-                lastSignatureAt = e.lastSignatureAt;
-                lastSignatureBy = e.lastSignatureBy;
-                signaturers = e.signaturers;
+                info = e.info;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -682,6 +994,7 @@ module {
 
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("kind", #nat32(e.kind));
         res.put("title", #text(if ignoreCase Utils.toLower(e.title) else e.title));
         res.put("target", #text(if ignoreCase Utils.toLower(e.target) else e.target));
         res.put("cover", #text(e.cover));
@@ -692,11 +1005,47 @@ module {
         res.put("result", #nat32(e.result));
         res.put("duration", #nat32(e.duration));
         res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
-        res.put("signaturesCnt", #nat32(e.signaturesCnt));
-        res.put("firstSignatureAt", switch(e.firstSignatureAt) {case null #nil; case (?firstSignatureAt) #int(firstSignatureAt);});
-        res.put("lastSignatureAt", switch(e.lastSignatureAt) {case null #nil; case (?lastSignatureAt) #int(lastSignatureAt);});
-        res.put("lastSignatureBy", switch(e.lastSignatureBy) {case null #nil; case (?lastSignatureBy) #nat32(lastSignatureBy);});
-        res.put("signaturers", #array(Array.map(e.signaturers, func(signatureerId: Nat32): Variant.Variant {#nat32(signatureerId);})));
+        
+        switch(e.info) {
+            case (#signatures(info)) {
+                res.put("stats_total", #nat32(info.total));
+                res.put("stats_goal", #nat32(info.goal));
+                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+            };
+            case (#votes(info)) {
+                res.put("stats_pro", #nat32(info.pro));
+                res.put("stats_against", #nat32(info.against));
+                res.put("stats_goal", #nat32(info.goal));
+                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+            };
+            case (#anonVotes(info)) {
+                res.put("stats_pro", #nat32(info.pro));
+                res.put("stats_against", #nat32(info.against));
+                res.put("stats_goal", #nat32(info.goal));
+                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+            };
+            case (#weightedVotes(info)) {
+                res.put("stats_pro", #nat(info.pro));
+                res.put("stats_against", #nat(info.against));
+                res.put("stats_goal", #nat(info.goal));
+                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+            };            
+            case (#donations(info)) {
+                res.put("stats_total", #nat(info.total));
+                res.put("stats_goal", #nat(info.goal));
+                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+            };            
+        };
+
         res.put("updatesCnt", #nat32(e.updatesCnt));
         res.put("publishedAt", switch(e.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
         res.put("expiredAt", switch(e.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
@@ -713,9 +1062,12 @@ module {
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
     ): Types.Campaign {
+        let kind: Types.CampaignKind = Variant.getOptNat32(map.get("kind"));
+
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
+            kind = kind;
             title = Variant.getOptText(map.get("title"));
             target = Variant.getOptText(map.get("target"));
             cover = Variant.getOptText(map.get("cover"));
@@ -726,11 +1078,53 @@ module {
             result = Variant.getOptNat32(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
-            signaturesCnt = Variant.getOptNat32(map.get("signaturesCnt"));
-            firstSignatureAt = Variant.getOptIntOpt(map.get("firstSignatureAt"));
-            lastSignatureAt = Variant.getOptIntOpt(map.get("lastSignatureAt"));
-            lastSignatureBy = Variant.getOptNat32Opt(map.get("lastSignatureBy"));
-            signaturers = Array.map(Variant.getOptArray(map.get("signaturers")), Variant.getNat32);
+            info = if(kind == Types.KIND_SIGNATURES) {
+                #signatures({
+                    total = Variant.getOptNat32(map.get("stats_total"));
+                    goal = Variant.getOptNat32(map.get("stats_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                });
+            }
+            else if(kind == Types.KIND_VOTES) {
+                #votes({
+                    pro = Variant.getOptNat32(map.get("stats_pro"));
+                    against = Variant.getOptNat32(map.get("stats_against"));
+                    goal = Variant.getOptNat32(map.get("stats_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                });
+            }
+            else if(kind == Types.KIND_ANON_VOTES) {
+                #anonVotes({
+                    pro = Variant.getOptNat32(map.get("stats_pro"));
+                    against = Variant.getOptNat32(map.get("stats_against"));
+                    goal = Variant.getOptNat32(map.get("stats_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                });
+            }
+            else if(kind == Types.KIND_WEIGHTED_VOTES) {
+                #weightedVotes({
+                    pro = Variant.getOptNat(map.get("stats_pro"));
+                    against = Variant.getOptNat(map.get("stats_against"));
+                    goal = Variant.getOptNat(map.get("stats_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                });
+            }
+            else /*if(kind == Types.KIND_DONATIONS)*/ {
+                #donations({
+                    total = Variant.getOptNat(map.get("stats_total"));
+                    goal = Variant.getOptNat(map.get("stats_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                });
+            };
             updatesCnt = Variant.getOptNat32(map.get("updatesCnt"));
             publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
             expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));

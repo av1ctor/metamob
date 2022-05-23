@@ -13,6 +13,7 @@ import { search } from "../../../libs/places";
 import PlaceForm from '../../places/place/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
+import { CampaignKind, kindOptions } from "../../../libs/campaigns";
 
 interface Props {
     mutation: any;
@@ -24,6 +25,8 @@ interface Props {
 };
 
 const formSchema = yup.object().shape({
+    kind: yup.number().required(),
+    goal: yup.number().required().min(1),
     state: yup.array().required(),
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
@@ -40,6 +43,8 @@ const CreateForm = (props: Props) => {
     
     const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
+        kind: CampaignKind.SIGNATURES,
+        goal: BigInt(0),
         state: [],
         title: '',
         target: '',
@@ -76,6 +81,8 @@ const CreateForm = (props: Props) => {
             await props.mutation.mutateAsync({
                 main: actorState.main,
                 req: {
+                    kind: Number(form.kind),
+                    goal: BigInt(form.goal),
                     state: form.state,
                     title: form.title,
                     target: form.target,
@@ -134,92 +141,105 @@ const CreateForm = (props: Props) => {
     return (
         <>
             <form onSubmit={handleCreate}>
+                <SelectField 
+                    label="Kind"
+                    name="kind"
+                    value={form.kind}
+                    options={kindOptions}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="Title"
+                    name="title"
+                    value={form.title || ''}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="Target"
+                    name="target"
+                    value={form.target || ''}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <MarkdownField
+                    label="Body"
+                    name="body"
+                    value={form.body || ''}
+                    rows={6}
+                    onChange={changeForm}
+                />
+                <TextField 
+                    label="Cover image" 
+                    name="cover"
+                    value={form.cover || ''}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <NumberField
+                    label="Duration (in days)" 
+                    name="duration"
+                    value={form.duration}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <NumberField 
+                    label="Goal" 
+                    name="goal"
+                    value={Number(form.goal.toString())}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <SelectField 
+                    label="Category"
+                    name="categoryId"
+                    value={form.categoryId}
+                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <AutocompleteField
+                    label="Place"
+                    name="placeId"
+                    value=""
+                    required={true}
+                    onSearch={handleSearchPlace}
+                    onChange={changeForm}
+                    onAdd={showCreatePlace}
+                />
+                <TagsField 
+                    label="Tags"
+                    name="tags"
+                    value={form.tags}
+                    maxTags={5}
+                    onChange={changeForm} 
+                />
                 <Container>
-                    <TextField 
-                        label="Title"
-                        name="title"
-                        value={form.title || ''}
-                        required={true}
-                        onChange={changeForm} 
-                    />
-                    <TextField 
-                        label="Target"
-                        name="target"
-                        value={form.target || ''}
-                        required={true}
-                        onChange={changeForm} 
-                    />
-                    <MarkdownField
-                        label="Body"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        onChange={changeForm}
-                    />
-                    <TextField 
-                        label="Cover image" 
-                        name="cover"
-                        value={form.cover || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <NumberField
-                        label="Duration (in days)" 
-                        name="duration"
-                        value={form.duration}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <SelectField 
-                        label="Category"
-                        name="categoryId"
-                        value={form.categoryId}
-                        options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
-                        required={true}
-                        onChange={changeForm} 
-                    />
-                    <AutocompleteField
-                        label="Place"
-                        name="placeId"
-                        value=""
-                        required={true}
-                        onSearch={handleSearchPlace}
-                        onChange={changeForm}
-                        onAdd={showCreatePlace}
-                    />
-                    <TagsField 
-                        label="Tags"
-                        name="tags"
-                        value={form.tags}
-                        maxTags={5}
-                        onChange={changeForm} 
-                    />
-                    <Container>
-                        {props.mutation.isError && 
-                            <div className="form-error">
-                                {props.mutation.error.message}
-                            </div>
-                        }
-                    </Container>
-                    <div className="field is-grouped mt-2">
-                        <div className="control">
-                            <Button 
-                                onClick={handleCreate} 
-                                disabled={props.mutation.isLoading}
-                            >
-                                Create
-                            </Button>
+                    {props.mutation.isError && 
+                        <div className="form-error">
+                            {props.mutation.error.message}
                         </div>
-                        <div className="control">
-                            <Button 
-                                color="danger"
-                                onClick={handleClose} 
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
+                    }
                 </Container>
+                <div className="field is-grouped mt-2">
+                    <div className="control">
+                        <Button 
+                            onClick={handleCreate} 
+                            disabled={props.mutation.isLoading}
+                        >
+                            Create
+                        </Button>
+                    </div>
+                    <div className="control">
+                        <Button 
+                            color="danger"
+                            onClick={handleClose} 
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
             </form>
             
             <Modal

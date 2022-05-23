@@ -4,7 +4,6 @@ import {useUpdateCampaign} from "../../../hooks/campaigns";
 import {Category, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
@@ -17,7 +16,7 @@ import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
-import { CampaignState } from "../../../libs/campaigns";
+import { CampaignState, getGoalValue, kindOptions } from "../../../libs/campaigns";
 
 interface Props {
     campaign: Campaign;
@@ -38,6 +37,8 @@ const states: Option[] = [
 ];
 
 const formSchema = yup.object().shape({
+    kind: yup.number().required(),
+    goal: yup.number().required().min(1),
     state: yup.array(yup.number().min(1)).required(),
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
@@ -56,7 +57,8 @@ const EditForm = (props: Props) => {
     const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
-        state: [props.campaign.state]
+        state: [props.campaign.state],
+        goal: getGoalValue(props.campaign),
     });
     
     const updateMut = useUpdateCampaign();
@@ -102,6 +104,8 @@ const EditForm = (props: Props) => {
                 main: actorState.main,
                 pubId: props.campaign.pubId, 
                 req: {
+                    kind: Number(form.kind),
+                    goal: BigInt(form.goal),
                     state: form.state.length > 0? [Number(form.state[0])]: [],
                     categoryId: Number(form.categoryId),
                     placeId: Number(form.placeId),
@@ -152,101 +156,115 @@ const EditForm = (props: Props) => {
     useEffect(() => {
         setForm({
             ...props.campaign,
-            state: [props.campaign.state]
+            state: [props.campaign.state],
+            goal: getGoalValue(props.campaign),
         });
     }, [props.campaign]);
 
     return (
         <>
             <form onSubmit={handleUpdate}>
-                <Container>
-                    <TextField 
-                        label="Title" 
-                        name="title"
-                        value={form.title || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <TextField 
-                        label="Target" 
-                        name="target"
-                        value={form.target || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <MarkdownField
-                        label="Body"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        onChange={changeForm}
-                    />
-                    <TextField 
-                        label="Cover image" 
-                        name="cover"
-                        value={form.cover || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <NumberField 
-                        label="Duration (in days)" 
-                        name="duration"
-                        value={form.duration}
-                        required={true}
-                        onChange={changeForm}
-                    />
+                <SelectField 
+                    label="Kind"
+                    name="kind"
+                    value={form.kind}
+                    options={kindOptions}
+                    required={true}
+                    onChange={changeForm} 
+                />
+                <TextField 
+                    label="Title" 
+                    name="title"
+                    value={form.title || ''}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <TextField 
+                    label="Target" 
+                    name="target"
+                    value={form.target || ''}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <MarkdownField
+                    label="Body"
+                    name="body"
+                    value={form.body || ''}
+                    rows={6}
+                    onChange={changeForm}
+                />
+                <TextField 
+                    label="Cover image" 
+                    name="cover"
+                    value={form.cover || ''}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <NumberField 
+                    label="Duration (in days)" 
+                    name="duration"
+                    value={form.duration}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <NumberField 
+                    label="Goal" 
+                    name="goal"
+                    value={Number(form.goal.toString())}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <SelectField
+                    label="Category"
+                    name="categoryId"
+                    value={form.categoryId}
+                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <AutocompleteField
+                    label="Place"
+                    name="placeId"
+                    value={place.data?.name || ''}
+                    required={true}
+                    onSearch={handleSearchPlace}
+                    onChange={changeForm}
+                    onAdd={showCreatePlace}
+                />
+                <TagsField 
+                    label="Tags"
+                    name="tags"
+                    value={form.tags}
+                    maxTags={5}
+                    onChange={changeForm} 
+                />
+                {authState.user && isModerator(authState.user) &&
                     <SelectField
-                        label="Category"
-                        name="categoryId"
-                        value={form.categoryId}
-                        options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                    <AutocompleteField
-                        label="Place"
-                        name="placeId"
-                        value={place.data?.name || ''}
-                        required={true}
-                        onSearch={handleSearchPlace}
-                        onChange={changeForm}
-                        onAdd={showCreatePlace}
-                    />
-                    <TagsField 
-                        label="Tags"
-                        name="tags"
-                        value={form.tags}
-                        maxTags={5}
-                        onChange={changeForm} 
-                    />
-                    {authState.user && isModerator(authState.user) &&
-                        <SelectField
-                            label="State"
-                            name="state"
-                            value={form.state.length > 0 ? form.state[0] || 0: 0}
-                            options={states}
-                            onChange={changeFormOpt}
-                        />                    
-                    }
-                    <div className="field is-grouped mt-2">
-                        <div className="control">
-                            <Button
-                                onClick={handleUpdate}
-                                disabled={updateMut.isLoading}
-                            >
-                                Update
-                            </Button>
-                        </div>
-                        <div className="control">
-                            <Button
-                                color="danger"
-                                onClick={handleClose}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
+                        label="State"
+                        name="state"
+                        value={form.state.length > 0 ? form.state[0] || 0: 0}
+                        options={states}
+                        onChange={changeFormOpt}
+                    />                    
+                }
+                <div className="field is-grouped mt-2">
+                    <div className="control">
+                        <Button
+                            onClick={handleUpdate}
+                            disabled={updateMut.isLoading}
+                        >
+                            Update
+                        </Button>
                     </div>
-                </Container>
+                    <div className="control">
+                        <Button
+                            color="danger"
+                            onClick={handleClose}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
             </form>
 
             <Modal

@@ -13,19 +13,15 @@ interface Props {
     campaign: Campaign
 };
 
-const buildSignature = (campaign: Campaign): number[] => {
-    if(campaign.signaturesCnt > 0) {
-        let res = new Set([campaign.createdBy]);
-        campaign.signaturers.forEach(id => res.add(id));
-        return Array.from(res);
-    }
-    else {
-        return [campaign.createdBy];
-    }
-};
-
 const Item = (props: Props) => {
     const campaign = props.campaign;
+
+    const signatures = 'signatures' in campaign.info? 
+        campaign.info.signatures:
+        {
+            total: 0,
+            lastAt: []
+        };
 
     return (
         <Card 
@@ -58,13 +54,13 @@ const Item = (props: Props) => {
                         }
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-success" title={`Signatures: ${campaign.signaturesCnt}`}>{campaign.signaturesCnt}</span>
+                    <span className="tag is-rounded is-success" title={`Signatures: ${signatures.total}`}>{signatures.total}</span>
                     {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updatesCnt}`}>{campaign.updatesCnt}</span></>}
                 </div>
                 <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
                     <TimeFromNow 
-                        date={BigInt.asIntN(64, campaign.signaturesCnt > 0? campaign.lastSignatureAt[0] || 0n: campaign.createdAt)}
+                        date={BigInt.asIntN(64, signatures.total > 0? signatures.lastAt[0] || 0n: campaign.createdAt)}
                     />
                 </div>
             </div>

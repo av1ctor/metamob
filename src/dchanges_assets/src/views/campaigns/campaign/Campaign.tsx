@@ -85,7 +85,11 @@ const Campaign = (props: Props) => {
         auth.user && auth.user._id === campaign?.createdBy) ||
         (auth.user && isModerator(auth.user));
 
-    const goal = calcMaxSignatures(campaign?.signaturesCnt || 0);
+    const signaturesCnt = campaign?.info?
+        ('signatures' in campaign?.info && campaign?.info.signatures.total) || 0:
+        0;
+    
+    const goal = calcMaxSignatures(signaturesCnt);
 
     if(!campaign) {
         return null;
@@ -112,8 +116,8 @@ const Campaign = (props: Props) => {
                         <ReactMarkdown className="campaign-body" children={campaign.body}/>
                     </div>
                     <div className="column">
-                        <progress className="progress mb-0 pb-0 is-success" value={campaign.signaturesCnt} max={goal}>{campaign.signaturesCnt}</progress>
-                        <div><small><b>{campaign.signaturesCnt}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
+                        <progress className="progress mb-0 pb-0 is-success" value={signaturesCnt} max={goal}>{signaturesCnt}</progress>
+                        <div><small><b>{signaturesCnt}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
                         <br/>
                         {campaign.state === CampaignState.PUBLISHED? 
                             <>
@@ -189,7 +193,7 @@ const Campaign = (props: Props) => {
             
             <Tabs
                 tabs={[
-                    {title: 'Signatures', icon: 'signature', badge: campaign.signaturesCnt > 0? campaign.signaturesCnt.toString(): ''},
+                    {title: 'Signatures', icon: 'signature', badge: signaturesCnt > 0? signaturesCnt.toString(): ''},
                     {title: 'Updates', icon: 'newspaper', badge: campaign.updatesCnt > 0? campaign.updatesCnt.toString(): ''}
                 ]}
             >

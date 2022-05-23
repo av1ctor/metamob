@@ -19,9 +19,9 @@ module {
         let campaignRepo = campaignService.getRepository();
 
         public func create(
-            req: Types.SignatureRequest,
+            req: Types.DonationRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Donation, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -37,14 +37,7 @@ module {
                                 #err(msg);
                             };
                             case _ {
-                                switch(repo.findByCampaignAndUserEx(req.campaignId, caller._id, false)) {
-                                    case (#ok(response)) {
-                                        #err("Duplicated");
-                                    };
-                                    case _ {
-                                        repo.create(req, caller._id);
-                                    };
-                                };
+                                repo.create(req, caller._id);
                             };
                         };           
 
@@ -53,49 +46,10 @@ module {
             };
         };
 
-        public func update(
-            id: Text, 
-            req: Types.SignatureRequest,
-            invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(entity)) {
-                                if(not canChange(caller, entity)) {
-                                    return #err("Forbidden");
-                                };
-
-                                switch(canChangeCampaign(entity.campaignId)) {
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                    case _ {
-                                        repo.update(entity, req, caller._id);
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-
         public func findById(
             _id: Nat32, 
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Donation, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -121,7 +75,7 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Donation, Text> {
             repo.findByPubId(pubId);
         };
 
@@ -129,7 +83,7 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Donation], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
@@ -137,7 +91,7 @@ module {
             campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Donation], Text> {
             repo.findByCampaign(campaignId, sortBy, limit);
         };
 
@@ -152,7 +106,7 @@ module {
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat),
             invoker: Principal
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Donation], Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -177,7 +131,7 @@ module {
         public func findByCampaignAndUser(
             campaignId: Nat32,
             userId: Nat32
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Donation, Text> {
             repo.findByCampaignAndUser(campaignId, userId);
         };
 
@@ -255,13 +209,9 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            entity: Types.Signature
+            entity: Types.Donation
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(UserUtils.isAdmin(caller)) {
-                    return true;
-                };
-                
                 return false;
             };
 
@@ -280,7 +230,7 @@ module {
                         #err("Invalid campaign state");
                     }
                     else {
-                        if(campaign.kind != CampaignTypes.KIND_SIGNATURES) {
+                        if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
                             #err("Invalid campaign kind");
                         }
                         else {

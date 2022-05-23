@@ -3,6 +3,14 @@ import {Campaign, DChanges, Variant} from "../../../declarations/dchanges/dchang
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
+export enum CampaignKind {
+    SIGNATURES = 0,
+    VOTES = 1,
+    ANON_VOTES = 2,
+    WEIGHTED_VOTES = 3,
+    DONATIONS = 4
+};
+
 export enum CampaignState {
     CREATED = 0,
     CANCELED = 1,
@@ -17,6 +25,14 @@ export enum CampaignResult {
     WON = 1,
     LOST = 2,
 }
+
+export const kindOptions = [
+    {name: 'Signatures', value: CampaignKind.SIGNATURES},
+    {name: 'Votes', value: CampaignKind.VOTES},
+    {name: 'Votes (anonymous)', value: CampaignKind.ANON_VOTES},
+    {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES},
+    {name: 'Donations', value: CampaignKind.DONATIONS},
+];
 
 export const campaignStateToText = (
     state: CampaignState
@@ -37,6 +53,28 @@ export const campaignStateToText = (
         default:
             return 'Unknown';
     }
+};
+
+export const getGoalValue = (
+    campaign: Campaign
+): bigint => {
+    if('signatures' in campaign.info) {
+        return BigInt(campaign.info.signatures.goal);
+    }
+    else if('votes' in campaign.info) {
+        return BigInt(campaign.info.votes.goal);
+    }
+    else if('anonVotes' in campaign.info) {
+        return BigInt(campaign.info.anonVotes.goal);
+    }
+    else if('weightedVotes' in campaign.info) {
+        return campaign.info.weightedVotes.goal;
+    }
+    else if('donations' in campaign.info) {
+        return campaign.info.donations.goal;
+    }
+
+    return BigInt(0);
 };
 
 export const findAll = async (

@@ -19,9 +19,9 @@ module {
         let campaignRepo = campaignService.getRepository();
 
         public func create(
-            req: Types.SignatureRequest,
+            req: Types.VoteRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Vote, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -53,49 +53,10 @@ module {
             };
         };
 
-        public func update(
-            id: Text, 
-            req: Types.SignatureRequest,
-            invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(entity)) {
-                                if(not canChange(caller, entity)) {
-                                    return #err("Forbidden");
-                                };
-
-                                switch(canChangeCampaign(entity.campaignId)) {
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                    case _ {
-                                        repo.update(entity, req, caller._id);
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-
         public func findById(
             _id: Nat32, 
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Vote, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -121,7 +82,7 @@ module {
 
         public func findByPubId(
             pubId: Text
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Vote, Text> {
             repo.findByPubId(pubId);
         };
 
@@ -129,7 +90,7 @@ module {
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Vote], Text> {
             repo.find(criterias, sortBy, limit);
         };
 
@@ -137,7 +98,7 @@ module {
             campaignId: Nat32,
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Vote], Text> {
             repo.findByCampaign(campaignId, sortBy, limit);
         };
 
@@ -152,7 +113,7 @@ module {
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat),
             invoker: Principal
-        ): Result.Result<[Types.Signature], Text> {
+        ): Result.Result<[Types.Vote], Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
                 case (#err(msg)) {
@@ -177,7 +138,7 @@ module {
         public func findByCampaignAndUser(
             campaignId: Nat32,
             userId: Nat32
-        ): Result.Result<Types.Signature, Text> {
+        ): Result.Result<Types.Vote, Text> {
             repo.findByCampaignAndUser(campaignId, userId);
         };
 
@@ -255,13 +216,9 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            entity: Types.Signature
+            entity: Types.Vote
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(UserUtils.isAdmin(caller)) {
-                    return true;
-                };
-                
                 return false;
             };
 
@@ -280,7 +237,9 @@ module {
                         #err("Invalid campaign state");
                     }
                     else {
-                        if(campaign.kind != CampaignTypes.KIND_SIGNATURES) {
+                        if(campaign.kind != CampaignTypes.KIND_VOTES and
+                            campaign.kind != CampaignTypes.KIND_ANON_VOTES and
+                            campaign.kind != CampaignTypes.KIND_WEIGHTED_VOTES) {
                             #err("Invalid campaign kind");
                         }
                         else {

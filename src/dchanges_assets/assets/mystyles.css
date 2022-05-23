@@ -11208,4 +11208,5 @@ span[data-tooltip] {
   text-align: center; }
 
 .select {
+  width: 100% !important;
   height: unset !important; }

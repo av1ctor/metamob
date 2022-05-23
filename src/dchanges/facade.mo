@@ -7,6 +7,8 @@ import UserTypes "./users/types";
 import CategoryTypes "./categories/types";
 import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
+import VoteTypes "./votes/types";
+import DonationTypes "./donations/types";
 import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
 import PlaceTypes "./places/types";
@@ -14,6 +16,8 @@ import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
+import VoteService "./votes/service";
+import DonationService "./donations/service";
 import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
@@ -25,6 +29,8 @@ shared({caller = owner}) actor class DChanges() {
     let categoryService = CategoryService.Service(userService);
     let campaignService = CampaignService.Service(userService);
     let signatureService = SignatureService.Service(userService, campaignService);
+    let voteService = VoteService.Service(userService, campaignService);
+    let donationService = DonationService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
     let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
     let placeService = PlaceService.Service(userService);
@@ -376,6 +382,270 @@ shared({caller = owner}) actor class DChanges() {
     };    
 
     //
+    // votes facade
+    //
+    public shared(msg) func voteCreate(
+        req: VoteTypes.VoteRequest
+    ): async Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponseEx(voteService.create(req, msg.caller), false);
+    };
+
+    public shared query(msg) func voteFindById(
+        _id: Nat32
+    ): async Result.Result<VoteTypes.Vote, Text> {
+        voteService.findById(_id, msg.caller);
+    };
+
+    public query func voteFindByPubId(
+        pubId: Text
+    ): async Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponse(voteService.findByPubId(pubId));
+    };
+
+    public shared query(msg) func voteFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[VoteTypes.VoteResponse], Text> {
+        _transformVoteResponses(voteService.find(criterias, sortBy, limit));
+    };
+
+    public query func voteFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[VoteTypes.VoteResponse], Text> {
+        _transformVoteResponses(voteService.findByCampaign(campaignId, sortBy, limit));
+    };
+
+    public query func voteCountByCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Nat, Text> {
+        voteService.countByCampaign(campaignId);
+    };
+
+    public shared query(msg) func voteFindByUser(
+        userId: /* Text */ Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[VoteTypes.VoteResponse], Text> {
+        _transformVoteResponses(voteService.findByUser(userId, sortBy, limit, msg.caller));
+    };
+
+    public query func voteFindByCampaignAndUser(
+        campaignId: Nat32,
+        userId: Nat32
+    ): async Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponse(voteService.findByCampaignAndUser(campaignId, userId));
+    };
+
+    public shared(msg) func voteDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        voteService.delete(id, msg.caller);
+    };
+
+    func _redactVoteEx(
+        e: VoteTypes.Vote,
+        checkAnonymous: Bool
+    ): VoteTypes.VoteResponse {
+        if(not checkAnonymous or not e.anonymous) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                value = e.value;
+                weight = e.weight;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                value = e.value;
+                weight = e.weight;
+                createdAt = e.createdAt;
+                createdBy = null;
+            };
+        };
+    };
+
+    func _redactVote(
+        e: VoteTypes.Vote
+    ): VoteTypes.VoteResponse {
+        _redactVoteEx(e, true);
+    };
+
+    func _transformVoteResponseEx(
+        res: Result.Result<VoteTypes.Vote, Text>,
+        checkAnonymous: Bool
+    ): Result.Result<VoteTypes.VoteResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactVoteEx(e, checkAnonymous));
+            };
+        };
+    };
+
+    func _transformVoteResponse(
+        res: Result.Result<VoteTypes.Vote, Text>
+    ): Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponseEx(res, true);
+    };    
+
+    func _transformVoteResponses(
+        res: Result.Result<[VoteTypes.Vote], Text>
+    ): Result.Result<[VoteTypes.VoteResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(entities, _redactVote));
+            };
+        };
+    };
+
+    //
+    // donations facade
+    //
+    public shared(msg) func donationCreate(
+        req: DonationTypes.DonationRequest
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponseEx(donationService.create(req, msg.caller), false);
+    };
+
+    public shared query(msg) func donationFindById(
+        _id: Nat32
+    ): async Result.Result<DonationTypes.Donation, Text> {
+        donationService.findById(_id, msg.caller);
+    };
+
+    public query func donationFindByPubId(
+        pubId: Text
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponse(donationService.findByPubId(pubId));
+    };
+
+    public shared query(msg) func donationFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[DonationTypes.DonationResponse], Text> {
+        _transformDonationResponses(donationService.find(criterias, sortBy, limit));
+    };
+
+    public query func donationFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[DonationTypes.DonationResponse], Text> {
+        _transformDonationResponses(donationService.findByCampaign(campaignId, sortBy, limit));
+    };
+
+    public query func donationCountByCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Nat, Text> {
+        donationService.countByCampaign(campaignId);
+    };
+
+    public shared query(msg) func donationFindByUser(
+        userId: /* Text */ Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[DonationTypes.DonationResponse], Text> {
+        _transformDonationResponses(donationService.findByUser(userId, sortBy, limit, msg.caller));
+    };
+
+    public query func donationFindByCampaignAndUser(
+        campaignId: Nat32,
+        userId: Nat32
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponse(donationService.findByCampaignAndUser(campaignId, userId));
+    };
+
+    public shared(msg) func donationDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        donationService.delete(id, msg.caller);
+    };
+
+    func _redactDonationEx(
+        e: DonationTypes.Donation,
+        checkAnonymous: Bool
+    ): DonationTypes.DonationResponse {
+        if(not checkAnonymous or not e.anonymous) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = e.anonymous;
+                value = e.value;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                value = e.value;
+                createdAt = e.createdAt;
+                createdBy = null;
+            };
+        };
+    };
+
+    func _redactDonation(
+        e: DonationTypes.Donation
+    ): DonationTypes.DonationResponse {
+        _redactDonationEx(e, true);
+    };
+
+    func _transformDonationResponseEx(
+        res: Result.Result<DonationTypes.Donation, Text>,
+        checkAnonymous: Bool
+    ): Result.Result<DonationTypes.DonationResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactDonationEx(e, checkAnonymous));
+            };
+        };
+    };
+
+    func _transformDonationResponse(
+        res: Result.Result<DonationTypes.Donation, Text>
+    ): Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponseEx(res, true);
+    };    
+
+    func _transformDonationResponses(
+        res: Result.Result<[DonationTypes.Donation], Text>
+    ): Result.Result<[DonationTypes.DonationResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(entities, _redactDonation));
+            };
+        };
+    };
+
+    //
     // updates facade
     //
     public shared(msg) func updateCreate(
@@ -547,6 +817,8 @@ shared({caller = owner}) actor class DChanges() {
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
+    stable var voteEntities: [[(Text, Variant.Variant)]] = [];
+    stable var donationEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
@@ -556,6 +828,8 @@ shared({caller = owner}) actor class DChanges() {
         categoryEntities := categoryService.backup();
         campaignEntities := campaignService.backup();
         signatureEntities := signatureService.backup();
+        voteEntities := voteService.backup();
+        donationEntities := donationService.backup();
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
         placeEntities := placeService.backup();
@@ -573,6 +847,12 @@ shared({caller = owner}) actor class DChanges() {
         
         signatureService.restore(signatureEntities);
         signatureEntities := [];
+        
+        voteService.restore(voteEntities);
+        voteEntities := [];
+        
+        donationService.restore(donationEntities);
+        donationEntities := [];
         
         updateService.restore(updateEntities);
         updateEntities := [];
