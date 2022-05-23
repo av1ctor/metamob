@@ -6,6 +6,13 @@ const Footer = () => {
         <footer className="footer has-background-dark has-text-white is-size-7">
             <div className="container">
                 <div className="columns">
+                    <div className="column has-text-centered">
+                        <a href="https://dfinity.org" target="_blank">
+                            <img src="/powered-by.svg" />
+                        </a>
+                    </div>
+                </div>
+                <div className="columns">
                     <div className="column is-4">
                         <ul>
                             <li>
