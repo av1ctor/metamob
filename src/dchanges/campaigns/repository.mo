@@ -553,7 +553,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                signaturesCnt = e.signaturesCnt - (if(e.signaturesCnt > 0) 1 else 0);
+                signaturesCnt = if(e.signaturesCnt > 0) e.signaturesCnt - 1 else 0;
                 firstSignatureAt = e.firstSignatureAt;
                 lastSignatureAt = e.lastSignatureAt;
                 lastSignatureBy = e.lastSignatureBy;
@@ -626,7 +626,7 @@ module {
                 lastSignatureAt = e.lastSignatureAt;
                 lastSignatureBy = e.lastSignatureBy;
                 signaturers = e.signaturers;
-                updatesCnt = e.updatesCnt - (if(e.updatesCnt > 0) 1 else 0);
+                updatesCnt = if(e.updatesCnt > 0) e.updatesCnt - 1 else 0;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
