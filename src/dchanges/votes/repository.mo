@@ -28,6 +28,12 @@ module {
         let votes = Table.Table<Types.Vote>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("votes")));
 
+        private type CampaignUpdateKind = {
+            #inserted;
+            #updated;
+            #deleted;
+        };
+
         public func create(
             req: Types.VoteRequest,
             callerId: Nat32
@@ -38,7 +44,7 @@ module {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(e, true);
+                    _updateCampaign(e, #inserted);
                     return #ok(e);
                 };
             };
@@ -49,12 +55,17 @@ module {
             req: Types.VoteRequest,
             callerId: Nat32
         ): Result.Result<Types.Vote, Text> {
+            let changed = req.pro != vote.pro;
+            
             let e = _updateEntity(vote, req, callerId);
             switch(votes.replace(vote._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
+                    if(changed) {
+                        _updateCampaign(e, #updated);
+                    };
                     return #ok(e);
                 };
             };
@@ -69,7 +80,7 @@ module {
                     #err(msg);
                 };
                 case _ {
-                    _updateCampaign(vote, false);
+                    _updateCampaign(vote, #deleted);
                     #ok();
                 }
             }
@@ -77,16 +88,21 @@ module {
 
         func _updateCampaign(
             vote: Types.Vote,
-            inc: Bool
+            kind: CampaignUpdateKind
         ) {
             switch(campaignRepository.findById(vote.campaignId))
             {
                 case (#ok(campaign)) {
-                    if(inc) {
-                        campaignRepository.onVoteInserted(campaign, vote);
-                    }
-                    else {
-                        campaignRepository.onVoteDeleted(campaign, vote);
+                    switch(kind) {
+                        case (#inserted) {
+                            campaignRepository.onVoteInserted(campaign, vote);
+                        };
+                        case (#updated) {
+                            campaignRepository.onVoteUpdated(campaign, vote);
+                        };
+                        case (#deleted) {
+                            campaignRepository.onVoteDeleted(campaign, vote);
+                        };
                     };
                 };
                 case _ {

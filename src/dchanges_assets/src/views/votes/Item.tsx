@@ -31,7 +31,7 @@ export const BaseItem = (props: BaseItemProps) => {
                 <div className="content">
                     <strong>{props.user?.name}</strong>
                     <br />
-                    <Badge pro={props.vote.pro} />
+                    Voted: <Badge pro={props.vote.pro} />
                     <br />
                     <ReactMarkdown className="update-body" children={vote.body}/>
                     {props.children}

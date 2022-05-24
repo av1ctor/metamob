@@ -22,12 +22,15 @@ export const VoteFrame = (props: Props) => {
     
     const proVotes = getProVotes(campaign);
     const againstVotes = getAgainstVotes(campaign);
+    const totalVotes = proVotes + againstVotes;
+    const proPercentage = (proVotes / (totalVotes || 1n));
+    const againstPercentage = (againstVotes / (totalVotes || 1n));
     
     const userVote = useFindVoteByCampaignAndUser(campaign?._id, auth.user?._id);
    
     return (
         <>
-            <div><small><b>{proVotes.toString()}</b> pro/<b>{againstVotes.toString()}</b> against votes.</small></div>
+            <div><small><b>{proPercentage.toString()}</b> in favor/<b>{againstPercentage.toString()}</b> against of {totalVotes.toString()} votes in total.</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>

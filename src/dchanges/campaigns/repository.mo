@@ -387,16 +387,23 @@ module {
 
         public func onVoteInserted(
             campaign: Types.Campaign,
-            signature: VoteTypes.Vote
+            vote: VoteTypes.Vote
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteInserted(campaign, signature));
+            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteInserted(campaign, vote));
+        };
+
+        public func onVoteUpdated(
+            campaign: Types.Campaign,
+            vote: VoteTypes.Vote
+        ) {
+            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteUpdated(campaign, vote));
         };
 
         public func onVoteDeleted(
             campaign: Types.Campaign,
-            signature: VoteTypes.Vote
+            vote: VoteTypes.Vote
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteDeleted(campaign, signature));
+            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteDeleted(campaign, vote));
         };
 
         public func onDonationInserted(
@@ -746,7 +753,71 @@ module {
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
             }  
-        };        
+        };   
+
+        func _updateEntityWhenVoteUpdated(
+            e: Types.Campaign, 
+            vote: VoteTypes.Vote
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = switch(e.info) {
+                    case (#votes(info)) {
+                        #votes({
+                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
+                            against = if(not vote.pro) info.against + 1 else info.against - 1;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                            lastBy = ?vote.createdBy;
+                        });
+                    };
+                    case (#anonVotes(info)) {
+                        #anonVotes({
+                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
+                            against = if(not vote.pro) info.against + 1 else info.against - 1;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                        });
+                    };
+                    case (#weightedVotes(info)) {
+                        #weightedVotes({
+                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
+                            against = if(not vote.pro) info.against + 1 else info.against - 1;
+                            goal = info.goal;
+                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
+                            lastAt = ?vote.createdAt;
+                            lastBy = ?vote.createdBy;
+                        });
+                    };                    
+                    case _ {
+                        e.info;
+                    };
+                };
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };       
 
         func _updateEntityWhenVoteDeleted(
             e: Types.Campaign, 
