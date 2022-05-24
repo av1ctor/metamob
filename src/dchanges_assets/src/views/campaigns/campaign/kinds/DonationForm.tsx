@@ -1,38 +1,41 @@
-import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
+import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCreateSignature} from "../../../../hooks/signatures";
-import {SignatureRequest, Campaign, SignatureResponse} from "../../../../../../declarations/dchanges/dchanges.did";
+import {useCreateDonation} from "../../../../hooks/donations";
+import {DonationRequest, Campaign, DonationResponse} from "../../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../../stores/auth";
 import Button from "../../../../components/Button";
 import TextAreaField from "../../../../components/TextAreaField";
 import { ActorContext } from "../../../../stores/actor";
 import CheckboxField from "../../../../components/CheckboxField";
+import TextField from "../../../../components/TextField";
 
 interface Props {
     campaign: Campaign;
-    signature?: SignatureResponse;
+    donation?: DonationResponse;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
-    body: yup.string().min(3).max(256),
+    body: yup.string(),
+    value: yup.number().required().min(0).notOneOf([0]),
     anonymous: yup.bool().required(),
 });
 
-const SignForm = (props: Props) => {
+const DonationForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [actorState, ] = useContext(ActorContext);
 
-    const [form, setForm] = useState<SignatureRequest>({
+    const [form, setForm] = useState<DonationRequest>({
         campaignId: props.campaign._id,
-        body: props.signature?.body || '',
         anonymous: false,
+        body: props.donation?.body || '',
+        value: props.donation?.value || BigInt(0)
     });
     
-    const createMut = useCreateSignature();
+    const createMut = useCreateDonation();
 
     const navigate = useNavigate();
 
@@ -47,7 +50,7 @@ const SignForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: SignatureRequest): Promise<string[]> => {
+    const validate = async (form: DonationRequest): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -57,7 +60,7 @@ const SignForm = (props: Props) => {
         }
     };
 
-    const handleSign = useCallback(async (e: any) => {
+    const handleDonation = useCallback(async (e: any) => {
         e.preventDefault();
 
         const errors = await validate(form);
@@ -74,10 +77,11 @@ const SignForm = (props: Props) => {
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
+                    value: BigInt(form.value),
                     anonymous: form.anonymous,
                 }
             });
-            props.onSuccess('Campaign signed!');
+            props.onSuccess('Your donation has been cast!');
         }
         catch(e) {
             props.onError(e);
@@ -94,32 +98,39 @@ const SignForm = (props: Props) => {
     useEffect(() => {
         setForm(form => ({
             ...form,
-            body: props.signature?.body || ''
+            value: props.donation?.value || BigInt(0),
+            body: props.donation?.body || ''
         }));
-    }, [props.signature]);
+    }, [props.donation]);
 
     const isLoggedIn = !!authState.user;
-    const hasSigned = !!props.signature?._id;
+    const hasDonated = !!props.donation?._id;
 
     return (
-        <form onSubmit={handleSign}>
+        <form onSubmit={handleDonation}>
             <div>
                 {isLoggedIn && 
                     <>
+                        <TextField
+                            label="Value (ICP)"
+                            id="value"
+                            value={form.value.toString()}
+                            disabled={hasDonated}
+                            onChange={changeForm}
+                        />
                         <TextAreaField
                             label="Message"
                             name="body"
                             value={form.body || ''}
-                            rows={6}
-                            required={true}
-                            disabled={hasSigned}
+                            rows={4}
+                            disabled={hasDonated}
                             onChange={changeForm}
                         />
                         <CheckboxField
-                            label="Sign as anonymous"
+                            label="Donate as anonymous"
                             id="anonymous"
                             value={form.anonymous}
-                            disabled={hasSigned}
+                            disabled={hasDonated}
                             onChange={changeForm}
                         />
                     </>
@@ -129,10 +140,10 @@ const SignForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleSign: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || hasSigned: false}
+                            onClick={isLoggedIn? handleDonation: redirectToLogon}
+                            disabled={isLoggedIn? createMut.isLoading || hasDonated: false}
                         >
-                            <i className="la la-pen-fancy"/>&nbsp;SIGN
+                            <i className="la la-money-bill"/>&nbsp;DONATE
                         </Button>
                     </div>
                 </div>
@@ -141,4 +152,4 @@ const SignForm = (props: Props) => {
     );
 };
 
-export default SignForm;
+export default DonationForm;

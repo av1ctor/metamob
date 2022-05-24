@@ -103,6 +103,7 @@ const VoteForm = (props: Props) => {
     }, [props.vote]);
 
     const isLoggedIn = !!authState.user;
+    const hasVoted = !!props.vote?._id;
 
     return (
         <form onSubmit={handleVote}>
@@ -113,14 +114,14 @@ const VoteForm = (props: Props) => {
                             label="In favor"
                             id="pro"
                             value={!!form.pro}
-                            disabled={!!props.vote}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                         <CheckboxField
                             label="Against"
                             id="pro"
                             value={!form.pro}
-                            disabled={!!props.vote}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                         <TextAreaField
@@ -128,14 +129,14 @@ const VoteForm = (props: Props) => {
                             name="body"
                             value={form.body || ''}
                             rows={4}
-                            disabled={!!props.vote}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                         <CheckboxField
                             label="Vote as anonymous"
                             id="anonymous"
                             value={form.anonymous}
-                            disabled={!!props.vote}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                     </>
@@ -146,7 +147,7 @@ const VoteForm = (props: Props) => {
                         <Button
                             color="danger"
                             onClick={isLoggedIn? handleVote: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || !!props.vote: false}
+                            disabled={isLoggedIn? createMut.isLoading || hasVoted: false}
                         >
                             <i className="la la-vote-yea"/>&nbsp;VOTE
                         </Button>

@@ -22,6 +22,8 @@ import { ReportType } from "../../../libs/reports";
 import PlaceTree from "../../places/place/PlaceTree";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
+import Donations from "../../donations/Donations";
+import { DonationFrame } from "./kinds/DonationFrame";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -104,6 +106,14 @@ const Campaign = (props: Props) => {
                         }
                         {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.ANON_VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
                             <VoteFrame 
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
+                        }
+                        {campaign.kind === CampaignKind.DONATIONS &&
+                            <DonationFrame
                                 campaign={campaign} 
                                 onSuccess={props.onSuccess}
                                 onError={props.onError}
@@ -196,7 +206,15 @@ const Campaign = (props: Props) => {
                             toggleLoading={props.toggleLoading}
                         />
                     :
-                        <div></div>
+                        campaign.kind === CampaignKind.DONATIONS?
+                            <Donations 
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
+                        :
+                            <div></div>
                 }
                 <Updates
                     campaign={campaign} 
