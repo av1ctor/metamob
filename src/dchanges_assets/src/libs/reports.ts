@@ -19,6 +19,8 @@ export enum ReportType {
     USERS = 1,
     SIGNATURES = 2,
     UPDATES = 3,
+    VOTES = 4,
+    DONATIONS = 5,
 }
 
 export const reportStateToText = (
@@ -44,6 +46,10 @@ export const entityTypeToText = (
             return 'Campaign';
         case ReportType.SIGNATURES:
             return 'Signature';
+        case ReportType.VOTES:
+            return 'Vote';
+        case ReportType.DONATIONS:
+            return 'Donation';
         case ReportType.UPDATES:
             return 'Update';
         case ReportType.USERS:
@@ -60,6 +66,10 @@ export const entityTypeToColor = (
         case ReportType.CAMPAIGNS:
             return 'success';
         case ReportType.SIGNATURES:
+            return 'danger';
+        case ReportType.VOTES:
+            return 'danger';
+        case ReportType.DONATIONS:
             return 'danger';
         case ReportType.UPDATES:
             return 'warning';

@@ -11,6 +11,8 @@ import UserService "../users/service";
 import CampaignTypes "../campaigns/types";
 import CampaignService "../campaigns/service";
 import SignatureService "../signatures/service";
+import VoteService "../votes/service";
+import DonationService "../donations/service";
 import UpdateService "../updates/service";
 
 module {
@@ -18,12 +20,16 @@ module {
         userService: UserService.Service,
         campaignService: CampaignService.Service,
         signatureService: SignatureService.Service, 
+        voteService: VoteService.Service, 
+        donationService: DonationService.Service, 
         updateService: UpdateService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
         let userRepo = userService.getRepository();
         let signatureRepo = signatureService.getRepository();
+        let voteRepo = voteService.getRepository();
+        let donationRepo = donationService.getRepository();
         let updateRepo = updateService.getRepository();
 
         public func create(
@@ -268,6 +274,26 @@ module {
             }
             else if(req.entityType == Types.TYPE_SIGNATURES) {
                 switch(signatureRepo.findById(req.entityId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case _ {
+                        #ok();
+                    };
+                };
+            }
+            else if(req.entityType == Types.TYPE_VOTES) {
+                switch(voteRepo.findById(req.entityId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case _ {
+                        #ok();
+                    };
+                };
+            }
+            else if(req.entityType == Types.TYPE_DONATIONS) {
+                switch(donationRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
                     };

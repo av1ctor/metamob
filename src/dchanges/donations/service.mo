@@ -46,6 +46,45 @@ module {
             };
         };
 
+        public func update(
+            id: Text, 
+            req: Types.DonationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Donation, Text> {
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(entity)) {
+                                if(not canChange(caller, entity)) {
+                                    return #err("Forbidden");
+                                };
+
+                                switch(canChangeCampaign(entity.campaignId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.update(entity, req, caller._id);
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         public func findById(
             _id: Nat32, 
             invoker: Principal

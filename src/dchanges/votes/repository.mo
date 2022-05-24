@@ -44,6 +44,21 @@ module {
             };
         };
 
+        public func update(
+            vote: Types.Vote, 
+            req: Types.VoteRequest,
+            callerId: Nat32
+        ): Result.Result<Types.Vote, Text> {
+            let e = _updateEntity(vote, req, callerId);
+            switch(votes.replace(vote._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
 
         public func delete(
             vote: Types.Vote,
@@ -385,11 +400,34 @@ module {
                 pubId = ulid.next();
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
-                value = req.value;
+                body = req.body;
+                pro = req.pro;
                 weight = 1;
                 createdAt = Time.now();
                 createdBy = callerId;
+                updatedAt = null;
+                updatedBy = null;
             }
+        };
+
+        func _updateEntity(
+            e: Types.Vote, 
+            req: Types.VoteRequest,
+            callerId: Nat32
+        ): Types.Vote {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = req.anonymous;
+                campaignId = e.campaignId;
+                body = req.body;
+                pro = req.pro;
+                weight = 1;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
         };
     };
 
@@ -403,10 +441,13 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
-        res.put("value", #int(e.value));
-        res.put("weigth", #nat(e.weight));
+        res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("pro", #bool(e.pro));
+        res.put("weight", #nat(e.weight));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
 
         res;
     };
@@ -419,10 +460,13 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
-            value = Variant.getOptInt(map.get("value"));
+            body = Variant.getOptText(map.get("body"));
+            pro = Variant.getOptBool(map.get("pro"));
             weight = Variant.getOptNat(map.get("weight"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
+            updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));
+            updatedBy = Variant.getOptNat32Opt(map.get("updatedBy"));
         }
     };
 };

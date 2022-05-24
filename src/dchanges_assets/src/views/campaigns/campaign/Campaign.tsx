@@ -5,37 +5,23 @@ import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import Modal from "../../../components/Modal";
-import Box from "../../../components/Box";
 import TimeFromNow from "../../../components/TimeFromNow";
+import {SignFrame} from "./kinds/SignFrame";
 import Signatures from "../../signatures/Signatures";
+import {VoteFrame} from "./kinds/VoteFrame";
+import Votes from "../../votes/Votes";
 import Updates from "../../updates/Updates";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/category/Category";
 import Tag from "../../../components/Tag";
-import { CampaignState } from "../../../libs/campaigns";
-import SignForm from "./Sign";
+import { CampaignKind, CampaignState } from "../../../libs/campaigns";
 import ReportForm from "../../reports/report/Create";
-import { useFindSignatureByCampaignAndUser } from "../../../hooks/signatures";
 import Tabs from "../../../components/Tabs";
-import Result from "./Result";
 import { ReportType } from "../../../libs/reports";
 import PlaceTree from "../../places/place/PlaceTree";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
-import Share from "./Share";
-
-const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
-
-const calcMaxSignatures = (signatures: number): number => {
-    for(let i = 0; i < maxTb.length; i++) {
-        if(signatures <= maxTb[i]) {
-            return maxTb[i];
-        }
-    }
-
-    return Number.MAX_SAFE_INTEGER;
-}
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -57,8 +43,6 @@ const Campaign = (props: Props) => {
     const campaign = res.status === 'success' && res.data?
         res.data:
         undefined;
-
-    const userSignature = useFindSignatureByCampaignAndUser(campaign?._id, auth.user?._id);
 
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
@@ -85,12 +69,6 @@ const Campaign = (props: Props) => {
         auth.user && auth.user._id === campaign?.createdBy) ||
         (auth.user && isModerator(auth.user));
 
-    const signaturesCnt = campaign?.info?
-        ('signatures' in campaign?.info && campaign?.info.signatures.total) || 0:
-        0;
-    
-    const goal = calcMaxSignatures(signaturesCnt);
-
     if(!campaign) {
         return null;
     }
@@ -116,31 +94,21 @@ const Campaign = (props: Props) => {
                         <ReactMarkdown className="campaign-body" children={campaign.body}/>
                     </div>
                     <div className="column">
-                        <progress className="progress mb-0 pb-0 is-success" value={signaturesCnt} max={goal}>{signaturesCnt}</progress>
-                        <div><small><b>{signaturesCnt}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
-                        <br/>
-                        {campaign.state === CampaignState.PUBLISHED? 
-                            <>
-                                <Box>
-                                    <div className="is-size-4">
-                                        To: <span className="is-size-4 has-text-link">{campaign.target}</span>
-                                    </div>
-                                    <SignForm 
-                                        campaign={campaign}
-                                        body={userSignature?.data?.body} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
-                                    />
-                                </Box>
-                                <Box>
-                                    <Share
-                                        campaign={campaign}
-                                    />
-                                </Box>
-                            </>
-                        :
-                            <Result result={campaign.result} />
+                        {campaign.kind === CampaignKind.SIGNATURES &&
+                            <SignFrame
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
+                        }
+                        {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.ANON_VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
+                            <VoteFrame 
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
                         }
                     </div>
                 </div>
@@ -193,17 +161,43 @@ const Campaign = (props: Props) => {
             
             <Tabs
                 tabs={[
-                    {title: 'Signatures', icon: 'signature', badge: signaturesCnt > 0? signaturesCnt.toString(): ''},
-                    {title: 'Updates', icon: 'newspaper', badge: campaign.updatesCnt > 0? campaign.updatesCnt.toString(): ''}
+                    {
+                        title: campaign.kind === CampaignKind.SIGNATURES? 
+                            'Signatures': 
+                            campaign.kind === CampaignKind.DONATIONS?
+                                'Donations':
+                                'Votes', 
+                        icon: campaign.kind === CampaignKind.SIGNATURES? 
+                            'signature':
+                            campaign.kind === CampaignKind.DONATIONS?
+                                'money-bill':
+                                'vote-yea'
+                    },
+                    {
+                        title: 'Updates', 
+                        icon: 'newspaper', 
+                        badge: campaign.updatesCnt > 0? campaign.updatesCnt.toString(): ''
+                    }
                 ]}
             >
-                <Signatures 
-                    campaign={campaign} 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
-                />
-
+                {campaign.kind === CampaignKind.SIGNATURES?
+                    <Signatures 
+                        campaign={campaign} 
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                :
+                    (campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.ANON_VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES)?
+                        <Votes 
+                            campaign={campaign} 
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
+                            toggleLoading={props.toggleLoading}
+                        />
+                    :
+                        <div></div>
+                }
                 <Updates
                     campaign={campaign} 
                     onSuccess={props.onSuccess}

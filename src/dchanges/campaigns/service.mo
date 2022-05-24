@@ -87,6 +87,41 @@ module {
             };
         };
 
+        public func publish(
+            pubId: Text, 
+            invoker: Principal
+        ): Result.Result<Types.Campaign, Text> {
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        #err("Forbidden");
+                    }
+                    else {
+                        if(not UserUtils.isAdmin(caller)) {
+                            return #err("Forbidden");
+                        };
+                        
+                        switch(repo.findByPubId(pubId)) {
+                            case (#err(msg)) {
+                                #err(msg);
+                            };
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign)) {
+                                    return #err("Forbidden");
+                                };
+                                
+                                repo.publish(campaign, caller._id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         public func finish(
             _id: Nat32, 
             result: Types.CampaignResult,

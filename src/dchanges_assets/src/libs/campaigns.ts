@@ -77,6 +77,38 @@ export const getGoalValue = (
     return BigInt(0);
 };
 
+export const getProVotes = (
+    campaign: Campaign
+): bigint => {
+    if('votes' in campaign.info) {
+        return BigInt(campaign.info.votes.pro);
+    }
+    else if('anonVotes' in campaign.info) {
+        return BigInt(campaign.info.anonVotes.pro);
+    }
+    else if('weightedVotes' in campaign.info) {
+        return campaign.info.weightedVotes.pro;
+    }
+
+    return BigInt(0);
+};
+
+export const getAgainstVotes = (
+    campaign: Campaign
+): bigint => {
+    if('votes' in campaign.info) {
+        return BigInt(campaign.info.votes.against);
+    }
+    else if('anonVotes' in campaign.info) {
+        return BigInt(campaign.info.anonVotes.against);
+    }
+    else if('weightedVotes' in campaign.info) {
+        return campaign.info.weightedVotes.against;
+    }
+
+    return BigInt(0);
+};
+
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order, 

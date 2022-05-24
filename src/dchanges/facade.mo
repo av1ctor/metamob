@@ -32,7 +32,8 @@ shared({caller = owner}) actor class DChanges() {
     let voteService = VoteService.Service(userService, campaignService);
     let donationService = DonationService.Service(userService, campaignService);
     let updateService = UpdateService.Service(userService, campaignService);
-    let reportService = ReportService.Service(userService, campaignService, signatureService, updateService);
+    let reportService = ReportService.Service(
+        userService, campaignService, signatureService, voteService, donationService, updateService);
     let placeService = PlaceService.Service(userService);
 
     //
@@ -183,10 +184,16 @@ shared({caller = owner}) actor class DChanges() {
     };
 
     public shared(msg) func campaignUpdate(
-        id: Text, 
+        pubId: Text, 
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.update(id, req, msg.caller);
+        campaignService.update(pubId, req, msg.caller);
+    };
+
+    public shared(msg) func campaignPublish(
+        pubId: Text
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        campaignService.publish(pubId, msg.caller);
     };
 
     public query func campaignFindById(
@@ -390,6 +397,13 @@ shared({caller = owner}) actor class DChanges() {
         _transformVoteResponseEx(voteService.create(req, msg.caller), false);
     };
 
+    public shared(msg) func voteUpdate(
+        id: Text, 
+        req: VoteTypes.VoteRequest
+    ): async Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponseEx(voteService.update(id, req, msg.caller), false);
+    };
+
     public shared query(msg) func voteFindById(
         _id: Nat32
     ): async Result.Result<VoteTypes.Vote, Text> {
@@ -455,10 +469,13 @@ shared({caller = owner}) actor class DChanges() {
                 pubId = e.pubId;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
-                value = e.value;
+                body = e.body;
+                pro = e.pro;
                 weight = e.weight;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
             };
         }
         else {
@@ -467,10 +484,13 @@ shared({caller = owner}) actor class DChanges() {
                 pubId = e.pubId;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
-                value = e.value;
+                body = e.body;
+                pro = e.pro;
                 weight = e.weight;
                 createdAt = e.createdAt;
                 createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
             };
         };
     };
@@ -521,6 +541,13 @@ shared({caller = owner}) actor class DChanges() {
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
         _transformDonationResponseEx(donationService.create(req, msg.caller), false);
+    };
+
+    public shared(msg) func donationUpdate(
+        id: Text, 
+        req: DonationTypes.DonationRequest
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponseEx(donationService.update(id, req, msg.caller), false);
     };
 
     public shared query(msg) func donationFindById(
@@ -587,10 +614,13 @@ shared({caller = owner}) actor class DChanges() {
                 _id = e._id;
                 pubId = e.pubId;
                 anonymous = e.anonymous;
+                body = e.body;
                 value = e.value;
                 campaignId = e.campaignId;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
             };
         }
         else {
@@ -599,9 +629,12 @@ shared({caller = owner}) actor class DChanges() {
                 pubId = e.pubId;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
+                body = e.body;
                 value = e.value;
                 createdAt = e.createdAt;
                 createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
             };
         };
     };

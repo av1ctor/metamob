@@ -1,13 +1,13 @@
 import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCreateSignature} from "../../../hooks/signatures";
-import {SignatureRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
-import { AuthContext } from "../../../stores/auth";
-import Button from "../../../components/Button";
-import TextAreaField from "../../../components/TextAreaField";
-import { ActorContext } from "../../../stores/actor";
-import CheckboxField from "../../../components/CheckboxField";
+import {useCreateSignature} from "../../../../hooks/signatures";
+import {SignatureRequest, Campaign} from "../../../../../../declarations/dchanges/dchanges.did";
+import { AuthContext } from "../../../../stores/auth";
+import Button from "../../../../components/Button";
+import TextAreaField from "../../../../components/TextAreaField";
+import { ActorContext } from "../../../../stores/actor";
+import CheckboxField from "../../../../components/CheckboxField";
 
 interface Props {
     campaign: Campaign;

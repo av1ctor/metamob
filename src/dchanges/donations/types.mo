@@ -4,14 +4,18 @@ module {
         pubId: Text;
         campaignId: Nat32;
         anonymous: Bool;
+        body: Text;
         value: Nat;
         createdAt: Int;
         createdBy: Nat32;
+        updatedAt: ?Int;
+        updatedBy: ?Nat32;
     };
 
     public type DonationRequest = {
         campaignId: Nat32;
         anonymous: Bool;
+        body: Text;
         value: Nat;
     };
 
@@ -20,8 +24,11 @@ module {
         pubId: Text;
         campaignId: Nat32;
         anonymous: Bool;
+        body: Text;
         value: Nat;
         createdAt: Int;
         createdBy: ?Nat32;
+        updatedAt: ?Int;
+        updatedBy: ?Nat32;
     };    
 };

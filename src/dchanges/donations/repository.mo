@@ -44,6 +44,21 @@ module {
             };
         };
 
+        public func update(
+            donation: Types.Donation, 
+            req: Types.DonationRequest,
+            callerId: Nat32
+        ): Result.Result<Types.Donation, Text> {
+            let e = _updateEntity(donation, req, callerId);
+            switch(donations.replace(donation._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
 
         public func delete(
             donation: Types.Donation,
@@ -385,10 +400,32 @@ module {
                 pubId = ulid.next();
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
+                body = req.body;
                 value = req.value;
                 createdAt = Time.now();
                 createdBy = callerId;
+                updatedAt = null;
+                updatedBy = null;
             }
+        };
+
+        func _updateEntity(
+            e: Types.Donation, 
+            req: Types.DonationRequest,
+            callerId: Nat32
+        ): Types.Donation {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = req.anonymous;
+                campaignId = e.campaignId;
+                body = req.body;
+                value = req.value;                
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
         };
     };
 
@@ -402,9 +439,12 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
+        res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("value", #nat(e.value));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
+        res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
+        res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
 
         res;
     };
@@ -417,9 +457,12 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
+            body = Variant.getOptText(map.get("body"));
             value = Variant.getOptNat(map.get("value"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
+            updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));
+            updatedBy = Variant.getOptNat32Opt(map.get("updatedBy"));
         }
     };
 };

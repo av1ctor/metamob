@@ -21,7 +21,11 @@ module {
                 options = [#sortable];
             },
             {
-                name = "value";
+                name = "body";
+                options = [];
+            },
+            {
+                name = "pro";
                 options = [];
             },
             {
@@ -35,6 +39,14 @@ module {
             {
                 name = "createdBy";
                 options = [#sortable];
+            },
+            {
+                name = "updatedAt";
+                options = [#nullable];
+            },
+            {
+                name = "updatedBy";
+                options = [#nullable];
             }
         ];
     };

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from "react";
+import React, {ReactElement, ReactNode, useCallback, useState} from "react";
 
 interface Tab {
     title: string;
@@ -8,7 +8,7 @@ interface Tab {
 
 interface Props {
     tabs: Tab[];
-    children: any[];
+    children: ReactElement[];
 }
 
 const Tabs = (props: Props) => {
@@ -36,9 +36,11 @@ const Tabs = (props: Props) => {
                 </ul>
             </div>
             {props.children.map((child, index) => 
-                <div key={index} className={`${index === active? 'is-visible': 'is-hidden'}`}>
-                    {child}
-                </div>)}
+                child && 
+                    <div key={index} className={`${index === active? 'is-visible': 'is-hidden'}`}>
+                        {child}
+                    </div>
+            )}
         </>
     );
 };

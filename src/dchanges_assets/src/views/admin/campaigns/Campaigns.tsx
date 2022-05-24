@@ -200,6 +200,7 @@ const Campaigns = (props: Props) => {
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>

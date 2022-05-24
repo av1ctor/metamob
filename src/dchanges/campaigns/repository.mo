@@ -63,6 +63,21 @@ module {
             };
         };
 
+        public func publish(
+            campaign: Types.Campaign, 
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWhenPublished(campaign, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
         public func finish(
             campaign: Types.Campaign, 
             result: Types.CampaignResult,
@@ -504,8 +519,8 @@ module {
                 tags = req.tags;
                 info = _createStatsEntity(req.kind, req.goal);
                 updatesCnt = 0;
-                publishedAt = ?now;
-                expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000)))));
+                publishedAt = null;
+                expiredAt = null;
                 createdAt = now;
                 createdBy = callerId;
                 updatedAt = null;
@@ -689,10 +704,9 @@ module {
                 tags = e.tags;
                 info = switch(e.info) {
                     case (#votes(info)) {
-                        let value = Nat32.fromNat(Int.abs(vote.value));
                         #votes({
-                            pro = if(vote.value >= 0) info.pro + value else info.pro;
-                            against = if(vote.value < 0) info.against + value else info.against;
+                            pro = if(vote.pro) info.pro + 1 else info.pro;
+                            against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
                             firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
                             lastAt = ?vote.createdAt;
@@ -700,20 +714,18 @@ module {
                         });
                     };
                     case (#anonVotes(info)) {
-                        let value = Nat32.fromNat(Int.abs(vote.value));
                         #anonVotes({
-                            pro = if(vote.value >= 0) info.pro + value else info.pro;
-                            against = if(vote.value < 0) info.against + value else info.against;
+                            pro = if(vote.pro) info.pro + 1 else info.pro;
+                            against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
                             firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
                             lastAt = ?vote.createdAt;
                         });
                     };
                     case (#weightedVotes(info)) {
-                        let value = Int.abs(vote.value);
                         #weightedVotes({
-                            pro = if(vote.value >= 0) info.pro + value else info.pro;
-                            against = if(vote.value < 0) info.against + value else info.against;
+                            pro = if(vote.pro) info.pro + 1 else info.pro;
+                            against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
                             firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
                             lastAt = ?vote.createdAt;
@@ -756,10 +768,9 @@ module {
                 tags = e.tags;
                 info = switch(e.info) {
                     case (#votes(info)) {
-                        let value = Nat32.fromNat(Int.abs(vote.value));
                         #votes({
-                            pro = if(vote.value >= 0) info.pro - value else info.pro;
-                            against = if(vote.value < 0) info.against - value else info.against;
+                            pro = if(vote.pro) info.pro - 1 else info.pro;
+                            against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
                             firstAt = info.firstAt;
                             lastAt = info.lastAt;
@@ -767,20 +778,18 @@ module {
                         });
                     };
                     case (#anonVotes(info)) {
-                        let value = Nat32.fromNat(Int.abs(vote.value));
                         #anonVotes({
-                            pro = if(vote.value >= 0) info.pro - value else info.pro;
-                            against = if(vote.value < 0) info.against - value else info.against;
+                            pro = if(vote.pro) info.pro - 1 else info.pro;
+                            against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
                             firstAt = info.firstAt;
                             lastAt = info.lastAt;
                         });
                     };
                     case (#weightedVotes(info)) {
-                        let value = Int.abs(vote.value);
                         #weightedVotes({
-                            pro = if(vote.value >= 0) info.pro - value else info.pro;
-                            against = if(vote.value < 0) info.against - value else info.against;
+                            pro = if(vote.pro) info.pro - 1 else info.pro;
+                            against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
                             firstAt = info.firstAt;
                             lastAt = info.lastAt;
@@ -953,6 +962,38 @@ module {
             }  
         };           
 
+        func _updateEntityWhenPublished(
+            e: Types.Campaign, 
+            callerId: Nat32
+        ): Types.Campaign {
+            let now = Time.now();
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = Types.STATE_PUBLISHED;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
+                updatesCnt = e.updatesCnt;
+                publishedAt = ?now;
+                expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * (24 * 60 * 60 * 1000000)))));
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };        
+
         func _updateEntityWhenFinished(
             e: Types.Campaign, 
             result: Types.CampaignResult,
@@ -983,7 +1024,7 @@ module {
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
             }  
-        };        
+        };  
     };
 
     func serialize(
@@ -1008,41 +1049,41 @@ module {
         
         switch(e.info) {
             case (#signatures(info)) {
-                res.put("stats_total", #nat32(info.total));
-                res.put("stats_goal", #nat32(info.goal));
-                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+                res.put("info_total", #nat32(info.total));
+                res.put("info_goal", #nat32(info.goal));
+                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };
             case (#votes(info)) {
-                res.put("stats_pro", #nat32(info.pro));
-                res.put("stats_against", #nat32(info.against));
-                res.put("stats_goal", #nat32(info.goal));
-                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+                res.put("info_pro", #nat32(info.pro));
+                res.put("info_against", #nat32(info.against));
+                res.put("info_goal", #nat32(info.goal));
+                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };
             case (#anonVotes(info)) {
-                res.put("stats_pro", #nat32(info.pro));
-                res.put("stats_against", #nat32(info.against));
-                res.put("stats_goal", #nat32(info.goal));
-                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("info_pro", #nat32(info.pro));
+                res.put("info_against", #nat32(info.against));
+                res.put("info_goal", #nat32(info.goal));
+                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
             };
             case (#weightedVotes(info)) {
-                res.put("stats_pro", #nat(info.pro));
-                res.put("stats_against", #nat(info.against));
-                res.put("stats_goal", #nat(info.goal));
-                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+                res.put("info_pro", #nat(info.pro));
+                res.put("info_against", #nat(info.against));
+                res.put("info_goal", #nat(info.goal));
+                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };            
             case (#donations(info)) {
-                res.put("stats_total", #nat(info.total));
-                res.put("stats_goal", #nat(info.goal));
-                res.put("stats_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("stats_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("stats_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
+                res.put("info_total", #nat(info.total));
+                res.put("info_goal", #nat(info.goal));
+                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
+                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
+                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };            
         };
 
@@ -1080,49 +1121,49 @@ module {
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
-                    total = Variant.getOptNat32(map.get("stats_total"));
-                    goal = Variant.getOptNat32(map.get("stats_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                    total = Variant.getOptNat32(map.get("info_total"));
+                    goal = Variant.getOptNat32(map.get("info_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else if(kind == Types.KIND_VOTES) {
                 #votes({
-                    pro = Variant.getOptNat32(map.get("stats_pro"));
-                    against = Variant.getOptNat32(map.get("stats_against"));
-                    goal = Variant.getOptNat32(map.get("stats_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                    pro = Variant.getOptNat32(map.get("info_pro"));
+                    against = Variant.getOptNat32(map.get("info_against"));
+                    goal = Variant.getOptNat32(map.get("info_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else if(kind == Types.KIND_ANON_VOTES) {
                 #anonVotes({
-                    pro = Variant.getOptNat32(map.get("stats_pro"));
-                    against = Variant.getOptNat32(map.get("stats_against"));
-                    goal = Variant.getOptNat32(map.get("stats_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
+                    pro = Variant.getOptNat32(map.get("info_pro"));
+                    against = Variant.getOptNat32(map.get("info_against"));
+                    goal = Variant.getOptNat32(map.get("info_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
                 });
             }
             else if(kind == Types.KIND_WEIGHTED_VOTES) {
                 #weightedVotes({
-                    pro = Variant.getOptNat(map.get("stats_pro"));
-                    against = Variant.getOptNat(map.get("stats_against"));
-                    goal = Variant.getOptNat(map.get("stats_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                    pro = Variant.getOptNat(map.get("info_pro"));
+                    against = Variant.getOptNat(map.get("info_against"));
+                    goal = Variant.getOptNat(map.get("info_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {
                 #donations({
-                    total = Variant.getOptNat(map.get("stats_total"));
-                    goal = Variant.getOptNat(map.get("stats_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("stats_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("stats_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("stats_lastBy"));
+                    total = Variant.getOptNat(map.get("info_total"));
+                    goal = Variant.getOptNat(map.get("info_goal"));
+                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
+                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
+                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             };
             updatesCnt = Variant.getOptNat32(map.get("updatesCnt"));
