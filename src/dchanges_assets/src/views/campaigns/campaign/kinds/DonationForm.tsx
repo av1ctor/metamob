@@ -172,15 +172,15 @@ const DonationForm = (props: Props) => {
                             onChange={changeForm}
                         />
                         <TextField
-                            label="From"
+                            label="From account id"
                             value={authState.identity? 
-                                toHexString(principalToAccountDefaultIdentifier(authState.identity.getPrincipal())): 
+                                authState.identity.getPrincipal().toString(): 
                                 ''
                             }
                             disabled={true}
                         />
                         <TextField
-                            label="Balance"
+                            label="Account balance"
                             value={icpToDecimal(balance)}
                             disabled={true}
                         />
