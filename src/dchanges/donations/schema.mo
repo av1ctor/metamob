@@ -26,7 +26,7 @@ module {
             },
             {
                 name = "value";
-                options = [];
+                options = [#min(10_001 /* ICP transfer fee + 1 */)];
             },
             {
                 name = "createdAt";

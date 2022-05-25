@@ -56,3 +56,6 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 
 ### deploying the local ledger canister:
 - Follow: https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally
+
+### tranfering ICP from the LEDGER_ACC to the admin account:
+- Run: dfx ledger transfer --amount 100.0 --ledger-canister-id {LOCAL_LEDGER_CANISTER_ID} --memo 1234 {ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX}

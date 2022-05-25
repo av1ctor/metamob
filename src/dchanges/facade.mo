@@ -22,7 +22,7 @@ import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
 
-shared({caller = owner}) actor class DChanges() {
+shared({caller = owner}) actor class DChanges() = this {
 
     // services
     let userService = UserService.Service();
@@ -87,6 +87,11 @@ shared({caller = owner}) actor class DChanges() {
         limit: ?(Nat, Nat)
     ): async Result.Result<[UserTypes.Profile], Text> {
         userService.find(criterias, sortBy, limit, msg.caller);
+    };
+
+    public shared query(msg) func userGetAccountId(
+    ): async Blob {
+        userService.getAccountId(msg.caller, this);
     };
 
     private func _redactUser(
@@ -540,7 +545,14 @@ shared({caller = owner}) actor class DChanges() {
     public shared(msg) func donationCreate(
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(donationService.create(req, msg.caller), false);
+        _transformDonationResponseEx(donationService.create(req, msg.caller, this), false);
+    };
+
+    public shared(msg) func donationComplete(
+        pubId: Text
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        let res = await donationService.complete(pubId, msg.caller, this);
+        _transformDonationResponseEx(res, false);
     };
 
     public shared(msg) func donationUpdate(
@@ -613,6 +625,7 @@ shared({caller = owner}) actor class DChanges() {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                state = e.state;
                 anonymous = e.anonymous;
                 body = e.body;
                 value = e.value;
@@ -627,6 +640,7 @@ shared({caller = owner}) actor class DChanges() {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                state = e.state;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = e.body;

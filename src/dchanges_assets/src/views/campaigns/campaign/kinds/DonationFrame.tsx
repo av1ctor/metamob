@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
 import Box from "../../../../components/Box";
 import { CampaignState, getGoalValue } from "../../../../libs/campaigns";
-import { useFindDonationByCampaignAndUser } from "../../../../hooks/donations";
 import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../../stores/auth";
 import DonationForm from "./DonationForm";
 import Result from "../Result";
 import Share from "../Share";
+import { icpToDecimal } from "../../../../libs/utils";
 
 interface Props {
     campaign: Campaign;
@@ -23,11 +23,9 @@ export const DonationFrame = (props: Props) => {
     const donated = ('donations' in campaign.info && campaign.info.donations.total) || BigInt(0);
     const goal = getGoalValue(campaign);
 
-    const userDonation = useFindDonationByCampaignAndUser(campaign?._id, auth.user?._id);
-   
     return (
         <>
-            <div><small><b>{donated.toString()} ICP</b> donated. <b>{(goal - donated).toString()} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. <b>{icpToDecimal(goal - donated)} ICP</b> to goal. Keep going!</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>
@@ -37,7 +35,6 @@ export const DonationFrame = (props: Props) => {
                         </div>
                         <DonationForm 
                             campaign={campaign}
-                            donation={userDonation?.data} 
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}

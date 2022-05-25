@@ -7,7 +7,7 @@ import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dch
 import Steps, { Step } from "../../components/Steps";
 import UserCreateForm from "../users/user/Create";
 import { loginUser } from "../../libs/users";
-import { createMainActor } from "../../libs/backend";
+import { createLedgerActor, createMainActor } from "../../libs/backend";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 
 interface Props {
@@ -85,6 +85,12 @@ const Logon = (props: Props) => {
             actorDispatch({
                 type: ActorActionType.SET_MAIN,
                 payload: main
+            });
+
+            const ledger = createLedgerActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_LEDGER,
+                payload: ledger
             });        
 
             const user = await loadAuthenticatedUser(main);

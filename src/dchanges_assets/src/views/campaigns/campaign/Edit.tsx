@@ -16,7 +16,8 @@ import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
-import { CampaignState, getGoalValue, kindOptions } from "../../../libs/campaigns";
+import { CampaignKind, CampaignState, getGoalValue, kindOptions } from "../../../libs/campaigns";
+import { decimalToIcp, icpToDecimal } from "../../../libs/utils";
 
 interface Props {
     campaign: Campaign;
@@ -55,10 +56,12 @@ const EditForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     
     const [placeValue, setPlaceValue] = useState('');
-    const [form, setForm] = useState<CampaignRequest>({
+    const [form, setForm] = useState({
         ...props.campaign,
         state: [props.campaign.state],
-        goal: getGoalValue(props.campaign),
+        goal: props.campaign.kind === CampaignKind.DONATIONS?
+            icpToDecimal(getGoalValue(props.campaign)):
+            getGoalValue(props.campaign),
     });
     
     const updateMut = useUpdateCampaign();
@@ -78,7 +81,7 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: CampaignRequest): Promise<string[]> => {
+    const validate = async (form: any): Promise<string[]> => {
         try {
             await formSchema.validate(form, {abortEarly: false});
             return [];
@@ -100,12 +103,16 @@ const EditForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
+            const kind = Number(form.kind);
+
             await updateMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.campaign.pubId, 
                 req: {
-                    kind: Number(form.kind),
-                    goal: BigInt(form.goal),
+                    kind: kind,
+                    goal: kind === CampaignKind.DONATIONS?
+                        decimalToIcp(form.goal.toString()):
+                        BigInt(form.goal),
                     state: form.state.length > 0? [Number(form.state[0])]: [],
                     categoryId: Number(form.categoryId),
                     placeId: Number(form.placeId),
@@ -170,7 +177,7 @@ const EditForm = (props: Props) => {
                     value={form.kind}
                     options={kindOptions}
                     required={true}
-                    onChange={changeForm} 
+                    disabled={true}
                 />
                 <TextField 
                     label="Title" 
@@ -207,10 +214,10 @@ const EditForm = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />
-                <NumberField 
+                <TextField 
                     label="Goal" 
                     name="goal"
-                    value={Number(form.goal.toString())}
+                    value={form.goal.toString()}
                     required={true}
                     onChange={changeForm}
                 />

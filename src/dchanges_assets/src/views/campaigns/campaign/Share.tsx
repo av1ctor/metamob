@@ -7,7 +7,7 @@ interface Props {
 }
 
 const genFacebook = (camp: Campaign): string => {
-    const uri = encodeURI(`${config.BASE_URL}/#/c/${camp.pubId}`);
+    const uri = encodeURI(`${config.APP_URL}/#/c/${camp.pubId}`);
     return `https://www.facebook.com/sharer/sharer.php?u=${uri}`;
 };
 
@@ -17,13 +17,13 @@ const genEmail = (camp: Campaign): string => {
 ${camp.body}
 
 Sign the campaign now:
-${config.BASE_URL}/#/c/${camp.pubId}`;
+${config.APP_URL}/#/c/${camp.pubId}`;
 
     return encodeURI(email);
 };
 
 const genTwitter = (camp: Campaign): string => {
-    const uri = encodeURI(`${config.BASE_URL}/#/c/${camp.pubId}`);
+    const uri = encodeURI(`${config.APP_URL}/#/c/${camp.pubId}`);
     const text = encodeURI(`${camp.title}. Sign the campaign now!`);
     return `https://twitter.com/share?related=dchanges&url=${uri}&text=${text} @dchangesdotorg`;
 };

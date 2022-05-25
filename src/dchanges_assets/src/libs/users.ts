@@ -1,9 +1,12 @@
+import { Identity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 import {dchanges} from "../../../declarations/dchanges";
 import {DChanges, ProfileResponse, Profile, Variant} from "../../../declarations/dchanges/dchanges.did";
+import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { config } from "../config";
-import { valueToVariant } from "./backend";
+import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
+import { principalToAccountDefaultIdentifier, toHexString, transferErrorToText } from "./utils";
 
 const anonymous: ProfileResponse = {
     _id: 0,
@@ -148,3 +151,46 @@ export const isModerator = (
 
     return false;
 }
+
+export const getAccountId = async (
+    main: DChanges
+): Promise<Uint8Array> => {
+    const res = await main.userGetAccountId();
+    return Uint8Array.from(res);
+}
+
+export const getBalance = async (
+    identity: Identity,
+    ledger: Ledger
+): Promise<bigint> => {
+    const principal = identity.getPrincipal();
+    
+    const res = await ledger.account_balance({
+        account: Array.from(principalToAccountDefaultIdentifier(principal))
+    });
+
+    return res.e8s;
+};
+
+export const depositIcp = async (
+    amount: bigint,
+    main: DChanges,
+    ledger: Ledger
+): Promise<bigint> => {
+    const userSubAccount = await getAccountId(main);
+
+    const res = await ledger.transfer({
+        to: Array.from(userSubAccount),
+        amount: {e8s: amount},
+        fee: {e8s: LEDGER_TRANSFER_FEE},
+        memo: 0n,
+        from_subaccount: [],
+        created_at_time: []
+    });
+
+    if('Err' in res) {
+        throw Error(`Transfer failed: ${transferErrorToText(res.Err)}`);
+    }
+
+    return res.Ok;
+};

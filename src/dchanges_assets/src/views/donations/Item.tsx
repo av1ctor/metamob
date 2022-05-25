@@ -4,7 +4,9 @@ import {Campaign, ProfileResponse, DonationResponse} from "../../../../declarati
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
+import { DonationState } from "../../libs/donations";
 import { isModerator } from "../../libs/users";
+import { icpToDecimal } from "../../libs/utils";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
@@ -30,7 +32,17 @@ export const BaseItem = (props: BaseItemProps) => {
                 <div className="content">
                     <strong>{props.user?.name}</strong>
                     <br />
-                    Value: {props.donation.value.toString()}
+                    Value:&nbsp;
+                    <span 
+                        className={`${props.donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
+                    >
+                        {icpToDecimal(props.donation.value)} ICP&nbsp;
+                        {props.donation.state === DonationState.COMPLETED? 
+                            <i className="la la-check-circle" title="Completed!" />
+                        :  
+                            <i className="la la-times-circle" title="Ongoing..." />
+                        }
+                    </span>
                     <br />
                     <ReactMarkdown className="update-body" children={donation.body}/>
                     {props.children}

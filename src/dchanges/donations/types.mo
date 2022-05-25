@@ -1,7 +1,14 @@
+import AccountTypes "../accounts/Types";
+
 module {
+    public type DonationState = Nat32;
+    public let STATE_CREATED: Nat32 = 0;
+    public let STATE_COMPLETED: Nat32 = 1;
+
     public type Donation = {
         _id: Nat32;
         pubId: Text;
+        state: DonationState;
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
@@ -22,6 +29,7 @@ module {
     public type DonationResponse = {
         _id: Nat32;
         pubId: Text;
+        state: DonationState;
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;

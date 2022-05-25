@@ -12,7 +12,10 @@
     },
     "dchanges": {
       "main": "src/dchanges/facade.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "dependencies": [
+        "ledger"
+      ]
     },
     "dchanges_assets": {
       "dependencies": [

@@ -1,12 +1,15 @@
 import React, {createContext, useReducer} from "react";
 import { DChanges } from "../../../declarations/dchanges/dchanges.did";
+import { idlFactory as Ledger } from "../../../declarations/ledger";
 
 export interface ActorState {
     main?: DChanges;
+    ledger?: Ledger;
 };
 
 export enum ActorActionType {
-    SET_MAIN
+    SET_MAIN,
+    SET_LEDGER,
 };
 
 interface Action {
@@ -15,7 +18,8 @@ interface Action {
 };
 
 const initialState: ActorState = {
-    main: undefined
+    main: undefined,
+    ledger: undefined,
 };
 
 export const ActorContext = createContext<[ActorState, (action: Action) => void]>([
@@ -28,6 +32,12 @@ const reducer = (state: ActorState, action: Action): ActorState => {
             return {
                 ...state,
                 main: action.payload
+            };
+
+        case ActorActionType.SET_LEDGER:
+            return {
+                ...state,
+                ledger: action.payload
             };
 
         default:

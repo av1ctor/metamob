@@ -3,6 +3,11 @@ import {Variant, DonationResponse, Donation, DChanges} from "../../../declaratio
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
+export enum DonationState {
+    CREATED,
+    COMPLETED,
+};
+
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: 

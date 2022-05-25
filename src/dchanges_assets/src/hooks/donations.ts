@@ -71,7 +71,6 @@ export const useFindUserDonations = (
 };
 
 export const useCreateDonation = () => {
-    const queryClient = useQueryClient();
     return useMutation(
         async (options: {main?: DChanges, req: DonationRequest}) => {
             if(!options.main) {
@@ -79,6 +78,27 @@ export const useCreateDonation = () => {
             }
                 
             const res = await options.main.donationCreate(options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+            }   
+        }
+    );
+};
+
+export const useCompleteDonation = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+                
+            const res = await options.main.donationComplete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

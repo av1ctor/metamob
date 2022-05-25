@@ -1,5 +1,9 @@
 import Principal "mo:base/Principal";
+import Blob "mo:base/Blob";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Int "mo:base/Int";
+import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Variant "mo:mo-table/variant";
 import Types "./types";
@@ -9,8 +13,12 @@ import UserUtils "../users/utils";
 import UserService "../users/service";
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
+import Account "../accounts/Account";
+import Ledger "canister:ledger";
 
 module {
+    let icp_fee: Nat = 10_000;
+
     public class Service(
         userService: UserService.Service,
         campaignService: CampaignService.Service
@@ -20,7 +28,8 @@ module {
 
         public func create(
             req: Types.DonationRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): Result.Result<Types.Donation, Text> {
             let caller = userService.findByPrincipal(invoker);
             switch(caller) {
@@ -37,10 +46,75 @@ module {
                                 #err(msg);
                             };
                             case _ {
-                                repo.create(req, caller._id);
+                                repo.create(req, Types.STATE_CREATED, caller._id);
                             };
                         };           
 
+                    };
+                };
+            };
+        };
+
+        public func complete(
+            id: Text, 
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Donation, Text> {
+            let caller = userService.findByPrincipal(invoker);
+            switch(caller) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(entity)) {
+                                if(not canChange(caller, entity)) {
+                                    return #err("Forbidden");
+                                };
+
+                                switch(canChangeCampaign(entity.campaignId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        if(entity.state != Types.STATE_CREATED) {
+                                            return #err("Invalid donation state");
+                                        };
+
+                                        let userAccountId = userService.getAccountId(invoker, this);
+
+                                        let balance = await Ledger.account_balance({ account = userAccountId });
+
+                                        let amount = balance.e8s - Nat64.fromNat(icp_fee);
+
+                                        let receipt = await Ledger.transfer({
+                                            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+                                            from_subaccount = ?Account.principalToSubaccount(invoker);
+                                            to = Account.accountIdentifier(Principal.fromActor(this), Account.defaultSubaccount());
+                                            amount = { e8s = amount};
+                                            fee = { e8s = Nat64.fromNat(icp_fee) };
+                                            created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+                                        });
+
+                                        switch (receipt) {
+                                            case (#Err _) {
+                                                #err("Transfer failed");
+                                            };
+                                            case _ {
+                                                repo.complete(entity, Nat64.toNat(amount), caller._id);
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
                     };
                 };
             };

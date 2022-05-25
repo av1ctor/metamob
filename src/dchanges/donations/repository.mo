@@ -30,10 +30,38 @@ module {
 
         public func create(
             req: Types.DonationRequest,
+            state: Types.DonationState,
             callerId: Nat32
         ): Result.Result<Types.Donation, Text> {
-            let e = _createEntity(req, callerId);
+            let e = _createEntity(req, state, callerId);
             switch(donations.insert(e._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func complete(
+            donation: Types.Donation, 
+            value: Nat,
+            callerId: Nat32
+        ): Result.Result<Types.Donation, Text> {
+            let e = _updateEntity(
+                donation, 
+                {
+                    campaignId = donation.campaignId;
+                    anonymous = donation.anonymous;
+                    body = donation.body;
+                    value = value;
+                }, 
+                Types.STATE_COMPLETED, 
+                callerId
+            );
+
+            switch(donations.replace(donation._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -49,7 +77,7 @@ module {
             req: Types.DonationRequest,
             callerId: Nat32
         ): Result.Result<Types.Donation, Text> {
-            let e = _updateEntity(donation, req, callerId);
+            let e = _updateEntity(donation, req, donation.state, callerId);
             switch(donations.replace(donation._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -393,11 +421,13 @@ module {
 
         func _createEntity(
             req: Types.DonationRequest,
+            state: Types.DonationState,
             callerId: Nat32
         ): Types.Donation {
             {
                 _id = donations.nextId();
                 pubId = ulid.next();
+                state = state;
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
                 body = req.body;
@@ -412,11 +442,13 @@ module {
         func _updateEntity(
             e: Types.Donation, 
             req: Types.DonationRequest,
+            state: Types.DonationState,
             callerId: Nat32
         ): Types.Donation {
             {
                 _id = e._id;
                 pubId = e.pubId;
+                state = state;
                 anonymous = req.anonymous;
                 campaignId = e.campaignId;
                 body = req.body;
@@ -437,6 +469,7 @@ module {
         
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
+        res.put("state", #nat32(e.state));
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
@@ -455,6 +488,7 @@ module {
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
+            state = Variant.getOptNat32(map.get("state"));
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
             body = Variant.getOptText(map.get("body"));

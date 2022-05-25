@@ -7,7 +7,7 @@ import {AuthActionType, AuthContext} from "../../stores/auth";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
-import { createMainActor } from "../../libs/backend";
+import { createLedgerActor, createMainActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import UserCampaigns from "../users/user/Campaigns";
@@ -116,8 +116,8 @@ export const Home = () => {
             actorDispatch({
                 type: ActorActionType.SET_MAIN,
                 payload: main
-            });        
-            
+            });
+
             const user = await loadAuthenticatedUser(main);
             if(user) {
                 authDispatch({

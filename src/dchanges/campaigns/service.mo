@@ -74,9 +74,7 @@ module {
                                 };
 
                                 if(req.kind != campaign.kind) {
-                                    if(campaign.state != CampaignTypes.STATE_CREATED) {
-                                        return #err("Kind can not be changed after the campaign is published");
-                                    };
+                                    return #err("Kind can not be changed after the campaign is created");
                                 };
                                 
                                 return repo.update(campaign, req, caller._id);

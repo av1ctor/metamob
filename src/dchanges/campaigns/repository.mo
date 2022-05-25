@@ -445,7 +445,7 @@ module {
             campaigns.restore(entities);
         };
 
-        func _createStatsEntity(
+        func _createInfoEntity(
             kind: Types.CampaignKind,
             goal: Nat
         ): Types.CampaignInfo {
@@ -456,7 +456,6 @@ module {
                     firstAt = null;
                     lastAt = null;
                     lastBy = null;
-                    signers = [];
                 });
             }
             else if(kind == Types.KIND_VOTES) {
@@ -467,7 +466,6 @@ module {
                     firstAt = null;
                     lastAt = null;
                     lastBy = null;
-                    voters = [];
                 });
             }
             else if(kind == Types.KIND_ANON_VOTES) {
@@ -487,7 +485,6 @@ module {
                     firstAt = null;
                     lastAt = null;
                     lastBy = null;
-                    voters = [];
                 });
             }
             else {
@@ -497,8 +494,62 @@ module {
                     firstAt = null;
                     lastAt = null;
                     lastBy = null;
-                    donors = [];
                 });
+            };
+        };
+
+        func _updateInfoEntity(
+            info: Types.CampaignInfo,
+            goal: Nat
+        ): Types.CampaignInfo {
+            switch(info) {
+                case (#signatures(i)) {
+                    #signatures({
+                        total = i.total;
+                        goal = Nat32.fromNat(goal);
+                        firstAt = i.firstAt;
+                        lastAt = i.lastAt;
+                        lastBy = i.lastBy;
+                    });
+                };
+                case (#votes(i)) {
+                    #votes({
+                        pro = i.pro;
+                        against = i.against;
+                        goal = Nat32.fromNat(goal);
+                        firstAt = i.firstAt;
+                        lastAt = i.lastAt;
+                        lastBy = i.lastBy;
+                    });
+                };
+                case (#anonVotes(i)) {
+                    #anonVotes({
+                        pro = i.pro;
+                        against = i.against;
+                        goal = Nat32.fromNat(goal);
+                        firstAt = i.firstAt;
+                        lastAt = i.lastAt;
+                    });
+                };
+                case (#weightedVotes(i)) {
+                    #weightedVotes({
+                        pro = i.pro;
+                        against = i.against;
+                        goal = goal;
+                        firstAt = i.firstAt;
+                        lastAt = i.lastAt;
+                        lastBy = i.lastBy;
+                    });
+                };
+                case (#donations(i)) {
+                    #donations({
+                        total = i.total;
+                        goal = goal;
+                        firstAt = i.firstAt;
+                        lastAt = i.lastAt;
+                        lastBy = i.lastBy;
+                    });
+                };
             };
         };
 
@@ -524,7 +575,7 @@ module {
                 result = Types.RESULT_NONE;
                 duration = req.duration;
                 tags = req.tags;
-                info = _createStatsEntity(req.kind, req.goal);
+                info = _createInfoEntity(req.kind, req.goal);
                 updatesCnt = 0;
                 publishedAt = null;
                 expiredAt = null;
@@ -559,7 +610,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = req.tags;
-                info = e.info;
+                info = _updateInfoEntity(e.info, req.goal);
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
