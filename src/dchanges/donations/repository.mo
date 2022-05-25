@@ -49,17 +49,7 @@ module {
             value: Nat,
             callerId: Nat32
         ): Result.Result<Types.Donation, Text> {
-            let e = _updateEntity(
-                donation, 
-                {
-                    campaignId = donation.campaignId;
-                    anonymous = donation.anonymous;
-                    body = donation.body;
-                    value = value;
-                }, 
-                Types.STATE_COMPLETED, 
-                callerId
-            );
+            let e = _updateEntityWhenCompleted(donation, value, callerId);
 
             switch(donations.replace(donation._id, e)) {
                 case (#err(msg)) {
@@ -457,6 +447,26 @@ module {
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenCompleted(
+            e: Types.Donation, 
+            value: Nat,
+            callerId: Nat32
+        ): Types.Donation {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = Types.STATE_COMPLETED;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                body = e.body;
+                value = value;                
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
             }  
         };
     };

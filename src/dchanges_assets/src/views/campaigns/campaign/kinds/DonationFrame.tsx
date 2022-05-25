@@ -25,7 +25,7 @@ export const DonationFrame = (props: Props) => {
 
     return (
         <>
-            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. <b>{icpToDecimal(goal - donated)} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. More <b>{icpToDecimal(goal - donated)} ICP</b> to goal. Keep going!</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>
