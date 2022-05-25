@@ -164,7 +164,9 @@ const EditForm = (props: Props) => {
         setForm({
             ...props.campaign,
             state: [props.campaign.state],
-            goal: getGoalValue(props.campaign),
+            goal: props.campaign.kind === CampaignKind.DONATIONS?
+                icpToDecimal(getGoalValue(props.campaign)):
+                getGoalValue(props.campaign),
         });
     }, [props.campaign]);
 
@@ -215,7 +217,7 @@ const EditForm = (props: Props) => {
                     onChange={changeForm}
                 />
                 <TextField 
-                    label="Goal" 
+                    label={`Goal ${form.kind === CampaignKind.DONATIONS? '(ICP)': form.kind === CampaignKind.SIGNATURES? '(Signatures)': '(Votes)'}`}
                     name="goal"
                     value={form.goal.toString()}
                     required={true}

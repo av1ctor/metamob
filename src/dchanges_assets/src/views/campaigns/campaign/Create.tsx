@@ -14,6 +14,7 @@ import PlaceForm from '../../places/place/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, kindOptions } from "../../../libs/campaigns";
+import { decimalToIcp } from "../../../libs/utils";
 
 interface Props {
     mutation: any;
@@ -78,11 +79,15 @@ const CreateForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
+            const kind = Number(form.kind);
+
             await props.mutation.mutateAsync({
                 main: actorState.main,
                 req: {
-                    kind: Number(form.kind),
-                    goal: BigInt(form.goal),
+                    kind: kind,
+                    goal: kind === CampaignKind.DONATIONS?
+                        decimalToIcp(form.goal.toString()):
+                        BigInt(form.goal),
                     state: form.state,
                     title: form.title,
                     target: form.target,
@@ -184,10 +189,10 @@ const CreateForm = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />
-                <NumberField 
-                    label="Goal" 
+                <TextField 
+                    label={`Goal ${Number(form.kind) === CampaignKind.DONATIONS? '(ICP)': (Number(form.kind) === CampaignKind.SIGNATURES? '(Signatures)': '(Votes)')}`}
                     name="goal"
-                    value={Number(form.goal.toString())}
+                    value={form.goal.toString()}
                     required={true}
                     onChange={changeForm}
                 />
