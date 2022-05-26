@@ -278,8 +278,8 @@ module {
                 _id = places.nextId();
                 pubId = ulid.next();
                 parentId = req.parentId;
-                private_ = req.private_;
                 kind = req.kind;
+                restricted = req.restricted;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -300,8 +300,8 @@ module {
                 _id = e._id;
                 pubId = e.pubId;
                 parentId = e.parentId;
-                private_ = req.private_;
                 kind = req.kind;
+                restricted = req.restricted;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -324,7 +324,7 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
         res.put("kind", #nat32(e.kind));
-        res.put("private_", #bool(e.private_));
+        res.put("restricted", #nat32(e.restricted));
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("icon", #text(e.icon));
@@ -345,7 +345,7 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             parentId = Variant.getOptNat32Opt(map.get("parentId"));
             kind = Variant.getOptNat32(map.get("kind"));
-            private_ = Variant.getOptBool(map.get("private_"));
+            restricted = Variant.getOptNat32(map.get("restricted"));
             name = Variant.getOptText(map.get("name"));
             description = Variant.getOptText(map.get("description"));
             icon = Variant.getOptText(map.get("icon"));

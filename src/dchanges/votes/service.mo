@@ -9,14 +9,18 @@ import UserUtils "../users/utils";
 import UserService "../users/service";
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
+import PlaceService "../places/service";
+import PlaceTypes "../places/types";
 
 module {
     public class Service(
         userService: UserService.Service,
-        campaignService: CampaignService.Service
+        campaignService: CampaignService.Service,
+        placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
+        let placeRepo = placeService.getRepository();
 
         public func create(
             req: Types.VoteRequest,

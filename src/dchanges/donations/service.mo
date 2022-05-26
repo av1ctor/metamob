@@ -13,18 +13,21 @@ import UserUtils "../users/utils";
 import UserService "../users/service";
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
-import Account "../accounts/Account";
-import Ledger "canister:ledger";
+import PlaceService "../places/service";
+import PlaceTypes "../places/types";
+import LedgerUtils "../utils/ledger";
 
 module {
     let icp_fee: Nat = 10_000;
 
     public class Service(
         userService: UserService.Service,
-        campaignService: CampaignService.Service
+        campaignService: CampaignService.Service,
+        placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
+        let placeRepo = placeService.getRepository();
 
         public func create(
             req: Types.DonationRequest,
@@ -50,35 +53,6 @@ module {
                         };           
 
                     };
-                };
-            };
-        };
-
-        private func _transferFromUserSubaccountToCampaignSubaccount(
-            campaign: CampaignTypes.Campaign,
-            caller: UserTypes.Profile,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<Nat64, Text> {
-            let userAccountId = userService.getAccountId(invoker, this);
-            let balance = await Ledger.account_balance({ account = userAccountId });
-            let amount = balance.e8s;
-            
-            let receipt = await Ledger.transfer({
-                memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
-                from_subaccount = ?Account.principalToSubaccount(invoker);
-                to = Account.accountIdentifier(Principal.fromActor(this), Account.textToSubaccount(campaign.pubId));
-                amount = { e8s = amount - Nat64.fromNat(icp_fee) };
-                fee = { e8s = Nat64.fromNat(icp_fee) };
-                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-            });
-
-            switch (receipt) {
-                case (#Err _) {
-                    #err("Transfer failed");
-                };
-                case _ {
-                    #ok(amount);
                 };
             };
         };
@@ -120,7 +94,7 @@ module {
                                                     return #err("Invalid donation state");
                                                 };
 
-                                                switch(await _transferFromUserSubaccountToCampaignSubaccount(campaign, caller, invoker, this)) {
+                                                switch(await LedgerUtils.transferFromUserSubaccountToCampaignSubaccount(campaign, caller, invoker, this)) {
                                                     case (#err(msg)) {
                                                         #err(msg);
                                                     };
@@ -264,33 +238,6 @@ module {
             repo.findByCampaignAndUser(campaignId, userId);
         };
 
-        private func _transferFromCampaignSubaccountToUserAccount(
-            campaign: CampaignTypes.Campaign,
-            amount: Nat,
-            caller: UserTypes.Profile,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<(), Text> {
-            
-            let receipt = await Ledger.transfer({
-                memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
-                from_subaccount = ?Account.textToSubaccount(campaign.pubId);
-                to = Account.accountIdentifier(invoker, Account.defaultSubaccount());
-                amount = { e8s = Nat64.fromNat(amount) - Nat64.fromNat(icp_fee) };
-                fee = { e8s = Nat64.fromNat(icp_fee) };
-                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-            });
-
-            switch (receipt) {
-                case (#Err _) {
-                    #err("Transfer failed");
-                };
-                case _ {
-                    #ok();
-                };
-            };
-        };
-
         public func delete(
             id: Text,
             invoker: Principal,
@@ -332,7 +279,7 @@ module {
                                                         };
                                                         case _ {
                                                             switch(
-                                                                await _transferFromCampaignSubaccountToUserAccount(
+                                                                await LedgerUtils.transferFromCampaignSubaccountToUserAccount(
                                                                     campaign, amount - icp_fee, caller, invoker, this)) {
                                                                 case (#err(msg)) {
                                                                     ignore repo.insert(entity);

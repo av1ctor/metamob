@@ -7,9 +7,8 @@ import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
 import Utils "./utils";
-import Account "../accounts/Account";
-import AccountTypes "../accounts/Types";
-import D "mo:base/Debug";
+import AccountTypes "../accounts/types";
+import LedgerUtils "../utils/ledger";
 
 module {
     public class Service(
@@ -194,10 +193,7 @@ module {
             invoker: Principal,
             this: actor {}
         ): AccountTypes.AccountIdentifier {
-            Account.accountIdentifier(
-                Principal.fromActor(this), 
-                Account.principalToSubaccount(invoker)
-            );
+            LedgerUtils.getAccountId(invoker, this);
         };
 
         public func beginDeposit(

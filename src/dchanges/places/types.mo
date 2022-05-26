@@ -12,12 +12,18 @@ module {
     public let KIND_ROOM: Nat32 = 9;
     public let KIND_OTHER: Nat32 = 10;
 
+    public type PlaceRestricted = Nat32;
+    public let RESTRICTED_NO: Nat32 = 0;
+    public let RESTRICTED_EMAIL: Nat32 = 1;
+    public let RESTRICTED_DIP20: Nat32 = 2;
+    public let RESTRICTED_DIP721: Nat32 = 3;
+
     public type Place = {
         _id: Nat32;
         pubId: Text;
         parentId: ?Nat32;
-        private_: Bool;
         kind: PlaceKind;
+        restricted: PlaceRestricted;
         name: Text;
         description: Text;
         icon: Text;
@@ -30,8 +36,8 @@ module {
 
     public type PlaceRequest = {
         parentId: ?Nat32;
-        private_: Bool;
         kind: PlaceKind;
+        restricted: PlaceRestricted;
         name: Text;
         description: Text;
         icon: Text;

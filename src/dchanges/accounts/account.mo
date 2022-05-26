@@ -9,7 +9,7 @@ import Text "mo:base/Text";
 import Buffer "mo:base/Buffer";
 import CRC32 "./CRC32";
 import SHA224 "./SHA224";
-import Types "./Types";
+import Types "./types";
 
 module {
     func beBytes(

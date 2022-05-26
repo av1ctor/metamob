@@ -3,12 +3,11 @@ import * as yup from 'yup';
 import { Profile, Place, PlaceRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
-import CheckboxField from "../../../components/CheckboxField";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
-import { kinds, search } from "../../../libs/places";
+import { kinds, restrictions, search } from "../../../libs/places";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 
@@ -27,7 +26,7 @@ const formSchema = yup.object().shape({
     icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
-    private: yup.bool(),
+    restricted: yup.number().required(),
 });
 
 const EditForm = (props: Props) => {
@@ -38,7 +37,7 @@ const EditForm = (props: Props) => {
         description: props.place.description,
         icon: props.place.icon,
         kind: props.place.kind,
-        private: props.place.private,
+        restricted: props.place.restricted,
         parentId: props.place.parentId,
     });
 
@@ -97,7 +96,7 @@ const EditForm = (props: Props) => {
                     description: form.description,
                     icon: form.icon,
                     kind: Number(form.kind),
-                    private: form.private,
+                    restricted: Number(form.restricted),
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
                 }
             });
@@ -135,7 +134,7 @@ const EditForm = (props: Props) => {
             description: props.place.description,
             icon: props.place.icon,
             kind: props.place.kind,
-            private: props.place.private,
+            restricted: props.place.restricted,
             parentId: props.place.parentId,
         });
     }, [props.place]);
@@ -179,10 +178,11 @@ const EditForm = (props: Props) => {
                 options={kinds}
                 onChange={changeForm}
             />
-            <CheckboxField 
-                label="Private"
-                id="private"
-                value={form.private}
+            <SelectField 
+                label="Restricted"
+                id="restricted"
+                value={form.restricted}
+                options={restrictions}
                 onChange={changeForm}
             />
             <AutocompleteField

@@ -25,6 +25,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "restricted";
+                options = [];
+            },
+            {
                 name = "description";
                 options = [#min(3), #max(1024)];
             },

@@ -17,6 +17,13 @@ export enum PlaceKind {
     OTHER = 10,
 }
 
+export enum PlaceRestriction {
+    NONE = 0,
+    EMAIL = 1,
+    DIP20 = 2,
+    DIP721 = 3,
+}
+
 export const kinds: {name: string, value: any}[] = [
     {name: 'Planet', value: PlaceKind.PLANET},
     {name: 'Continent', value: PlaceKind.CONTINENT},
@@ -29,6 +36,13 @@ export const kinds: {name: string, value: any}[] = [
     {name: 'Floor', value: PlaceKind.FLOOR},
     {name: 'Room', value: PlaceKind.ROOM},
     {name: 'Other', value: PlaceKind.OTHER},
+];
+
+export const restrictions: {name: string, value: any}[] = [
+    {name: 'No', value: PlaceRestriction.NONE},
+    {name: 'e-mail', value: PlaceRestriction.EMAIL},
+    {name: 'DIP20 (Token)', value: PlaceRestriction.DIP20},
+    {name: 'DIP721 (NFT)', value: PlaceRestriction.DIP721},
 ];
 
 export const kindToText = (kind: PlaceKind): string => {

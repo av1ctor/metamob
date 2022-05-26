@@ -3,12 +3,11 @@ import * as yup from 'yup';
 import { PlaceRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
-import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCreatePlace } from "../../../hooks/places";
-import { kinds, PlaceKind, search } from "../../../libs/places";
+import { kinds, PlaceKind, PlaceRestriction, restrictions, search } from "../../../libs/places";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
@@ -25,7 +24,7 @@ const formSchema = yup.object().shape({
     icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
-    private: yup.bool(),
+    restricted: yup.number().required(),
 });
 
 const Create = (props: Props) => {
@@ -36,7 +35,7 @@ const Create = (props: Props) => {
         description: '',
         icon: '',
         kind: PlaceKind.OTHER,
-        private: false,
+        restricted: PlaceRestriction.NONE,
         parentId: [],
     });
 
@@ -82,7 +81,7 @@ const Create = (props: Props) => {
                     description: form.description,
                     icon: form.icon,
                     kind: Number(form.kind),
-                    private: form.private,
+                    restricted: Number(form.restricted),
                     parentId: form.parentId,
                 }
             });
@@ -121,7 +120,7 @@ const Create = (props: Props) => {
             description: '',
             icon: '',
             kind: PlaceKind.OTHER,
-            private: false,
+            restricted: PlaceRestriction.NONE,
             parentId: [],
         });
     }, [props.value]);
@@ -158,10 +157,11 @@ const Create = (props: Props) => {
                     options={kinds}
                     onChange={changeForm}
                 />
-                <CheckboxField 
-                    label="Private"
-                    id="private"
-                    value={form.private}
+                <SelectField 
+                    label="Restricted"
+                    id="restricted"
+                    value={form.restricted}
+                    options={restrictions}
                     onChange={changeForm}
                 />
                 <AutocompleteField

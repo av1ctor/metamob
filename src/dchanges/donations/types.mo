@@ -1,4 +1,4 @@
-import AccountTypes "../accounts/Types";
+import AccountTypes "../accounts/types";
 
 module {
     public type DonationState = Nat32;
