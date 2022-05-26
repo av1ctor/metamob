@@ -13,6 +13,7 @@ import TextField from "../../../../components/TextField";
 import { depositIcp, getBalance } from "../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../../libs/utils";
+import { Identity } from "@dfinity/agent";
 
 interface Props {
     campaign: Campaign;
@@ -65,7 +66,15 @@ const DonationForm = (props: Props) => {
         return ledger;
     };
 
-    const init = useCallback(async(
+    const checkUserBalance = async (
+        identity: Identity, 
+        ledger: Ledger
+    ) => {
+        const balance = await getBalance(identity, ledger);
+        setBalance(balance);
+    };
+
+    const updateState = useCallback(async(
     ) => {
         const ledger = await getLedgerCanister();
         if(!ledger) {
@@ -77,9 +86,8 @@ const DonationForm = (props: Props) => {
             return;
         }
 
-        const balance = await getBalance(identity, ledger);
-        setBalance(balance);
-    }, []);
+        checkUserBalance(identity, ledger);
+    }, [authState.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -125,7 +133,7 @@ const DonationForm = (props: Props) => {
             const value = decimalToIcp(form.value.toString());
 
             if(value + LEDGER_TRANSFER_FEE >= balance) {
-                throw Error(`Insufficient funds: ${icpToDecimal(balance)} ICP. Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
+                throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
             }
 
             const donation = await createMut.mutateAsync({
@@ -156,6 +164,7 @@ const DonationForm = (props: Props) => {
                 campaignPubId: props.campaign.pubId,
             });
 
+            updateState();
             props.onSuccess('Your donation has been sent!');
         }
         catch(e) {
@@ -164,15 +173,15 @@ const DonationForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, balance]);
+    }, [form, balance, updateState]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
 
     useEffect(() => {
-        init();
-    }, []);
+        updateState();
+    }, [updateState]);
 
     const isLoggedIn = !!authState.user;
 
