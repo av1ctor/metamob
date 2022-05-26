@@ -116,7 +116,7 @@ const Donations = (props: Props) => {
                 {donation &&
                     <ReportForm
                         entityId={donation._id}
-                        entityType={ReportType.VOTES}
+                        entityType={ReportType.DONATIONS}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

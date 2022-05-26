@@ -31,8 +31,7 @@ module {
             invoker: Principal,
             this: actor {}
         ): Result.Result<Types.Donation, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -55,13 +54,41 @@ module {
             };
         };
 
+        private func _transferFromUserSubaccountToCampaignSubaccount(
+            campaign: CampaignTypes.Campaign,
+            caller: UserTypes.Profile,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Nat64, Text> {
+            let userAccountId = userService.getAccountId(invoker, this);
+            let balance = await Ledger.account_balance({ account = userAccountId });
+            let amount = balance.e8s;
+            
+            let receipt = await Ledger.transfer({
+                memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+                from_subaccount = ?Account.principalToSubaccount(invoker);
+                to = Account.accountIdentifier(Principal.fromActor(this), Account.textToSubaccount(campaign.pubId));
+                amount = { e8s = amount - Nat64.fromNat(icp_fee) };
+                fee = { e8s = Nat64.fromNat(icp_fee) };
+                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+            });
+
+            switch (receipt) {
+                case (#Err _) {
+                    #err("Transfer failed");
+                };
+                case _ {
+                    #ok(amount);
+                };
+            };
+        };
+
         public func complete(
             id: Text, 
             invoker: Principal,
             this: actor {}
         ): async Result.Result<Types.Donation, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -79,36 +106,28 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangeCampaign(entity.campaignId)) {
+                                switch(campaignRepo.findById(entity.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        if(entity.state != Types.STATE_CREATED) {
-                                            return #err("Invalid donation state");
-                                        };
-
-                                        let userAccountId = userService.getAccountId(invoker, this);
-
-                                        let balance = await Ledger.account_balance({ account = userAccountId });
-
-                                        let amount = balance.e8s - Nat64.fromNat(icp_fee);
-
-                                        let receipt = await Ledger.transfer({
-                                            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
-                                            from_subaccount = ?Account.principalToSubaccount(invoker);
-                                            to = Account.accountIdentifier(Principal.fromActor(this), Account.defaultSubaccount());
-                                            amount = { e8s = amount};
-                                            fee = { e8s = Nat64.fromNat(icp_fee) };
-                                            created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-                                        });
-
-                                        switch (receipt) {
-                                            case (#Err _) {
-                                                #err("Transfer failed");
+                                    case (#ok(campaign)) {
+                                        switch(canChangeCampaignEx(campaign)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
                                             };
                                             case _ {
-                                                repo.complete(entity, Nat64.toNat(amount), caller._id);
+                                                if(entity.state != Types.STATE_CREATED) {
+                                                    return #err("Invalid donation state");
+                                                };
+
+                                                switch(await _transferFromUserSubaccountToCampaignSubaccount(campaign, caller, invoker, this)) {
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                    case (#ok(amount)) {
+                                                        repo.complete(entity, Nat64.toNat(amount), caller._id);
+                                                    };
+                                                };
                                             };
                                         };
                                     };
@@ -125,8 +144,7 @@ module {
             req: Types.DonationRequest,
             invoker: Principal
         ): Result.Result<Types.Donation, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -167,8 +185,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -220,8 +237,7 @@ module {
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Donation], Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -248,12 +264,39 @@ module {
             repo.findByCampaignAndUser(campaignId, userId);
         };
 
+        private func _transferFromCampaignSubaccountToUserAccount(
+            campaign: CampaignTypes.Campaign,
+            amount: Nat,
+            caller: UserTypes.Profile,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            
+            let receipt = await Ledger.transfer({
+                memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+                from_subaccount = ?Account.textToSubaccount(campaign.pubId);
+                to = Account.accountIdentifier(invoker, Account.defaultSubaccount());
+                amount = { e8s = Nat64.fromNat(amount) - Nat64.fromNat(icp_fee) };
+                fee = { e8s = Nat64.fromNat(icp_fee) };
+                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+            });
+
+            switch (receipt) {
+                case (#Err _) {
+                    #err("Transfer failed");
+                };
+                case _ {
+                    #ok();
+                };
+            };
+        };
+
         public func delete(
             id: Text,
-            invoker: Principal
-        ): Result.Result<(), Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -271,12 +314,42 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(canChangeCampaign(entity.campaignId)) {
+                                switch(campaignRepo.findById(entity.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        repo.delete(entity, caller._id);
+                                    case (#ok(campaign)) {
+                                        switch(canChangeCampaignEx(campaign)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                if(entity.state == Types.STATE_COMPLETED) {
+                                                    let amount = entity.value;
+                                                    switch(repo.delete(entity, caller._id)) {
+                                                        case (#err(msg)) {
+                                                            #err(msg);
+                                                        };
+                                                        case _ {
+                                                            switch(
+                                                                await _transferFromCampaignSubaccountToUserAccount(
+                                                                    campaign, amount - icp_fee, caller, invoker, this)) {
+                                                                case (#err(msg)) {
+                                                                    ignore repo.insert(entity);
+                                                                    #err(msg);
+                                                                };
+                                                                case _ {
+                                                                    #ok();
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                }
+                                                else {
+                                                    repo.delete(entity, caller._id);
+                                                };
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -331,6 +404,22 @@ module {
             return true;
         };
 
+        func canChangeCampaignEx(
+            campaign: CampaignTypes.Campaign
+        ): Result.Result<(), Text> {
+            if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                #err("Invalid campaign state");
+            }
+            else {
+                if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
+                    #err("Invalid campaign kind");
+                }
+                else {
+                    #ok();
+                };
+            };
+        };
+
         func canChangeCampaign(
             campaignId: Nat32
         ): Result.Result<(), Text> {
@@ -339,17 +428,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
-                        #err("Invalid campaign state");
-                    }
-                    else {
-                        if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
-                            #err("Invalid campaign kind");
-                        }
-                        else {
-                            #ok();
-                        };
-                    };
+                    canChangeCampaignEx(campaign);
                 };
             };
         };

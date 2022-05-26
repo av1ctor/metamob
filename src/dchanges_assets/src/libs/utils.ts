@@ -152,10 +152,22 @@ export const calculateCrc32 = (
     return Buffer.from(checksumArrayBuf);
 };
 
+const removeZerosAtRight = (s: string): string => {
+    let i = s.length - 1;
+    for(; i > 0; i--) {
+        if(s.charCodeAt(i) !== 48) {
+            break;
+        }
+    }
+    return s.substring(0, i+1);
+};
+
 export const icpToDecimal = (
     icp: bigint
 ): string => {
-    return `${icp / BigInt(1e8)}.${icp % BigInt(1e8)}`; 
+    const int = icp / BigInt(1e8);
+    const dec = ('0000000' + (icp % BigInt(1e8)).toString()).substr(-8);
+    return `${int}.${removeZerosAtRight(dec)}`; 
 }
 
 export const decimalToIcp = (
@@ -165,7 +177,7 @@ export const decimalToIcp = (
     const int = dot > -1? 
         BigInt(value.substring(0, dot) || '0'):
         BigInt(value);
-    const dec = dot > 0? 
+    const dec = dot > -1? 
         Number(value.substring(dot)):
         Number(0);
     return int * BigInt(1e8) + BigInt(Math.ceil(dec * 1e8)|0); 

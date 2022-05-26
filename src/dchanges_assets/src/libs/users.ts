@@ -6,7 +6,7 @@ import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { config } from "../config";
 import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
-import { principalToAccountDefaultIdentifier, toHexString, transferErrorToText } from "./utils";
+import { principalToAccountDefaultIdentifier, transferErrorToText } from "./utils";
 
 const anonymous: ProfileResponse = {
     _id: 0,
@@ -173,6 +173,7 @@ export const getBalance = async (
 };
 
 export const depositIcp = async (
+    user: ProfileResponse,
     amount: bigint,
     main: DChanges,
     ledger: Ledger
@@ -183,7 +184,7 @@ export const depositIcp = async (
         to: Array.from(userSubAccount),
         amount: {e8s: amount},
         fee: {e8s: LEDGER_TRANSFER_FEE},
-        memo: 0n,
+        memo: BigInt(user._id),
         from_subaccount: [],
         created_at_time: []
     });

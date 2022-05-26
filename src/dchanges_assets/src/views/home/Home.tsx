@@ -150,7 +150,7 @@ export const Home = () => {
     };
 
     return (
-        <>
+        <div className="home">
             <Header 
                 onSuccess={showSuccess}
                 onError={showError}
@@ -177,6 +177,6 @@ export const Home = () => {
             <div className={`loading ${loading? 'visible': 'hidden'}`}>
                 <img src="/loading.svg" />
             </div>
-        </>            
+        </div>            
     );
 }

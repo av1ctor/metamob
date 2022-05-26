@@ -614,7 +614,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func donationDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        donationService.delete(id, msg.caller);
+        await donationService.delete(id, msg.caller, this);
     };
 
     func _redactDonationEx(

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
-import { AuthActionType, AuthContext, AuthState } from "../../stores/auth";
+import { AuthActionType, AuthContext } from "../../stores/auth";
 import Button from "../../components/Button";
 import Container from "../../components/Container";
 import { DChanges, ProfileResponse } from "../../../../declarations/dchanges/dchanges.did";

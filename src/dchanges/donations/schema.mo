@@ -13,6 +13,10 @@ module {
                 options = [#unique];
             },
             {
+                name = "state";
+                options = [];
+            },
+            {
                 name = "campaignId";
                 options = [#sortable];
             },
@@ -26,7 +30,7 @@ module {
             },
             {
                 name = "value";
-                options = [#min(10_001 /* ICP transfer fee + 1 */)];
+                options = [#min(100_000 /* ICP transfer fee * 10 */)];
             },
             {
                 name = "createdAt";

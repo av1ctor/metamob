@@ -22,43 +22,29 @@ module {
     public type SignatureInfo = {
         total: Nat32;
         goal: Nat32;
-        firstAt: ?Int;
-        lastAt: ?Int;
-        lastBy: ?Nat32;
     };
 
     public type VoteInfo = {
         pro: Nat32;
         against: Nat32;
         goal: Nat32;
-        firstAt: ?Int;
-        lastAt: ?Int;
-        lastBy: ?Nat32;
     };
 
     public type WeightedVoteInfo = {
         pro: Nat;
         against: Nat;
         goal: Nat;
-        firstAt: ?Int;
-        lastAt: ?Int;
-        lastBy: ?Nat32;
     };
 
     public type AnonymousVoteInfo = {
         pro: Nat32;
         against: Nat32;
         goal: Nat32;
-        firstAt: ?Int;
-        lastAt: ?Int;
     };
 
     public type DonationInfo = {
         total: Nat;
         goal: Nat;
-        firstAt: ?Int;
-        lastAt: ?Int;
-        lastBy: ?Nat32;
     };
 
     public type CampaignInfo = {

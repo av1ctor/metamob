@@ -22,8 +22,7 @@ module {
             req: Types.UpdateRequest,
             invoker: Principal
         ): Result.Result<Types.Update, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -61,8 +60,7 @@ module {
             result: CampaignTypes.CampaignResult,
             invoker: Principal
         ): Result.Result<Types.Update, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -109,8 +107,7 @@ module {
             req: Types.UpdateRequest,
             invoker: Principal
         ): Result.Result<Types.Update, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -158,8 +155,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -211,8 +207,7 @@ module {
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Update], Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -236,8 +231,7 @@ module {
             id: Text,
             invoker: Principal
         ): Result.Result<(), Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };

@@ -133,7 +133,7 @@ const Header = (props: Props) => {
                                     className="button is-success"
                                     onClick={redirectToLogon}
                                 >
-                                    <i className="la la-sign-in-alt"/>&nbsp;Login
+                                    <i className="la la-user"/>&nbsp;Login
                                 </a>
                             </div>
                         </div>

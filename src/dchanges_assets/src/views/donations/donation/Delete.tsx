@@ -4,6 +4,7 @@ import {DonationResponse} from "../../../../../declarations/dchanges/dchanges.di
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import { useFindCampaignById } from "../../../hooks/campaigns";
 
 interface Props {
     donation: DonationResponse;
@@ -18,6 +19,7 @@ const DeleteForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const deleteMut = useDeleteDonation();
+    const campaign = useFindCampaignById(props.donation.campaignId);
 
     const handleDelete = useCallback(async (e: any) => {
         e.preventDefault();
@@ -25,9 +27,14 @@ const DeleteForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
+            if(!campaign.data) {
+                throw new Error("Campaign not found");
+            }
+
             await deleteMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.donation.pubId, 
+                campaignPubId: campaign.data.pubId,
             });
             
             props.onSuccess('Donation deleted!');
@@ -39,7 +46,7 @@ const DeleteForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [props.onClose]);
+    }, [props.onClose, campaign.data]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

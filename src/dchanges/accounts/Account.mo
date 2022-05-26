@@ -28,10 +28,17 @@ module {
         idHash.write(Blob.toArray(Principal.toBlob(principal)));
         let hashSum = idHash.sum();
         let crc32Bytes = beBytes(CRC32.ofArray(hashSum));
-        let buf = Buffer.Buffer<Nat8>(32);
-        let blob = Blob.fromArray(Array.append(crc32Bytes, hashSum));
+        Blob.fromArray(Array.append(crc32Bytes, hashSum));
+    };
 
-        return blob;
+    public func textToSubaccount(
+        text: Text
+    ): Blob {
+        let idHash = SHA224.Digest();
+        idHash.write(Blob.toArray(Text.encodeUtf8(text)));
+        let hashSum = idHash.sum();
+        let crc32Bytes = beBytes(CRC32.ofArray(hashSum));
+        Blob.fromArray(Array.append(crc32Bytes, hashSum));
     };
 
     public func defaultSubaccount(

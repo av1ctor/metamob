@@ -36,8 +36,7 @@ module {
             req: Types.ReportRequest,
             invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -64,8 +63,7 @@ module {
             req: Types.ReportRequest,
             invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -106,8 +104,7 @@ module {
             toUserId: Nat32,
             invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -137,8 +134,7 @@ module {
             req: Types.ReportCloseRequest,
             invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -167,8 +163,7 @@ module {
             id: Text,
             invoker: Principal
         ): Result.Result<Types.Report, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -187,8 +182,7 @@ module {
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Report], Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };

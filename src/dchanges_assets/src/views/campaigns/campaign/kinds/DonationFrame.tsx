@@ -1,8 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import Box from "../../../../components/Box";
 import { CampaignState, getGoalValue } from "../../../../libs/campaigns";
 import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
-import { AuthContext } from "../../../../stores/auth";
 import DonationForm from "./DonationForm";
 import Result from "../Result";
 import Share from "../Share";
@@ -16,8 +15,6 @@ interface Props {
 }
 
 export const DonationFrame = (props: Props) => {
-    const [auth] = useContext(AuthContext);
-    
     const {campaign} = props;
     
     const donated = ('donations' in campaign.info && campaign.info.donations.total) || BigInt(0);

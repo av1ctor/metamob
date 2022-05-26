@@ -1,7 +1,7 @@
 import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCompleteDonation, useCreateDonation} from "../../../../hooks/donations";
+import {useCompleteDonation, useCreateDonation, useDeleteDonation} from "../../../../hooks/donations";
 import {DonationRequest, Campaign} from "../../../../../../declarations/dchanges/dchanges.did";
 import {idlFactory as Ledger} from "../../../../../../declarations/ledger";
 import { AuthContext } from "../../../../stores/auth";
@@ -12,7 +12,7 @@ import CheckboxField from "../../../../components/CheckboxField";
 import TextField from "../../../../components/TextField";
 import { depositIcp, getBalance } from "../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../libs/backend";
-import { decimalToIcp, icpToDecimal, principalToAccountDefaultIdentifier, toHexString } from "../../../../libs/utils";
+import { decimalToIcp, icpToDecimal } from "../../../../libs/utils";
 
 interface Props {
     campaign: Campaign;
@@ -23,7 +23,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string(),
-    value: yup.number().required().min(0.00010000),
+    value: yup.number().required().min(0.00010000 * 10),
     anonymous: yup.bool().required(),
 });
 
@@ -42,6 +42,7 @@ const DonationForm = (props: Props) => {
     
     const createMut = useCreateDonation();
     const completeMut = useCompleteDonation();
+    const deleteMut = useDeleteDonation();
 
     const navigate = useNavigate();
 
@@ -116,6 +117,10 @@ const DonationForm = (props: Props) => {
             if(!actorState.main) {
                 throw Error("Main caninster undefined");
             }
+
+            if(!authState.user) {
+                throw Error("Not logged in");
+            }
             
             const value = decimalToIcp(form.value.toString());
 
@@ -133,11 +138,22 @@ const DonationForm = (props: Props) => {
                 }
             });
 
-            await depositIcp(value, actorState.main, actorState.ledger);
+            try {
+                await depositIcp(authState.user, value, actorState.main, actorState.ledger);
+            }
+            catch(e) {
+                await deleteMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: donation.pubId,
+                    campaignPubId: props.campaign.pubId,
+                });
+                throw e;
+            }
 
             await completeMut.mutateAsync({
                 main: actorState.main,
-                pubId: donation.pubId
+                pubId: donation.pubId,
+                campaignPubId: props.campaign.pubId,
             });
 
             props.onSuccess('Your donation has been sent!');

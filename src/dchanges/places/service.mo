@@ -18,8 +18,7 @@ module {
             req: Types.PlaceRequest,
             invoker: Principal
         ): Result.Result<Types.Place, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -39,8 +38,7 @@ module {
             req: Types.PlaceRequest,
             invoker: Principal
         ): Result.Result<Types.Place, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -90,8 +88,7 @@ module {
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Place], Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };

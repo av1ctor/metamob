@@ -22,8 +22,7 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal
         ): Result.Result<Types.Campaign, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -48,8 +47,7 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal
         ): Result.Result<Types.Campaign, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -89,8 +87,7 @@ module {
             pubId: Text, 
             invoker: Principal
         ): Result.Result<Types.Campaign, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -125,8 +122,7 @@ module {
             result: Types.CampaignResult,
             invoker: Principal
         ): Result.Result<Types.Campaign, Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -202,8 +198,7 @@ module {
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Campaign], Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+                      switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -227,8 +222,7 @@ module {
             id: Text,
             invoker: Principal
         ): Result.Result<(), Text> {
-            let caller = userService.findByPrincipal(invoker);
-            switch(caller) {
+            switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -245,8 +239,12 @@ module {
                                 if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
+
+                                if(campaign.state != Types.STATE_CREATED) {
+                                    return #err("Campaigns can not be deleted after published")
+                                };
                                 
-                                return repo.delete(campaign, caller._id);
+                                repo.delete(campaign, caller._id);
                             };
                         };
                     };

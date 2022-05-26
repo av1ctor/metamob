@@ -11026,10 +11026,14 @@ span[data-tooltip] {
 .control span[data-tooltip] {
   border-bottom: none; }
 
+.home {
+  position: relative;
+  height: 100%; }
+
 .loading {
   position: absolute;
   left: 50vw;
-  top: 50vh;
+  top: 50%;
   transform: translate(-50%, -50%);
   z-index: 100000; }
 

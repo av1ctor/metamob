@@ -19,8 +19,7 @@ const Item = (props: Props) => {
     const signatures = 'signatures' in campaign.info? 
         campaign.info.signatures:
         {
-            total: 0,
-            lastAt: []
+            total: 0
         };
 
     return (
@@ -60,7 +59,7 @@ const Item = (props: Props) => {
                 <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
                     <TimeFromNow 
-                        date={BigInt.asIntN(64, signatures.total > 0? signatures.lastAt[0] || 0n: campaign.createdAt)}
+                        date={BigInt.asIntN(64, campaign.createdAt)}
                     />
                 </div>
             </div>

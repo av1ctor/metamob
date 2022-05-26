@@ -93,7 +93,7 @@ export const useCreateDonation = () => {
 export const useCompleteDonation = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, pubId: string}) => {
+        async (options: {main?: DChanges, pubId: string, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -105,8 +105,9 @@ export const useCompleteDonation = () => {
             return res.ok;
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['donations']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );
@@ -137,7 +138,7 @@ export const useUpdateDonation = () => {
 export const useDeleteDonation = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: DChanges, pubId: string}) => {
+        async (options: {main?: DChanges, pubId: string, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -149,8 +150,9 @@ export const useDeleteDonation = () => {
             return {};
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['donations']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );

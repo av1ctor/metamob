@@ -87,10 +87,28 @@ module {
                     #err(msg);
                 };
                 case _ {
-                    _updateCampaign(donation, false);
+                    if(donation.state == Types.STATE_COMPLETED) {
+                        _updateCampaign(donation, false);
+                    };
                     #ok();
                 }
             }
+        };
+
+        public func insert(
+            e: Types.Donation
+        ): Result.Result<Types.Donation, Text> {
+            switch(donations.insert(e._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    if(e.state == Types.STATE_COMPLETED) {
+                        _updateCampaign(e, true);
+                    };
+                    return #ok(e);
+                };
+            };
         };
 
         func _updateCampaign(

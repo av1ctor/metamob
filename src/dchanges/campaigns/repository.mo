@@ -507,9 +507,6 @@ module {
                     #signatures({
                         total = i.total;
                         goal = Nat32.fromNat(goal);
-                        firstAt = i.firstAt;
-                        lastAt = i.lastAt;
-                        lastBy = i.lastBy;
                     });
                 };
                 case (#votes(i)) {
@@ -517,9 +514,6 @@ module {
                         pro = i.pro;
                         against = i.against;
                         goal = Nat32.fromNat(goal);
-                        firstAt = i.firstAt;
-                        lastAt = i.lastAt;
-                        lastBy = i.lastBy;
                     });
                 };
                 case (#anonVotes(i)) {
@@ -527,8 +521,6 @@ module {
                         pro = i.pro;
                         against = i.against;
                         goal = Nat32.fromNat(goal);
-                        firstAt = i.firstAt;
-                        lastAt = i.lastAt;
                     });
                 };
                 case (#weightedVotes(i)) {
@@ -536,18 +528,12 @@ module {
                         pro = i.pro;
                         against = i.against;
                         goal = goal;
-                        firstAt = i.firstAt;
-                        lastAt = i.lastAt;
-                        lastBy = i.lastBy;
                     });
                 };
                 case (#donations(i)) {
                     #donations({
                         total = i.total;
                         goal = goal;
-                        firstAt = i.firstAt;
-                        lastAt = i.lastAt;
-                        lastBy = i.lastBy;
                     });
                 };
             };
@@ -677,9 +663,6 @@ module {
                         #signatures({
                             total = info.total + 1;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?signature.createdAt}; case (?at) {?at};};
-                            lastAt = ?signature.createdAt;
-                            lastBy = ?signature.createdBy;
                         });
                     };
                     case _ {
@@ -721,9 +704,6 @@ module {
                         #signatures({
                             total = if(info.total > 0) info.total - 1 else 0;
                             goal = info.goal;
-                            firstAt = info.firstAt;
-                            lastAt = info.lastAt;
-                            lastBy = info.lastBy;
                         });
                     };
                     case _ {
@@ -766,9 +746,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro;
                             against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
-                            lastBy = ?vote.createdBy;
                         });
                     };
                     case (#anonVotes(info)) {
@@ -776,8 +753,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro;
                             against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
                         });
                     };
                     case (#weightedVotes(info)) {
@@ -785,9 +760,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro;
                             against = if(not vote.pro) info.against + 1 else info.against;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
-                            lastBy = ?vote.createdBy;
                         });
                     };                    
                     case _ {
@@ -830,9 +802,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro - 1;
                             against = if(not vote.pro) info.against + 1 else info.against - 1;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
-                            lastBy = ?vote.createdBy;
                         });
                     };
                     case (#anonVotes(info)) {
@@ -840,8 +809,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro - 1;
                             against = if(not vote.pro) info.against + 1 else info.against - 1;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
                         });
                     };
                     case (#weightedVotes(info)) {
@@ -849,9 +816,6 @@ module {
                             pro = if(vote.pro) info.pro + 1 else info.pro - 1;
                             against = if(not vote.pro) info.against + 1 else info.against - 1;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?vote.createdAt}; case (?at) {?at};};
-                            lastAt = ?vote.createdAt;
-                            lastBy = ?vote.createdBy;
                         });
                     };                    
                     case _ {
@@ -894,9 +858,6 @@ module {
                             pro = if(vote.pro) info.pro - 1 else info.pro;
                             against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
-                            firstAt = info.firstAt;
-                            lastAt = info.lastAt;
-                            lastBy = info.lastBy;
                         });
                     };
                     case (#anonVotes(info)) {
@@ -904,8 +865,6 @@ module {
                             pro = if(vote.pro) info.pro - 1 else info.pro;
                             against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
-                            firstAt = info.firstAt;
-                            lastAt = info.lastAt;
                         });
                     };
                     case (#weightedVotes(info)) {
@@ -913,9 +872,6 @@ module {
                             pro = if(vote.pro) info.pro - 1 else info.pro;
                             against = if(not vote.pro) info.against - 1 else info.against;
                             goal = info.goal;
-                            firstAt = info.firstAt;
-                            lastAt = info.lastAt;
-                            lastBy = info.lastBy;
                         });
                     };                    
                     case _ {
@@ -957,9 +913,6 @@ module {
                         #donations({
                             total = info.total + donation.value;
                             goal = info.goal;
-                            firstAt = switch(info.firstAt) {case null {?donation.createdAt}; case (?at) {?at};};
-                            lastAt = ?donation.createdAt;
-                            lastBy = ?donation.createdBy;
                         });
                     };
                     case _ {
@@ -1001,9 +954,6 @@ module {
                         #donations({
                             total = info.total - donation.value;
                             goal = info.goal;
-                            firstAt = info.firstAt;
-                            lastAt = info.lastAt;
-                            lastBy = info.lastBy;
                         });
                     };
                     case _ {
@@ -1173,39 +1123,25 @@ module {
             case (#signatures(info)) {
                 res.put("info_total", #nat32(info.total));
                 res.put("info_goal", #nat32(info.goal));
-                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };
             case (#votes(info)) {
                 res.put("info_pro", #nat32(info.pro));
                 res.put("info_against", #nat32(info.against));
                 res.put("info_goal", #nat32(info.goal));
-                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };
             case (#anonVotes(info)) {
                 res.put("info_pro", #nat32(info.pro));
                 res.put("info_against", #nat32(info.against));
                 res.put("info_goal", #nat32(info.goal));
-                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
             };
             case (#weightedVotes(info)) {
                 res.put("info_pro", #nat(info.pro));
                 res.put("info_against", #nat(info.against));
                 res.put("info_goal", #nat(info.goal));
-                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };            
             case (#donations(info)) {
                 res.put("info_total", #nat(info.total));
                 res.put("info_goal", #nat(info.goal));
-                res.put("info_firstAt", switch(info.firstAt) {case null #nil; case (?firstAt) #int(firstAt);});
-                res.put("info_lastAt", switch(info.lastAt) {case null #nil; case (?lastAt) #int(lastAt);});
-                res.put("info_lastBy", switch(info.lastBy) {case null #nil; case (?lastBy) #nat32(lastBy);});
             };            
         };
 
@@ -1245,9 +1181,6 @@ module {
                 #signatures({
                     total = Variant.getOptNat32(map.get("info_total"));
                     goal = Variant.getOptNat32(map.get("info_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else if(kind == Types.KIND_VOTES) {
@@ -1255,9 +1188,6 @@ module {
                     pro = Variant.getOptNat32(map.get("info_pro"));
                     against = Variant.getOptNat32(map.get("info_against"));
                     goal = Variant.getOptNat32(map.get("info_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else if(kind == Types.KIND_ANON_VOTES) {
@@ -1265,8 +1195,6 @@ module {
                     pro = Variant.getOptNat32(map.get("info_pro"));
                     against = Variant.getOptNat32(map.get("info_against"));
                     goal = Variant.getOptNat32(map.get("info_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
                 });
             }
             else if(kind == Types.KIND_WEIGHTED_VOTES) {
@@ -1274,18 +1202,12 @@ module {
                     pro = Variant.getOptNat(map.get("info_pro"));
                     against = Variant.getOptNat(map.get("info_against"));
                     goal = Variant.getOptNat(map.get("info_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {
                 #donations({
                     total = Variant.getOptNat(map.get("info_total"));
                     goal = Variant.getOptNat(map.get("info_goal"));
-                    firstAt = Variant.getOptIntOpt(map.get("info_firstAt"));
-                    lastAt = Variant.getOptIntOpt(map.get("info_lastAt"));
-                    lastBy = Variant.getOptNat32Opt(map.get("info_lastBy"));
                 });
             };
             updatesCnt = Variant.getOptNat32(map.get("updatesCnt"));
