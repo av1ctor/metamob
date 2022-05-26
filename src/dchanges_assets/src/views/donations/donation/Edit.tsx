@@ -19,7 +19,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string(),
-    pro: yup.bool().required(),
+    value: yup.number().required(),
     anonymous: yup.bool().required(),
 });
 
