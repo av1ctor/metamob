@@ -47,8 +47,15 @@ module {
                             case (#err(msg)) {
                                 #err(msg);
                             };
-                            case _ {
-                                repo.create(req, Types.STATE_CREATED, caller._id);
+                            case (#ok(campaign)) {
+                                switch(canChangePlace(caller, campaign)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.create(req, Types.STATE_CREATED, caller._id);
+                                    };
+                                };
                             };
                         };           
 
@@ -80,28 +87,23 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(campaignRepo.findById(entity.campaignId)) {
+                                switch(canChangeCampaign(entity.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangeCampaignEx(campaign)) {
+                                        if(entity.state != Types.STATE_CREATED) {
+                                            return #err("Invalid donation state");
+                                        };
+
+                                        switch(await LedgerUtils
+                                            .transferFromUserSubaccountToCampaignSubaccount(
+                                                campaign, caller, invoker, this)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
-                                            case _ {
-                                                if(entity.state != Types.STATE_CREATED) {
-                                                    return #err("Invalid donation state");
-                                                };
-
-                                                switch(await LedgerUtils.transferFromUserSubaccountToCampaignSubaccount(campaign, caller, invoker, this)) {
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                    case (#ok(amount)) {
-                                                        repo.complete(entity, Nat64.toNat(amount), caller._id);
-                                                    };
-                                                };
+                                            case (#ok(amount)) {
+                                                repo.complete(entity, Nat64.toNat(amount), caller._id);
                                             };
                                         };
                                     };
@@ -140,8 +142,19 @@ module {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        repo.update(entity, req, caller._id);
+                                    case (#ok(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                if(req.value != entity.value) {
+                                                    return #err("Invalid field: value");
+                                                };
+                                                
+                                                repo.update(entity, req, caller._id);
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -261,12 +274,12 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(campaignRepo.findById(entity.campaignId)) {
+                                switch(canChangeCampaign(entity.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangeCampaignEx(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -279,8 +292,9 @@ module {
                                                         };
                                                         case _ {
                                                             switch(
-                                                                await LedgerUtils.transferFromCampaignSubaccountToUserAccount(
-                                                                    campaign, amount - icp_fee, caller, invoker, this)) {
+                                                                await LedgerUtils
+                                                                    .transferFromCampaignSubaccountToUserAccount(
+                                                                        campaign, amount - icp_fee, caller, invoker, this)) {
                                                                 case (#err(msg)) {
                                                                     ignore repo.insert(entity);
                                                                     #err(msg);
@@ -351,31 +365,47 @@ module {
             return true;
         };
 
-        func canChangeCampaignEx(
-            campaign: CampaignTypes.Campaign
-        ): Result.Result<(), Text> {
-            if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
-                #err("Invalid campaign state");
-            }
-            else {
-                if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
-                    #err("Invalid campaign kind");
-                }
-                else {
-                    #ok();
-                };
-            };
-        };
-
         func canChangeCampaign(
             campaignId: Nat32
-        ): Result.Result<(), Text> {
+        ): Result.Result<CampaignTypes.Campaign, Text> {
             switch(campaignRepo.findById(campaignId)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    canChangeCampaignEx(campaign);
+                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                        #err("Invalid campaign state");
+                    }
+                    else {
+                        if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
+                            #err("Invalid campaign kind");
+                        }
+                        else {
+                            #ok(campaign);
+                        };
+                    };
+                };
+            };
+        };
+
+        func canChangePlace(
+            caller: UserTypes.Profile,
+            campaign: CampaignTypes.Campaign
+        ): Result.Result<(), Text> {
+            switch(placeRepo.findById(campaign.placeId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(place)) {
+                    if(not place.active) {
+                        #err("Place inactive");
+                    }
+                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
+                        placeService.checkAccess(caller, place);
+                    }
+                    else {
+                        #ok();
+                    };
                 };
             };
         };

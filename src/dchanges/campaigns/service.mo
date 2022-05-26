@@ -10,13 +10,17 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
+import PlaceService "../places/service";
+import PlaceTypes "../places/types";
 import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
-        userService: UserService.Service
+        userService: UserService.Service,
+        placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository();
+        let placeRepo = placeService.getRepository();
         
         public func create(
             req: Types.CampaignRequest,
@@ -36,7 +40,15 @@ module {
                                 return #err("Invalid field: state");
                             };
                         };
-                        repo.create(req, caller._id);
+                        
+                        switch(canChangePlace(caller, req.placeId)) {
+                            case (#err(msg)) {
+                                #err(msg);
+                            };
+                            case _ {
+                                repo.create(req, caller._id);
+                            };
+                        };
                     };
                 };
             };
@@ -72,10 +84,17 @@ module {
                                 };
 
                                 if(req.kind != campaign.kind) {
-                                    return #err("Kind can not be changed after the campaign is created");
+                                    return #err("Kind can not be changed");
                                 };
-                                
-                                return repo.update(campaign, req, caller._id);
+
+                                switch(canChangePlace(caller, req.placeId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        return repo.update(campaign, req, caller._id);
+                                    };
+                                };
                             };
                         };
                     };
@@ -128,19 +147,26 @@ module {
                 };
                 case (#ok(caller)) {
                     if(not hasAuth(caller)) {
-                        return #err("Forbidden");
+                        #err("Forbidden");
                     }
                     else {
                         switch(repo.findById(_id)) {
                             case (#err(msg)) {
-                                return #err(msg);
+                                #err(msg);
                             };
                             case (#ok(campaign)) {
                                 if(not canChange(caller, campaign)) {
                                     return #err("Forbidden");
                                 };
                                 
-                                return repo.finish(campaign, result, caller._id);
+                                switch(canChangePlace(caller, campaign.placeId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.finish(campaign, result, caller._id);
+                                    };
+                                };
                             };
                         };
                     };
@@ -244,7 +270,14 @@ module {
                                     return #err("Campaigns can not be deleted after published")
                                 };
                                 
-                                repo.delete(campaign, caller._id);
+                                switch(canChangePlace(caller, campaign.placeId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        repo.delete(campaign, caller._id);
+                                    };
+                                };
                             };
                         };
                     };
@@ -310,6 +343,28 @@ module {
             };
 
             return true;
+        };
+
+        func canChangePlace(
+            caller: UserTypes.Profile,
+            placeId: Nat32
+        ): Result.Result<(), Text> {
+            switch(placeRepo.findById(placeId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(place)) {
+                    if(not place.active) {
+                        #err("Place inactive");
+                    }
+                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
+                        placeService.checkAccess(caller, place);
+                    }
+                    else {
+                        #ok();
+                    };
+                };
+            };
         };
     };
 };

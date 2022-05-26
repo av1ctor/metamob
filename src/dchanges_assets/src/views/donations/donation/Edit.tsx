@@ -108,9 +108,8 @@ const EditForm = (props: Props) => {
             <Container>
                 <TextField
                     label="Value (ICP)"
-                    id="value"
                     value={form.value.toString()}
-                    onChange={changeForm}
+                    disabled={true}
                 />
                 <TextAreaField
                     label="Message"

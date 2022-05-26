@@ -39,13 +39,20 @@ module {
                             case (#err(msg)) {
                                 #err(msg);
                             };
-                            case _ {
-                                switch(repo.findByCampaignAndUserEx(req.campaignId, caller._id, false)) {
-                                    case (#ok(response)) {
-                                        #err("Duplicated");
+                            case (#ok(campaign)) {
+                                switch(canChangePlace(caller, campaign)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
                                     };
                                     case _ {
-                                        repo.create(req, caller._id);
+                                        switch(repo.findByCampaignAndUserEx(req.campaignId, caller._id, false)) {
+                                            case (#ok(response)) {
+                                                #err("Duplicated");
+                                            };
+                                            case _ {
+                                                repo.create(req, caller._id);
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -83,8 +90,15 @@ module {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        repo.update(entity, req, caller._id);
+                                    case (#ok(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                repo.update(entity, req, caller._id);
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -207,8 +221,15 @@ module {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        repo.delete(entity, caller._id);
+                                    case (#ok(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                repo.delete(entity, caller._id);
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -265,7 +286,7 @@ module {
 
         func canChangeCampaign(
             campaignId: Nat32
-        ): Result.Result<(), Text> {
+        ): Result.Result<CampaignTypes.Campaign, Text> {
             switch(campaignRepo.findById(campaignId)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -281,8 +302,30 @@ module {
                             #err("Invalid campaign kind");
                         }
                         else {
-                            #ok();
+                            #ok(campaign);
                         };
+                    };
+                };
+            };
+        };
+
+        func canChangePlace(
+            caller: UserTypes.Profile,
+            campaign: CampaignTypes.Campaign
+        ): Result.Result<(), Text> {
+            switch(placeRepo.findById(campaign.placeId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(place)) {
+                    if(not place.active) {
+                        #err("Place inactive");
+                    }
+                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
+                        placeService.checkAccess(caller, place);
+                    }
+                    else {
+                        #ok();
                     };
                 };
             };

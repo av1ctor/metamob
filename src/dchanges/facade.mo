@@ -28,11 +28,11 @@ shared({caller = owner}) actor class DChanges() = this {
     let userService = UserService.Service();
     let placeService = PlaceService.Service(userService);
     let categoryService = CategoryService.Service(userService);
-    let campaignService = CampaignService.Service(userService);
+    let campaignService = CampaignService.Service(userService, placeService);
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
     let voteService = VoteService.Service(userService, campaignService, placeService);
     let donationService = DonationService.Service(userService, campaignService, placeService);
-    let updateService = UpdateService.Service(userService, campaignService);
+    let updateService = UpdateService.Service(userService, campaignService, placeService);
     let reportService = ReportService.Service(
         userService, campaignService, signatureService, voteService, donationService, updateService);
 

@@ -9,14 +9,18 @@ import UserUtils "../users/utils";
 import UserService "../users/service";
 import CampaignTypes "../campaigns/types";
 import CampaignService "../campaigns/service";
+import PlaceService "../places/service";
+import PlaceTypes "../places/types";
 
 module {
     public class Service(
         userService: UserService.Service,
-        campaignService: CampaignService.Service
+        campaignService: CampaignService.Service,
+        placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
+        let placeRepo = placeService.getRepository();
 
         public func create(
             req: Types.UpdateRequest,
@@ -31,7 +35,7 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(campaignRepo.findById(req.campaignId)) {
+                        switch(canChangeCampaign(req.campaignId)) {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
@@ -40,7 +44,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangeCampaign(campaign)) {
+                                switch(canChangePlace(caller, campaign)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -69,7 +73,7 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(campaignRepo.findById(req.campaignId)) {
+                        switch(canChangeCampaign(req.campaignId)) {
                             case (#err(msg)) {
                                 return #err(msg);
                             };
@@ -78,7 +82,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangeCampaign(campaign)) {
+                                switch(canChangePlace(caller, campaign)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -125,12 +129,12 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(campaignRepo.findById(entity.campaignId)) {
+                                switch(canChangeCampaign(req.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangeCampaign(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -249,12 +253,12 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(campaignRepo.findById(entity.campaignId)) {
+                                switch(canChangeCampaign(entity.campaignId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangeCampaign(campaign)) {
+                                        switch(canChangePlace(caller, campaign)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -334,13 +338,42 @@ module {
         };
 
         func canChangeCampaign(
-            entity: CampaignTypes.Campaign
+            campaignId: Nat32
+        ): Result.Result<CampaignTypes.Campaign, Text> {
+            switch(campaignRepo.findById(campaignId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(campaign)) {
+                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                        #err("Invalid campaign state");
+                    }
+                    else {
+                        #ok(campaign);
+                    };
+                };
+            };
+        };
+
+        func canChangePlace(
+            caller: UserTypes.Profile,
+            campaign: CampaignTypes.Campaign
         ): Result.Result<(), Text> {
-            if(entity.state != CampaignTypes.STATE_PUBLISHED) {
-                #err("Invalid campaign state");
-            }
-            else {
-                #ok();
+            switch(placeRepo.findById(campaign.placeId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(place)) {
+                    if(not place.active) {
+                        #err("Place inactive");
+                    }
+                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
+                        placeService.checkAccess(caller, place);
+                    }
+                    else {
+                        #ok();
+                    };
+                };
             };
         };
     };
