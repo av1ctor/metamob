@@ -7,11 +7,13 @@ import {AuthActionType, AuthContext} from "../../stores/auth";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
-import { createLedgerActor, createMainActor } from "../../libs/backend";
+import { createMainActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import UserCampaigns from "../users/user/Campaigns";
+import UserDonations from "../users/user/Donations";
 import UserSignatures from "../users/user/Signatures";
+import UserVotes from "../users/user/Votes";
 import UserPlaces from "../users/user/Places";
 import Logon from "../auth/Logon";
 import Header from "./Header";
@@ -159,7 +161,9 @@ export const Home = () => {
                         <Route path="/user/login" element={<Logon {...props} />} />
                         <Route path="/user/profile" element={<User {...props} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns {...props} />} />
+                        <Route path="/user/donations" element={<UserDonations {...props} />} />
                         <Route path="/user/signatures" element={<UserSignatures {...props} />} />
+                        <Route path="/user/votes" element={<UserVotes {...props} />} />
                         <Route path="/user/places" element={<UserPlaces {...props} />} />
                         <Route path="/c/:id" element={<Campaign {...props} />} />
                         <Route path="/p/:id" element={<Place {...props} />} />

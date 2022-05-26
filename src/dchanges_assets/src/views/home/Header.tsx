@@ -37,8 +37,16 @@ const Header = (props: Props) => {
         navigate('/user/campaigns');
     }, []);
 
+    const redirectToDonations = useCallback(() => {
+        navigate('/user/donations');
+    }, []);
+    
     const redirectToSignatures = useCallback(() => {
         navigate('/user/signatures');
+    }, []);
+
+    const redirectToVotes = useCallback(() => {
+        navigate('/user/votes');
     }, []);
 
     const redirectToPlaces = useCallback(() => {
@@ -94,8 +102,14 @@ const Header = (props: Props) => {
                                 <a className="navbar-item" onClick={redirectToCampaigns}>
                                     <i className="la la-volume-up"/>&nbsp;Campaigns
                                 </a>
+                                <a className="navbar-item" onClick={redirectToDonations}>
+                                    <i className="la la-money-bill"/>&nbsp;Donations
+                                </a>
                                 <a className="navbar-item" onClick={redirectToSignatures}>
                                     <i className="la la-signature"/>&nbsp;Signatures
+                                </a>
+                                <a className="navbar-item" onClick={redirectToVotes}>
+                                    <i className="la la-vote-yea"/>&nbsp;Votes
                                 </a>
                                 <a className="navbar-item" onClick={redirectToPlaces}>
                                     <i className="la la-globe"/>&nbsp;Places
