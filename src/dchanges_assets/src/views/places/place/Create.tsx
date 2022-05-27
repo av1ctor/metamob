@@ -1,14 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { PlaceRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import { PlaceRequest, PlaceRestriction } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCreatePlace } from "../../../hooks/places";
-import { kinds, PlaceKind, PlaceRestriction, restrictions, search } from "../../../libs/places";
+import { kinds, PlaceKind, PlaceRestrictionNum, restrictions, restrictionToEnum, search } from "../../../libs/places";
+import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
+import { transformRestriction, validateRestriction } from "./utils";
 
 interface Props {
     value?: string;
@@ -24,7 +26,9 @@ const formSchema = yup.object().shape({
     icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
-    restricted: yup.number().required(),
+    restriction: yup.object().test({
+        test: validateRestriction
+    }).required(),
 });
 
 const Create = (props: Props) => {
@@ -35,7 +39,7 @@ const Create = (props: Props) => {
         description: '',
         icon: '',
         kind: PlaceKind.OTHER,
-        restricted: PlaceRestriction.NONE,
+        restriction: {none: null},
         parentId: [],
     });
 
@@ -46,9 +50,32 @@ const Create = (props: Props) => {
         const value = e.target.type === 'checkbox'?
             e.target.checked:
             e.target.value;
+        setForm(form => setField(form, field, field === 'parentId'? [Number(value)]: value));
+    }, []);
+
+    const changeRestriction = useCallback((e: any) => {
+        let value: PlaceRestriction = {none: null};
+        switch(Number(e.target.value)) {
+            case PlaceRestrictionNum.EMAIL:
+                value = {email: null};
+                break;
+            case PlaceRestrictionNum.DIP20:
+                value = {dip20: {
+                    canisterId: '',
+                    minValue: BigInt(0),
+                }};
+                break;
+            case PlaceRestrictionNum.DIP721:
+                value = {dip721: {
+                    canisterId: '',
+                    minValue: BigInt(0),
+                }};
+                break;
+        }
+
         setForm(form => ({
-            ...form, 
-            [field]: field === 'parentId'? [Number(value)]: value
+            ...form,
+            restriction: value
         }));
     }, []);
 
@@ -81,7 +108,7 @@ const Create = (props: Props) => {
                     description: form.description,
                     icon: form.icon,
                     kind: Number(form.kind),
-                    restricted: Number(form.restricted),
+                    restriction: transformRestriction(form.restriction),
                     parentId: form.parentId,
                 }
             });
@@ -120,7 +147,7 @@ const Create = (props: Props) => {
             description: '',
             icon: '',
             kind: PlaceKind.OTHER,
-            restricted: PlaceRestriction.NONE,
+            restriction: {none: null},
             parentId: [],
         });
     }, [props.value]);
@@ -158,12 +185,48 @@ const Create = (props: Props) => {
                     onChange={changeForm}
                 />
                 <SelectField 
-                    label="Restricted"
-                    id="restricted"
-                    value={form.restricted}
+                    label="Restriction"
+                    id="restriction"
+                    value={restrictionToEnum(form.restriction)}
                     options={restrictions}
-                    onChange={changeForm}
+                    onChange={changeRestriction}
                 />
+                {'dip20' in form.restriction &&
+                    <div className="p-2 border">
+                        <TextField 
+                            label="Canister Id"
+                            name="restriction.dip20.canisterId"
+                            value={form.restriction.dip20.canisterId}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <TextField 
+                            label="Min value"
+                            name="restriction.dip20.minValue"
+                            value={String(form.restriction.dip20.minValue)}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                    </div>
+                }
+                {'dip721' in form.restriction &&
+                    <div className="p-2 border">
+                        <TextField 
+                            label="Canister Id"
+                            name="restriction.dip721.canisterId"
+                            value={form.restriction.dip721.canisterId}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <TextField 
+                            label="Min value"
+                            name="restriction.dip721.minValue"
+                            value={String(form.restriction.dip721.minValue)}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                    </div>
+                }
                 <AutocompleteField
                     label="Parent"
                     name="parentId"

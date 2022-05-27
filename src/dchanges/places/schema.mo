@@ -25,7 +25,7 @@ module {
                 options = [#sortable];
             },
             {
-                name = "restricted";
+                name = "restriction";
                 options = [];
             },
             {

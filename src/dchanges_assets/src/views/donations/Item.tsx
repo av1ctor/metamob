@@ -6,7 +6,7 @@ import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { DonationState } from "../../libs/donations";
 import { isModerator } from "../../libs/users";
-import { icpToDecimal } from "../../libs/utils";
+import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 

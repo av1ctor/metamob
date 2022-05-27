@@ -25,7 +25,7 @@ module {
         public func create(
             req: Types.SignatureRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): async Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -40,7 +40,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -66,7 +66,7 @@ module {
             id: Text, 
             req: Types.SignatureRequest,
             invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+        ): async Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -90,7 +90,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -197,7 +197,7 @@ module {
         public func delete(
             id: Text,
             invoker: Principal
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -221,7 +221,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

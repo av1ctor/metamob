@@ -12,7 +12,7 @@ import CheckboxField from "../../../../components/CheckboxField";
 import TextField from "../../../../components/TextField";
 import { depositIcp, getBalance } from "../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../libs/backend";
-import { decimalToIcp, icpToDecimal } from "../../../../libs/utils";
+import { decimalToIcp, icpToDecimal } from "../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
 
 interface Props {

@@ -12,18 +12,34 @@ module {
     public let KIND_ROOM: Nat32 = 9;
     public let KIND_OTHER: Nat32 = 10;
 
-    public type PlaceRestricted = Nat32;
-    public let RESTRICTED_NO: Nat32 = 0;
-    public let RESTRICTED_EMAIL: Nat32 = 1;
-    public let RESTRICTED_DIP20: Nat32 = 2;
-    public let RESTRICTED_DIP721: Nat32 = 3;
+    public let RESTRICTION_NONE: Nat32 = 0;
+    public let RESTRICTION_EMAIL: Nat32 = 1;
+    public let RESTRICTION_DIP20: Nat32 = 2;
+    public let RESTRICTION_DIP721: Nat32 = 3;
+
+    public type PlaceDip20Restriction = {
+        canisterId: Text;
+        minValue: Nat;
+    };
+
+    public type PlaceDip721Restriction = {
+        canisterId: Text;
+        minValue: Nat;
+    };
+    
+    public type PlaceRestriction = {
+        #none_;
+        #email;
+        #dip20: PlaceDip20Restriction;
+        #dip721: PlaceDip721Restriction;
+    };
 
     public type Place = {
         _id: Nat32;
         pubId: Text;
         parentId: ?Nat32;
         kind: PlaceKind;
-        restricted: PlaceRestricted;
+        restriction: PlaceRestriction;
         name: Text;
         description: Text;
         icon: Text;
@@ -37,7 +53,7 @@ module {
     public type PlaceRequest = {
         parentId: ?Nat32;
         kind: PlaceKind;
-        restricted: PlaceRestricted;
+        restriction: PlaceRestriction;
         name: Text;
         description: Text;
         icon: Text;

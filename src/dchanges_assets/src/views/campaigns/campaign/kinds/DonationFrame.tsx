@@ -5,7 +5,7 @@ import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
 import DonationForm from "./DonationForm";
 import Result from "../Result";
 import Share from "../Share";
-import { icpToDecimal } from "../../../../libs/utils";
+import { icpToDecimal } from "../../../../libs/icp";
 
 interface Props {
     campaign: Campaign;

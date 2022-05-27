@@ -25,7 +25,7 @@ module {
         public func create(
             req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Campaign, Text> {
+        ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -41,7 +41,7 @@ module {
                             };
                         };
                         
-                        switch(placeService.checkAccess(caller, req.placeId)) {
+                        switch(await placeService.checkAccess(caller, req.placeId)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
@@ -58,7 +58,7 @@ module {
             id: Text, 
             req: Types.CampaignRequest,
             invoker: Principal
-        ): Result.Result<Types.Campaign, Text> {
+        ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -87,7 +87,7 @@ module {
                                     return #err("Kind can not be changed");
                                 };
 
-                                switch(placeService.checkAccess(caller, req.placeId)) {
+                                switch(await placeService.checkAccess(caller, req.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -140,7 +140,7 @@ module {
             _id: Nat32, 
             result: Types.CampaignResult,
             invoker: Principal
-        ): Result.Result<Types.Campaign, Text> {
+        ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -159,7 +159,7 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -247,7 +247,7 @@ module {
         public func delete(
             id: Text,
             invoker: Principal
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -270,7 +270,7 @@ module {
                                     return #err("Campaigns can not be deleted after published")
                                 };
                                 
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };

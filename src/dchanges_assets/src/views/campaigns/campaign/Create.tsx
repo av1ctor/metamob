@@ -14,7 +14,7 @@ import PlaceForm from '../../places/place/Create';
 import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, kindOptions } from "../../../libs/campaigns";
-import { decimalToIcp } from "../../../libs/utils";
+import { decimalToIcp } from "../../../libs/icp";
 
 interface Props {
     mutation: any;

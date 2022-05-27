@@ -6,7 +6,7 @@ import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { config } from "../config";
 import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
-import { principalToAccountDefaultIdentifier, transferErrorToText } from "./utils";
+import { principalToAccountDefaultIdentifier, transferErrorToText } from "./icp";
 
 const anonymous: ProfileResponse = {
     _id: 0,

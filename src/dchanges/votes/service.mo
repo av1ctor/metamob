@@ -25,7 +25,7 @@ module {
         public func create(
             req: Types.VoteRequest,
             invoker: Principal
-        ): Result.Result<Types.Vote, Text> {
+        ): async Result.Result<Types.Vote, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -40,7 +40,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -67,7 +67,7 @@ module {
             id: Text, 
             req: Types.VoteRequest,
             invoker: Principal
-        ): Result.Result<Types.Vote, Text> {
+        ): async Result.Result<Types.Vote, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -91,7 +91,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -198,7 +198,7 @@ module {
         public func delete(
             id: Text,
             invoker: Principal
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -222,7 +222,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

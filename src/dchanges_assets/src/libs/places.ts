@@ -1,5 +1,5 @@
 import {dchanges} from "../../../declarations/dchanges";
-import {DChanges, Place, Variant} from "../../../declarations/dchanges/dchanges.did";
+import {DChanges, Place, PlaceRestriction, Variant} from "../../../declarations/dchanges/dchanges.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -17,7 +17,7 @@ export enum PlaceKind {
     OTHER = 10,
 }
 
-export enum PlaceRestriction {
+export enum PlaceRestrictionNum {
     NONE = 0,
     EMAIL = 1,
     DIP20 = 2,
@@ -39,13 +39,32 @@ export const kinds: {name: string, value: any}[] = [
 ];
 
 export const restrictions: {name: string, value: any}[] = [
-    {name: 'No', value: PlaceRestriction.NONE},
-    {name: 'e-mail', value: PlaceRestriction.EMAIL},
-    {name: 'DIP20 (Token)', value: PlaceRestriction.DIP20},
-    {name: 'DIP721 (NFT)', value: PlaceRestriction.DIP721},
+    {name: 'None', value: PlaceRestrictionNum.NONE},
+    {name: 'e-mail', value: PlaceRestrictionNum.EMAIL},
+    {name: 'DIP20 (Token)', value: PlaceRestrictionNum.DIP20},
+    {name: 'DIP721 (NFT)', value: PlaceRestrictionNum.DIP721},
 ];
 
-export const kindToText = (kind: PlaceKind): string => {
+export const restrictionToEnum = (
+    restriction: PlaceRestriction
+): PlaceRestrictionNum => {
+    if('none' in restriction) {
+        return PlaceRestrictionNum.NONE;
+    }
+    else if('email' in restriction) {
+        return PlaceRestrictionNum.EMAIL;
+    }
+    else if('dip20' in restriction) {
+        return PlaceRestrictionNum.DIP20;
+    }
+    else /*if('dip721' in restriction)*/ {
+        return PlaceRestrictionNum.DIP721;
+    }
+};
+
+export const kindToText = (
+    kind: PlaceKind
+): string => {
     return kinds.find(k => k.value === kind)?.name || 'Other';
 };
 

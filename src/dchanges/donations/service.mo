@@ -33,7 +33,7 @@ module {
             req: Types.DonationRequest,
             invoker: Principal,
             this: actor {}
-        ): Result.Result<Types.Donation, Text> {
+        ): async Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -48,7 +48,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -119,7 +119,7 @@ module {
             id: Text, 
             req: Types.DonationRequest,
             invoker: Principal
-        ): Result.Result<Types.Donation, Text> {
+        ): async Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -143,7 +143,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -279,7 +279,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

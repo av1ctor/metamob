@@ -206,7 +206,7 @@ module {
                 pubId = ulid.next();
                 parentId = req.parentId;
                 kind = req.kind;
-                restricted = req.restricted;
+                restriction = req.restriction;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -228,7 +228,7 @@ module {
                 pubId = e.pubId;
                 parentId = e.parentId;
                 kind = req.kind;
-                restricted = req.restricted;
+                restriction = req.restriction;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -251,7 +251,24 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("parentId", switch(e.parentId) {case null #nil; case (?parentId) #nat32(parentId);});
         res.put("kind", #nat32(e.kind));
-        res.put("restricted", #nat32(e.restricted));
+        switch(e.restriction) {
+            case (#none_) {
+                res.put("restriction", #nat32(Types.RESTRICTION_NONE));
+            };
+            case (#email) {
+                res.put("restriction", #nat32(Types.RESTRICTION_EMAIL));
+            };
+            case (#dip20(dip)) {
+                res.put("restriction", #nat32(Types.RESTRICTION_DIP20));
+                res.put("restriction_canisterId", #text(dip.canisterId));
+                res.put("restriction_minValue", #nat(dip.minValue));
+            };
+            case (#dip721(dip)) {
+                res.put("restriction", #nat32(Types.RESTRICTION_DIP721));
+                res.put("restriction_canisterId", #text(dip.canisterId));
+                res.put("restriction_minValue", #nat(dip.minValue));
+            };
+        };
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("icon", #text(e.icon));
@@ -267,12 +284,32 @@ module {
     func deserialize(
         map: HashMap.HashMap<Text, Variant.Variant>
     ): Types.Place {
+        let restriction = Variant.getOptNat32(map.get("restriction"));
+
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             parentId = Variant.getOptNat32Opt(map.get("parentId"));
             kind = Variant.getOptNat32(map.get("kind"));
-            restricted = Variant.getOptNat32(map.get("restricted"));
+            restriction = 
+                if(restriction == Types.RESTRICTION_NONE) {
+                    #none_;
+                }
+                else if(restriction == Types.RESTRICTION_EMAIL) {
+                    #email;
+                }
+                else if(restriction == Types.RESTRICTION_DIP20) {
+                    #dip20({
+                        canisterId = Variant.getOptText(map.get("restriction_canisterId"));
+                        minValue = Variant.getOptNat(map.get("restriction_minValue"));
+                    });
+                }
+                else /*if(restriction == Types.RESTRICTION_DIP721)*/ {
+                    #dip721({
+                        canisterId = Variant.getOptText(map.get("restriction_canisterId"));
+                        minValue = Variant.getOptNat(map.get("restriction_minValue"));
+                    });
+                };
             name = Variant.getOptText(map.get("name"));
             description = Variant.getOptText(map.get("description"));
             icon = Variant.getOptText(map.get("icon"));

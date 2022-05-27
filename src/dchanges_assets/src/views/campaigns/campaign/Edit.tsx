@@ -17,7 +17,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, CampaignState, getGoalValue, kindOptions } from "../../../libs/campaigns";
-import { decimalToIcp, icpToDecimal } from "../../../libs/utils";
+import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 
 interface Props {
     campaign: Campaign;

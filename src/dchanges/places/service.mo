@@ -7,12 +7,15 @@ import Repository "./repository";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
+import PlacesEmailsRepo "../places-emails/repository";
+import DIPTypes "../common/dip";
 
 module {
     public class Service(
         userService: UserService.Service
     ) {
         let repo = Repository.Repository();
+        var placesEmailsRepo: ?PlacesEmailsRepo.Repository = null;
 
         public func create(
             req: Types.PlaceRequest,
@@ -116,10 +119,61 @@ module {
             repo.find(criterias, sortBy, limit);
         };
 
-        public func checkAccess(
+        private func _checkEmail(
             caller: UserTypes.Profile,
             _id: Nat32
         ): Result.Result<(), Text> {
+            switch(placesEmailsRepo) {
+                case (null) {
+                    #err("E-mails table undefined");
+                };
+                case (?emails) {
+                    switch(emails.findByPlaceIdAndEmail(_id, caller.email)) {
+                        case (#err(_)) {
+                            #err("Forbidden: e-mail not found");
+                        };
+                        case _ {
+                            #ok();
+                        };
+                    };
+                };
+            };
+        };
+
+        private func _checkDip20(
+            caller: UserTypes.Profile,
+            res: Types.PlaceDip20Restriction
+        ): async Result.Result<(), Text> {
+            let dip20 = actor (res.canisterId) : DIPTypes.DIP20Interface;
+            
+            let balance = await dip20.balanceOf(Principal.fromText(caller.principal));
+            if(balance < res.minValue) {
+                #err("Forbidden: not enough DIP20 balance");
+            }
+            else {
+                #ok();
+            };
+        };
+
+        private func _checkDip721(
+            caller: UserTypes.Profile,
+            res: Types.PlaceDip20Restriction
+        ): async Result.Result<(), Text> {
+            let dip721 = actor (res.canisterId) : DIPTypes.DIP721Interface;
+            
+            let balance = await dip721.balanceOf(Principal.fromText(caller.principal));
+            if(balance < res.minValue) {
+                #err("Forbidden: not enough DIP721 balance");
+            }
+            else {
+                #ok();
+            };
+        };
+
+        public func checkAccess(
+            caller: UserTypes.Profile,
+            _id: Nat32
+        ): async Result.Result<(), Text> {
             switch(repo.findById(_id)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -129,20 +183,19 @@ module {
                         #err("Place inactive");
                     }
                     else {
-                        if(place.restricted == Types.RESTRICTED_NO) {
-                            #ok();
-                        }
-                        else if(place.restricted == Types.RESTRICTED_EMAIL) {
-                            #err("email verification not implemented");
-                        }
-                        else if(place.restricted == Types.RESTRICTED_DIP20) {
-                            #err("DIP20 verification not implemented");
-                        }
-                        else if(place.restricted == Types.RESTRICTED_DIP721) {
-                            #err("DIP721 verification not implemented");
-                        }
-                        else {
-                            #err("Unknown restriction");
+                        switch(place.restriction) {
+                            case (#none_) {
+                                #ok();
+                            };
+                            case (#email) {
+                                _checkEmail(caller, _id);
+                            };
+                            case (#dip20(res)) {
+                                await _checkDip20(caller, res);
+                            };
+                            case (#dip721(res)) {
+                                await _checkDip721(caller, res);
+                            };
                         };
                     };
                 };
@@ -163,6 +216,12 @@ module {
         public func getRepository(
         ): Repository.Repository {
             repo;
+        };
+
+        public func setPlacesEmailsRepo(
+            repo: PlacesEmailsRepo.Repository
+        ) {
+            placesEmailsRepo := ?repo;
         };
 
         func hasAuth(

@@ -12,6 +12,7 @@ import DonationTypes "./donations/types";
 import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
 import PlaceTypes "./places/types";
+import PlaceEmailTypes "./places-emails/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
@@ -21,12 +22,14 @@ import DonationService "./donations/service";
 import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
+import PlaceEmailService "./places-emails/service";
 
 shared({caller = owner}) actor class DChanges() = this {
 
     // services
     let userService = UserService.Service();
     let placeService = PlaceService.Service(userService);
+    let placeEmailService = PlaceEmailService.Service(userService, placeService);
     let categoryService = CategoryService.Service(userService);
     let campaignService = CampaignService.Service(userService, placeService);
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
@@ -185,14 +188,14 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func campaignCreate(
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.create(req, msg.caller);
+        await campaignService.create(req, msg.caller);
     };
 
     public shared(msg) func campaignUpdate(
         pubId: Text, 
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.update(pubId, req, msg.caller);
+        await campaignService.update(pubId, req, msg.caller);
     };
 
     public shared(msg) func campaignPublish(
@@ -248,7 +251,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func campaignDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        campaignService.delete(id, msg.caller);
+        await campaignService.delete(id, msg.caller);
     };
 
     //
@@ -257,14 +260,14 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func signatureCreate(
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(signatureService.create(req, msg.caller), false);
+        _transformSignatureResponseEx(await signatureService.create(req, msg.caller), false);
     };
 
     public shared(msg) func signatureUpdate(
         id: Text, 
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(signatureService.update(id, req, msg.caller), false);
+        _transformSignatureResponseEx(await signatureService.update(id, req, msg.caller), false);
     };
 
     public shared query(msg) func signatureFindById(
@@ -319,7 +322,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func signatureDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        signatureService.delete(id, msg.caller);
+        await signatureService.delete(id, msg.caller);
     };
 
     func _redactSignatureEx(
@@ -399,14 +402,14 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func voteCreate(
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(voteService.create(req, msg.caller), false);
+        _transformVoteResponseEx(await voteService.create(req, msg.caller), false);
     };
 
     public shared(msg) func voteUpdate(
         id: Text, 
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(voteService.update(id, req, msg.caller), false);
+        _transformVoteResponseEx(await voteService.update(id, req, msg.caller), false);
     };
 
     public shared query(msg) func voteFindById(
@@ -461,7 +464,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func voteDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        voteService.delete(id, msg.caller);
+        await voteService.delete(id, msg.caller);
     };
 
     func _redactVoteEx(
@@ -545,21 +548,20 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func donationCreate(
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(donationService.create(req, msg.caller, this), false);
+        _transformDonationResponseEx(await donationService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func donationComplete(
         pubId: Text
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        let res = await donationService.complete(pubId, msg.caller, this);
-        _transformDonationResponseEx(res, false);
+        _transformDonationResponseEx(await donationService.complete(pubId, msg.caller, this), false);
     };
 
     public shared(msg) func donationUpdate(
         id: Text, 
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(donationService.update(id, req, msg.caller), false);
+        _transformDonationResponseEx(await donationService.update(id, req, msg.caller), false);
     };
 
     public shared query(msg) func donationFindById(
@@ -698,21 +700,21 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func updateCreate(
         req: UpdateTypes.UpdateRequest
     ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.create(req, msg.caller);
+        await updateService.create(req, msg.caller);
     };
 
     public shared(msg) func updateCreateAndFinishCampaign(
         req: UpdateTypes.UpdateRequest,
         result: CampaignTypes.CampaignResult
     ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.createAndFinishCampaign(req, result, msg.caller);
+        await updateService.createAndFinishCampaign(req, result, msg.caller);
     };
 
     public shared(msg) func updateUpdate(
         id: Text, 
         req: UpdateTypes.UpdateRequest
     ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.update(id, req, msg.caller);
+        await updateService.update(id, req, msg.caller);
     };
 
     public shared query(msg) func updateFindById(
@@ -760,7 +762,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func updateDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        updateService.delete(id, msg.caller);
+        await updateService.delete(id, msg.caller);
     };   
     
     //
@@ -858,6 +860,29 @@ shared({caller = owner}) actor class DChanges() = this {
     };
 
     //
+    // places-emails facade
+    //
+    public shared(msg) func placeEmailCreate(
+        req: PlaceEmailTypes.PlaceEmailRequest
+    ): async Result.Result<PlaceEmailTypes.PlaceEmail, Text> {
+        placeEmailService.create(req, msg.caller);
+    };
+
+    public shared query(msg) func placeEmailFindByPlace(
+        placeId: Nat32,
+        sortBy: ?(Text, Text),
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[PlaceEmailTypes.PlaceEmail], Text> {
+        placeEmailService.findByPlaceId(placeId, sortBy, limit, msg.caller);
+    };
+
+    public shared(msg) func placeEmailDelete(
+        _id: Nat32
+    ): async Result.Result<(), Text> {
+        placeEmailService.delete(_id, msg.caller);
+    };   
+
+    //
     // migration
     //
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
@@ -869,6 +894,7 @@ shared({caller = owner}) actor class DChanges() = this {
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
+    stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         userEntities := userService.backup();
@@ -880,6 +906,7 @@ shared({caller = owner}) actor class DChanges() = this {
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
         placeEntities := placeService.backup();
+        placeEmailEntities := placeEmailService.backup();
     };
 
     system func postupgrade() {
@@ -909,5 +936,8 @@ shared({caller = owner}) actor class DChanges() = this {
         
         placeService.restore(placeEntities);
         placeEntities := [];
+        
+        placeEmailService.restore(placeEmailEntities);
+        placeEmailEntities := [];
     };      
 };

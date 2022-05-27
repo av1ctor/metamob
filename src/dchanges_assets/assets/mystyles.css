@@ -11217,3 +11217,7 @@ span[data-tooltip] {
 .select {
   width: 100% !important;
   height: unset !important; }
+
+.border {
+  border: 1px solid #eee;
+  border-radius: 4px; }

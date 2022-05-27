@@ -25,7 +25,7 @@ module {
         public func create(
             req: Types.UpdateRequest,
             invoker: Principal
-        ): Result.Result<Types.Update, Text> {
+        ): async Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -44,7 +44,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -63,7 +63,7 @@ module {
             req: Types.UpdateRequest,
             result: CampaignTypes.CampaignResult,
             invoker: Principal
-        ): Result.Result<Types.Update, Text> {
+        ): async Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -82,7 +82,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -110,7 +110,7 @@ module {
             id: Text, 
             req: Types.UpdateRequest,
             invoker: Principal
-        ): Result.Result<Types.Update, Text> {
+        ): async Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -134,7 +134,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -234,7 +234,7 @@ module {
         public func delete(
             id: Text,
             invoker: Principal
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -258,7 +258,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
