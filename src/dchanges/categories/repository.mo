@@ -15,9 +15,9 @@ import Table "mo:mo-table/table";
 import Random "../common/random";
 import ULID "../common/ulid";
 import Utils "../common/utils";
+import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
-import Debug "mo:base/Debug";
 
 module {
     public class Repository() {
@@ -58,7 +58,7 @@ module {
         public func delete(
             category: Types.Category
         ): Result.Result<(), Text> {
-            //FIXME: delete category's topics
+            //FIXME: delete category's campaigns
             return categories.delete(category._id);
         };
 
@@ -106,40 +106,7 @@ module {
             };
         };
 
-        func _getCriterias(
-            criterias: ?[(Text, Text, Variant.Variant)]
-        ): ?[Table.Criteria] {
-
-            switch(criterias) {
-                case null {
-                    null;
-                };
-                case (?criterias) {
-                    ?Array.map(
-                        criterias, 
-                        func (crit: (Text, Text, Variant.Variant)): Table.Criteria {
-                            {
-                                key = crit.0;
-                                op = switch(crit.1) {
-                                    case "contains" #contains; 
-                                    case _ #eq;
-                                };
-                                value = switch(crit.2) {
-                                    case (#text(text)) {
-                                        #text(Utils.toLower(text));
-                                    };
-                                    case _ {
-                                        crit.2;
-                                    };
-                                };
-                            }
-                        }
-                    )
-                };
-            };
-        };
-
-        func _getComparer(
+        func _comparer(
             column: Text,
             dir: Int
         ): (Types.Category, Types.Category) -> Int {
@@ -158,60 +125,16 @@ module {
             };
         };
 
-        func _getDir(
-            sortBy: ?(Text, Text)
-        ): Int {
-            switch(sortBy) {
-                case null {
-                    1;
-                };
-                case (?sortBy) {
-                    switch(sortBy.1) {
-                        case "desc" -1;
-                        case _ 1;
-                    };
-                };
-            };
-        };
-
-        func _getSortBy(
-            sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Category>] {
-            let dir = _getDir(sortBy);
-            
-            switch(sortBy) {
-                case null {
-                    null;
-                };
-                case (?sortBy) {
-                    ?[{
-                        key = sortBy.0;
-                        dir = if(dir == 1) #asc else #desc;
-                        cmp = _getComparer(sortBy.0, dir);
-                    }]
-                };
-            };
-        };
-
-        func _getLimit(
-            limit: ?(Nat, Nat)
-        ): ?Table.Limit {
-            switch(limit) {
-                case null null;
-                case (?limit) 
-                    ?{
-                        offset = limit.0;
-                        size = limit.1;
-                    }
-            };
-        };
-
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Category], Text> {
-            return categories.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return categories.find(
+                FilterUtils.toCriterias(criterias), 
+                FilterUtils.toSortBy<Types.Category>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func findByUser(
@@ -228,7 +151,11 @@ module {
                 }
             ];
             
-            return categories.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return categories.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Category>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func backup(

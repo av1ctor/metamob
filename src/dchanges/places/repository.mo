@@ -16,10 +16,10 @@ import Table "mo:mo-table/table";
 import Random "../common/random";
 import ULID "../common/ulid";
 import Utils "../common/utils";
+import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
 import CampaignRepository "../campaigns/repository";
-import Debug "mo:base/Debug";
 
 module {
     public class Repository(
@@ -136,40 +136,7 @@ module {
             #ok(res.toArray());
         };
 
-        func _getCriterias(
-            criterias: ?[(Text, Text, Variant.Variant)]
-        ): ?[Table.Criteria] {
-
-            switch(criterias) {
-                case null {
-                    null;
-                };
-                case (?criterias) {
-                    ?Array.map(
-                        criterias, 
-                        func (crit: (Text, Text, Variant.Variant)): Table.Criteria {
-                            {
-                                key = crit.0;
-                                op = switch(crit.1) {
-                                    case "contains" #contains; 
-                                    case _ #eq;
-                                };
-                                value = switch(crit.2) {
-                                    case (#text(text)) {
-                                        #text(Utils.toLower(text));
-                                    };
-                                    case _ {
-                                        crit.2;
-                                    };
-                                };
-                            }
-                        }
-                    )
-                };
-            };
-        };
-
-        func _getComparer(
+        func _comparer(
             column: Text,
             dir: Int
         ): (Types.Place, Types.Place) -> Int {
@@ -183,54 +150,6 @@ module {
                 case _ {
                     func(a: Types.Place, b: Types.Place): Int = 0;
                 };
-            };
-        };
-
-        func _getDir(
-            sortBy: ?(Text, Text)
-        ): Int {
-            switch(sortBy) {
-                case null {
-                    1;
-                };
-                case (?sortBy) {
-                    switch(sortBy.1) {
-                        case "desc" -1;
-                        case _ 1;
-                    };
-                };
-            };
-        };
-
-        func _getSortBy(
-            sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Place>] {
-            let dir = _getDir(sortBy);
-            
-            switch(sortBy) {
-                case null {
-                    null;
-                };
-                case (?sortBy) {
-                    ?[{
-                        key = sortBy.0;
-                        dir = if(dir == 1) #asc else #desc;
-                        cmp = _getComparer(sortBy.0, dir);
-                    }]
-                };
-            };
-        };
-
-        func _getLimit(
-            limit: ?(Nat, Nat)
-        ): ?Table.Limit {
-            switch(limit) {
-                case null null;
-                case (?limit) 
-                    ?{
-                        offset = limit.0;
-                        size = limit.1;
-                    }
             };
         };
 
@@ -248,7 +167,11 @@ module {
                 }
             ];
             
-            return places.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return places.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Place>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func find(
@@ -256,7 +179,11 @@ module {
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Place], Text> {
-            return places.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return places.find(
+                FilterUtils.toCriterias(criterias), 
+                FilterUtils.toSortBy<Types.Place>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)                
+            );
         };
 
         public func backup(

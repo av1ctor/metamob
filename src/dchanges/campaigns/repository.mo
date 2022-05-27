@@ -24,6 +24,7 @@ import Types "./types";
 import ULID "../common/ulid";
 import UpdateTypes "../updates/types";
 import Utils "../common/utils";
+import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
 import VoteTypes "../votes/types";
 
@@ -159,7 +160,7 @@ module {
             };
         };
 
-        func _getCriterias(
+        func _toCriterias(
             criterias: ?[(Text, Text, Variant.Variant)]
         ): ?[Table.Criteria] {
 
@@ -198,7 +199,7 @@ module {
             };
         };
 
-        func _getComparer(
+        func _comparer(
             column: Text,
             dir: Int
         ): (Types.Campaign, Types.Campaign) -> Int {
@@ -227,60 +228,16 @@ module {
             };
         };
 
-        func _getDir(
-            sortBy: ?(Text, Text)
-        ): Int {
-            switch(sortBy) {
-                case null {
-                    1;
-                };
-                case (?sortBy) {
-                    switch(sortBy.1) {
-                        case "desc" -1;
-                        case _ 1;
-                    };
-                };
-            };
-        };
-
-        func _getSortBy(
-            sortBy: ?(Text, Text)
-        ): ?[Table.SortBy<Types.Campaign>] {
-            let dir = _getDir(sortBy);
-            
-            switch(sortBy) {
-                case null {
-                    null;
-                };
-                case (?sortBy) {
-                    ?[{
-                        key = sortBy.0;
-                        dir = if(dir == 1) #asc else #desc;
-                        cmp = _getComparer(sortBy.0, dir);
-                    }]
-                };
-            };
-        };
-
-        func _getLimit(
-            limit: ?(Nat, Nat)
-        ): ?Table.Limit {
-            switch(limit) {
-                case null null;
-                case (?limit) 
-                    ?{
-                        offset = limit.0;
-                        size = limit.1;
-                    }
-            };
-        };
-
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
             sortBy: ?(Text, Text),
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
-            return campaigns.find(_getCriterias(criterias), _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(
+                _toCriterias(criterias), 
+                FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func findByCategory(
@@ -302,7 +259,11 @@ module {
                 }                    
             ];
             
-            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func findByPlace(
@@ -324,7 +285,11 @@ module {
                 }                    
             ];
             
-            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func findByTag(
@@ -346,7 +311,11 @@ module {
                 }
             ];
             
-            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func findByUser(
@@ -368,70 +337,101 @@ module {
                 }
             ];
             
-            return campaigns.find(criterias, _getSortBy(sortBy), _getLimit(limit)/*, null*/);
+            return campaigns.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
         };
 
         public func onSignatureInserted(
             campaign: Types.Campaign,
             signature: SignatureTypes.Signature
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureInserted(campaign, signature));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenSignatureInserted(campaign, signature)
+            );
         };
 
         public func onSignatureDeleted(
             campaign: Types.Campaign,
             signature: SignatureTypes.Signature
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenSignatureDeleted(campaign, signature));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenSignatureDeleted(campaign, signature)
+            );
         };
 
         public func onVoteInserted(
             campaign: Types.Campaign,
             vote: VoteTypes.Vote
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteInserted(campaign, vote));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenVoteInserted(campaign, vote)
+            );
         };
 
         public func onVoteUpdated(
             campaign: Types.Campaign,
             vote: VoteTypes.Vote
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteUpdated(campaign, vote));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenVoteUpdated(campaign, vote)
+            );
         };
 
         public func onVoteDeleted(
             campaign: Types.Campaign,
             vote: VoteTypes.Vote
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenVoteDeleted(campaign, vote));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenVoteDeleted(campaign, vote)
+            );
         };
 
         public func onDonationInserted(
             campaign: Types.Campaign,
             donation: DonationTypes.Donation
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenDonationInserted(campaign, donation));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenDonationInserted(campaign, donation)
+            );
         };
 
         public func onDonationDeleted(
             campaign: Types.Campaign,
             donation: DonationTypes.Donation
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenDonationDeleted(campaign, donation));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenDonationDeleted(campaign, donation)
+            );
         };
 
         public func onUpdateInserted(
             campaign: Types.Campaign,
             update: UpdateTypes.Update
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenUpdateInserted(campaign, update));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenUpdateInserted(campaign, update)
+            );
         };
 
         public func onUpdateDeleted(
             campaign: Types.Campaign,
             update: UpdateTypes.Update
         ) {
-            ignore campaigns.replace(campaign._id, _updateEntityWhenUpdateDeleted(campaign, update));
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenUpdateDeleted(campaign, update)
+            );
         };
 
         public func backup(
@@ -1039,6 +1039,7 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             let now = Time.now();
+            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * (24 * 60 * 60 * 1000000))));
             {
                 _id = e._id;
                 pubId = e.pubId;
@@ -1056,7 +1057,7 @@ module {
                 info = e.info;
                 updatesCnt = e.updatesCnt;
                 publishedAt = ?now;
-                expiredAt = ?(now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * (24 * 60 * 60 * 1000000)))));
+                expiredAt = ?limit;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = e.updatedAt;
