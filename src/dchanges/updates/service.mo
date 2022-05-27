@@ -44,7 +44,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangePlace(caller, campaign)) {
+                                switch(placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -82,7 +82,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangePlace(caller, campaign)) {
+                                switch(placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -134,7 +134,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangePlace(caller, campaign)) {
+                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -258,7 +258,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(canChangePlace(caller, campaign)) {
+                                        switch(placeService.checkAccess(caller, campaign.placeId)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -350,28 +350,6 @@ module {
                     }
                     else {
                         #ok(campaign);
-                    };
-                };
-            };
-        };
-
-        func canChangePlace(
-            caller: UserTypes.Profile,
-            campaign: CampaignTypes.Campaign
-        ): Result.Result<(), Text> {
-            switch(placeRepo.findById(campaign.placeId)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(place)) {
-                    if(not place.active) {
-                        #err("Place inactive");
-                    }
-                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
-                        placeService.checkAccess(caller, place);
-                    }
-                    else {
-                        #ok();
                     };
                 };
             };

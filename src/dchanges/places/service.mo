@@ -118,22 +118,34 @@ module {
 
         public func checkAccess(
             caller: UserTypes.Profile,
-            place: Types.Place
+            _id: Nat32
         ): Result.Result<(), Text> {
-            if(place.restricted == Types.RESTRICTED_NO) {
-                #ok();
-            }
-            else if(place.restricted == Types.RESTRICTED_EMAIL) {
-                #err("email verification not implemented");
-            }
-            else if(place.restricted == Types.RESTRICTED_DIP20) {
-                #err("DIP20 verification not implemented");
-            }
-            else if(place.restricted == Types.RESTRICTED_DIP721) {
-                #err("DIP721 verification not implemented");
-            }
-            else {
-                #err("Unknown restriction");
+            switch(repo.findById(_id)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(place)) {
+                    if(not place.active) {
+                        #err("Place inactive");
+                    }
+                    else {
+                        if(place.restricted == Types.RESTRICTED_NO) {
+                            #ok();
+                        }
+                        else if(place.restricted == Types.RESTRICTED_EMAIL) {
+                            #err("email verification not implemented");
+                        }
+                        else if(place.restricted == Types.RESTRICTED_DIP20) {
+                            #err("DIP20 verification not implemented");
+                        }
+                        else if(place.restricted == Types.RESTRICTED_DIP721) {
+                            #err("DIP721 verification not implemented");
+                        }
+                        else {
+                            #err("Unknown restriction");
+                        };
+                    };
+                };
             };
         };
 

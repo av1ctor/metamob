@@ -41,7 +41,7 @@ module {
                             };
                         };
                         
-                        switch(canChangePlace(caller, req.placeId)) {
+                        switch(placeService.checkAccess(caller, req.placeId)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
@@ -87,7 +87,7 @@ module {
                                     return #err("Kind can not be changed");
                                 };
 
-                                switch(canChangePlace(caller, req.placeId)) {
+                                switch(placeService.checkAccess(caller, req.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -159,7 +159,7 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(canChangePlace(caller, campaign.placeId)) {
+                                switch(placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -270,7 +270,7 @@ module {
                                     return #err("Campaigns can not be deleted after published")
                                 };
                                 
-                                switch(canChangePlace(caller, campaign.placeId)) {
+                                switch(placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -343,28 +343,6 @@ module {
             };
 
             return true;
-        };
-
-        func canChangePlace(
-            caller: UserTypes.Profile,
-            placeId: Nat32
-        ): Result.Result<(), Text> {
-            switch(placeRepo.findById(placeId)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(place)) {
-                    if(not place.active) {
-                        #err("Place inactive");
-                    }
-                    else if(place.restricted != PlaceTypes.RESTRICTED_NO) {
-                        placeService.checkAccess(caller, place);
-                    }
-                    else {
-                        #ok();
-                    };
-                };
-            };
         };
     };
 };
