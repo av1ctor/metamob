@@ -29,6 +29,9 @@
         "dist/dchanges_assets/"
       ],
       "type": "assets"
+    },
+    "dip20": {
+      "main": "src/dip20/token.mo"
     }
   },
   "defaults": {
