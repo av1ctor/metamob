@@ -93,6 +93,10 @@
     z-index: 41;
 }
 
+.modal-card-head {
+    background-color: hsl(171, 38%, 72%);
+}
+
 @media screen and (max-width: 768px) {
     .modal-card {
         margin: 0;

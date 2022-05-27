@@ -11097,6 +11097,9 @@ span[data-tooltip] {
   right: 1.5rem;
   z-index: 41; }
 
+.modal-card-head {
+  background-color: #9cd3cb; }
+
 @media screen and (max-width: 768px) {
   .modal-card {
     margin: 0;
