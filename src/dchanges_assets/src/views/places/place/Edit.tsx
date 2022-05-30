@@ -1,17 +1,17 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Place, PlaceRequest, PlaceRestriction } from "../../../../../declarations/dchanges/dchanges.did";
+import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
-import { kinds, PlaceRestrictionNum, restrictions, restrictionToEnum, search } from "../../../libs/places";
+import { kinds, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
-import { transformRestriction, validateRestriction } from "./utils";
+import { transformAuth, validateAuth } from "./utils";
 
 interface Props {
     place: Place;
@@ -27,8 +27,8 @@ const formSchema = yup.object().shape({
     icon: yup.string().required().min(3).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
-    restriction: yup.object().test({
-        test: validateRestriction
+    auth: yup.object().test({
+        test: validateAuth
     }).required(),
 });
 
@@ -40,7 +40,7 @@ const EditForm = (props: Props) => {
         description: props.place.description,
         icon: props.place.icon,
         kind: props.place.kind,
-        restriction: props.place.restriction,
+        auth: props.place.auth,
         parentId: props.place.parentId,
     });
 
@@ -66,19 +66,19 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const changeRestriction = useCallback((e: any) => {
-        let value: PlaceRestriction = {none: null};
+    const changeAuth = useCallback((e: any) => {
+        let value: PlaceAuth = {none: null};
         switch(Number(e.target.value)) {
-            case PlaceRestrictionNum.EMAIL:
+            case PlaceAuthNum.EMAIL:
                 value = {email: null};
                 break;
-            case PlaceRestrictionNum.DIP20:
+            case PlaceAuthNum.DIP20:
                 value = {dip20: {
                     canisterId: '',
                     minValue: BigInt(0),
                 }};
                 break;
-            case PlaceRestrictionNum.DIP721:
+            case PlaceAuthNum.DIP721:
                 value = {dip721: {
                     canisterId: '',
                     minValue: BigInt(0),
@@ -88,7 +88,7 @@ const EditForm = (props: Props) => {
 
         setForm(form => ({
             ...form,
-            restriction: value
+            auth: value
         }));
     }, []);
 
@@ -122,7 +122,7 @@ const EditForm = (props: Props) => {
                     description: form.description,
                     icon: form.icon,
                     kind: Number(form.kind),
-                    restriction: transformRestriction(form.restriction),
+                    auth: transformAuth(form.auth),
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
                 }
             });
@@ -160,7 +160,7 @@ const EditForm = (props: Props) => {
             description: props.place.description,
             icon: props.place.icon,
             kind: props.place.kind,
-            restriction: props.place.restriction,
+            auth: props.place.auth,
             parentId: props.place.parentId,
         });
     }, [props.place]);
@@ -205,43 +205,43 @@ const EditForm = (props: Props) => {
                 onChange={changeForm}
             />
             <SelectField 
-                label="Restriction"
-                id="restriction"
-                value={restrictionToEnum(form.restriction)}
-                options={restrictions}
-                onChange={changeRestriction}
+                label="Authorization"
+                id="auth"
+                value={authToEnum(form.auth)}
+                options={auths}
+                onChange={changeAuth}
             />
-            {'dip20' in form.restriction &&
+            {'dip20' in form.auth &&
                 <div className="p-2 border">
                     <TextField 
                         label="Canister Id"
-                        name="restriction.dip20.canisterId"
-                        value={form.restriction.dip20.canisterId}
+                        name="auth.dip20.canisterId"
+                        value={form.auth.dip20.canisterId}
                         required={true}
                         onChange={changeForm}
                     />
                     <TextField 
                         label="Min value"
-                        name="restriction.dip20.minValue"
-                        value={String(form.restriction.dip20.minValue)}
+                        name="auth.dip20.minValue"
+                        value={String(form.auth.dip20.minValue)}
                         required={true}
                         onChange={changeForm}
                     />
                 </div>
             }
-            {'dip721' in form.restriction &&
+            {'dip721' in form.auth &&
                 <div className="p-2 border">
                     <TextField 
                         label="Canister Id"
-                        name="restriction.dip721.canisterId"
-                        value={form.restriction.dip721.canisterId}
+                        name="auth.dip721.canisterId"
+                        value={form.auth.dip721.canisterId}
                         required={true}
                         onChange={changeForm}
                     />
                     <TextField 
                         label="Min value"
-                        name="restriction.dip721.minValue"
-                        value={String(form.restriction.dip721.minValue)}
+                        name="auth.dip721.minValue"
+                        value={String(form.auth.dip721.minValue)}
                         required={true}
                         onChange={changeForm}
                     />

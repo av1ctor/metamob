@@ -17,21 +17,21 @@ module {
     public let RESTRICTION_DIP20: Nat32 = 2;
     public let RESTRICTION_DIP721: Nat32 = 3;
 
-    public type PlaceDip20Restriction = {
+    public type PlaceDip20Auth = {
         canisterId: Text;
         minValue: Nat;
     };
 
-    public type PlaceDip721Restriction = {
+    public type PlaceDip721Auth = {
         canisterId: Text;
         minValue: Nat;
     };
     
-    public type PlaceRestriction = {
+    public type PlaceAuth = {
         #none_;
         #email;
-        #dip20: PlaceDip20Restriction;
-        #dip721: PlaceDip721Restriction;
+        #dip20: PlaceDip20Auth;
+        #dip721: PlaceDip721Auth;
     };
 
     public type Place = {
@@ -39,7 +39,7 @@ module {
         pubId: Text;
         parentId: ?Nat32;
         kind: PlaceKind;
-        restriction: PlaceRestriction;
+        auth: PlaceAuth;
         name: Text;
         description: Text;
         icon: Text;
@@ -53,7 +53,7 @@ module {
     public type PlaceRequest = {
         parentId: ?Nat32;
         kind: PlaceKind;
-        restriction: PlaceRestriction;
+        auth: PlaceAuth;
         name: Text;
         description: Text;
         icon: Text;

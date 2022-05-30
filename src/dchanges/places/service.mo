@@ -142,7 +142,7 @@ module {
 
         private func _checkDip20(
             caller: UserTypes.Profile,
-            res: Types.PlaceDip20Restriction
+            res: Types.PlaceDip20Auth
         ): async Result.Result<(), Text> {
             let dip20 = actor (res.canisterId) : DIPTypes.DIP20Interface;
             
@@ -157,7 +157,7 @@ module {
 
         private func _checkDip721(
             caller: UserTypes.Profile,
-            res: Types.PlaceDip20Restriction
+            res: Types.PlaceDip20Auth
         ): async Result.Result<(), Text> {
             let dip721 = actor (res.canisterId) : DIPTypes.DIP721Interface;
             
@@ -183,7 +183,7 @@ module {
                         #err("Place inactive");
                     }
                     else {
-                        switch(place.restriction) {
+                        switch(place.auth) {
                             case (#none_) {
                                 #ok();
                             };

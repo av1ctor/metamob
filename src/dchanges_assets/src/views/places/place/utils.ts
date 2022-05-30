@@ -1,24 +1,24 @@
-import { PlaceRestriction } from "../../../../../declarations/dchanges/dchanges.did";
+import { PlaceAuth } from "../../../../../declarations/dchanges/dchanges.did";
 
-export const transformRestriction = (
-    restriction: PlaceRestriction
-): PlaceRestriction => {
-    if('email' in restriction) {
+export const transformAuth = (
+    auth: PlaceAuth
+): PlaceAuth => {
+    if('email' in auth) {
         return {email: null};
     }
-    else if('dip20' in restriction) {
+    else if('dip20' in auth) {
         return {
             dip20: {
-                canisterId: restriction.dip20.canisterId,
-                minValue: BigInt(restriction.dip20.minValue),
+                canisterId: auth.dip20.canisterId,
+                minValue: BigInt(auth.dip20.minValue),
             }
         };
     }
-    else if('dip721' in restriction) {
+    else if('dip721' in auth) {
         return {
             dip721: {
-                canisterId: restriction.dip721.canisterId,
-                minValue: BigInt(restriction.dip721.minValue),
+                canisterId: auth.dip721.canisterId,
+                minValue: BigInt(auth.dip721.minValue),
             }
         };
     }
@@ -26,7 +26,7 @@ export const transformRestriction = (
     return {none: null};
 };
 
-export const validateRestriction = (
+export const validateAuth = (
     value: any
 ): boolean => {
     if('none' in value) {
