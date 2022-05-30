@@ -11221,3 +11221,16 @@ span[data-tooltip] {
 .border {
   border: 1px solid #eee;
   border-radius: 4px; }
+
+.campaign-actions .action {
+  display: flex;
+  flex-direction: column;
+  text-align: center; }
+
+.campaign-actions .action:not(.disabled):hover {
+  color: #428a42;
+  cursor: pointer; }
+
+.email-body span:hover {
+  cursor: pointer;
+  background-color: #eee; }

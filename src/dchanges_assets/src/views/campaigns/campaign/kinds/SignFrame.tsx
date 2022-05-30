@@ -66,7 +66,12 @@ export const SignFrame = (props: Props) => {
                     </Box>
                 </>
             :
-                <Result result={campaign.result} />
+                <Result 
+                    campaign={campaign} 
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
+                />
             }
         </>
     );

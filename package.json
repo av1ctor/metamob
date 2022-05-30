@@ -72,6 +72,7 @@
     "easymde": "^2.16.1",
     "line-awesome": "^1.3.0",
     "react": "^18.1.0",
+    "react-contenteditable": "^3.3.6",
     "react-dom": "^18.1.0",
     "react-markdown": "^8.0.3",
     "react-query": "^3.38.1",
