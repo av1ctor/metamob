@@ -72,7 +72,7 @@ export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order, 
     limit?: Limit
-) => {
+): Promise<Place[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
             filters

@@ -6,6 +6,7 @@ import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserPlaces } from "../../../hooks/places";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
+import PlaceEmails from "../../places/emails/Emails";
 import EditForm from "../../places/place/Edit";
 
 interface Props {
@@ -31,6 +32,7 @@ const Places = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
+        editEmails: false,
     });
     const [place, setPlace] = useState<Place>();
 
@@ -56,6 +58,13 @@ const Places = (props: Props) => {
             delete: !modals.delete
         }));
         setPlace(place);
+    }, []);
+
+    const toggleEditEmails = useCallback((place: Place | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            editEmails: !modals.editEmails
+        }));
     }, []);
     
     if(!authState.user) {
@@ -138,6 +147,7 @@ const Places = (props: Props) => {
                 {place && 
                     <EditForm
                         place={place} 
+                        onEditEmails={toggleEditEmails}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -151,6 +161,21 @@ const Places = (props: Props) => {
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
+            </Modal> 
+
+            <Modal
+                header={<span>Edit place e-mails</span>}
+                isOpen={modals.editEmails}
+                onClose={toggleEditEmails}
+            >
+                {place && 
+                    <PlaceEmails
+                        place={place}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
             </Modal> 
         </>    
     );

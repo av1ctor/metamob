@@ -15,6 +15,7 @@ import { transformAuth, validateAuth } from "./utils";
 
 interface Props {
     place: Place;
+    onEditEmails: () => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -149,6 +150,11 @@ const EditForm = (props: Props) => {
         }
     }, []);
 
+    const handleEditEmails = useCallback((e: any) => {
+        e.preventDefault();
+        props.onEditEmails();
+    }, [props.onEditEmails]);
+
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
@@ -211,6 +217,15 @@ const EditForm = (props: Props) => {
                 options={auths}
                 onChange={changeAuth}
             />
+            {'email' in form.auth &&
+                <div className="p-2 border has-text-centered">
+                    <Button
+                        onClick={handleEditEmails}
+                    >
+                        Edit list
+                    </Button>
+                </div>
+            }
             {'dip20' in form.auth &&
                 <div className="p-2 border">
                     <TextField 

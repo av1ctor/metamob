@@ -6,7 +6,7 @@ import {Filter, Limit, Order} from "./common";
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order, limit?: Limit
-) => {
+): Promise<Category[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
             filters
