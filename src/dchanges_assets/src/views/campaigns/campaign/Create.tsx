@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
@@ -135,6 +135,13 @@ const CreateForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    useEffect(() => {
+        setForm(form => ({
+            ...form,
+            placeId: props.place?._id || 0
+        }));
+    }, [props.place]);
     
     return (
         <>

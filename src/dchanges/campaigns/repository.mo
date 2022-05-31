@@ -555,7 +555,7 @@ module {
                 categoryId = req.categoryId;
                 placeId = req.placeId;
                 state = switch(req.state) { 
-                    case null Types.STATE_CREATED;
+                    case null Types.STATE_PUBLISHED;
                     case (?state) state;
                 };
                 result = Types.RESULT_NONE;
