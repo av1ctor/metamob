@@ -8,11 +8,13 @@ import {Filter} from "../../libs/common";
 import {useCreateCampaign} from "../../hooks/campaigns";
 import CreateForm from "./campaign/Create";
 import Button from "../../components/Button";
+import { Place } from "../../../../declarations/dchanges/dchanges.did";
 
 const indexedColumns = ['title'];
 
 interface Props {
     filters: Filter[];
+    place?: Place;
     onSearch: (e: Filter[]) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -74,6 +76,7 @@ export const Bar = (props: Props) => {
                 <CreateForm
                     categories={categoryState.categories}
                     mutation={createCampaignMut}
+                    place={props.place}
                     onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}

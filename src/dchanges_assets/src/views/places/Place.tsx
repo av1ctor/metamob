@@ -69,6 +69,7 @@ const Place = (props: Props) => {
                         place={place.data}
                     />
                     <Bar
+                        place={place.data}
                         filters={filters}
                         onSearch={handleChangeFilters}
                         onSuccess={props.onSuccess}

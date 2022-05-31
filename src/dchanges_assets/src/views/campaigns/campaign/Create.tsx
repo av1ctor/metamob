@@ -4,7 +4,7 @@ import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Container from "../../../components/Container";
-import {Category, CampaignRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Place} from "../../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
@@ -13,10 +13,12 @@ import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, kindOptions } from "../../../libs/campaigns";
 import { decimalToIcp } from "../../../libs/icp";
+import { useFindPlaceById } from "../../../hooks/places";
 
 interface Props {
     mutation: any;
     categories: Category[];
+    place?: Place;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -50,9 +52,11 @@ const CreateForm = (props: Props) => {
         cover: '',
         duration: 7,
         categoryId: 0,
-        placeId: 0,
+        placeId: props.place?._id || 0,
         tags: []
     });
+
+    const place = useFindPlaceById(props.place?._id || 0);
 
     const validate = async (form: CampaignRequest): Promise<string[]> => {
         try {
@@ -196,8 +200,9 @@ const CreateForm = (props: Props) => {
                 <AutocompleteField
                     label="Place"
                     name="placeId"
-                    value=""
+                    value={place.data?.name || ''}
                     required={true}
+                    disabled={!!props.place}
                     onSearch={handleSearchPlace}
                     onChange={changeForm}
                 />
