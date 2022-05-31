@@ -56,7 +56,7 @@ const Campaigns = (props: Props) => {
         {
             key: 'state',
             op: 'eq',
-            value: CampaignState.CREATED
+            value: null
         },
     ]);
 
