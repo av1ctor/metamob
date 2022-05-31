@@ -8,6 +8,8 @@ import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import PlaceEmails from "../../places/emails/Emails";
 import EditForm from "../../places/place/Edit";
+import CreateForm from '../../places/place/Create';
+import Button from "../../../components/Button";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -30,6 +32,7 @@ const Places = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
 
     const [modals, setModals] = useState({
+        create: false,
         edit: false,
         delete: false,
         editEmails: false,
@@ -42,6 +45,13 @@ const Places = (props: Props) => {
 
     const handleRedirect = useCallback((place: Place) => {
         navigate(`/p/${place.pubId}`);
+    }, []);
+
+    const toggleCreate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            create: !modals.create
+        }));
     }, []);
 
     const toggleEdit = useCallback((place: Place | undefined = undefined) => {
@@ -75,6 +85,19 @@ const Places = (props: Props) => {
         <>
             <div className="page-title has-text-info-dark">
                 My places
+            </div>
+            
+            <div className="level">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <Button 
+                        title="Create a new place"
+                        onClick={toggleCreate}
+                    >
+                        <i className="la la-plus-circle" />&nbsp;Create
+                    </Button>
+                </div>
             </div>
             
             <div>
@@ -139,6 +162,20 @@ const Places = (props: Props) => {
                 </div>        
             </div>
 
+            <Modal
+                header={<span>Create place</span>}
+                isOpen={modals.create}
+                isOverOtherModal={true}
+                onClose={toggleCreate}
+            >
+                <CreateForm 
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    onClose={toggleCreate}
+                    toggleLoading={props.toggleLoading}
+                />
+            </Modal>            
+            
             <Modal
                 header={<span>Edit place</span>}
                 isOpen={modals.edit}

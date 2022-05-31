@@ -10,8 +10,6 @@ import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { search } from "../../../libs/places";
-import PlaceForm from '../../places/place/Create';
-import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, kindOptions } from "../../../libs/campaigns";
 import { decimalToIcp } from "../../../libs/icp";
@@ -42,7 +40,6 @@ const formSchema = yup.object().shape({
 const CreateForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
-    const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState<CampaignRequest>({
         kind: CampaignKind.SIGNATURES,
         goal: BigInt(0),
@@ -135,14 +132,6 @@ const CreateForm = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
     
-    const showCreatePlace = useCallback((value: string) => {
-        setPlaceValue(value);
-    }, []);
-
-    const closeCreatePlace = useCallback(() => {
-        setPlaceValue('');
-    }, []);    
-  
     return (
         <>
             <form onSubmit={handleCreate}>
@@ -211,7 +200,6 @@ const CreateForm = (props: Props) => {
                     required={true}
                     onSearch={handleSearchPlace}
                     onChange={changeForm}
-                    onAdd={showCreatePlace}
                 />
                 <TagsField 
                     label="Tags"
@@ -246,21 +234,6 @@ const CreateForm = (props: Props) => {
                     </div>
                 </div>
             </form>
-            
-            <Modal
-                header={<span>Create place</span>}
-                isOpen={!!placeValue}
-                isOverOtherModal={true}
-                onClose={closeCreatePlace}
-            >
-                <PlaceForm 
-                    value={placeValue}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    onClose={closeCreatePlace}
-                    toggleLoading={props.toggleLoading}
-                />
-            </Modal>            
         </>
     );
 };

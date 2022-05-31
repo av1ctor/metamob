@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, CampaignRequest, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, Campaign} from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -11,8 +11,6 @@ import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { useFindPlaceById } from "../../../hooks/places";
 import { search } from "../../../libs/places";
-import PlaceForm from '../../places/place/Create';
-import Modal from "../../../components/Modal";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
@@ -55,7 +53,6 @@ const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext)
     const [authState, ] = useContext(AuthContext);
     
-    const [placeValue, setPlaceValue] = useState('');
     const [form, setForm] = useState({
         ...props.campaign,
         state: [props.campaign.state],
@@ -152,14 +149,6 @@ const EditForm = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
     
-    const showCreatePlace = useCallback((value: string) => {
-        setPlaceValue(value);
-    }, []);
-
-    const closeCreatePlace = useCallback(() => {
-        setPlaceValue('');
-    }, []);
-
     useEffect(() => {
         setForm({
             ...props.campaign,
@@ -238,7 +227,6 @@ const EditForm = (props: Props) => {
                     required={true}
                     onSearch={handleSearchPlace}
                     onChange={changeForm}
-                    onAdd={showCreatePlace}
                 />
                 <TagsField 
                     label="Tags"
@@ -275,21 +263,6 @@ const EditForm = (props: Props) => {
                     </div>
                 </div>
             </form>
-
-            <Modal
-                header={<span>Create place</span>}
-                isOpen={!!placeValue}
-                isOverOtherModal={true}
-                onClose={closeCreatePlace}
-            >
-                <PlaceForm 
-                    value={placeValue}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    onClose={closeCreatePlace}
-                    toggleLoading={props.toggleLoading}
-                />
-            </Modal>            
         </>
     );
 };

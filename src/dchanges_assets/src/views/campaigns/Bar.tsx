@@ -57,7 +57,8 @@ export const Bar = (props: Props) => {
                     />
                 </div>
                 <div className="level-right">
-                    <Button 
+                    <Button
+                        title="Create a new campaign" 
                         onClick={isLoggedIn? toggleCreate: redirectToLogon}
                     >
                         <i className="la la-plus-circle" />&nbsp;Create

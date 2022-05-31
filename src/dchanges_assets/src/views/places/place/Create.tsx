@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
 import { PlaceRequest, PlaceAuth } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
@@ -13,7 +13,6 @@ import { ActorContext } from "../../../stores/actor";
 import { transformAuth, validateAuth } from "./utils";
 
 interface Props {
-    value?: string;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     onClose: () => void;
@@ -35,7 +34,7 @@ const Create = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<PlaceRequest>({
-        name: props.value || '',
+        name: '',
         description: '',
         icon: '',
         kind: PlaceKind.OTHER,
@@ -141,17 +140,6 @@ const Create = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
 
-    useEffect(() => {
-        setForm({
-            name: props.value || '',
-            description: '',
-            icon: '',
-            kind: PlaceKind.OTHER,
-            auth: {none: null},
-            parentId: [],
-        });
-    }, [props.value]);
-   
     return (
         <form onSubmit={handleCreate}>
             <div>
