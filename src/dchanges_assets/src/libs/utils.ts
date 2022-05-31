@@ -58,3 +58,9 @@ export const copyToClipboard = (
         window.getSelection()?.removeAllRanges();
     }
   }
+
+export const limitText = (text: string, max: number): string => {
+    return text.length <= max?
+        text:
+        text.substr(0, max) + '...';
+};

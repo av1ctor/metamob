@@ -210,7 +210,7 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
-                active = true;
+                active = req.active;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -232,7 +232,7 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
-                active = e.active;
+                active = req.active;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();

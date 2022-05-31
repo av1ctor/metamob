@@ -28,6 +28,7 @@ const formSchema = yup.object().shape({
     auth: yup.object().test({
         test: validateAuth
     }).required(),
+    active: yup.bool().required(),
 });
 
 const Create = (props: Props) => {
@@ -40,6 +41,7 @@ const Create = (props: Props) => {
         kind: PlaceKind.OTHER,
         auth: {none: null},
         parentId: [],
+        active: true,
     });
 
     const mutation = useCreatePlace();
@@ -109,6 +111,7 @@ const Create = (props: Props) => {
                     kind: Number(form.kind),
                     auth: transformAuth(form.auth),
                     parentId: form.parentId,
+                    active: form.active,
                 }
             });
 

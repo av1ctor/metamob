@@ -57,5 +57,6 @@ module {
         name: Text;
         description: Text;
         icon: Text;
+        active: Bool;
     };
 };

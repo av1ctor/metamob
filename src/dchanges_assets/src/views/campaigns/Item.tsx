@@ -8,6 +8,7 @@ import Tag from "../../components/Tag";
 import Card from "../../components/Card";
 import { CampaignResult, CampaignState } from "../../libs/campaigns";
 import PlaceTree from "../places/place/PlaceTree";
+import { limitText } from "../../libs/utils";
 
 interface Props {
     campaign: Campaign
@@ -25,7 +26,7 @@ const Item = (props: Props) => {
     return (
         <Card 
             title={
-                <Link to={`/c/${campaign.pubId}`}>{campaign.title}</Link>
+                <Link to={`/c/${campaign.pubId}`}>{limitText(campaign.title, 45)}</Link>
             } 
             subtitle={<>
                 <div className="mb-1">

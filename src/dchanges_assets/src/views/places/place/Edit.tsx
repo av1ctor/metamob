@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
+import CheckboxField from "../../../components/CheckboxField";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
@@ -43,13 +44,14 @@ const EditForm = (props: Props) => {
         kind: props.place.kind,
         auth: props.place.auth,
         parentId: props.place.parentId,
+        active: props.place.active,
     });
 
     const updateMut = useUpdatePlace();
     const parent = useFindPlaceById(props.place.parentId && props.place.parentId.length > 0? props.place.parentId[0] || 0: 0);
 
     const changeForm = useCallback((e: any) => {
-        const field = (e.target.id || e.target.name);
+        const field = e.target.id || e.target.name;
         const value = e.target.type === 'checkbox'?
             e.target.checked:
             e.target.value;
@@ -57,7 +59,7 @@ const EditForm = (props: Props) => {
     }, []);
 
     const changeFormOpt = useCallback((e: any) => {
-        const field = (e.target.id || e.target.name);
+        const field = e.target.id || e.target.name;
         const value = e.target.type === 'checkbox'?
             e.target.checked:
             e.target.value;
@@ -125,6 +127,7 @@ const EditForm = (props: Props) => {
                     kind: Number(form.kind),
                     auth: transformAuth(form.auth),
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
+                    active: form.active,
                 }
             });
             props.onSuccess('Place updated!');
@@ -161,13 +164,15 @@ const EditForm = (props: Props) => {
     }, [props.onClose]);
     
     useEffect(() => {
+        const {place} = props;
         setForm({
-            name: props.place.name,
-            description: props.place.description,
-            icon: props.place.icon,
-            kind: props.place.kind,
-            auth: props.place.auth,
-            parentId: props.place.parentId,
+            name: place.name,
+            description: place.description,
+            icon: place.icon,
+            kind: place.kind,
+            auth: place.auth,
+            parentId: place.parentId,
+            active: place.active,
         });
     }, [props.place]);
 
@@ -268,7 +273,13 @@ const EditForm = (props: Props) => {
                 value={parent.data?.name || ''}
                 onSearch={handleSearchPlace}
                 onChange={changeFormOpt}
-            />      
+            />
+            <CheckboxField
+                label="Active"
+                id="active"
+                value={form.active}
+                onChange={changeForm}
+            />
             <div className="field">
                 <label className="label">
                     Author
