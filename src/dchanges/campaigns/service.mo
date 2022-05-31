@@ -1,18 +1,19 @@
 import Array "mo:base/Array";
 import CampaignTypes "types";
-import D "mo:base/Debug";
 import Nat32 "mo:base/Nat32";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import Repository "./repository";
 import Result "mo:base/Result";
+import Variant "mo:mo-table/variant";
+import Repository "./repository";
 import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
-import Variant "mo:mo-table/variant";
+import LedgerUtils "../utils/ledger";
+import Account "../accounts/account";
 
 module {
     public class Service(
@@ -73,7 +74,7 @@ module {
                                 return #err(msg);
                             };
                             case (#ok(campaign)) {
-                                if(not canChange(caller, campaign)) {
+                                if(not canChange(caller, campaign, [CampaignTypes.STATE_CREATED, CampaignTypes.STATE_PUBLISHED])) {
                                     return #err("Forbidden");
                                 };
 
@@ -124,10 +125,10 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                if(not canChange(caller, campaign)) {
+                                if(not canChange(caller, campaign, [Types.STATE_CREATED])) {
                                     return #err("Forbidden");
                                 };
-                                
+
                                 repo.publish(campaign, caller._id);
                             };
                         };
@@ -155,10 +156,10 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                if(not canChange(caller, campaign)) {
+                                if(not canChange(caller, campaign, [Types.STATE_PUBLISHED])) {
                                     return #err("Forbidden");
                                 };
-                                
+
                                 switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
@@ -262,20 +263,133 @@ module {
                                 return #err(msg);
                             };
                             case (#ok(campaign)) {
-                                if(not canChange(caller, campaign)) {
+                                if(not canChange(caller, campaign, [Types.STATE_CREATED])) {
                                     return #err("Forbidden");
                                 };
 
-                                if(campaign.state != Types.STATE_CREATED) {
-                                    return #err("Campaigns can not be deleted after published")
-                                };
-                                
                                 switch(await placeService.checkAccess(caller, campaign.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case _ {
                                         repo.delete(campaign, caller._id);
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func getBalance(
+            _id: Nat32,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Nat64, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findById(_id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign, [Types.STATE_FINISHED])) {
+                                    return #err("Forbidden");
+                                };
+
+                                if(campaign.kind != Types.KIND_DONATIONS) {
+                                    return #err("Wrong campaign kind");
+                                };
+
+                                #ok(await LedgerUtils.getCampaignBalance(campaign, this));
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func withdraw(
+            _id: Nat32,
+            to: Text,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findById(_id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(campaign)) {
+                                if(not canChange(caller, campaign, [Types.STATE_FINISHED])) {
+                                    return #err("Forbidden");
+                                };
+
+                                if(campaign.kind != Types.KIND_DONATIONS) {
+                                    return #err("Wrong campaign kind");
+                                };
+
+                                let balance = await LedgerUtils.getCampaignBalance(campaign, this);
+                                if(balance <= Types.MIN_WITHDRAW_VALUE) {
+                                    return #err("Nothing to withdraw");
+                                };
+
+                                let cut = (balance * (100 - Types.DONATIONS_TAX)) / 100;
+
+                                let appAccountId = Account.accountIdentifier(
+                                    Principal.fromActor(this), 
+                                    Account.defaultSubaccount()
+                                );
+
+                                let toAccountId = Account.accountIdentifier(
+                                    Principal.fromText(to), 
+                                    Account.defaultSubaccount()
+                                );
+
+                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case _ {
+                                        switch(await LedgerUtils.withdrawFromCampaignSubaccount(
+                                            campaign, 
+                                            balance - cut, 
+                                            toAccountId, 
+                                            caller
+                                        )) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                if(cut > 0) {
+                                                    await LedgerUtils.withdrawFromCampaignSubaccount(
+                                                        campaign, 
+                                                        cut, 
+                                                        appAccountId, 
+                                                        caller
+                                                    );
+                                                }
+                                                else {
+                                                    #ok();
+                                                };
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -321,7 +435,8 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            campaign: Types.Campaign
+            campaign: Types.Campaign,
+            states: [Types.CampaignState]
         ): Bool {
             // not the same author?
             if(caller._id != campaign.createdBy) {
@@ -336,13 +451,14 @@ module {
                 return false;
             };
 
-            // not published or created?
-            if(campaign.state != CampaignTypes.STATE_CREATED and 
-                campaign.state != CampaignTypes.STATE_PUBLISHED) {
-                return false;
+            // any valid state?
+            for(state in states.vals()) {
+                if(campaign.state == state) {
+                    return true;
+                };                    
             };
 
-            return true;
+            return false;
         };
     };
 };

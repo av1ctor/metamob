@@ -17,7 +17,7 @@ const Header = (props: Props) => {
     const navigate = useNavigate();
 
     const redirectToLogon = useCallback(() => {
-        navigate('/user/login');
+        navigate(`/user/login?return=${window.location.hash.replace('#', '')}`);
     }, []);
 
     const handleLogout = useCallback(async () => {

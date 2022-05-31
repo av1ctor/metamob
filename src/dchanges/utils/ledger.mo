@@ -26,6 +26,18 @@ module {
         );
     };
 
+    public func getCampaignBalance(
+        campaign: CampaignTypes.Campaign,
+        this: actor {}
+    ): async Nat64 {
+        let accountId = Account.accountIdentifier(
+            Principal.fromActor(this), 
+            Account.textToSubaccount(campaign.pubId)
+        );
+        let balance = await Ledger.account_balance({ account = accountId });
+        return balance.e8s;
+    };
+
     public func transferFromUserSubaccountToCampaignSubaccount(
         campaign: CampaignTypes.Campaign,
         caller: UserTypes.Profile,
@@ -39,15 +51,18 @@ module {
         let receipt = await Ledger.transfer({
             memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
             from_subaccount = ?Account.principalToSubaccount(invoker);
-            to = Account.accountIdentifier(Principal.fromActor(this), Account.textToSubaccount(campaign.pubId));
+            to = Account.accountIdentifier(
+                Principal.fromActor(this), 
+                Account.textToSubaccount(campaign.pubId)
+            );
             amount = { e8s = amount - Nat64.fromNat(icp_fee) };
             fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
         });
 
         switch (receipt) {
-            case (#Err _) {
-                #err("Transfer failed");
+            case (#Err(e)) {
+                #err("Transfer failed: " # debug_show(e));
             };
             case _ {
                 #ok(amount);
@@ -66,15 +81,44 @@ module {
         let receipt = await Ledger.transfer({
             memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
             from_subaccount = ?Account.textToSubaccount(campaign.pubId);
-            to = Account.accountIdentifier(invoker, Account.defaultSubaccount());
+            to = Account.accountIdentifier(
+                invoker, 
+                Account.defaultSubaccount()
+            );
             amount = { e8s = Nat64.fromNat(amount) - Nat64.fromNat(icp_fee) };
             fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
         });
 
         switch (receipt) {
-            case (#Err _) {
-                #err("Transfer failed");
+            case (#Err(e)) {
+                #err("Transfer failed: " # debug_show(e));
+            };
+            case _ {
+                #ok();
+            };
+        };
+    };
+
+    public func withdrawFromCampaignSubaccount(
+        campaign: CampaignTypes.Campaign,
+        amount: Nat64,
+        to: AccountTypes.AccountIdentifier,
+        caller: UserTypes.Profile
+    ): async Result.Result<(), Text> {
+        
+        let receipt = await Ledger.transfer({
+            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+            from_subaccount = ?Account.textToSubaccount(campaign.pubId);
+            to = to;
+            amount = { e8s = amount - Nat64.fromNat(icp_fee) };
+            fee = { e8s = Nat64.fromNat(icp_fee) };
+            created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+        });
+
+        switch (receipt) {
+            case (#Err(e)) {
+                #err("Withdraw failed: " # debug_show(e));
             };
             case _ {
                 #ok();

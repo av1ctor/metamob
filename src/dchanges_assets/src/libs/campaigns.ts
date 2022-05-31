@@ -200,3 +200,38 @@ export const findByPlaceId = async (
 
     return findAll(filters?.concat({key: 'placeId', op: 'eq', value: placeId}), orderBy, limit);
 }
+
+export const getBalance = async (
+    campaignId: number, 
+    main?: DChanges
+): Promise<bigint> => {
+    if(!main) {
+        return BigInt(0);
+    }
+
+    const res = await main.campaignGetBalance(campaignId);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
+export const withdraw = async (
+    campaignId: number, 
+    to: string,
+    main?: DChanges
+): Promise<void> => {
+    if(!main) {
+        return;
+    }
+
+    const res = await main.campaignWithdraw(campaignId, to);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return; 
+}

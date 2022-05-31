@@ -260,6 +260,10 @@
     cursor: pointer;
 }
 
+.campaign-actions .action.disabled {
+    color: #ccc;
+}
+
 .email-body span:hover {
     cursor: pointer;
     background-color: #eee;

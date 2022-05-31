@@ -249,9 +249,22 @@ shared({caller = owner}) actor class DChanges() = this {
     };
 
     public shared(msg) func campaignDelete(
-        id: Text
+        pubId: Text
     ): async Result.Result<(), Text> {
-        await campaignService.delete(id, msg.caller);
+        await campaignService.delete(pubId, msg.caller);
+    };
+
+    public shared(msg) func campaignGetBalance(
+        _id: Nat32
+    ): async Result.Result<Nat64, Text> {
+        await campaignService.getBalance(_id, msg.caller, this);
+    };
+
+    public shared(msg) func campaignWithdraw(
+        _id: Nat32,
+        to: Text
+    ): async Result.Result<(), Text> {
+        await campaignService.withdraw(_id, to, msg.caller, this);
     };
 
     //

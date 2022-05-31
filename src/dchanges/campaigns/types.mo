@@ -1,4 +1,7 @@
 module {
+    public let DONATIONS_TAX: Nat64 = 10; // 10%
+    public let MIN_WITHDRAW_VALUE: Nat64 = 20_000; // ledger's fee * 2
+    
     public type CampaignKind = Nat32;
     public let KIND_SIGNATURES: Nat32 = 0;
     public let KIND_VOTES: Nat32 = 1;

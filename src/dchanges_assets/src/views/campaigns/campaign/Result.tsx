@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useState } from "react";
 import { Campaign } from "../../../../../declarations/dchanges/dchanges.did";
 import Box from "../../../components/Box";
-import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import { CampaignKind, CampaignResult } from "../../../libs/campaigns";
 import { AuthContext } from "../../../stores/auth";
 import Email from "./results/Email";
+import WithdrawICP from "./results/WithdrawICP";
 
 interface Props {
     campaign: Campaign;
@@ -41,6 +41,16 @@ const Result = (props: Props) => {
         toggleShow();
     }, []);
 
+    const toggleWithdrawICP = useCallback(() => {
+        setAction(Action.WITHDRAW_ICP);
+        toggleShow();
+    }, []);
+
+    const toggleCallCanister = useCallback(() => {
+        setAction(Action.CALL_METHOD);
+        toggleShow();
+    }, []);
+
     const {campaign} = props;
 
     const isOwner = campaign.createdBy === authState.user?._id;
@@ -73,13 +83,14 @@ const Result = (props: Props) => {
                                     <div className="is-size-7">Generate e-mail</div>
                                 </div>
                             </div>
-                            <div className="action column is-3">
-                                <div><i className="la la-money-bill is-size-1"/></div>
-                                <div className="is-size-7">Withdraw ICP</div>
-                            </div>
-                            <div className="action column is-3">
-                                <div><i className="la la-phone-volume is-size-1"/></div>
-                                <div className="is-size-7">Call canister</div>
+                            <div className="column is-3">
+                                <div 
+                                        className={`action ${campaign.kind !== CampaignKind.DONATIONS? 'disabled': ''}`}
+                                        onClick={campaign.kind === CampaignKind.DONATIONS? toggleWithdrawICP: undefined}
+                                    >
+                                        <div><i className="la la-money-bill is-size-1"/></div>
+                                        <div className="is-size-7">Withdraw ICP</div>
+                                </div>
                             </div>
                         </div>
                     </Box>
@@ -91,6 +102,15 @@ const Result = (props: Props) => {
                     >
                         {action === Action.GEN_EMAIL &&
                             <Email
+                                campaign={campaign}
+                                onClose={toggleShow}
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
+                        }
+                        {action === Action.WITHDRAW_ICP &&
+                            <WithdrawICP
                                 campaign={campaign}
                                 onClose={toggleShow}
                                 onSuccess={props.onSuccess}

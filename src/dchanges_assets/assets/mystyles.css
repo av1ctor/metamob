@@ -11231,6 +11231,9 @@ span[data-tooltip] {
   color: #428a42;
   cursor: pointer; }
 
+.campaign-actions .action.disabled {
+  color: #ccc; }
+
 .email-body span:hover {
   cursor: pointer;
   background-color: #eee; }
