@@ -6,9 +6,10 @@ import Avatar from "../users/Avatar";
 import Category from "../categories/category/Category";
 import Tag from "../../components/Tag";
 import Card from "../../components/Card";
-import { CampaignResult, CampaignState } from "../../libs/campaigns";
+import { CampaignKind, CampaignResult, CampaignState } from "../../libs/campaigns";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
+import { icpToDecimal } from "../../libs/icp";
 
 interface Props {
     campaign: Campaign
@@ -17,11 +18,9 @@ interface Props {
 const Item = (props: Props) => {
     const campaign = props.campaign;
 
-    const signatures = 'signatures' in campaign.info? 
-        campaign.info.signatures:
-        {
-            total: 0
-        };
+    const total = campaign.kind === CampaignKind.DONATIONS?
+        icpToDecimal(campaign.total):
+        campaign.total.toString();
 
     return (
         <Card 
@@ -54,7 +53,7 @@ const Item = (props: Props) => {
                         }
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-success" title={`Total: ${campaign.total.toString()}`}>{campaign.total.toString()}</span>
+                    <span className="tag is-rounded is-success" title={`Total: ${total}`}>{total}</span>
                     {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updatesCnt}`}>{campaign.updatesCnt}</span></>}
                 </div>
                 <div className="level-right is-flex">
