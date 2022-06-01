@@ -42,38 +42,27 @@ module {
         };
     };
     
-    public func toDir(
-        sortBy: ?(Text, Text)
-    ): Int {
-        switch(sortBy) {
-            case null {
-                1;
-            };
-            case (?sortBy) {
-                switch(sortBy.1) {
-                    case "desc" -1;
-                    case _ 1;
-                };
-            };
-        };
-    };
-
     public func toSortBy<T>(
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         comparer: Comparer<T>
     ): ?[Table.SortBy<T>] {
-        let dir = toDir(sortBy);
-        
         switch(sortBy) {
             case null {
                 null;
             };
             case (?sortBy) {
-                ?[{
-                    key = sortBy.0;
-                    dir = if(dir == 1) #asc else #desc;
-                    cmp = comparer(sortBy.0, dir);
-                }]
+                ?Array.map(sortBy, func(s: (Text, Text)): Table.SortBy<T> {
+                    let dir = switch(s.1) {
+                        case "desc" -1;
+                        case _ 1;
+                    };
+
+                    {
+                        key = s.0;
+                        dir = if(dir == 1) #asc else #desc;
+                        cmp = comparer(s.0, dir);
+                    }
+                });
             };
         };
     };

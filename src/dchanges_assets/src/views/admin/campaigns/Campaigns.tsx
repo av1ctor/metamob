@@ -10,10 +10,10 @@ import EditUserForm from "../users/Edit";
 import View from "./View";
 import SelectField, {Option} from "../../../components/SelectField";
 
-const orderBy: Order = {
+const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit: Limit = {
     offset: 0,

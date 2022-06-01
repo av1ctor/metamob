@@ -48,7 +48,7 @@ module {
         
         public func findByPlaceId(
             placeId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.PlaceEmail], Text> {

@@ -9,10 +9,10 @@ import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Badge from "../../../components/Badge";
 
-const orderBy: Order = {
+const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit: Limit = {
     offset: 0,

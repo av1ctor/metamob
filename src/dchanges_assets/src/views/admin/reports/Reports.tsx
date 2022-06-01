@@ -12,10 +12,10 @@ import EditUserForm from "../users/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 
-const orderBy: Order = {
+const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit: Limit = {
     offset: 0,

@@ -141,7 +141,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
             repo.find(criterias, sortBy, limit);
@@ -149,7 +149,7 @@ module {
 
         public func findByCampaign(
             campaignId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
             repo.findByCampaign(campaignId, sortBy, limit);
@@ -163,7 +163,7 @@ module {
 
         public func findByUser(
             userId: /* Text */ Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Signature], Text> {

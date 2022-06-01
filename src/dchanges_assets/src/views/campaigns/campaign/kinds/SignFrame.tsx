@@ -33,9 +33,7 @@ export const SignFrame = (props: Props) => {
     
     const {campaign} = props;
     
-    const signaturesCnt = campaign?.info?
-        ('signatures' in campaign?.info && campaign?.info.signatures.total) || 0:
-        0;
+    const signaturesCnt = Number(campaign.total);
     
     const userSignature = useFindSignatureByCampaignAndUser(campaign?._id, auth.user?._id);
 

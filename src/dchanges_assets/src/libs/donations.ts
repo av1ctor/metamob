@@ -10,8 +10,8 @@ export enum DonationState {
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: 
-    Order, limit?: Limit
+    orderBy?: Order[], 
+    limit?: Limit
 ): Promise<DonationResponse[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -27,7 +27,7 @@ export const findAll = async (
 
     const res = await dchanges.donationFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {
@@ -39,7 +39,7 @@ export const findAll = async (
 
 export const findByCampaign = async (
     topicId?: number, 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit
 ): Promise<DonationResponse[]> => {
     if(!topicId) {
@@ -48,7 +48,7 @@ export const findByCampaign = async (
     
     const res = await dchanges.donationFindByCampaign(
         topicId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {
@@ -82,7 +82,7 @@ export const findByCampaignAndUser = async (
 
 export const findByUser = async (
     userId?: number, 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit,
     main?: DChanges
 ): Promise<DonationResponse[]> => {
@@ -92,7 +92,7 @@ export const findByUser = async (
 
     const res = await main.donationFindByUser(
         userId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {

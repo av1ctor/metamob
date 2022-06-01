@@ -32,23 +32,23 @@ export const useFindPlaceByPubId = (
 
 export const useFindUserPlaces = (
     userId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<Place[], Error> => {
    return useQuery<Place[], Error>(
-        ['places', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['places', userId, ...orderBy, limit.offset, limit.size], 
         () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 };
 
 export const useFindPlaces = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Place [], Error> => {
     return useQuery<Place[], Error>(
-        ['places', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['places', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 };

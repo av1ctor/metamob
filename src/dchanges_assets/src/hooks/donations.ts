@@ -24,11 +24,11 @@ export const useFindDonationByPubId = (
 
 export const useFindDonations = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<DonationResponse[], Error> => {
     return useQuery<DonationResponse[], Error>(
-        ['donations', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['donations', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
@@ -36,11 +36,11 @@ export const useFindDonations = (
 
 export const useFindDonationsByCampaign = (
     topicId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<DonationResponse[], Error> => {
     return useQuery<DonationResponse[], Error>(
-        ['donations', topicId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['donations', topicId, ...orderBy, limit.offset, limit.size], 
         () => findByCampaign(topicId, orderBy, limit)
     );
 
@@ -59,12 +59,12 @@ export const useFindDonationByCampaignAndUser = (
 
 export const useFindUserDonations = (
     userId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<DonationResponse[], Error> => {
    return useQuery<DonationResponse[], Error>(
-        ['donations', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['donations', userId, ...orderBy, limit.offset, limit.size], 
         () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 

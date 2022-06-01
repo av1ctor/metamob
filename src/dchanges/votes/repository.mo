@@ -241,7 +241,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Vote], Text> {
             return votes.find(
@@ -253,7 +253,7 @@ module {
 
         public func findByCampaign(
             campaignId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Vote], Text> {
 
@@ -289,7 +289,7 @@ module {
 
         public func findByUserEx(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             ignoreAnonymous: Bool
         ): Result.Result<[Types.Vote], Text> {
@@ -329,7 +329,7 @@ module {
 
         public func findByUser(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Vote], Text> {
             findByUserEx(userId, sortBy, limit, true);

@@ -86,7 +86,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func userFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[UserTypes.Profile], Text> {
         userService.find(criterias, sortBy, limit, msg.caller);
@@ -162,7 +162,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func categoryFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CategoryTypes.Category], Text> {
         categoryService.find(criterias, sortBy, limit, msg.caller);
@@ -170,7 +170,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func categoryFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CategoryTypes.Category], Text> {
         categoryService.findByUser(userId, sortBy, limit, msg.caller);
@@ -225,7 +225,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func campaignFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
         campaignService.find(criterias, sortBy, limit);
@@ -233,7 +233,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func campaignFindByCategory(
         categoryId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
         campaignService.findByCategory(categoryId, sortBy, limit);
@@ -241,7 +241,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func campaignFindByPlace(
         placeId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
         campaignService.findByPlace(placeId, sortBy, limit);
@@ -249,7 +249,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func campaignFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[CampaignTypes.Campaign], Text> {
         campaignService.findByUser(userId, sortBy, limit, msg.caller);
@@ -304,7 +304,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func signatureFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
         _transformSignatureResponses(signatureService.find(criterias, sortBy, limit));
@@ -312,7 +312,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func signatureFindByCampaign(
         campaignId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
         _transformSignatureResponses(signatureService.findByCampaign(campaignId, sortBy, limit));
@@ -326,7 +326,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func signatureFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
         _transformSignatureResponses(signatureService.findByUser(userId, sortBy, limit, msg.caller));
@@ -446,7 +446,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func voteFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
         _transformVoteResponses(voteService.find(criterias, sortBy, limit));
@@ -454,7 +454,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func voteFindByCampaign(
         campaignId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
         _transformVoteResponses(voteService.findByCampaign(campaignId, sortBy, limit));
@@ -468,7 +468,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func voteFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
         _transformVoteResponses(voteService.findByUser(userId, sortBy, limit, msg.caller));
@@ -598,7 +598,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func donationFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
         _transformDonationResponses(donationService.find(criterias, sortBy, limit));
@@ -606,7 +606,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func donationFindByCampaign(
         campaignId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
         _transformDonationResponses(donationService.findByCampaign(campaignId, sortBy, limit));
@@ -620,7 +620,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func donationFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
         _transformDonationResponses(donationService.findByUser(userId, sortBy, limit, msg.caller));
@@ -751,7 +751,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func updateFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[UpdateTypes.Update], Text> {
         updateService.find(criterias, sortBy, limit);
@@ -759,7 +759,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public query func updateFindByCampaign(
         campaignId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[UpdateTypes.Update], Text> {
         updateService.findByCampaign(campaignId, sortBy, limit);
@@ -773,7 +773,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func updateFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[UpdateTypes.Update], Text> {
         updateService.findByUser(userId, sortBy, limit, msg.caller);
@@ -823,7 +823,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func reportFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[ReportTypes.Report], Text> {
         reportService.find(criterias, sortBy, limit, msg.caller);
@@ -865,7 +865,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func placeFindByUser(
         userId: /* Text */ Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[PlaceTypes.Place], Text> {
         placeService.findByUser(userId, sortBy, limit, msg.caller);
@@ -873,7 +873,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func placeFind(
         criterias: ?[(Text, Text, Variant.Variant)],
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[PlaceTypes.Place], Text> {
         placeService.find(criterias, sortBy, limit);
@@ -890,7 +890,7 @@ shared({caller = owner}) actor class DChanges() = this {
 
     public shared query(msg) func placeEmailFindByPlace(
         placeId: Nat32,
-        sortBy: ?(Text, Text),
+        sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[PlaceEmailTypes.PlaceEmail], Text> {
         placeEmailService.findByPlaceId(placeId, sortBy, limit, msg.caller);

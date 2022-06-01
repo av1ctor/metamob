@@ -54,7 +54,7 @@ const Item = (props: Props) => {
                         }
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-success" title={`Signatures: ${signatures.total}`}>{signatures.total}</span>
+                    <span className="tag is-rounded is-success" title={`Total: ${campaign.total.toString()}`}>{campaign.total.toString()}</span>
                     {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updatesCnt}`}>{campaign.updatesCnt}</span></>}
                 </div>
                 <div className="level-right is-flex">

@@ -7,10 +7,10 @@ import { useParams } from "react-router-dom";
 import { useFindPlaceByPubId } from "../../hooks/places";
 import { PlaceBar } from "./place/PlaceBar";
 
-const orderBy = {
+const orderBy = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit = {
     offset: 0,

@@ -7,10 +7,10 @@ import { useDeletePlaceEmail, useFindPlacesEmails } from "../../../hooks/places-
 import { ActorContext } from "../../../stores/actor";
 import Create from "./Create";
 
-const orderBy = {
+const orderBy = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit = {
     offset: 0,

@@ -4,10 +4,20 @@ import {useFindCampaigns} from "../../hooks/campaigns";
 import Item from "./Item";
 import { Bar } from "./Bar";
 
-const orderBy = {
-    key: '_id',
-    dir: 'desc'
-};
+const orderBy = [
+    {
+        key: 'boosting',
+        dir: 'desc'
+    },
+    {
+        key: 'total',
+        dir: 'desc'
+    },
+    {
+        key: '_id',
+        dir: 'desc'
+    },
+];
 
 const limit = {
     offset: 0,

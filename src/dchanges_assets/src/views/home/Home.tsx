@@ -61,10 +61,10 @@ const showSuccess = (text: string) => {
     });
 }
 
-const orderBy: Order = {
+const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit: Limit = {
     offset: 0,

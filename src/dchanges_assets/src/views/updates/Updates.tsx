@@ -21,16 +21,19 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 };
 
+const orderBy: Order[] = [{
+    key: '_id',
+    dir: 'desc'
+}];
+
+const limit: Limit = {
+    offset: 0,
+    size: 10
+};
+
 const Updates = (props: Props) => {
     const [auth] = useContext(AuthContext);
-    const [orderBy, ] = useState<Order>({
-        key: '_id',
-        dir: 'desc'
-    });
-    const [limit, ] = useState<Limit>({
-        offset: 0,
-        size: 10
-    });
+    
     const [modals, setModals] = useState({
         create: false,
         edit: false,
@@ -40,8 +43,6 @@ const Updates = (props: Props) => {
     const [update, setUpdate] = useState<Update | undefined>(undefined);
 
     const campaign = props.campaign;
-
-    const queryKey = ['updates', campaign._id, orderBy.key, orderBy.dir];
 
     const updates = useFindUpdatesByCampaign(campaign._id, orderBy, limit);
 

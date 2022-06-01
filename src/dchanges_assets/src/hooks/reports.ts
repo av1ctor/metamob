@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient, QueryObserverLoadingErrorResult} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {ReportRequest, Report, DChanges, ReportCloseRequest} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById } from '../libs/reports';
@@ -15,12 +15,12 @@ export const useFindReportById = (
 
 export const useFindReports = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit, 
     main?: DChanges
 ): UseQueryResult<Report[], Error> => {
     return useQuery<Report[], Error>(
-        ['reports', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['reports', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit, main)
     );
 };

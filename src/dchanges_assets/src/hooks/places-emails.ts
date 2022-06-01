@@ -5,12 +5,12 @@ import { findAll } from '../libs/places-emails';
 
 export const useFindPlacesEmails = (
     placeId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<PlaceEmail[], Error> => {
     return useQuery<PlaceEmail[], Error>(
-        ['places-emails', placeId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['places-emails', placeId, ...orderBy, limit.offset, limit.size], 
         () => findAll(placeId, orderBy, limit, main)
     );
 };

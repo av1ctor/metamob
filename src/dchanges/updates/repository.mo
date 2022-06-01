@@ -158,7 +158,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Update], Text> {
             return updates.find(
@@ -170,7 +170,7 @@ module {
 
         public func findByCampaign(
             campaignId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Update], Text> {
 
@@ -206,7 +206,7 @@ module {
 
         public func findByUser(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Update], Text> {
 

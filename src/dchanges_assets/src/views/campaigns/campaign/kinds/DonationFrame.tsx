@@ -18,7 +18,7 @@ interface Props {
 export const DonationFrame = (props: Props) => {
     const {campaign} = props;
     
-    const donated = ('donations' in campaign.info && campaign.info.donations.total) || BigInt(0);
+    const donated = campaign.total;
     const goal = getGoalValue(campaign);
 
     return (

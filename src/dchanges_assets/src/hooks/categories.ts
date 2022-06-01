@@ -15,11 +15,11 @@ export const useFindCategoryById = (
 
 export const useFindCategories = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Category [], Error> => {
     return useQuery<Category[], Error>(
-        ['categories', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size],
+        ['categories', ...filters, ...orderBy, limit.offset, limit.size],
         () => findAll(filters, orderBy, limit)
     );
 };

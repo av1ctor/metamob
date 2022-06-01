@@ -15,12 +15,12 @@ export const useFindUserById = (
 
 export const useFindUsers = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit, 
     main?: DChanges
 ): UseQueryResult<Profile[], Error> => {
     return useQuery<Profile[], Error>(
-        ['users', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size],
+        ['users', ...filters, ...orderBy, limit.offset, limit.size],
         () => findAll(filters, orderBy, limit, main)
     );
 };

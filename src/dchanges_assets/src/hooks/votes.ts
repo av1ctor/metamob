@@ -24,11 +24,11 @@ export const useFindVoteByPubId = (
 
 export const useFindVotes = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<VoteResponse[], Error> => {
     return useQuery<VoteResponse[], Error>(
-        ['votes', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['votes', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
@@ -36,11 +36,11 @@ export const useFindVotes = (
 
 export const useFindVotesByCampaign = (
     topicId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<VoteResponse[], Error> => {
     return useQuery<VoteResponse[], Error>(
-        ['votes', topicId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['votes', topicId, ...orderBy, limit.offset, limit.size], 
         () => findByCampaign(topicId, orderBy, limit)
     );
 
@@ -59,12 +59,12 @@ export const useFindVoteByCampaignAndUser = (
 
 export const useFindUserVotes = (
     userId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<VoteResponse[], Error> => {
    return useQuery<VoteResponse[], Error>(
-        ['votes', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['votes', userId, ...orderBy, limit.offset, limit.size], 
         () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 

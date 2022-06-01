@@ -44,13 +44,13 @@ const Email = (props: Props): React.ReactElement => {
                 if(!('donations' in campaign.info)) {
                     return null;
                 }
-                return `${icpToDecimal(campaign.info.donations.total)} ICP donations`;
+                return `${icpToDecimal(campaign.total)} ICP donations`;
 
             case CampaignKind.SIGNATURES:
                 if(!('signatures' in campaign.info)) {
                     return null;
                 }
-                return `${campaign.info.signatures.total} signatures`;
+                return `${campaign.total} signatures`;
 
             case CampaignKind.VOTES:
                 if(!('votes' in campaign.info)) {

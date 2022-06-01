@@ -16,10 +16,10 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 };
 
-const orderBy = {
+const orderBy = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit = {
     offset: 0,

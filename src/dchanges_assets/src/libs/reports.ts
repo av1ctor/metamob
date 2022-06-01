@@ -82,7 +82,7 @@ export const entityTypeToColor = (
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit,
     main?: DChanges
 ): Promise<Report[]> => {
@@ -104,7 +104,7 @@ export const findAll = async (
 
     const res = await main.reportFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {

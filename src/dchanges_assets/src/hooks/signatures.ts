@@ -24,11 +24,11 @@ export const useFindSignatureByPubId = (
 
 export const useFindSignatures = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
-        ['signatures', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['signatures', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
@@ -36,11 +36,11 @@ export const useFindSignatures = (
 
 export const useFindSignaturesByCampaign = (
     topicId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
     return useQuery<SignatureResponse[], Error>(
-        ['signatures', topicId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['signatures', topicId, ...orderBy, limit.offset, limit.size], 
         () => findByCampaign(topicId, orderBy, limit)
     );
 
@@ -59,12 +59,12 @@ export const useFindSignatureByCampaignAndUser = (
 
 export const useFindUserSignatures = (
     userId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<SignatureResponse[], Error> => {
    return useQuery<SignatureResponse[], Error>(
-        ['signatures', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['signatures', userId, ...orderBy, limit.offset, limit.size], 
         () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 

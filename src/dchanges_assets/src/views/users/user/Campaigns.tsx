@@ -7,10 +7,10 @@ import Item from "../../campaigns/Item";
 interface Props {
 };
 
-const orderBy = {
+const orderBy = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit = {
     offset: 0,

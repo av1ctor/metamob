@@ -26,11 +26,11 @@ export const useFindUpdateByPubId = (
 
 export const useFindUpdates = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Update[], Error> => {
     return useQuery<Update[], Error>(
-        ['updates', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['updates', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
@@ -38,11 +38,11 @@ export const useFindUpdates = (
 
 export const useFindUpdatesByCampaign = (
     topicId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Update[], Error> => {
     return useQuery<Update[], Error>(
-        ['updates', topicId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['updates', topicId, ...orderBy, limit.offset, limit.size], 
         () => findByCampaign(topicId, orderBy, limit)
     );
 

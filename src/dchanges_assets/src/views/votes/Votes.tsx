@@ -16,15 +16,17 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 };
 
+const orderBy: Order[] = [{
+    key: '_id',
+    dir: 'desc'
+}];
+
+const limit: Limit = {
+    offset: 0,
+    size: 10
+};
+
 const Votes = (props: Props) => {
-    const [orderBy, ] = useState<Order>({
-        key: '_id',
-        dir: 'desc'
-    });
-    const [limit, ] = useState<Limit>({
-        offset: 0,
-        size: 10
-    });
     const [modals, setModals] = useState({
         edit: false,
         delete: false,

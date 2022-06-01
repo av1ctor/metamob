@@ -11,10 +11,10 @@ import Button from "../../../components/Button";
 import CreateForm from "../../places/place/Create";
 import EditForm from "./Edit";
 
-const orderBy: Order = {
+const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
-};
+}];
 
 const limit: Limit = {
     offset: 0,

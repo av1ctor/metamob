@@ -225,7 +225,7 @@ module {
         
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
             return signatures.find(
@@ -237,7 +237,7 @@ module {
 
         public func findByCampaign(
             campaignId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
 
@@ -273,7 +273,7 @@ module {
 
         public func findByUserEx(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             ignoreAnonymous: Bool
         ): Result.Result<[Types.Signature], Text> {
@@ -313,7 +313,7 @@ module {
 
         public func findByUser(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Signature], Text> {
             findByUserEx(userId, sortBy, limit, true);

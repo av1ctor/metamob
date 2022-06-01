@@ -233,7 +233,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
             repo.find(criterias, sortBy, limit);
@@ -241,7 +241,7 @@ module {
 
         public func findByCategory(
             categoryId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
             repo.findByCategory(categoryId, sortBy, limit);
@@ -249,7 +249,7 @@ module {
 
         public func findByPlace(
             placeId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
             repo.findByPlace(placeId, sortBy, limit);
@@ -257,7 +257,7 @@ module {
 
         public func findByTag(
             tagId: Text,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
             repo.findByTag(tagId, sortBy, limit);
@@ -265,7 +265,7 @@ module {
 
         public func findByUser(
             userId: /* Text */ Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Campaign], Text> {

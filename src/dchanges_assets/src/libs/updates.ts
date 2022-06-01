@@ -5,7 +5,7 @@ import {Filter, Limit, Order} from "./common";
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit
 ): Promise<Update[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
@@ -22,7 +22,7 @@ export const findAll = async (
 
     const res = await dchanges.updateFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {
@@ -34,7 +34,7 @@ export const findAll = async (
 
 export const findByCampaign = async (
     campaignId?: number, 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit
 ): Promise<Update[]> => {
     if(!campaignId) {
@@ -43,7 +43,7 @@ export const findByCampaign = async (
 
     const res = await dchanges.updateFindByCampaign(
         campaignId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {

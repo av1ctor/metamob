@@ -5,7 +5,8 @@ import {Filter, Limit, Order} from "./common";
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: Order, limit?: Limit
+    orderBy?: Order[], 
+    limit?: Limit
 ): Promise<Category[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -21,7 +22,7 @@ export const findAll = async (
 
     const res = await dchanges.categoryFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
     
     if('err' in res) {

@@ -50,7 +50,7 @@ export const findByIdEx = async (
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit,
     main?: DChanges
 ): Promise<Profile[]> => {
@@ -72,7 +72,7 @@ export const findAll = async (
 
     const res = await main.userFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
     
     if('err' in res) {

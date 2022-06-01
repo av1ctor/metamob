@@ -23,23 +23,23 @@ export const useFindCampaignByPubId = (
 
 export const useFindCampaignsByPlaceId = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     placeId?: number
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
-        ['campaigns', placeId, ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['campaigns', placeId, ...filters, ...orderBy, limit.offset, limit.size], 
         () => findByPlaceId(placeId, filters, orderBy, limit)
     );
 };
 
 export const useFindCampaigns = (
     filters: Filter[], 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
-        ['campaigns', ...filters, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['campaigns', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
     );
 
@@ -47,12 +47,12 @@ export const useFindCampaigns = (
 
 export const useFindCampaignsByUserId = (
     userId: number, 
-    orderBy: Order, 
+    orderBy: Order[], 
     limit: Limit,
     main?: DChanges
 ): UseQueryResult<Campaign[], Error> => {
     return useQuery<Campaign[], Error>(
-        ['campaigns', userId, orderBy.key, orderBy.dir, limit.offset, limit.size], 
+        ['campaigns', userId, ...orderBy, limit.offset, limit.size], 
         () => userId === 0? []: findByUser(userId, orderBy, limit, main)
     );
 };

@@ -162,7 +162,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
         ): Result.Result<[Types.Profile], Text> {

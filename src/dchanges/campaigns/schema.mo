@@ -61,6 +61,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "total";
+                options = [#sortable];
+            },
+            {
                 name = "updatesCnt";
                 options = [];
             },

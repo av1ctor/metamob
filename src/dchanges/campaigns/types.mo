@@ -23,7 +23,6 @@ module {
     public let RESULT_LOST: Nat32 = 2;
 
     public type SignatureInfo = {
-        total: Nat32;
         goal: Nat32;
     };
 
@@ -46,7 +45,6 @@ module {
     };
 
     public type DonationInfo = {
-        total: Nat;
         goal: Nat;
     };
 
@@ -73,6 +71,7 @@ module {
         duration: Nat32;
         tags: [Text];
         info: CampaignInfo;
+        total: Nat;
         boosting: Nat;
         updatesCnt: Nat32;
         publishedAt: ?Int;

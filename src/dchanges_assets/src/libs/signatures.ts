@@ -5,8 +5,8 @@ import {Filter, Limit, Order} from "./common";
 
 export const findAll = async (
     filters?: Filter[], 
-    orderBy?: 
-    Order, limit?: Limit
+    orderBy?: Order[], 
+    limit?: Limit
 ): Promise<SignatureResponse[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -22,7 +22,7 @@ export const findAll = async (
 
     const res = await dchanges.signatureFind(
         criterias, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {
@@ -34,7 +34,7 @@ export const findAll = async (
 
 export const findByCampaign = async (
     topicId?: number, 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit
 ): Promise<SignatureResponse[]> => {
     if(!topicId) {
@@ -43,7 +43,7 @@ export const findByCampaign = async (
     
     const res = await dchanges.signatureFindByCampaign(
         topicId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {
@@ -77,7 +77,7 @@ export const findByCampaignAndUser = async (
 
 export const findByUser = async (
     userId?: number, 
-    orderBy?: Order, 
+    orderBy?: Order[], 
     limit?: Limit,
     main?: DChanges
 ): Promise<SignatureResponse[]> => {
@@ -87,7 +87,7 @@ export const findByUser = async (
 
     const res = await main.signatureFindByUser(
         userId, 
-        orderBy? [[orderBy.key, orderBy.dir]]: [], 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
     if('err' in res) {

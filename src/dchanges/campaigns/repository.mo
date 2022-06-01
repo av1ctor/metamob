@@ -7,7 +7,7 @@ import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
 import Iter "mo:base/Iter";
-import Nat "mo:base/Float";
+import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
@@ -229,6 +229,10 @@ module {
                     Utils.order2Int(Nat32.compare(a.state, b.state)) * dir;
                 case "result" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Nat32.compare(a.result, b.result)) * dir;
+                case "total" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                    Utils.order2Int(Nat.compare(a.total, b.total)) * dir;
+                case "boosting" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                    Utils.order2Int(Nat.compare(a.boosting, b.boosting)) * dir;
                 case "publishedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
                     Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
                 case "createdAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
@@ -245,7 +249,7 @@ module {
 
         public func find(
             criterias: ?[(Text, Text, Variant.Variant)],
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
             return campaigns.find(
@@ -257,7 +261,7 @@ module {
 
         public func findByCategory(
             categoryId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
@@ -283,7 +287,7 @@ module {
 
         public func findByPlace(
             placeId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
@@ -309,7 +313,7 @@ module {
 
         public func findByTag(
             tagId: Text,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
@@ -335,7 +339,7 @@ module {
 
         public func findByUser(
             userId: Nat32,
-            sortBy: ?(Text, Text),
+            sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat)
         ): Result.Result<[Types.Campaign], Text> {
 
@@ -466,7 +470,6 @@ module {
         ): Types.CampaignInfo {
             if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
-                    total = 0;
                     goal = Nat32.fromNat(goal);
                     firstAt = null;
                     lastAt = null;
@@ -504,7 +507,6 @@ module {
             }
             else {
                 #donations({
-                    total = 0;
                     goal = goal;
                     firstAt = null;
                     lastAt = null;
@@ -520,7 +522,6 @@ module {
             switch(info) {
                 case (#signatures(i)) {
                     #signatures({
-                        total = i.total;
                         goal = Nat32.fromNat(goal);
                     });
                 };
@@ -547,7 +548,6 @@ module {
                 };
                 case (#donations(i)) {
                     #donations({
-                        total = i.total;
                         goal = goal;
                     });
                 };
@@ -577,6 +577,7 @@ module {
                 duration = req.duration;
                 tags = req.tags;
                 info = _createInfoEntity(req.kind, req.goal);
+                total = 0;
                 boosting = 0;
                 updatesCnt = 0;
                 publishedAt = null;
@@ -613,6 +614,7 @@ module {
                 duration = e.duration;
                 tags = req.tags;
                 info = _updateInfoEntity(e.info, req.goal);
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -645,6 +647,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -679,7 +682,6 @@ module {
                 info = switch(e.info) {
                     case (#signatures(info)) {
                         #signatures({
-                            total = info.total + 1;
                             goal = info.goal;
                         });
                     };
@@ -687,6 +689,7 @@ module {
                         e.info;
                     };
                 };
+                total = e.total + 1;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -721,7 +724,6 @@ module {
                 info = switch(e.info) {
                     case (#signatures(info)) {
                         #signatures({
-                            total = if(info.total > 0) info.total - 1 else 0;
                             goal = info.goal;
                         });
                     };
@@ -729,6 +731,7 @@ module {
                         e.info;
                     };
                 };
+                total = if(e.total > 0) e.total - 1 else 0;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -786,6 +789,7 @@ module {
                         e.info;
                     };
                 };
+                total = e.total + 1;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -843,6 +847,7 @@ module {
                         e.info;
                     };
                 };
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -900,6 +905,7 @@ module {
                         e.info;
                     };
                 };
+                total = if(e.total > 0) e.total - 1 else 0;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -934,7 +940,6 @@ module {
                 info = switch(e.info) {
                     case (#donations(info)) {
                         #donations({
-                            total = info.total + donation.value;
                             goal = info.goal;
                         });
                     };
@@ -942,6 +947,7 @@ module {
                         e.info;
                     };
                 };
+                total = e.total + donation.value;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -976,7 +982,6 @@ module {
                 info = switch(e.info) {
                     case (#donations(info)) {
                         #donations({
-                            total = info.total - donation.value;
                             goal = info.goal;
                         });
                     };
@@ -984,6 +989,7 @@ module {
                         e.info;
                     };
                 };
+                total = e.total - donation.value;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -1016,6 +1022,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt + 1;
                 publishedAt = e.publishedAt;
@@ -1048,6 +1055,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = if(e.updatesCnt > 0) e.updatesCnt - 1 else 0;
                 publishedAt = e.publishedAt;
@@ -1082,6 +1090,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = ?now;
@@ -1115,6 +1124,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -1147,6 +1157,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                total = e.total;
                 boosting = e.boosting + value;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
@@ -1180,11 +1191,11 @@ module {
         res.put("result", #nat32(e.result));
         res.put("duration", #nat32(e.duration));
         res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
+        res.put("total", #nat(e.total));
         res.put("boosting", #nat(e.boosting));
         
         switch(e.info) {
             case (#signatures(info)) {
-                res.put("info_total", #nat32(info.total));
                 res.put("info_goal", #nat32(info.goal));
             };
             case (#votes(info)) {
@@ -1203,7 +1214,6 @@ module {
                 res.put("info_goal", #nat(info.goal));
             };            
             case (#donations(info)) {
-                res.put("info_total", #nat(info.total));
                 res.put("info_goal", #nat(info.goal));
             };            
         };
@@ -1240,10 +1250,10 @@ module {
             result = Variant.getOptNat32(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
+            total = Variant.getOptNat(map.get("total"));
             boosting = Variant.getOptNat(map.get("boosting"));
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
-                    total = Variant.getOptNat32(map.get("info_total"));
                     goal = Variant.getOptNat32(map.get("info_goal"));
                 });
             }
@@ -1270,7 +1280,6 @@ module {
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {
                 #donations({
-                    total = Variant.getOptNat(map.get("info_total"));
                     goal = Variant.getOptNat(map.get("info_goal"));
                 });
             };
