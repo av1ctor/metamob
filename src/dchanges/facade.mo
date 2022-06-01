@@ -204,6 +204,13 @@ shared({caller = owner}) actor class DChanges() = this {
         campaignService.publish(pubId, msg.caller);
     };
 
+    public shared(msg) func campaignBoost(
+        pubId: Text, 
+        value: Nat64
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        await campaignService.boost(pubId, value, msg.caller, this);
+    };
+
     public query func campaignFindById(
         _id: Nat32
     ): async Result.Result<CampaignTypes.Campaign, Text> {

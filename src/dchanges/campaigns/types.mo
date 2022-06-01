@@ -73,6 +73,7 @@ module {
         duration: Nat32;
         tags: [Text];
         info: CampaignInfo;
+        boosting: Nat;
         updatesCnt: Nat32;
         publishedAt: ?Int;
         expiredAt: ?Int;

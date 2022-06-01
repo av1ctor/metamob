@@ -124,6 +124,28 @@ export const usePublishCampaign = () => {
     );
 };
 
+export const useBoostCampaign = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: DChanges, pubId: string, value: bigint}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+
+            const res = await options.main.campaignBoost(options.pubId, options.value);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['campaigns']);
+            }   
+        }
+    );
+};
+
 export const useDeleteCampaign = () => {
     const queryClient = useQueryClient();
     return useMutation(

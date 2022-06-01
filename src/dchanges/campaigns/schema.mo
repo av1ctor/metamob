@@ -57,6 +57,10 @@ module {
                 options = [#multiple, #sortable, #max(5)];
             },
             {
+                name = "boosting";
+                options = [#sortable];
+            },
+            {
                 name = "updatesCnt";
                 options = [];
             },

@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import CampaignTypes "types";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
@@ -74,7 +75,13 @@ module {
                                 return #err(msg);
                             };
                             case (#ok(campaign)) {
-                                if(not canChange(caller, campaign, [CampaignTypes.STATE_CREATED, CampaignTypes.STATE_PUBLISHED])) {
+                                if(not canChange(
+                                    caller, 
+                                    campaign, 
+                                    [
+                                        CampaignTypes.STATE_CREATED, 
+                                        CampaignTypes.STATE_PUBLISHED
+                                ])) {
                                     return #err("Forbidden");
                                 };
 
@@ -167,6 +174,43 @@ module {
                                     case _ {
                                         repo.finish(campaign, result, caller._id);
                                     };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func boost(
+            pubId: Text, 
+            value: Nat64,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    switch(repo.findByPubId(pubId)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(campaign)) {
+                            let balance = await LedgerUtils.getUserBalance(invoker, this);
+                            if(balance < value) {
+                                return #err("Insufficient funds");
+                            };
+                            
+                            switch(await LedgerUtils
+                                .transferFromUserSubaccountToCampaignSubaccountEx(
+                                    campaign, caller, value, invoker, this)) {
+                                case (#err(msg)) {
+                                    #err(msg);
+                                };
+                                case (#ok(_)) {
+                                    repo.boost(campaign, Nat64.toNat(value));
                                 };
                             };
                         };

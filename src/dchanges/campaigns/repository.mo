@@ -95,6 +95,21 @@ module {
             };
         };
 
+        public func boost(
+            campaign: Types.Campaign, 
+            value: Nat
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWhenBoosted(campaign, value);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
         public func delete(
             campaign: Types.Campaign,
             callerId: Nat32
@@ -562,6 +577,7 @@ module {
                 duration = req.duration;
                 tags = req.tags;
                 info = _createInfoEntity(req.kind, req.goal);
+                boosting = 0;
                 updatesCnt = 0;
                 publishedAt = null;
                 expiredAt = null;
@@ -597,6 +613,7 @@ module {
                 duration = e.duration;
                 tags = req.tags;
                 info = _updateInfoEntity(e.info, req.goal);
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -628,6 +645,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -669,6 +687,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -710,6 +729,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -766,6 +786,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -822,6 +843,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -878,6 +900,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -919,6 +942,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -960,6 +984,7 @@ module {
                         e.info;
                     };
                 };
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -969,7 +994,7 @@ module {
                 updatedBy = e.updatedBy;
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
-            }  
+            };
         };
 
         func _updateEntityWhenUpdateInserted(
@@ -991,6 +1016,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt + 1;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -1022,6 +1048,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                boosting = e.boosting;
                 updatesCnt = if(e.updatesCnt > 0) e.updatesCnt - 1 else 0;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -1055,6 +1082,7 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                boosting = e.boosting;
                 updatesCnt = e.updatesCnt;
                 publishedAt = ?now;
                 expiredAt = ?limit;
@@ -1087,6 +1115,39 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                boosting = e.boosting;
+                updatesCnt = e.updatesCnt;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };  
+
+        func _updateEntityWhenBoosted(
+            e: Types.Campaign, 
+            value: Nat
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
+                boosting = e.boosting + value;
                 updatesCnt = e.updatesCnt;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
@@ -1119,6 +1180,7 @@ module {
         res.put("result", #nat32(e.result));
         res.put("duration", #nat32(e.duration));
         res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
+        res.put("boosting", #nat(e.boosting));
         
         switch(e.info) {
             case (#signatures(info)) {
@@ -1178,6 +1240,7 @@ module {
             result = Variant.getOptNat32(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
+            boosting = Variant.getOptNat(map.get("boosting"));
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
                     total = Variant.getOptNat32(map.get("info_total"));

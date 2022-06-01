@@ -40,6 +40,7 @@ const DonationForm = (props: Props) => {
         body: '',
         value: BigInt(0)
     });
+    const [isLoading, setIsLoading] = useState(false);
     
     const createMut = useCreateDonation();
     const completeMut = useCompleteDonation();
@@ -120,6 +121,7 @@ const DonationForm = (props: Props) => {
         }
 
         try {
+            setIsLoading(true);
             props.toggleLoading(true);
 
             if(!actorState.main) {
@@ -171,6 +173,7 @@ const DonationForm = (props: Props) => {
             props.onError(e);
         }
         finally {
+            setIsLoading(false);
             props.toggleLoading(false);
         }
     }, [form, balance, updateState]);
@@ -230,7 +233,7 @@ const DonationForm = (props: Props) => {
                         <Button
                             color="danger"
                             onClick={isLoggedIn? handleDonation: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading: false}
+                            disabled={isLoading}
                         >
                             <i className="la la-money-bill"/>&nbsp;DONATE
                         </Button>

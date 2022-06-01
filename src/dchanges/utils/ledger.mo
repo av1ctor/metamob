@@ -38,15 +38,22 @@ module {
         return balance.e8s;
     };
 
-    public func transferFromUserSubaccountToCampaignSubaccount(
+    public func getUserBalance(
+        invoker: Principal,
+        this: actor {}
+    ): async Nat64 {
+        let userAccountId = getAccountId(invoker, this);
+        let balance = await Ledger.account_balance({ account = userAccountId });
+        return balance.e8s;
+    };
+
+    public func transferFromUserSubaccountToCampaignSubaccountEx(
         campaign: CampaignTypes.Campaign,
         caller: UserTypes.Profile,
+        amount: Nat64,
         invoker: Principal,
         this: actor {}
     ): async Result.Result<Nat64, Text> {
-        let userAccountId = getAccountId(invoker, this);
-        let balance = await Ledger.account_balance({ account = userAccountId });
-        let amount = balance.e8s;
         
         let receipt = await Ledger.transfer({
             memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
@@ -68,6 +75,21 @@ module {
                 #ok(amount);
             };
         };
+    };
+
+    public func transferFromUserSubaccountToCampaignSubaccount(
+        campaign: CampaignTypes.Campaign,
+        caller: UserTypes.Profile,
+        invoker: Principal,
+        this: actor {}
+    ): async Result.Result<Nat64, Text> {
+        await transferFromUserSubaccountToCampaignSubaccountEx(
+            campaign, 
+            caller, 
+            await getUserBalance(invoker, this), 
+            invoker, 
+            this
+        );
     };
 
     public func transferFromCampaignSubaccountToUserAccount(
