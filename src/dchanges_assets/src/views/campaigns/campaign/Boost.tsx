@@ -140,9 +140,10 @@ const Boost = (props: Props) => {
     return (
         <>
             <div
-                className="is-size-4 has-text-success-dark mb-2"
+                className="mb-2"
             >
-                Boost this campaign
+                <div className="is-size-4 has-text-success-dark">Boost this campaign</div>
+                <div>Total boosted: {icpToDecimal(props.campaign.boosting)} ICP</div>
             </div>
             <form onSubmit={handleBoost}>
                 <TextField
