@@ -7,6 +7,7 @@ import { AuthContext } from "../../../../stores/auth";
 import VoteForm from "./VoteForm";
 import Result from "../Result";
 import Share from "../Share";
+import Boost from "../Boost";
 
 interface Props {
     campaign: Campaign;
@@ -41,6 +42,14 @@ export const VoteFrame = (props: Props) => {
                         <VoteForm 
                             campaign={campaign}
                             vote={userVote?.data} 
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
+                            toggleLoading={props.toggleLoading}
+                        />
+                    </Box>
+                    <Box>
+                        <Boost 
+                            campaign={campaign} 
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}

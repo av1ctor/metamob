@@ -6,6 +6,7 @@ import DonationForm from "./DonationForm";
 import Result from "../Result";
 import Share from "../Share";
 import { icpToDecimal } from "../../../../libs/icp";
+import Boost from "../Boost";
 
 interface Props {
     campaign: Campaign;
@@ -32,6 +33,14 @@ export const DonationFrame = (props: Props) => {
                         </div>
                         <DonationForm 
                             campaign={campaign}
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
+                            toggleLoading={props.toggleLoading}
+                        />
+                    </Box>
+                    <Box>
+                        <Boost 
+                            campaign={campaign} 
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}
