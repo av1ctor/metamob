@@ -29,7 +29,7 @@ const Places = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 10
+        size: 6
     });
     const [modals, setModals] = useState({
         create: false,
@@ -128,8 +128,13 @@ const Places = (props: Props) => {
                 }
                 
                 <div className="columns is-multiline is-align-items-center">
-                    {places.status === 'success' && places.data && places.data.map((place) => 
-                        <div key={place._id} className="column is-6-desktop">
+                    {places.status === 'success' && 
+                        places.data && 
+                            places.data.map((place) => 
+                        <div 
+                            key={place._id} 
+                            className="column is-6-desktop"
+                        >
                             <article className="media">
                                 <div className="media-left">
                                     <div className="place-icon has-text-primary-dark">

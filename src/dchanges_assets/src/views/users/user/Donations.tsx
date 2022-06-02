@@ -28,7 +28,7 @@ const Donations = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 10
+        size: 6
     });
     const [modals, setModals] = useState({
         edit: false,
@@ -91,45 +91,51 @@ const Donations = (props: Props) => {
                     </div>
                 }
                 
-                <div className="donations">
-                    {donations.status === 'success' && donations.data && donations.data.map((donation) => 
-                        <BaseItem 
-                            key={donation._id}    
-                            user={authState.user}
-                            donation={donation} 
+                <div className="donations columns is-multiline">
+                    {donations.status === 'success' && 
+                        donations.data && 
+                            donations.data.map((donation) => 
+                        <div
+                            key={donation._id}
+                            className="column is-6"
                         >
-                            <p>
-                                <small>
-                                    <a
-                                    title="Edit donation"
-                                    onClick={() => toggleEdit(donation)}
-                                    >
-                                        <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <a
-                                        title="Delete donation"
-                                        onClick={() => toggleDelete(donation)}
-                                    >
-                                        <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <TimeFromNow 
-                                        date={BigInt.asIntN(64, donation.createdAt)}
-                                    />
-                                    {donation.updatedBy && donation.updatedBy.length > 0 &&
-                                        <>
-                                            &nbsp;·&nbsp;<b><i>Edited</i></b>
-                                        </>
-                                    }
-                                </small>
-                            </p>
+                            <BaseItem 
+                                user={authState.user}
+                                donation={donation} 
+                            >
+                                <p>
+                                    <small>
+                                        <a
+                                        title="Edit donation"
+                                        onClick={() => toggleEdit(donation)}
+                                        >
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <a
+                                            title="Delete donation"
+                                            onClick={() => toggleDelete(donation)}
+                                        >
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <TimeFromNow 
+                                            date={BigInt.asIntN(64, donation.createdAt)}
+                                        />
+                                        {donation.updatedBy && donation.updatedBy.length > 0 &&
+                                            <>
+                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                            </>
+                                        }
+                                    </small>
+                                </p>
 
-                            Campaign: <CampaignLink 
-                                id={donation.campaignId} 
-                            />
-                            
-                        </BaseItem>
+                                Campaign: <CampaignLink 
+                                    id={donation.campaignId} 
+                                />
+                                
+                            </BaseItem>
+                        </div>
                     )}
                 </div>
 

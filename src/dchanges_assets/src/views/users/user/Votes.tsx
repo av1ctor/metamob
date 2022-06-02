@@ -28,7 +28,7 @@ const Votes = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 10
+        size: 6
     });
     const [modals, setModals] = useState({
         edit: false,
@@ -91,45 +91,51 @@ const Votes = (props: Props) => {
                     </div>
                 }
                 
-                <div className="votes">
-                    {votes.status === 'success' && votes.data && votes.data.map((vote) => 
-                        <BaseItem 
-                            key={vote._id}    
-                            user={authState.user}
-                            vote={vote} 
+                <div className="votes columns is-multiline">
+                    {votes.status === 'success' && 
+                        votes.data && 
+                            votes.data.map((vote) => 
+                        <div 
+                            key={vote._id}
+                            className="column is-6"
                         >
-                            <p>
-                                <small>
-                                    <a
-                                    title="Edit vote"
-                                    onClick={() => toggleEdit(vote)}
-                                    >
-                                        <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <a
-                                        title="Delete vote"
-                                        onClick={() => toggleDelete(vote)}
-                                    >
-                                        <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <TimeFromNow 
-                                        date={BigInt.asIntN(64, vote.createdAt)}
-                                    />
-                                    {vote.updatedBy && vote.updatedBy.length > 0 &&
-                                        <>
-                                            &nbsp;·&nbsp;<b><i>Edited</i></b>
-                                        </>
-                                    }
-                                </small>
-                            </p>
+                            <BaseItem 
+                                user={authState.user}
+                                vote={vote} 
+                            >
+                                <p>
+                                    <small>
+                                        <a
+                                        title="Edit vote"
+                                        onClick={() => toggleEdit(vote)}
+                                        >
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <a
+                                            title="Delete vote"
+                                            onClick={() => toggleDelete(vote)}
+                                        >
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <TimeFromNow 
+                                            date={BigInt.asIntN(64, vote.createdAt)}
+                                        />
+                                        {vote.updatedBy && vote.updatedBy.length > 0 &&
+                                            <>
+                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                            </>
+                                        }
+                                    </small>
+                                </p>
 
-                            Campaign: <CampaignLink 
-                                id={vote.campaignId} 
-                            />
-                            
-                        </BaseItem>
+                                Campaign: <CampaignLink 
+                                    id={vote.campaignId} 
+                                />
+                                
+                            </BaseItem>
+                        </div>
                     )}
                 </div>
 

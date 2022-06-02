@@ -28,7 +28,7 @@ const Signatures = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 10
+        size: 6
     });
     const [modals, setModals] = useState({
         edit: false,
@@ -91,45 +91,51 @@ const Signatures = (props: Props) => {
                     </div>
                 }
                 
-                <div className="signatures">
-                    {signatures.status === 'success' && signatures.data && signatures.data.map((signature) => 
-                        <BaseItem 
-                            key={signature._id}    
-                            user={authState.user}
-                            signature={signature} 
+                <div className="signatures columns is-multiline">
+                    {signatures.status === 'success' && 
+                        signatures.data && 
+                            signatures.data.map((signature) => 
+                        <div 
+                            key={signature._id}
+                            className="column is-6"
                         >
-                            <p>
-                                <small>
-                                    <a
-                                    title="Edit signature"
-                                    onClick={() => toggleEdit(signature)}
-                                    >
-                                        <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <a
-                                        title="Delete signature"
-                                        onClick={() => toggleDelete(signature)}
-                                    >
-                                        <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
-                                    </a>
-                                    &nbsp;·&nbsp;
-                                    <TimeFromNow 
-                                        date={BigInt.asIntN(64, signature.createdAt)}
-                                    />
-                                    {signature.updatedBy && signature.updatedBy.length > 0 &&
-                                        <>
-                                            &nbsp;·&nbsp;<b><i>Edited</i></b>
-                                        </>
-                                    }
-                                </small>
-                            </p>
+                            <BaseItem                                     
+                                user={authState.user}
+                                signature={signature} 
+                            >
+                                <p>
+                                    <small>
+                                        <a
+                                        title="Edit signature"
+                                        onClick={() => toggleEdit(signature)}
+                                        >
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <a
+                                            title="Delete signature"
+                                            onClick={() => toggleDelete(signature)}
+                                        >
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                        </a>
+                                        &nbsp;·&nbsp;
+                                        <TimeFromNow 
+                                            date={BigInt.asIntN(64, signature.createdAt)}
+                                        />
+                                        {signature.updatedBy && signature.updatedBy.length > 0 &&
+                                            <>
+                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                            </>
+                                        }
+                                    </small>
+                                </p>
 
-                            Campaign: <CampaignLink 
-                                id={signature.campaignId} 
-                            />
-                            
-                        </BaseItem>
+                                Campaign: <CampaignLink 
+                                    id={signature.campaignId} 
+                                />
+                                
+                            </BaseItem>
+                        </div>
                     )}
                 </div>
 
