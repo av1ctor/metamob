@@ -55,6 +55,7 @@ const Campaigns = (props: Props) => {
                 <div>
                     <Bar
                         filters={filters}
+                        orderBy={orderBy}
                         onSearch={handleChangeFilters}
                         onSort={handleChangeSort}
                         onSuccess={props.onSuccess}

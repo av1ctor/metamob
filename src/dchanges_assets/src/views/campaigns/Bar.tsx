@@ -15,6 +15,7 @@ const indexedColumns = ['title'];
 
 interface Props {
     filters: Filter[];
+    orderBy: Order[];
     place?: Place;
     onSearch: (e: Filter[]) => void;
     onSort: (orderBy: Order[]) => void;
@@ -54,6 +55,7 @@ export const Bar = (props: Props) => {
                 <div className="level-left">
                     <div className="level-item is-block-mobile">
                         <Sort
+                            current={props.orderBy}
                             onChange={props.onSort}
                         />
                         

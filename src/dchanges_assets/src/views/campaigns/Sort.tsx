@@ -25,6 +25,7 @@ export const sortByDate: Order[] = [
 ];
 
 interface Props {
+    current: Order[];
     onChange: (orderBy: Order[]) => void
 };
 
@@ -38,13 +39,16 @@ export const Sort = (props: Props) => {
         props.onChange(sortByDate);
     }, [props.onChange]);
 
+    const isHot = props.current[0].key !== '_id';
+
     return (
         <div className="is-flex">
             <div className="field">
                 <div className="control">
                     <Button
                         title="Sort by hot"
-                        onClick={handleSortByHot}
+                        color={isHot? 'danger': 'light'}
+                        onClick={!isHot? handleSortByHot: undefined}
                     >
                         <i className="la la-burn"/>
                     </Button>
@@ -55,7 +59,8 @@ export const Sort = (props: Props) => {
                 <div className="control">
                     <Button
                         title="Sort by latest"
-                        onClick={handleSortByDate}
+                        color={!isHot? 'danger': 'light'}
+                        onClick={isHot? handleSortByDate: undefined}
                     >
                         <i className="la la-clock"/>
                     </Button>
