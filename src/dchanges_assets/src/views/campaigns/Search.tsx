@@ -59,58 +59,53 @@ const SearchForm = (props: Props) => {
     }, [form]);
 
     return (
-        <nav className="level">
-            <form onSubmit={handleSubmit}>
-                <div className="level-left">
-                    <div className="level-item">
-                        <TextField
-                            name="title"
-                            placeholder="Title"
-                            title="Title filter"
-                            leftIcon="signature"
-                            value={form[0].value || ''}
-                            onChange={changeTitleFilter} 
+        <form onSubmit={handleSubmit}>
+            <div className="is-flex-desktop">
+                <TextField
+                    name="title"
+                    placeholder="Title"
+                    title="Title filter"
+                    leftIcon="signature"
+                    value={form[0].value || ''}
+                    onChange={changeTitleFilter} 
+                />
+                <div className="ml-1"></div>
+                <SelectField 
+                    name="categoryId"
+                    placeholder="All"
+                    title="Category filter"
+                    leftIcon="list"
+                    value={form[1].value || ''}
+                    options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                    onChange={changeCategoryFilter} 
+                />
+                {props.filters.length >= 3 && 
+                    <>
+                        <div className="ml-1"></div>
+                        <AutocompleteField 
+                            name="placeId"
+                            placeholder="Any"
+                            title="Place filter"
+                            leftIcon="globe"
+                            value={placeName}
+                            onSearch={handleSearchPlace}
+                            onChange={changePlaceFilter} 
                         />
-                    </div>
-                    <div className="level-item">
-                        <SelectField 
-                            name="categoryId"
-                            placeholder="All"
-                            title="Category filter"
-                            leftIcon="list"
-                            value={form[1].value || ''}
-                            options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
-                            onChange={changeCategoryFilter} 
-                        />
-                    </div>
-                    {props.filters.length >= 3 && 
-                        <div className="level-item">
-                            <AutocompleteField 
-                                name="placeId"
-                                placeholder="Any"
-                                title="Place filter"
-                                leftIcon="globe"
-                                value={placeName}
-                                onSearch={handleSearchPlace}
-                                onChange={changePlaceFilter} 
-                            />
-                        </div>
-                    }
-                    <div className="level-item">
-                        <div className="field">
-                            <div className="control">
-                                <Button 
-                                    title="Filter"
-                                    onClick={handleSubmit}
-                                >
-                                    <i className="la la-search" />
-                                </Button>
-                            </div>
-                        </div>
+                    </>
+                }
+                <div className="ml-1"></div>
+                <div className="field">
+                    <div className="control">
+                        <Button 
+                            title="Filter"
+                            onClick={handleSubmit}
+                        >
+                            <i className="la la-search" />
+                        </Button>
                     </div>
                 </div>
-            </form>
-        </nav>
+            </div>
+        </form>
     );
 };
 

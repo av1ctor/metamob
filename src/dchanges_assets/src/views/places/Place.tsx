@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useEffect, Fragment} from "react";
-import {Filter} from "../../libs/common";
+import {Filter, Order} from "../../libs/common";
 import {useFindCampaignsByPlaceId} from "../../hooks/campaigns";
 import Item from "../campaigns/Item";
 import { Bar } from "../campaigns/Bar";
@@ -7,11 +7,7 @@ import { useParams } from "react-router-dom";
 import { useFindPlaceByPubId } from "../../hooks/places";
 import { PlaceBar } from "./place/PlaceBar";
 import Button from "../../components/Button";
-
-const orderBy = [{
-    key: '_id',
-    dir: 'desc'
-}];
+import { sortByDate } from "../campaigns/Sort";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -35,6 +31,7 @@ const Place = (props: Props) => {
             value: null
         }
     ]);
+    const [orderBy, setOrderBy] = useState(sortByDate);
 
     const place = useFindPlaceByPubId(id);
 
@@ -42,6 +39,10 @@ const Place = (props: Props) => {
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
+    }, []);
+
+    const handleChangeSort = useCallback((orderBy: Order[]) => {
+        setOrderBy(orderBy);
     }, []);
 
     useEffect(() => {
@@ -68,6 +69,7 @@ const Place = (props: Props) => {
                         place={place.data}
                         filters={filters}
                         onSearch={handleChangeFilters}
+                        onSort={handleChangeSort}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}

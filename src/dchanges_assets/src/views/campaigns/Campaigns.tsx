@@ -1,24 +1,10 @@
 import React, {useState, useCallback, useEffect, Fragment} from "react";
-import {Filter} from "../../libs/common";
+import {Filter, Order} from "../../libs/common";
 import {useFindCampaignsInf} from "../../hooks/campaigns";
 import Item from "./Item";
 import { Bar } from "./Bar";
 import Button from "../../components/Button";
-
-const orderBy = [
-    {
-        key: 'boosting',
-        dir: 'desc'
-    },
-    {
-        key: 'total',
-        dir: 'desc'
-    },
-    {
-        key: '_id',
-        dir: 'desc'
-    },
-];
+import { sortByHot } from "./Sort";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -44,11 +30,16 @@ const Campaigns = (props: Props) => {
             value: null
         }
     ]);
+    const [orderBy, setOrderBy] = useState(sortByHot);
 
     const campaigns = useFindCampaignsInf(filters, orderBy, 4);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
+    }, []);
+
+    const handleChangeSort = useCallback((orderBy: Order[]) => {
+        setOrderBy(orderBy);
     }, []);
 
     useEffect(() => {
@@ -65,6 +56,7 @@ const Campaigns = (props: Props) => {
                     <Bar
                         filters={filters}
                         onSearch={handleChangeFilters}
+                        onSort={handleChangeSort}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}

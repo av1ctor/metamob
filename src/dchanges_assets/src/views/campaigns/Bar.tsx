@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
-import {Filter} from "../../libs/common";
+import {Filter, Order} from "../../libs/common";
 import {useCreateCampaign} from "../../hooks/campaigns";
 import CreateForm from "./campaign/Create";
 import Button from "../../components/Button";
 import { Place } from "../../../../declarations/dchanges/dchanges.did";
+import { Sort } from "./Sort";
 
 const indexedColumns = ['title'];
 
@@ -16,6 +17,7 @@ interface Props {
     filters: Filter[];
     place?: Place;
     onSearch: (e: Filter[]) => void;
+    onSort: (orderBy: Order[]) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
@@ -48,25 +50,41 @@ export const Bar = (props: Props) => {
 
     return (
         <>
-            <div className="level">
+            <nav className="level">
                 <div className="level-left">
-                    <SearchForm 
-                        filters={props.filters}
-                        categories={categoryState.categories}
-                        indexedColumns={indexedColumns}
-                        onSearch={props.onSearch} 
-                        onError={props.onError}
-                    />
+                    <div className="level-item is-block-mobile">
+                        <Sort
+                            onChange={props.onSort}
+                        />
+                        
+                        <div className="ml-1"></div>
+
+                        <SearchForm 
+                            filters={props.filters}
+                            categories={categoryState.categories}
+                            indexedColumns={indexedColumns}
+                            onSearch={props.onSearch} 
+                            onError={props.onError}
+                        />
+                    </div>
                 </div>
                 <div className="level-right">
-                    <Button
-                        title="Create a new campaign" 
-                        onClick={isLoggedIn? toggleCreate: redirectToLogon}
-                    >
-                        <i className="la la-plus-circle" />&nbsp;Create
-                    </Button>
+                    <div className="level-item">
+                        <div className="is-flex">
+                            <div className="field">
+                                <div className="control">
+                                    <Button
+                                        title="Create a new campaign" 
+                                        onClick={isLoggedIn? toggleCreate: redirectToLogon}
+                                    >
+                                        <i className="la la-plus-circle" />&nbsp;Create
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </nav>
 
             <Modal
                 header={<span>Create campaign</span>}
