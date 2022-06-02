@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useState } from "react";
 import { VoteResponse } from "../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../components/Modal";
+import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserVotes } from "../../../hooks/votes";
 import { ActorContext } from "../../../stores/actor";
@@ -21,15 +22,14 @@ const orderBy = [{
     dir: 'desc'
 }];
 
-const limit = {
-    offset: 0,
-    size: 10
-};
-
 const Votes = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
 
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
@@ -52,6 +52,20 @@ const Votes = (props: Props) => {
             delete: !modals.delete
         }));
         setVote(vote);
+    }, []);
+
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
+        }));
     }, []);
 
     if(!authState.user) {
@@ -117,7 +131,14 @@ const Votes = (props: Props) => {
                             
                         </BaseItem>
                     )}
-                </div>        
+                </div>
+
+                <Paginator
+                    limit={limit}
+                    length={votes.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

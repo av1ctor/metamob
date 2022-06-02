@@ -8,16 +8,12 @@ import EditForm from "./Edit";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Badge from "../../../components/Badge";
+import { Paginator } from "../../../components/Paginator";
 
 const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -29,6 +25,10 @@ const Users = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [user, setUser] = useState<Profile>();
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         edit: false,
     });
@@ -69,6 +69,20 @@ const Users = (props: Props) => {
     const handleEditProfile = useCallback((item: Profile) => {
         setUser(item);
         toggleEdit();
+    }, []);
+    
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
+        }));
     }, []);
 
     const users = useFindUsers(filters, orderBy, limit, actorState.main);
@@ -155,6 +169,12 @@ const Users = (props: Props) => {
                         }
                     </div>
                 </div>
+                <Paginator
+                    limit={limit}
+                    length={users.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

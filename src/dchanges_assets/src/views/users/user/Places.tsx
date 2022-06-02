@@ -10,6 +10,7 @@ import PlaceEmails from "../../places/emails/Emails";
 import EditForm from "../../places/place/Edit";
 import CreateForm from '../../places/place/Create';
 import Button from "../../../components/Button";
+import { Paginator } from "../../../components/Paginator";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -22,15 +23,14 @@ const orderBy = [{
     dir: 'desc'
 }];
 
-const limit = {
-    offset: 0,
-    size: 10
-};
-
 const Places = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
 
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         create: false,
         edit: false,
@@ -74,6 +74,20 @@ const Places = (props: Props) => {
         setModals(modals => ({
             ...modals,
             editEmails: !modals.editEmails
+        }));
+    }, []);
+
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
         }));
     }, []);
     
@@ -159,7 +173,14 @@ const Places = (props: Props) => {
                             </article>
                         </div>
                     )}
-                </div>        
+                </div>
+
+                <Paginator
+                    limit={limit}
+                    length={places.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

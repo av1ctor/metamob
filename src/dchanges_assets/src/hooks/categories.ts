@@ -20,7 +20,8 @@ export const useFindCategories = (
 ): UseQueryResult<Category [], Error> => {
     return useQuery<Category[], Error>(
         ['categories', ...filters, ...orderBy, limit.offset, limit.size],
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit),
+        {keepPreviousData: limit.offset > 0}
     );
 };
 

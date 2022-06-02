@@ -11,16 +11,12 @@ import EditForm from "./Edit";
 import EditUserForm from "../users/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
+import { Paginator } from "../../../components/Paginator";
 
 const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
 
 const states: Option[] = [
     {name: 'Created', value: ReportState.CREATED},
@@ -39,6 +35,10 @@ const Reports = (props: Props) => {
     
     const [user, setUser] = useState<Profile>();
     const [report, setReport] = useState<Report>();
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         assign: false,
         edit: false,
@@ -97,6 +97,20 @@ const Reports = (props: Props) => {
     const handleEditUser = useCallback((item: Profile) => {
         setUser(item);
         toggleEditUser();
+    }, []);
+
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
+        }));
     }, []);
 
     const reports = useFindReports(filters, orderBy, limit, actorState.main);
@@ -172,6 +186,12 @@ const Reports = (props: Props) => {
                         }
                     </div>
                 </div>
+                <Paginator
+                    limit={limit}
+                    length={reports.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

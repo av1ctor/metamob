@@ -21,7 +21,8 @@ export const useFindUsers = (
 ): UseQueryResult<Profile[], Error> => {
     return useQuery<Profile[], Error>(
         ['users', ...filters, ...orderBy, limit.offset, limit.size],
-        () => findAll(filters, orderBy, limit, main)
+        () => findAll(filters, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 };
 

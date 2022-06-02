@@ -38,7 +38,8 @@ export const useFindUserPlaces = (
 ): UseQueryResult<Place[], Error> => {
    return useQuery<Place[], Error>(
         ['places', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 };
 
@@ -49,7 +50,8 @@ export const useFindPlaces = (
 ): UseQueryResult<Place [], Error> => {
     return useQuery<Place[], Error>(
         ['places', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit),
+        {keepPreviousData: limit.offset > 0}
     );
 };
 

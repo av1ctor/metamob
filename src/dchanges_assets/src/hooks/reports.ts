@@ -21,7 +21,8 @@ export const useFindReports = (
 ): UseQueryResult<Report[], Error> => {
     return useQuery<Report[], Error>(
         ['reports', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit, main)
+        () => findAll(filters, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 };
 

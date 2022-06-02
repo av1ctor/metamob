@@ -9,16 +9,12 @@ import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import View from "./View";
 import SelectField, {Option} from "../../../components/SelectField";
+import { Paginator } from "../../../components/Paginator";
 
 const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
 
 const states: Option[] = [
     {name: 'Created', value: CampaignState.CREATED},
@@ -38,6 +34,10 @@ interface Props {
 const Campaigns = (props: Props) => {
     const [user, setUser] = useState<Profile>();
     const [campaign, setCampaign] = useState<Campaign>();
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         edit: false,
         editUser: false,
@@ -105,6 +105,20 @@ const Campaigns = (props: Props) => {
     const handleEditUser = useCallback((user: Profile) => {
         setUser(user);
         toggleEditUser();
+    }, []);
+
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
+        }));
     }, []);
 
     const campaigns = useFindCampaigns(filters, orderBy, limit);
@@ -186,6 +200,12 @@ const Campaigns = (props: Props) => {
                         }
                     </div>
                 </div>
+                <Paginator
+                    limit={limit}
+                    length={campaigns.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

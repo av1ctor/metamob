@@ -65,7 +65,8 @@ export const useFindUserVotes = (
 ): UseQueryResult<VoteResponse[], Error> => {
    return useQuery<VoteResponse[], Error>(
         ['votes', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 
 };

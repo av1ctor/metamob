@@ -9,6 +9,8 @@ import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../donations/Item";
 import DeleteForm from "../../donations/donation/Delete";
 import EditForm from "../../donations/donation/Edit";
+import Button from "../../../components/Button";
+import { Paginator } from "../../../components/Paginator";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -21,15 +23,14 @@ const orderBy = [{
     dir: 'desc'
 }];
 
-const limit = {
-    offset: 0,
-    size: 10
-};
-
 const Donations = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
 
+    const [limit, setLimit] = useState({
+        offset: 0,
+        size: 10
+    });
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
@@ -52,6 +53,20 @@ const Donations = (props: Props) => {
             delete: !modals.delete
         }));
         setDonation(donation);
+    }, []);
+
+    const handlePrevPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: Math.max(0, limit.offset - limit.size)|0
+        }));
+    }, []);
+
+    const handleNextPage = useCallback(() => {
+        setLimit(limit => ({
+            ...limit,
+            offset: limit.offset + limit.size
+        }));
     }, []);
 
     if(!authState.user) {
@@ -117,7 +132,14 @@ const Donations = (props: Props) => {
                             
                         </BaseItem>
                     )}
-                </div>        
+                </div>
+
+                <Paginator
+                    limit={limit}
+                    length={donations.data?.length}
+                    onPrev={handlePrevPage}
+                    onNext={handleNextPage}
+                />
             </div>
 
             <Modal

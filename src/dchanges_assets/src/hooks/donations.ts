@@ -65,7 +65,8 @@ export const useFindUserDonations = (
 ): UseQueryResult<DonationResponse[], Error> => {
    return useQuery<DonationResponse[], Error>(
         ['donations', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 
 };

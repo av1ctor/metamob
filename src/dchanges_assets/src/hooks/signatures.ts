@@ -65,7 +65,8 @@ export const useFindUserSignatures = (
 ): UseQueryResult<SignatureResponse[], Error> => {
    return useQuery<SignatureResponse[], Error>(
         ['signatures', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main)
+        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        {keepPreviousData: limit.offset > 0}
     );
 
 };
