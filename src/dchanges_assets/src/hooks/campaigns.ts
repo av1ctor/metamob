@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, useInfiniteQuery, UseInfiniteQueryResult} from 'react-query'
 import {CampaignRequest, Campaign, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
@@ -24,12 +24,18 @@ export const useFindCampaignByPubId = (
 export const useFindCampaignsByPlaceId = (
     filters: Filter[], 
     orderBy: Order[], 
-    limit: Limit,
+    size: number,
     placeId?: number
-): UseQueryResult<Campaign[], Error> => {
-    return useQuery<Campaign[], Error>(
-        ['campaigns', placeId, ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findByPlaceId(placeId, filters, orderBy, limit)
+): UseInfiniteQueryResult<Campaign[], Error> => {
+    return useInfiniteQuery<Campaign[], Error>(
+        ['campaigns', placeId, ...filters, ...orderBy], 
+        ({ pageParam = 0 }) => findByPlaceId(placeId, filters, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size? 
+                undefined: 
+                pages.length * size,
+        }
     );
 };
 
@@ -43,7 +49,23 @@ export const useFindCampaigns = (
         () => findAll(filters, orderBy, limit),
         {keepPreviousData: limit.offset > 0}
     );
+};
 
+export const useFindCampaignsInf = (
+    filters: Filter[], 
+    orderBy: Order[], 
+    size: number
+): UseInfiniteQueryResult<Campaign[], Error> => {
+    return useInfiniteQuery<Campaign[], Error>(
+        ['campaigns', ...filters, ...orderBy],
+        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size? 
+                undefined: 
+                pages.length * size,
+        }
+    );
 };
 
 export const useFindCampaignsByUserId = (

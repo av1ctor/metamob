@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from "react";
+import React, {useState, useCallback, useEffect, Fragment} from "react";
 import {Filter} from "../../libs/common";
 import {useFindCampaignsByPlaceId} from "../../hooks/campaigns";
 import Item from "../campaigns/Item";
@@ -6,16 +6,12 @@ import { Bar } from "../campaigns/Bar";
 import { useParams } from "react-router-dom";
 import { useFindPlaceByPubId } from "../../hooks/places";
 import { PlaceBar } from "./place/PlaceBar";
+import Button from "../../components/Button";
 
 const orderBy = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit = {
-    offset: 0,
-    size: 10
-};
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -42,7 +38,7 @@ const Place = (props: Props) => {
 
     const place = useFindPlaceByPubId(id);
 
-    const campaigns = useFindCampaignsByPlaceId(filters, orderBy, limit, placeId);
+    const campaigns = useFindCampaignsByPlaceId(filters, orderBy, 4, placeId);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
@@ -78,17 +74,33 @@ const Place = (props: Props) => {
                     />
                     <div>
                         <div className="columns is-desktop is-multiline is-align-items-center">
-                            {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
-                                <div 
-                                    className="column is-half"
-                                    key={campaign._id}
-                                >
-                                    <Item 
-                                        key={campaign._id} 
-                                        campaign={campaign} />
-                                </div>
+                            {campaigns.status === 'success' && 
+                                campaigns.data && 
+                                    campaigns.data.pages.map((page, index) => 
+                                <Fragment key={index}>
+                                    {page.map(campaign => 
+                                        <div 
+                                            className="column is-half"
+                                            key={campaign._id}
+                                        >
+                                            <Item 
+                                                key={campaign._id} 
+                                                campaign={campaign} />
+                                        </div>
+                                    )}
+                                </Fragment>
                             )}
-                        </div>        
+                        </div>
+                        <div className="has-text-centered">
+                            <div className="control">
+                                <Button
+                                    disabled={!campaigns.hasNextPage || campaigns.isFetchingNextPage}
+                                    onClick={() => campaigns.fetchNextPage()}
+                                >
+                                    <i className="la la-sync" />&nbsp;Load more
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
