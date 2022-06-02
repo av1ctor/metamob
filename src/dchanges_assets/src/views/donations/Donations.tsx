@@ -1,6 +1,6 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, DonationResponse} from '../../../../declarations/dchanges/dchanges.did';
-import {Limit, Order} from "../../libs/common";
+import {Order} from "../../libs/common";
 import {useFindDonationsByCampaign} from "../../hooks/donations";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
@@ -8,6 +8,7 @@ import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
 import DeleteForm from "./donation/Delete";
 import EditForm from "./donation/Edit";
+import Button from "../../components/Button";
 
 interface Props {
     campaign: Campaign;
@@ -20,11 +21,6 @@ const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
 
 const Donations = (props: Props) => {
     const [modals, setModals] = useState({
@@ -60,23 +56,38 @@ const Donations = (props: Props) => {
 
     const campaign = props.campaign;
 
-    const donations = useFindDonationsByCampaign(campaign._id, orderBy, limit);
+    const donations = useFindDonationsByCampaign(campaign._id, orderBy, 10);
 
     return (
-        <div className="donations">
-            {donations.status === 'success' && donations.data? 
-                donations.data.map((donation) => 
-                    <Item
-                        key={donation._id} 
-                        donation={donation}
-                        campaign={campaign}
-                        onEdit={toggleEdit}
-                        onDelete={toggleDelete}
-                        onReport={toggleReport}
-                    />
-                ):
-                <div>Loading...</div>
-            }
+        <>
+            <div className="donations">
+                {donations.status === 'success' && 
+                    donations.data && 
+                        donations.data.pages.map((page, index) => 
+                    <Fragment key={index}>
+                        {page.map(donation => 
+                            <Item
+                                key={donation._id} 
+                                donation={donation}
+                                campaign={campaign}
+                                onEdit={toggleEdit}
+                                onDelete={toggleDelete}
+                                onReport={toggleReport}
+                            />                        
+                        )}
+                    </Fragment>
+                )}
+            </div>
+            <div className="has-text-centered">
+                <div className="control">
+                    <Button
+                        disabled={!donations.hasNextPage || donations.isFetchingNextPage}
+                        onClick={() => donations.fetchNextPage()}
+                    >
+                        <i className="la la-sync" />&nbsp;Load more
+                    </Button>
+                </div>
+            </div>
 
             <Modal
                 header={<span>Edit donation</span>}
@@ -125,8 +136,8 @@ const Donations = (props: Props) => {
                         toggleLoading={props.toggleLoading}
                     />
                 }
-            </Modal>            
-        </div>
+            </Modal>        
+        </>
     )
 };
 

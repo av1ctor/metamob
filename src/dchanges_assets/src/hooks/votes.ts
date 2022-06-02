@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
 import {VoteRequest, DChanges, VoteResponse, Vote} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/votes';
@@ -37,13 +37,18 @@ export const useFindVotes = (
 export const useFindVotesByCampaign = (
     topicId: number, 
     orderBy: Order[], 
-    limit: Limit
-): UseQueryResult<VoteResponse[], Error> => {
-    return useQuery<VoteResponse[], Error>(
-        ['votes', topicId, ...orderBy, limit.offset, limit.size], 
-        () => findByCampaign(topicId, orderBy, limit)
+    size: number
+): UseInfiniteQueryResult<VoteResponse[], Error> => {
+    return useInfiniteQuery<VoteResponse[], Error>(
+        ['votes', topicId, ...orderBy], 
+        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) =>
+                lastPage.length < size? 
+                    undefined: 
+                    pages.length * size,
+        }
     );
-
 };
 
 export const useFindVoteByCampaignAndUser = (

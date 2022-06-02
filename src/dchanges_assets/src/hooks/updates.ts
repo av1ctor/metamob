@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
 import {UpdateRequest, Update, DChanges} from "../../../declarations/dchanges/dchanges.did";
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
@@ -39,11 +39,17 @@ export const useFindUpdates = (
 export const useFindUpdatesByCampaign = (
     topicId: number, 
     orderBy: Order[], 
-    limit: Limit
-): UseQueryResult<Update[], Error> => {
-    return useQuery<Update[], Error>(
-        ['updates', topicId, ...orderBy, limit.offset, limit.size], 
-        () => findByCampaign(topicId, orderBy, limit)
+    size: number
+): UseInfiniteQueryResult<Update[], Error> => {
+    return useInfiniteQuery<Update[], Error>(
+        ['updates', topicId, ...orderBy], 
+        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size? 
+                    undefined: 
+                    pages.length * size,
+        }
     );
 
 };

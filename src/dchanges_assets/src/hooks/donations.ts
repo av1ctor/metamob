@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
 import {DonationRequest, DChanges, DonationResponse, Donation} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/donations';
@@ -37,13 +37,18 @@ export const useFindDonations = (
 export const useFindDonationsByCampaign = (
     topicId: number, 
     orderBy: Order[], 
-    limit: Limit
-): UseQueryResult<DonationResponse[], Error> => {
-    return useQuery<DonationResponse[], Error>(
-        ['donations', topicId, ...orderBy, limit.offset, limit.size], 
-        () => findByCampaign(topicId, orderBy, limit)
+    size: number
+): UseInfiniteQueryResult<DonationResponse[], Error> => {
+    return useInfiniteQuery<DonationResponse[], Error>(
+        ['donations', topicId, ...orderBy], 
+        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size? 
+                undefined: 
+                pages.length * size,
+        }
     );
-
 };
 
 export const useFindDonationByCampaignAndUser = (

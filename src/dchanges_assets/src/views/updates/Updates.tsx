@@ -1,6 +1,6 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext, Fragment} from "react";
 import {Update, Campaign} from '../../../../declarations/dchanges/dchanges.did';
-import {Limit, Order} from "../../libs/common";
+import {Order} from "../../libs/common";
 import {CampaignState} from "../../libs/campaigns";
 import {useFindUpdatesByCampaign} from "../../hooks/updates";
 import { Item } from "./Item";
@@ -26,11 +26,6 @@ const orderBy: Order[] = [{
     dir: 'desc'
 }];
 
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
-
 const Updates = (props: Props) => {
     const [auth] = useContext(AuthContext);
     
@@ -44,7 +39,7 @@ const Updates = (props: Props) => {
 
     const campaign = props.campaign;
 
-    const updates = useFindUpdatesByCampaign(campaign._id, orderBy, limit);
+    const updates = useFindUpdatesByCampaign(campaign._id, orderBy, 10);
 
     const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
         auth.user && auth.user._id === campaign?.createdBy) ||
@@ -83,33 +78,48 @@ const Updates = (props: Props) => {
     }, [modals]);
 
     return (
-        <div className="updates">
-            <div className="level">
-                <div className="level-left">
-                    <div>
-                    {updates.status === 'success' && updates.data? 
-                        updates.data.map((update) => 
-                            <Item
-                                key={update._id} 
-                                update={update}
-                                canEdit={canEdit? true: false}
-                                onEdit={toggleEdit}
-                                onDelete={toggleDelete}
-                                onReport={toggleReport}
-                            />
-                        ):
-                        <div>Loading...</div>
-                    }
+        <>
+            <div className="updates">
+                <div className="level">
+                    <div className="level-left">
+                        <div>
+                            {updates.status === 'success' && 
+                                updates.data && 
+                                    updates.data.pages.map((page, index) => 
+                                <Fragment key={index}>
+                                    {page.map(update => 
+                                        <Item
+                                            key={update._id} 
+                                            update={update}
+                                            canEdit={canEdit? true: false}
+                                            onEdit={toggleEdit}
+                                            onDelete={toggleDelete}
+                                            onReport={toggleReport}
+                                        />
+                                    )}
+                                </Fragment>
+                            )}
+                        </div>
+                    </div>
+                    <div className="level-right is-align-self-baseline">
+                        {auth.user?._id === props.campaign.createdBy &&
+                            <Button
+                                onClick={toggleCreate}
+                            >
+                                <i className="la la-plus-circle" />&nbsp;Create
+                            </Button>
+                        }
                     </div>
                 </div>
-                <div className="level-right is-align-self-baseline">
-                    {auth.user?._id === props.campaign.createdBy &&
+                <div className="has-text-centered">
+                    <div className="control">
                         <Button
-                            onClick={toggleCreate}
+                            disabled={!updates.hasNextPage || updates.isFetchingNextPage}
+                            onClick={() => updates.fetchNextPage()}
                         >
-                            <i className="la la-plus-circle" />&nbsp;Create
+                            <i className="la la-sync" />&nbsp;Load more
                         </Button>
-                    }
+                    </div>
                 </div>
             </div>
 
@@ -175,7 +185,7 @@ const Updates = (props: Props) => {
                     />
                 }
             </Modal>            
-        </div>
+        </>
     )
 };
 

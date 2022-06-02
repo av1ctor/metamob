@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
 import {SignatureRequest, DChanges, SignatureResponse, Signature} from "../../../declarations/dchanges/dchanges.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/signatures';
@@ -37,11 +37,17 @@ export const useFindSignatures = (
 export const useFindSignaturesByCampaign = (
     topicId: number, 
     orderBy: Order[], 
-    limit: Limit
-): UseQueryResult<SignatureResponse[], Error> => {
-    return useQuery<SignatureResponse[], Error>(
-        ['signatures', topicId, ...orderBy, limit.offset, limit.size], 
-        () => findByCampaign(topicId, orderBy, limit)
+    size: number
+): UseInfiniteQueryResult<SignatureResponse[], Error> => {
+    return useInfiniteQuery<SignatureResponse[], Error>(
+        ['signatures', topicId, ...orderBy], 
+        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size?
+                    undefined:
+                pages.length * size
+        }
     );
 
 };

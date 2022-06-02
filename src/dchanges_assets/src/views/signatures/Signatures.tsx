@@ -1,6 +1,6 @@
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, SignatureResponse} from '../../../../declarations/dchanges/dchanges.did';
-import {Limit, Order} from "../../libs/common";
+import {Order} from "../../libs/common";
 import {useFindSignaturesByCampaign} from "../../hooks/signatures";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
@@ -8,6 +8,7 @@ import EditForm from "./signature/Edit";
 import ReportForm from "../reports/report/Create";
 import { ReportType } from "../../libs/reports";
 import DeleteForm from "./signature/Delete";
+import Button from "../../components/Button";
 
 interface Props {
     campaign: Campaign;
@@ -20,11 +21,6 @@ const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const limit: Limit = {
-    offset: 0,
-    size: 10
-};
 
 const Signatures = (props: Props) => {
     const [modals, setModals] = useState({
@@ -60,23 +56,38 @@ const Signatures = (props: Props) => {
 
     const campaign = props.campaign;
 
-    const signatures = useFindSignaturesByCampaign(campaign._id, orderBy, limit);
+    const signatures = useFindSignaturesByCampaign(campaign._id, orderBy, 10);
 
     return (
-        <div className="signatures">
-            {signatures.status === 'success' && signatures.data? 
-                signatures.data.map((signature) => 
-                    <Item
-                        key={signature._id} 
-                        signature={signature}
-                        campaign={campaign}
-                        onEdit={toggleEdit}
-                        onDelete={toggleDelete}
-                        onReport={toggleReport}
-                    />
-                ):
-                <div>Loading...</div>
-            }
+        <>
+            <div className="signatures">
+                {signatures.status === 'success' && 
+                    signatures.data &&
+                        signatures.data.pages.map((page, index) => 
+                    <Fragment key={index}>
+                        {page.map(signature =>
+                            <Item
+                                key={signature._id} 
+                                signature={signature}
+                                campaign={campaign}
+                                onEdit={toggleEdit}
+                                onDelete={toggleDelete}
+                                onReport={toggleReport}
+                            />
+                        )}
+                    </Fragment>
+                )}
+            </div>
+            <div className="has-text-centered">
+                <div className="control">
+                    <Button
+                        disabled={!signatures.hasNextPage || signatures.isFetchingNextPage}
+                        onClick={() => signatures.fetchNextPage()}
+                    >
+                        <i className="la la-sync" />&nbsp;Load more
+                    </Button>
+                </div>
+            </div>
 
             <Modal
                 header={<span>Edit signature</span>}
@@ -126,7 +137,7 @@ const Signatures = (props: Props) => {
                     />
                 }
             </Modal>            
-        </div>
+        </>
     )
 };
 
