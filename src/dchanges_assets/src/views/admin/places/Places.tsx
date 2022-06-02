@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import { Filter, Limit, Order } from "../../../libs/common";
+import { Filter, Order } from "../../../libs/common";
 import { Place, Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";

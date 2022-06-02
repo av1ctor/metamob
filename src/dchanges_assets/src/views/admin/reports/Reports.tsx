@@ -3,7 +3,7 @@ import { Profile, Report } from "../../../../../declarations/dchanges/dchanges.d
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
-import { Filter, Limit, Order } from "../../../libs/common";
+import { Filter, Order } from "../../../libs/common";
 import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import AssignForm from "./Assign";

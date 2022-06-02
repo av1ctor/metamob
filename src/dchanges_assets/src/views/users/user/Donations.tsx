@@ -9,7 +9,6 @@ import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../donations/Item";
 import DeleteForm from "../../donations/donation/Delete";
 import EditForm from "../../donations/donation/Edit";
-import Button from "../../../components/Button";
 import { Paginator } from "../../../components/Paginator";
 
 interface Props {
