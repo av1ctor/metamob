@@ -43,16 +43,16 @@ const Share = (props: Props) => {
     }, []);
     
     return (
-        <div>
+        <div className="campaign-share">
             <div
                 className="is-size-4 has-text-success-dark mb-2"
             >
                 Share this campaign
             </div>
             <div className="columns">
-                <div className="column is-6">
+                <div className="column is-3">
                     <a 
-                        className="share facebook"
+                        className="option"
                         data-href={genFacebook(props.campaign)} 
                         href="#"
                         onClick={handleOpenWindow}
@@ -60,21 +60,9 @@ const Share = (props: Props) => {
                         <i className="la la-facebook"/> facebook
                     </a>
                 </div>
-                <div className="column is-6">
+                <div className="column is-3">
                     <a 
-                        className="share email"
-                        data-href={genEmail(props.campaign)} 
-                        href="#"
-                        onClick={handleOpenWindow}
-                    >
-                        <i className="la la-envelope-open-text"/> e-mail
-                    </a>
-                </div>
-            </div>
-            <div className="columns">
-                <div className="column is-6">
-                    <a 
-                        className="share twitter"
+                        className="option" 
                         data-href={genTwitter(props.campaign)} 
                         href="#"
                         onClick={handleOpenWindow}
@@ -82,8 +70,15 @@ const Share = (props: Props) => {
                         <i className="la la-twitter"/> twitter
                     </a>
                 </div>
-                <div className="column is-6">
-                    
+                <div className="column is-3">
+                    <a 
+                        className="option"
+                        data-href={genEmail(props.campaign)} 
+                        href="#"
+                        onClick={handleOpenWindow}
+                    >
+                        <i className="la la-envelope-open-text"/> e-mail
+                    </a>
                 </div>
             </div>
         </div>

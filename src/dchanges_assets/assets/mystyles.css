@@ -11155,26 +11155,6 @@ span[data-tooltip] {
   border-radius: 4px;
   padding: 4px; }
 
-.share {
-  display: inline-block;
-  width: 8rem;
-  color: #fff;
-  font-weight: bold;
-  padding: 1rem;
-  border-radius: 4px; }
-
-.share.facebook {
-  background-color: #3b5998; }
-
-.share.twitter {
-  background-color: #00aced; }
-
-.share.email {
-  background-color: #428a42; }
-
-.share:hover {
-  color: #ff0; }
-
 .footer li {
   margin-bottom: 0.5rem; }
 
@@ -11226,16 +11206,19 @@ span[data-tooltip] {
   border: 1px solid #eee;
   border-radius: 4px; }
 
-.campaign-actions .action {
+.campaign-actions .action,
+.campaign-share .option {
   display: flex;
   flex-direction: column;
   text-align: center; }
 
-.campaign-actions .action:not(.disabled):hover {
+.campaign-actions .action:not(.disabled):hover,
+.campaign-share .option:not(.disabled):hover {
   color: #428a42;
   cursor: pointer; }
 
-.campaign-actions .action.disabled {
+.campaign-actions .action.disabled,
+.campaign-share .option.disabled {
   color: #ccc; }
 
 .email-body span:hover {
