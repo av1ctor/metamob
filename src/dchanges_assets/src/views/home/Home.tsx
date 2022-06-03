@@ -29,7 +29,7 @@ const showError = (e: any) => {
             e
         :
             e.constructor === Array?
-                e.join('\n')
+                e.map((s, i) => `${1+i}. ${s};`) .join('\n')
             :
                 typeof e === 'object'?
                     'data' in e?
@@ -40,7 +40,7 @@ const showError = (e: any) => {
                     '';
         
         toast({
-            message: `Error: ${text}`,
+            message: `Error${e.constructor === Array? 's:\n': ': '}${text}`,
             type: 'is-danger',
             duration: 5000,
             dismissible: true,

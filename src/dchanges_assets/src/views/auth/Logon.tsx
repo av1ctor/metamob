@@ -137,6 +137,7 @@ const Logon = (props: Props) => {
             <Steps
                 step={step}
                 steps={steps}
+                narrow
             />
             <Container>
                 {step === 0 && 
