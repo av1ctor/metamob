@@ -64,6 +64,7 @@ export const IconPicker = (props: Props) => {
                         key={index} 
                         className={`icon-box ${icon === props.value? 'selected': ''}`}
                         data-icon={icon}
+                        title={icon}
                         onClick={handleSelect}
                     >
                         <i 

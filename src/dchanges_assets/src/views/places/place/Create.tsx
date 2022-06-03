@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { PlaceRequest, PlaceAuth } from "../../../../../declarations/dchanges/dchanges.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
+import { FlagPicker } from "../../../components/FlagPicker";
 import { IconPicker } from "../../../components/IconPicker";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
@@ -23,7 +24,7 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
     description: yup.string().required().min(3).max(1024),
-    icon: yup.string().required().min(3).max(512),
+    icon: yup.string().required().min(2).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     auth: yup.object().test({
@@ -162,12 +163,20 @@ const Create = (props: Props) => {
                     rows={5}
                     onChange={changeForm}
                 />
-                <IconPicker 
-                    label="Icon"
-                    name="icon"
-                    value={form.icon}
-                    onChange={changeForm}
-                />
+                {form.kind === PlaceKind.COUNTRY?
+                    <FlagPicker
+                        label="Icon"
+                        name="icon"
+                        value={form.icon}
+                        onChange={changeForm}
+                    />:
+                    <IconPicker 
+                        label="Icon"
+                        name="icon"
+                        value={form.icon}
+                        onChange={changeForm}
+                    />
+                }
                 <SelectField
                     label="Kind"
                     id="kind"

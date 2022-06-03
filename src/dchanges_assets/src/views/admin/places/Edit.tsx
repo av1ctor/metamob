@@ -4,12 +4,13 @@ import { Profile, Place, PlaceRequest, PlaceAuth } from "../../../../../declarat
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
+import { FlagPicker } from "../../../components/FlagPicker";
 import { IconPicker } from "../../../components/IconPicker";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
-import { kinds, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
+import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
 import { transformAuth, validateAuth } from "../../places/place/utils";
@@ -198,12 +199,20 @@ const EditForm = (props: Props) => {
                 rows={5}
                 onChange={changeForm}
             />
-            <IconPicker 
-                label="Icon"
-                name="icon"
-                value={form.icon}
-                onChange={changeForm}
-            />            
+            {form.kind === PlaceKind.COUNTRY?
+                <FlagPicker
+                    label="Icon"
+                    name="icon"
+                    value={form.icon}
+                    onChange={changeForm}
+                />:
+                <IconPicker 
+                    label="Icon"
+                    name="icon"
+                    value={form.icon}
+                    onChange={changeForm}
+                />
+            }
             <SelectField
                 label="Kind"
                 name="kind"

@@ -4,12 +4,13 @@ import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/dcha
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
+import { FlagPicker } from "../../../components/FlagPicker";
 import { IconPicker } from "../../../components/IconPicker";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
-import { kinds, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
+import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
@@ -27,7 +28,7 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
     description: yup.string().required().min(3).max(1024),
-    icon: yup.string().required().min(3).max(512),
+    icon: yup.string().required().min(2).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     auth: yup.object().test({
@@ -202,12 +203,20 @@ const EditForm = (props: Props) => {
                 rows={5}
                 onChange={changeForm}
             />
-            <IconPicker 
-                label="Icon"
-                name="icon"
-                value={form.icon}
-                onChange={changeForm}
-            />            
+            {form.kind === PlaceKind.COUNTRY?
+                <FlagPicker
+                    label="Icon"
+                    name="icon"
+                    value={form.icon}
+                    onChange={changeForm}
+                />:
+                <IconPicker 
+                    label="Icon"
+                    name="icon"
+                    value={form.icon}
+                    onChange={changeForm}
+                />
+            }
             <SelectField
                 label="Kind"
                 name="kind"

@@ -11,6 +11,7 @@ import EditForm from "../../places/place/Edit";
 import CreateForm from '../../places/place/Create';
 import Button from "../../../components/Button";
 import { Paginator } from "../../../components/Paginator";
+import { PlaceIcon } from "../../places/place/PlaceIcon";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -138,7 +139,7 @@ const Places = (props: Props) => {
                             <article className="media">
                                 <div className="media-left">
                                     <div className="place-icon has-text-primary-dark">
-                                        <i className={`inter-${place.icon || 'map'}`} />
+                                        <PlaceIcon place={place} size="lg" />
                                     </div>
                                 </div>
                                 <div className="media-content">

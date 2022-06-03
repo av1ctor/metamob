@@ -1,5 +1,6 @@
 import React from "react";
 import { Place } from "../../../../../declarations/dchanges/dchanges.did";
+import { PlaceIcon } from "./PlaceIcon";
 
 interface Props {
     place?: Place;
@@ -15,10 +16,11 @@ export const PlaceBar = (props: Props) => {
     
     return (
         <div className="place-bar has-text-primary-dark">
-            <div className="place-icon">
-                <i className={`inter-${place.icon || 'map'}`} />
-            </div>
-            <div className="place-name">
+            <PlaceIcon 
+                place={place} 
+                size="lg"
+            />
+            <div className="place-name ml-4">
                 {place.name}
             </div>
         </div>
