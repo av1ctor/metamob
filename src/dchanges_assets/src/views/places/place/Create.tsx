@@ -4,7 +4,7 @@ import { PlaceRequest, PlaceAuth } from "../../../../../declarations/dchanges/dc
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import { FlagPicker } from "../../../components/FlagPicker";
-import { IconPicker } from "../../../components/IconPicker";
+import { PlacePicker } from "../../../components/PlacePicker";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
@@ -170,7 +170,7 @@ const Create = (props: Props) => {
                         value={form.icon}
                         onChange={changeForm}
                     />:
-                    <IconPicker 
+                    <PlacePicker
                         label="Icon"
                         name="icon"
                         value={form.icon}

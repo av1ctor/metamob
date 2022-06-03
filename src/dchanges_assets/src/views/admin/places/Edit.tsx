@@ -5,7 +5,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import { FlagPicker } from "../../../components/FlagPicker";
-import { IconPicker } from "../../../components/IconPicker";
+import { PlacePicker } from "../../../components/PlacePicker";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
@@ -206,7 +206,7 @@ const EditForm = (props: Props) => {
                     value={form.icon}
                     onChange={changeForm}
                 />:
-                <IconPicker 
+                <PlacePicker
                     label="Icon"
                     name="icon"
                     value={form.icon}

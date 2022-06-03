@@ -1,0 +1,232 @@
+@charset "utf-8";
+@font-face {
+	font-family: "places";
+	src:url("./fonts/places.eot");
+	src:url("./fonts/places.eot?#iefix") format("embedded-opentype"),
+		url("./fonts/places.woff2") format("woff2"),
+		url("./fonts/places.woff") format("woff"),
+		url("./fonts/places.ttf") format("truetype"),
+		url("./fonts/places.svg#places") format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+[class^="pl-"]:before, [class*=" pl-"]:before{
+	font-family: "places";
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+}
+.pl-anchor:before {
+	content: "\e010";
+}
+.pl-arc_de:before {
+	content: "\e011";
+}
+.pl-big_ben:before {
+	content: "\e012";
+}
+.pl-bridge:before {
+	content: "\e013";
+}
+.pl-bridge_a:before {
+	content: "\e014";
+}
+.pl-bridge_b:before {
+	content: "\e015";
+}
+.pl-building:before {
+	content: "\e016";
+}
+.pl-building_8:before {
+	content: "\e017";
+}
+.pl-building_a:before {
+	content: "\e018";
+}
+.pl-building_a_10:before {
+	content: "\e019";
+}
+.pl-building_b:before {
+	content: "\e01a";
+}
+.pl-building_b_12:before {
+	content: "\e01b";
+}
+.pl-building_barn:before {
+	content: "\e01c";
+}
+.pl-building_c:before {
+	content: "\e01d";
+}
+.pl-building_c_15:before {
+	content: "\e01e";
+}
+.pl-building_d:before {
+	content: "\e01f";
+}
+.pl-building_d_17:before {
+	content: "\e020";
+}
+.pl-building_e:before {
+	content: "\e021";
+}
+.pl-building_e_19:before {
+	content: "\e022";
+}
+.pl-building_f:before {
+	content: "\e023";
+}
+.pl-building_f_21:before {
+	content: "\e024";
+}
+.pl-building_g:before {
+	content: "\e025";
+}
+.pl-building_h:before {
+	content: "\e026";
+}
+.pl-building_i:before {
+	content: "\e027";
+}
+.pl-building_igloo:before {
+	content: "\e028";
+}
+.pl-building_j:before {
+	content: "\e029";
+}
+.pl-building_pisa:before {
+	content: "\e02a";
+}
+.pl-building_tower:before {
+	content: "\e02b";
+}
+.pl-building_tower_29:before {
+	content: "\e02c";
+}
+.pl-castle:before {
+	content: "\e02d";
+}
+.pl-castle_31:before {
+	content: "\e02e";
+}
+.pl-chedi:before {
+	content: "\e02f";
+}
+.pl-christ_the:before {
+	content: "\e030";
+}
+.pl-church:before {
+	content: "\e031";
+}
+.pl-colosseum:before {
+	content: "\e032";
+}
+.pl-direction_sign:before {
+	content: "\e033";
+}
+.pl-door_house:before {
+	content: "\e034";
+}
+.pl-door_wooden:before {
+	content: "\e035";
+}
+.pl-eiffel_tower:before {
+	content: "\e036";
+}
+.pl-electric_pole:before {
+	content: "\e037";
+}
+.pl-factory:before {
+	content: "\e038";
+}
+.pl-factory_42:before {
+	content: "\e039";
+}
+.pl-fence:before {
+	content: "\e03a";
+}
+.pl-globe_all:before {
+	content: "\e03b";
+}
+.pl-greek_column:before {
+	content: "\e03c";
+}
+.pl-high_voltage:before {
+	content: "\e03d";
+}
+.pl-home:before {
+	content: "\e03e";
+}
+.pl-home_48:before {
+	content: "\e03f";
+}
+.pl-home_a:before {
+	content: "\e040";
+}
+.pl-home_b:before {
+	content: "\e041";
+}
+.pl-home_fire:before {
+	content: "\e042";
+}
+.pl-lighthouse:before {
+	content: "\e043";
+}
+.pl-map:before {
+	content: "\e044";
+}
+.pl-moai:before {
+	content: "\e045";
+}
+.pl-mountain_sun:before {
+	content: "\e046";
+}
+.pl-park:before {
+	content: "\e047";
+}
+.pl-pyramid:before {
+	content: "\e048";
+}
+.pl-statue_of:before {
+	content: "\e049";
+}
+.pl-stonehenge:before {
+	content: "\e04a";
+}
+.pl-taj_mahal:before {
+	content: "\e04b";
+}
+.pl-temple:before {
+	content: "\e04c";
+}
+.pl-temple_62:before {
+	content: "\e04d";
+}
+.pl-temple_63:before {
+	content: "\e04e";
+}
+.pl-volcanoe:before {
+	content: "\e04f";
+}
+.pl-warehouse:before {
+	content: "\e050";
+}
+.pl-warehouse_66:before {
+	content: "\e051";
+}
+.pl-water_fountain:before {
+	content: "\e052";
+}
+.pl-water_tower:before {
+	content: "\e053";
+}
+.pl-water_well:before {
+	content: "\e054";
+}
+.pl-ziggurat:before {
+	content: "\e055";
+}
+

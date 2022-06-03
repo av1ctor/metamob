@@ -15,7 +15,7 @@ export const PlaceIcon = (props: Props) => {
         <div className={`place-icon ${props.size || 'sm'}`}>
             {place.kind == PlaceKind.COUNTRY?
                 <span className={`fi fi-${place.icon} fis`} />:
-                <i className={`inter-${place.icon || 'map'}`} />
+                <i className={`pl-${place.icon || 'map'}`} />
             }
         </div>
     );
