@@ -8,11 +8,13 @@ export interface Step {
 interface Props {
     steps: Step[];
     step: number;
+    size?: string;
+    narrow?: boolean;
 };
 
 const Steps = (props: Props) => {
     return (
-        <ul className="steps is-narrow is-medium is-centered has-content-centered">
+        <ul className={`steps is-centered ${props.narrow? 'is-narrow': ''} is-${props.size || 'medium'} has-content-centered`}>
             {props.steps.map((step, index) => 
                 <li key={index} className={`steps-segment ${index === props.step? 'is-active': ''}`}>
                     <span className="steps-marker">

@@ -12,7 +12,8 @@ import { limitText } from "../../libs/utils";
 import { icpToDecimal } from "../../libs/icp";
 
 interface Props {
-    campaign: Campaign
+    campaign: Campaign,
+    isPreview?: boolean,
 };
 
 const Item = (props: Props) => {
@@ -40,6 +41,11 @@ const Item = (props: Props) => {
                 <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover}/></Link>
             }
         >
+            {props.isPreview &&
+                <div className="mb-5">
+                    {limitText(campaign.body, 200)}
+                </div>
+            }
             <div className="level">
                 <div className="level-left">
                     <span title="State">
