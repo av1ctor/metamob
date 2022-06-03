@@ -4,6 +4,7 @@ import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/dcha
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
+import { IconPicker } from "../../../components/IconPicker";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
@@ -201,11 +202,10 @@ const EditForm = (props: Props) => {
                 rows={5}
                 onChange={changeForm}
             />
-            <TextField 
+            <IconPicker 
                 label="Icon"
                 name="icon"
                 value={form.icon}
-                required={true}
                 onChange={changeForm}
             />            
             <SelectField

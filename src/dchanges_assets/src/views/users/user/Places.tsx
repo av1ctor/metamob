@@ -138,7 +138,7 @@ const Places = (props: Props) => {
                             <article className="media">
                                 <div className="media-left">
                                     <div className="place-icon has-text-primary-dark">
-                                        <i className={`la la-${place.icon || 'map'}`} />
+                                        <i className={`inter-${place.icon || 'map'}`} />
                                     </div>
                                 </div>
                                 <div className="media-content">

@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { ProfileRequest, Profile, Role } from "../../../../../declarations/dchanges/dchanges.did";
+import { AvatarPicker } from "../../../components/AvatarPicker";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
@@ -190,11 +191,10 @@ const EditForm = (props: Props) => {
                 required={true}
                 onChange={changeForm} 
             />
-            <TextField 
+            <AvatarPicker 
                 label="Avatar"
                 name="avatar"
                 value={form.avatar[0] || ''}
-                required={true}
                 onChange={changeFormOpt} 
             />
             <SelectField

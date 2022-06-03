@@ -11048,19 +11048,23 @@ span[data-tooltip] {
   display: none; }
 
 .avatar {
-  background-color: #ccc;
+  background-color: #89d0eb;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  overflow: hidden;
+  overflow: hidden; }
+
+.avatar.sm {
   width: 1.5rem;
-  height: 1.5rem; }
+  height: 1.5rem;
+  font-size: 1.5rem; }
 
 .avatar.lg {
   width: 2.5rem;
-  height: 2.5rem; }
+  height: 2.5rem;
+  font-size: 2.5rem; }
 
 .overflow-hidden div {
   overflow: hidden; }
@@ -11237,3 +11241,29 @@ span[data-tooltip] {
 .email-body span:hover {
   cursor: pointer;
   background-color: #eee; }
+
+.icon-picker-container {
+  display: flex;
+  position: relative;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  font-size: 3rem;
+  padding-bottom: 4px;
+  margin-bottom: 1rem;
+  color: #666; }
+
+.icon-box {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 4px; }
+
+.icon-box:not(last-child) {
+  margin-right: 4px; }
+
+.icon-box:hover {
+  border-color: #428a42;
+  cursor: pointer; }
+
+.icon-box.selected {
+  color: #000;
+  border-color: fuchsia; }

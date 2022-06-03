@@ -1,0 +1,79 @@
+@font-face {
+  font-family: "Avabot";
+  src: url("./fonts/Avabot.woff2") format("woff2"),
+       url("./fonts/Avabot.woff") format("woff"),
+       url("./fonts/Avabot.ttf") format("truetype"),
+       url("./fonts/Avabot.svg#Avabot") format("svg");
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Avabot";
+    src: url("./fonts/Avabot.svg#Avabot") format("svg");
+  }
+}
+
+[class*='ava-']:before {
+    display: inline-block;
+    font-family: "Avabot";
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-decoration: inherit;
+    text-rendering: optimizeLegibility;
+    text-transform: none;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+}
+
+.ava-modern:before { content: "\f100"; }
+.ava-hipster:before { content: "\f101"; }
+.ava-mod:before { content: "\f102"; }
+.ava-seapunk:before { content: "\f103"; }
+.ava-afrofuturism:before { content: "\f104"; }
+.ava-gang-member:before { content: "\f105"; }
+.ava-punk:before { content: "\f106"; }
+.ava-otaku:before { content: "\f107"; }
+.ava-heavy:before { content: "\f108"; }
+.ava-grunge:before { content: "\f109"; }
+.ava-cosplayer:before { content: "\f10a"; }
+.ava-pimp:before { content: "\f10b"; }
+.ava-regular:before { content: "\f10c"; }
+.ava-e-girl:before { content: "\f10d"; }
+.ava-afro:before { content: "\f10e"; }
+.ava-punk2:before { content: "\f10f"; }
+.ava-yuppie:before { content: "\f110"; }
+.ava-formal:before { content: "\f111"; }
+.ava-e-girl2:before { content: "\f112"; }
+.ava-bodybuilder:before { content: "\f113"; }
+.ava-gothic:before { content: "\f114"; }
+.ava-posh:before { content: "\f115"; }
+.ava-rapper:before { content: "\f116"; }
+.ava-rave:before { content: "\f117"; }
+.ava-gothic2:before { content: "\f118"; }
+.ava-rockabilly:before { content: "\f119"; }
+.ava-chonga:before { content: "\f11a"; }
+.ava-bohemian:before { content: "\f11b"; }
+.ava-biker:before { content: "\f11c"; }
+.ava-rastafari:before { content: "\f11d"; }
+.ava-boy:before { content: "\f11e"; }
+.ava-regular2:before { content: "\f11f"; }
+.ava-rocker:before { content: "\f120"; }
+.ava-rocker2:before { content: "\f121"; }
+.ava-ganguro-girl:before { content: "\f122"; }
+.ava-eighties:before { content: "\f123"; }
+.ava-beatnik:before { content: "\f124"; }
+.ava-mod2:before { content: "\f125"; }
+.ava-lady:before { content: "\f126"; }
+.ava-bosozoku:before { content: "\f127"; }
+.ava-punk3:before { content: "\f128"; }
+.ava-hipster2:before { content: "\f129"; }
+.ava-emo:before { content: "\f12a"; }
+.ava-surfer:before { content: "\f12b"; }
+.ava-grunge2:before { content: "\f12c"; }
+.ava-preppy:before { content: "\f12d"; }
+.ava-hippie:before { content: "\f12e"; }
+.ava-nerd:before { content: "\f12f"; }
+.ava-cosplayer2:before { content: "\f130"; }
+.ava-rapper2:before { content: "\f131"; }

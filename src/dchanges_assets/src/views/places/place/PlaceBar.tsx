@@ -16,7 +16,7 @@ export const PlaceBar = (props: Props) => {
     return (
         <div className="place-bar has-text-primary-dark">
             <div className="place-icon">
-                <i className={`la la-${place.icon || 'map'}`} />
+                <i className={`inter-${place.icon || 'map'}`} />
             </div>
             <div className="place-name">
                 {place.name}

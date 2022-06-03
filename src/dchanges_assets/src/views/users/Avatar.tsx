@@ -15,23 +15,19 @@ const Avatar = (props: Props) => {
     
     const profile = useFindUserById(props.id, props.onClick? actorState.main: undefined);
 
-    let size = 6;
-    switch(props.size) {
-        case 'lg':
-            size = 3;
-            break;
-    }
-
     const handleClick = useCallback(() => {
         props.onClick && profile.data && props.onClick(profile.data as Profile);
     }, [profile.data]);
     
     return (
         <div className="is-flex is-align-items-center">
-            <div className={`avatar ${props.size}`}>
-                {profile?.isSuccess && 
-                    <div className={`is-size-${size}`} title={`User: ${profile.data.name}`}>
-                        <b>{profile.data.name.charAt(0).toUpperCase()}</b>
+            <div className={`avatar ${props.size || 'sm'}`}>
+                {profile.data && 
+                    <div title={`User: ${profile.data.name}`}>
+                        <b>{profile.data.avatar?
+                            <i className={`ava-${profile.data.avatar}`} />:
+                            <span>{profile.data.name.charAt(0).toUpperCase()}</span>
+                        }</b>
                     </div>
                 }
             </div>

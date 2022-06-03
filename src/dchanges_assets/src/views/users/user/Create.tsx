@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import { AvatarPicker } from "../../../components/AvatarPicker";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -118,11 +119,10 @@ const Create = (props: Props) => {
                     required={true}
                     onChange={changeForm} 
                 />
-                <TextField 
+                <AvatarPicker 
                     label="Avatar"
                     name="avatar"
                     value={form.avatar[0] || ''}
-                    required={true}
                     onChange={changeFormOpt} 
                 />
                 <div className="field is-grouped mt-2">
