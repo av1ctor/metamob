@@ -128,7 +128,7 @@ const VoteForm = (props: Props) => {
                             label="Message"
                             name="body"
                             value={form.body || ''}
-                            rows={4}
+                            rows={3}
                             disabled={hasVoted}
                             onChange={changeForm}
                         />

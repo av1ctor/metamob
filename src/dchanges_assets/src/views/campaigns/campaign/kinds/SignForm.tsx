@@ -110,7 +110,7 @@ const SignForm = (props: Props) => {
                             label="Message"
                             name="body"
                             value={form.body || ''}
-                            rows={6}
+                            rows={3}
                             required={true}
                             disabled={hasSigned}
                             onChange={changeForm}

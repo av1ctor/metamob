@@ -216,7 +216,7 @@ const DonationForm = (props: Props) => {
                             label="Message"
                             name="body"
                             value={form.body || ''}
-                            rows={4}
+                            rows={3}
                             onChange={changeForm}
                         />
                         <CheckboxField
