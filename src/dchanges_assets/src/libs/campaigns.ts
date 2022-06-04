@@ -27,11 +27,11 @@ export enum CampaignResult {
 }
 
 export const kindOptions = [
-    {name: 'Signatures', value: CampaignKind.SIGNATURES},
-    {name: 'Votes', value: CampaignKind.VOTES},
-    {name: 'Votes (anonymous)', value: CampaignKind.ANON_VOTES},
-    {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES},
-    {name: 'Donations', value: CampaignKind.DONATIONS},
+    {name: 'Signatures', value: CampaignKind.SIGNATURES, icon: 'signature'},
+    {name: 'Votes', value: CampaignKind.VOTES, icon: 'vote-yea'},
+    {name: 'Votes (anonymous)', value: CampaignKind.ANON_VOTES, icon: 'vote-yea'},
+    {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES, icon: 'vote-yea'},
+    {name: 'Donations', value: CampaignKind.DONATIONS, icon: 'money-bill'},
 ];
 
 export const campaignStateToText = (

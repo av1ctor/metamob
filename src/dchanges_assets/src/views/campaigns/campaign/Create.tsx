@@ -195,6 +195,14 @@ const CreateForm = (props: Props) => {
         }));
     }, []);
 
+    const changeKind = useCallback((e: any, value: CampaignKind) => {
+        e.preventDefault();
+        setForm(form => ({
+            ...form, 
+            kind: value
+        }));
+    }, []);
+
     const handleSearchPlace = useCallback(async (
         value: string
     ): Promise<Option[]> => {
@@ -244,14 +252,22 @@ const CreateForm = (props: Props) => {
 
             <form onSubmit={handleCreate}>
                 {step === 0 &&
-                    <SelectField 
-                        label="Kind"
-                        name="kind"
-                        value={form.kind}
-                        options={kindOptions}
-                        required={true}
-                        onChange={changeForm} 
-                    />
+                    <div className="kind-selector columns is-multiline">
+                        {kindOptions.map((kind, index) =>
+                            <div 
+                                key={index} 
+                                className="column is-4"
+                            >
+                                <div 
+                                    className={form.kind === kind.value? 'selected': ''}
+                                    onClick={(e) => changeKind(e, kind.value)}
+                                >
+                                    <div><i className={`la la-${kind.icon}`} /></div>
+                                    <div>{kind.name}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 }
                 {step === 1 &&
                     <>
