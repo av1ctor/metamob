@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const Dotenv = require('dotenv-webpack');
 
 //const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
@@ -78,7 +79,19 @@ module.exports = /*smp.wrap(*/{
     rules: [
       { test: /\.(js|ts)x?$/, loader: "ts-loader" },
       { test: /\.css$/, use: ['style-loader','css-loader'] },
-      { test: /\.s[ac]ss$/i, use: ["style-loader","css-loader","sass-loader"] }
+      { test: /\.s[ac]ss$/i, use: [
+        MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+              // options...
+            }
+          }
+      ] }
     ]
   },  
   plugins: [
@@ -87,6 +100,10 @@ module.exports = /*smp.wrap(*/{
     new HtmlWebpackPlugin({
       template: path.join(__dirname, asset_entry),
       cache: false,
+    })
+    ,
+    new MiniCssExtractPlugin({
+      filename: "src/dchanges_assets/assets/mystyles.css"
     }),
     new CopyPlugin({
       patterns: [
@@ -103,7 +120,7 @@ module.exports = /*smp.wrap(*/{
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
       process: require.resolve("process/browser"),
-    }),
+    })
   ],
   // proxy /api to port 8000 during development
   devServer: {
