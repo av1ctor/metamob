@@ -60,7 +60,7 @@ const Item = (props: Props) => {
                     </span>
                     &nbsp;·&nbsp;
                     <span className="tag is-rounded is-success" title={`Total: ${total}`}>{total}</span>
-                    {campaign.updatesCnt > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updatesCnt}`}>{campaign.updatesCnt}</span></>}
+                    {campaign.updates > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updates}`}>{campaign.updates}</span></>}
                 </div>
                 <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;

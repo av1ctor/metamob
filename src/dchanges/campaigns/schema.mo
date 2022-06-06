@@ -61,11 +61,19 @@ module {
                 options = [#sortable];
             },
             {
+                name = "goal";
+                options = [];
+            },
+            {
                 name = "total";
                 options = [#sortable];
             },
             {
-                name = "updatesCnt";
+                name = "interactions";
+                options = [#sortable];
+            },
+            {
+                name = "updates";
                 options = [];
             },
             {

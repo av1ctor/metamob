@@ -1,6 +1,6 @@
 import React from "react";
 import Box from "../../../../components/Box";
-import { CampaignState, getGoalValue } from "../../../../libs/campaigns";
+import { CampaignState } from "../../../../libs/campaigns";
 import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
 import DonationForm from "./DonationForm";
 import Result from "../Result";
@@ -19,11 +19,10 @@ export const DonationFrame = (props: Props) => {
     const {campaign} = props;
     
     const donated = campaign.total;
-    const goal = getGoalValue(campaign);
 
     return (
         <>
-            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. More <b>{icpToDecimal(goal - donated)} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. More <b>{icpToDecimal(campaign.goal - donated)} ICP</b> to goal. Keep going!</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>

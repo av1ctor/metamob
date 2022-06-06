@@ -6,7 +6,6 @@ import {Filter, Limit, Order} from "./common";
 export enum CampaignKind {
     SIGNATURES = 0,
     VOTES = 1,
-    ANON_VOTES = 2,
     WEIGHTED_VOTES = 3,
     DONATIONS = 4
 };
@@ -29,7 +28,6 @@ export enum CampaignResult {
 export const kindOptions = [
     {name: 'Signatures', value: CampaignKind.SIGNATURES, icon: 'signature'},
     {name: 'Votes', value: CampaignKind.VOTES, icon: 'vote-yea'},
-    {name: 'Votes (anonymous)', value: CampaignKind.ANON_VOTES, icon: 'vote-yea'},
     {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES, icon: 'vote-yea'},
     {name: 'Donations', value: CampaignKind.DONATIONS, icon: 'money-bill'},
 ];
@@ -55,39 +53,11 @@ export const campaignStateToText = (
     }
 };
 
-export const getGoalValue = (
-    campaign: Campaign
-): bigint => {
-    if('signatures' in campaign.info) {
-        return BigInt(campaign.info.signatures.goal);
-    }
-    else if('votes' in campaign.info) {
-        return BigInt(campaign.info.votes.goal);
-    }
-    else if('anonVotes' in campaign.info) {
-        return BigInt(campaign.info.anonVotes.goal);
-    }
-    else if('weightedVotes' in campaign.info) {
-        return campaign.info.weightedVotes.goal;
-    }
-    else if('donations' in campaign.info) {
-        return campaign.info.donations.goal;
-    }
-
-    return BigInt(0);
-};
-
 export const getProVotes = (
     campaign: Campaign
 ): bigint => {
     if('votes' in campaign.info) {
-        return BigInt(campaign.info.votes.pro);
-    }
-    else if('anonVotes' in campaign.info) {
-        return BigInt(campaign.info.anonVotes.pro);
-    }
-    else if('weightedVotes' in campaign.info) {
-        return campaign.info.weightedVotes.pro;
+        return campaign.info.votes.pro;
     }
 
     return BigInt(0);
@@ -97,13 +67,7 @@ export const getAgainstVotes = (
     campaign: Campaign
 ): bigint => {
     if('votes' in campaign.info) {
-        return BigInt(campaign.info.votes.against);
-    }
-    else if('anonVotes' in campaign.info) {
-        return BigInt(campaign.info.anonVotes.against);
-    }
-    else if('weightedVotes' in campaign.info) {
-        return campaign.info.weightedVotes.against;
+        return campaign.info.votes.against;
     }
 
     return BigInt(0);

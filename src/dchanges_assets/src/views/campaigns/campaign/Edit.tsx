@@ -14,7 +14,7 @@ import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
-import { CampaignKind, CampaignState, getGoalValue, kindOptions } from "../../../libs/campaigns";
+import { CampaignKind, CampaignState, kindOptions } from "../../../libs/campaigns";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 
 interface Props {
@@ -57,8 +57,8 @@ const EditForm = (props: Props) => {
         ...props.campaign,
         state: [props.campaign.state],
         goal: props.campaign.kind === CampaignKind.DONATIONS?
-            icpToDecimal(getGoalValue(props.campaign)):
-            getGoalValue(props.campaign),
+            icpToDecimal(props.campaign.goal):
+            props.campaign.goal,
     });
     
     const updateMut = useUpdateCampaign();
@@ -154,8 +154,8 @@ const EditForm = (props: Props) => {
             ...props.campaign,
             state: [props.campaign.state],
             goal: props.campaign.kind === CampaignKind.DONATIONS?
-                icpToDecimal(getGoalValue(props.campaign)):
-                getGoalValue(props.campaign),
+                icpToDecimal(props.campaign.goal):
+                props.campaign.goal,
         });
     }, [props.campaign]);
 

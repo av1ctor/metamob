@@ -219,30 +219,34 @@ module {
             dir: Int
         ): (Types.Campaign, Types.Campaign) -> Int {
             switch(column) {
-                case "_id" func(a: Types.Campaign, b: Types.Campaign): Int  = 
+                case "_id" func(a, b) = 
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
-                case "pubId" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "pubId" func(a, b) = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
-                case "title" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "title" func(a, b) = 
                     Utils.order2Int(Text.compare(a.title, b.title)) * dir;
-                case "state" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "state" func(a, b) = 
                     Utils.order2Int(Nat32.compare(a.state, b.state)) * dir;
-                case "result" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "result" func(a, b) = 
                     Utils.order2Int(Nat32.compare(a.result, b.result)) * dir;
-                case "total" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "total" func(a, b) = 
                     Utils.order2Int(Nat.compare(a.total, b.total)) * dir;
-                case "boosting" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "interactions" func(a, b) = 
+                    Utils.order2Int(Nat32.compare(a.interactions, b.interactions)) * dir;
+                case "boosting" func(a, b) = 
                     Utils.order2Int(Nat.compare(a.boosting, b.boosting)) * dir;
-                case "publishedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
-                    Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
-                case "createdAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "createdAt" func(a, b) = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
-                case "updatedAt" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "updatedAt" func(a, b) = 
                     Utils.order2Int(Utils.compareIntOpt(a.updatedAt, b.updatedAt)) * dir;
-                case "categoryId" func(a: Types.Campaign, b: Types.Campaign): Int = 
+                case "publishedAt" func(a, b) = 
+                    Utils.order2Int(Utils.compareIntOpt(a.publishedAt, b.publishedAt)) * dir;
+                case "expiredAt" func(a, b) = 
+                    Utils.order2Int(Utils.compareIntOpt(a.expiredAt, b.expiredAt)) * dir;
+                case "categoryId" func(a, b) = 
                     Utils.order2Int(Nat32.compare(a.categoryId, b.categoryId)) * dir;
                 case _ {
-                    func(a: Types.Campaign, b: Types.Campaign): Int = 0;
+                    func(a, b) = 0;
                 };
             };
         };
@@ -470,85 +474,37 @@ module {
         ): Types.CampaignInfo {
             if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
-                    goal = Nat32.fromNat(goal);
-                    firstAt = null;
-                    lastAt = null;
-                    lastBy = null;
                 });
             }
-            else if(kind == Types.KIND_VOTES) {
+            else if(kind == Types.KIND_VOTES or
+                kind == Types.KIND_WEIGHTED_VOTES) {
                 #votes({
                     pro = 0;
                     against = 0;
-                    goal = Nat32.fromNat(goal);
-                    firstAt = null;
-                    lastAt = null;
-                    lastBy = null;
-                });
-            }
-            else if(kind == Types.KIND_ANON_VOTES) {
-                #anonVotes({
-                    pro = 0;
-                    against = 0;
-                    goal = Nat32.fromNat(goal);
-                    firstAt = null;
-                    lastAt = null;
-                });
-            }
-            else if(kind == Types.KIND_WEIGHTED_VOTES) {
-                #weightedVotes({
-                    pro = 0;
-                    against = 0;
-                    goal = goal;
-                    firstAt = null;
-                    lastAt = null;
-                    lastBy = null;
                 });
             }
             else {
                 #donations({
-                    goal = goal;
-                    firstAt = null;
-                    lastAt = null;
-                    lastBy = null;
                 });
             };
         };
 
         func _updateInfoEntity(
-            info: Types.CampaignInfo,
-            goal: Nat
+            info: Types.CampaignInfo
         ): Types.CampaignInfo {
             switch(info) {
                 case (#signatures(i)) {
                     #signatures({
-                        goal = Nat32.fromNat(goal);
                     });
                 };
                 case (#votes(i)) {
                     #votes({
                         pro = i.pro;
                         against = i.against;
-                        goal = Nat32.fromNat(goal);
-                    });
-                };
-                case (#anonVotes(i)) {
-                    #anonVotes({
-                        pro = i.pro;
-                        against = i.against;
-                        goal = Nat32.fromNat(goal);
-                    });
-                };
-                case (#weightedVotes(i)) {
-                    #weightedVotes({
-                        pro = i.pro;
-                        against = i.against;
-                        goal = goal;
                     });
                 };
                 case (#donations(i)) {
                     #donations({
-                        goal = goal;
                     });
                 };
             };
@@ -577,9 +533,11 @@ module {
                 duration = req.duration;
                 tags = req.tags;
                 info = _createInfoEntity(req.kind, req.goal);
+                goal = req.goal;
                 total = 0;
+                interactions = 0;
                 boosting = 0;
-                updatesCnt = 0;
+                updates = 0;
                 publishedAt = null;
                 expiredAt = null;
                 createdAt = now;
@@ -613,10 +571,12 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = req.tags;
-                info = _updateInfoEntity(e.info, req.goal);
+                info = _updateInfoEntity(e.info);
+                goal = req.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -647,9 +607,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -679,19 +641,12 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = switch(e.info) {
-                    case (#signatures(info)) {
-                        #signatures({
-                            goal = info.goal;
-                        });
-                    };
-                    case _ {
-                        e.info;
-                    };
-                };
+                info = e.info;
+                goal = e.goal;
                 total = e.total + 1;
+                interactions = e.interactions + 1;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -721,19 +676,12 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = switch(e.info) {
-                    case (#signatures(info)) {
-                        #signatures({
-                            goal = info.goal;
-                        });
-                    };
-                    case _ {
-                        e.info;
-                    };
-                };
+                info = e.info;
+                goal = e.goal;
                 total = if(e.total > 0) e.total - 1 else 0;
+                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -768,30 +716,17 @@ module {
                         #votes({
                             pro = if(vote.pro) info.pro + 1 else info.pro;
                             against = if(not vote.pro) info.against + 1 else info.against;
-                            goal = info.goal;
                         });
                     };
-                    case (#anonVotes(info)) {
-                        #anonVotes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro;
-                            against = if(not vote.pro) info.against + 1 else info.against;
-                            goal = info.goal;
-                        });
-                    };
-                    case (#weightedVotes(info)) {
-                        #weightedVotes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro;
-                            against = if(not vote.pro) info.against + 1 else info.against;
-                            goal = info.goal;
-                        });
-                    };                    
                     case _ {
                         e.info;
                     };
                 };
+                goal = e.goal;
                 total = e.total + 1;
+                interactions = e.interactions + 1;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -826,30 +761,17 @@ module {
                         #votes({
                             pro = if(vote.pro) info.pro + 1 else info.pro - 1;
                             against = if(not vote.pro) info.against + 1 else info.against - 1;
-                            goal = info.goal;
                         });
                     };
-                    case (#anonVotes(info)) {
-                        #anonVotes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
-                            against = if(not vote.pro) info.against + 1 else info.against - 1;
-                            goal = info.goal;
-                        });
-                    };
-                    case (#weightedVotes(info)) {
-                        #weightedVotes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
-                            against = if(not vote.pro) info.against + 1 else info.against - 1;
-                            goal = info.goal;
-                        });
-                    };                    
                     case _ {
                         e.info;
                     };
                 };
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -884,30 +806,17 @@ module {
                         #votes({
                             pro = if(vote.pro) info.pro - 1 else info.pro;
                             against = if(not vote.pro) info.against - 1 else info.against;
-                            goal = info.goal;
                         });
                     };
-                    case (#anonVotes(info)) {
-                        #anonVotes({
-                            pro = if(vote.pro) info.pro - 1 else info.pro;
-                            against = if(not vote.pro) info.against - 1 else info.against;
-                            goal = info.goal;
-                        });
-                    };
-                    case (#weightedVotes(info)) {
-                        #weightedVotes({
-                            pro = if(vote.pro) info.pro - 1 else info.pro;
-                            against = if(not vote.pro) info.against - 1 else info.against;
-                            goal = info.goal;
-                        });
-                    };                    
                     case _ {
                         e.info;
                     };
                 };
+                goal = e.goal;
                 total = if(e.total > 0) e.total - 1 else 0;
+                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -937,19 +846,12 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = switch(e.info) {
-                    case (#donations(info)) {
-                        #donations({
-                            goal = info.goal;
-                        });
-                    };
-                    case _ {
-                        e.info;
-                    };
-                };
+                info = e.info;
+                goal = e.goal;
                 total = e.total + donation.value;
+                interactions = e.interactions + 1;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -979,19 +881,12 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = switch(e.info) {
-                    case (#donations(info)) {
-                        #donations({
-                            goal = info.goal;
-                        });
-                    };
-                    case _ {
-                        e.info;
-                    };
-                };
+                info = e.info;
+                goal = e.goal;
                 total = e.total - donation.value;
+                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1022,9 +917,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions + 1;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt + 1;
+                updates = e.updates + 1;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1055,9 +952,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
-                updatesCnt = if(e.updatesCnt > 0) e.updatesCnt - 1 else 0;
+                updates = if(e.updates > 0) e.updates - 1 else 0;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1090,9 +989,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = ?now;
                 expiredAt = ?limit;
                 createdAt = e.createdAt;
@@ -1124,9 +1025,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1157,9 +1060,11 @@ module {
                 duration = e.duration;
                 tags = e.tags;
                 info = e.info;
+                goal = e.goal;
                 total = e.total;
+                interactions = e.interactions;
                 boosting = e.boosting + value;
-                updatesCnt = e.updatesCnt;
+                updates = e.updates;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1191,34 +1096,23 @@ module {
         res.put("result", #nat32(e.result));
         res.put("duration", #nat32(e.duration));
         res.put("tags", #array(Array.map(e.tags, func(id: Text): Variant.Variant {#text(id);})));
+        res.put("goal", #nat(e.goal));
         res.put("total", #nat(e.total));
+        res.put("interactions", #nat32(e.interactions));
         res.put("boosting", #nat(e.boosting));
         
         switch(e.info) {
             case (#signatures(info)) {
-                res.put("info_goal", #nat32(info.goal));
             };
             case (#votes(info)) {
-                res.put("info_pro", #nat32(info.pro));
-                res.put("info_against", #nat32(info.against));
-                res.put("info_goal", #nat32(info.goal));
-            };
-            case (#anonVotes(info)) {
-                res.put("info_pro", #nat32(info.pro));
-                res.put("info_against", #nat32(info.against));
-                res.put("info_goal", #nat32(info.goal));
-            };
-            case (#weightedVotes(info)) {
                 res.put("info_pro", #nat(info.pro));
                 res.put("info_against", #nat(info.against));
-                res.put("info_goal", #nat(info.goal));
-            };            
+            };
             case (#donations(info)) {
-                res.put("info_goal", #nat(info.goal));
             };            
         };
 
-        res.put("updatesCnt", #nat32(e.updatesCnt));
+        res.put("updates", #nat32(e.updates));
         res.put("publishedAt", switch(e.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
         res.put("expiredAt", switch(e.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
         res.put("createdAt", #int(e.createdAt));
@@ -1250,40 +1144,26 @@ module {
             result = Variant.getOptNat32(map.get("result"));
             duration = Variant.getOptNat32(map.get("duration"));
             tags = Array.map(Variant.getOptArray(map.get("tags")), Variant.getText);
+            goal = Variant.getOptNat(map.get("goal"));
             total = Variant.getOptNat(map.get("total"));
+            interactions = Variant.getOptNat32(map.get("interactions"));
             boosting = Variant.getOptNat(map.get("boosting"));
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
-                    goal = Variant.getOptNat32(map.get("info_goal"));
                 });
             }
-            else if(kind == Types.KIND_VOTES) {
+            else if(kind == Types.KIND_VOTES or
+                    kind == Types.KIND_WEIGHTED_VOTES) {
                 #votes({
-                    pro = Variant.getOptNat32(map.get("info_pro"));
-                    against = Variant.getOptNat32(map.get("info_against"));
-                    goal = Variant.getOptNat32(map.get("info_goal"));
-                });
-            }
-            else if(kind == Types.KIND_ANON_VOTES) {
-                #anonVotes({
-                    pro = Variant.getOptNat32(map.get("info_pro"));
-                    against = Variant.getOptNat32(map.get("info_against"));
-                    goal = Variant.getOptNat32(map.get("info_goal"));
-                });
-            }
-            else if(kind == Types.KIND_WEIGHTED_VOTES) {
-                #weightedVotes({
                     pro = Variant.getOptNat(map.get("info_pro"));
                     against = Variant.getOptNat(map.get("info_against"));
-                    goal = Variant.getOptNat(map.get("info_goal"));
                 });
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {
                 #donations({
-                    goal = Variant.getOptNat(map.get("info_goal"));
                 });
             };
-            updatesCnt = Variant.getOptNat32(map.get("updatesCnt"));
+            updates = Variant.getOptNat32(map.get("updates"));
             publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
             expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

@@ -50,7 +50,11 @@ module {
                                                 #err("Duplicated");
                                             };
                                             case _ {
-                                                repo.create(req, caller._id);
+                                                let res = repo.create(req, caller._id);
+                                                if(campaign.goal != 0 and campaign.total + 1 >= campaign.goal) {
+                                                    ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
+                                                };
+                                                res;
                                             };
                                         };
                                     };

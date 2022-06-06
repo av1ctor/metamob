@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import Box from "../../../../components/Box";
-import { CampaignState, getAgainstVotes, getGoalValue, getProVotes } from "../../../../libs/campaigns";
+import { CampaignState, getAgainstVotes, getProVotes } from "../../../../libs/campaigns";
 import { useFindVoteByCampaignAndUser } from "../../../../hooks/votes";
 import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
 import { AuthContext } from "../../../../stores/auth";

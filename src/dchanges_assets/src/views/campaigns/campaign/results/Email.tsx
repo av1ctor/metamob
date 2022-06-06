@@ -56,20 +56,8 @@ const Email = (props: Props): React.ReactElement => {
                 if(!('votes' in campaign.info)) {
                     return null;
                 }
-                return `${campaign.info.votes.pro} in favor votes`;
+                return `${campaign.info.votes.pro.toString()} in favor votes`;
 
-            case CampaignKind.ANON_VOTES:
-                if(!('anonVotes' in campaign.info)) {
-                    return null;
-                }
-                return `${campaign.info.anonVotes.pro} in favor votes`;
-
-            case CampaignKind.WEIGHTED_VOTES:
-                if(!('weightedVotes' in campaign.info)) {
-                    return null;
-                }
-                return `${campaign.info.weightedVotes.pro.toString()} in favor votes`;
-    
             default:
                 return null;
             }

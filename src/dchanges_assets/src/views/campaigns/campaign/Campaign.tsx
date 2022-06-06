@@ -104,7 +104,7 @@ const Campaign = (props: Props) => {
                                 toggleLoading={props.toggleLoading}
                             />
                         }
-                        {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.ANON_VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
+                        {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
                             <VoteFrame 
                                 campaign={campaign} 
                                 onSuccess={props.onSuccess}
@@ -186,7 +186,7 @@ const Campaign = (props: Props) => {
                     {
                         title: 'Updates', 
                         icon: 'newspaper', 
-                        badge: campaign.updatesCnt > 0? campaign.updatesCnt.toString(): ''
+                        badge: campaign.updates > 0? campaign.updates.toString(): ''
                     }
                 ]}
             >
@@ -198,7 +198,7 @@ const Campaign = (props: Props) => {
                         toggleLoading={props.toggleLoading}
                     />
                 :
-                    (campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.ANON_VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES)?
+                    (campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES)?
                         <Votes 
                             campaign={campaign} 
                             onSuccess={props.onSuccess}

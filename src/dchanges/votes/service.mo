@@ -50,7 +50,22 @@ module {
                                                 #err("Duplicated");
                                             };
                                             case _ {
-                                                repo.create(req, caller._id);
+                                                let res = repo.create(req, caller._id);
+                                                if(campaign.goal != 0) {
+                                                    if(req.pro) {
+                                                        let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
+                                                        if(votes + 1 >= campaign.goal) {
+                                                            ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
+                                                        };
+                                                    }
+                                                    else {
+                                                        let votes = switch(campaign.info) {case (#votes(info)) info.against; case _ 0;};
+                                                        if(votes + 1 >= campaign.goal) {
+                                                            ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_LOST, caller._id);
+                                                        };
+                                                    };
+                                                };
+                                                res;
                                             };
                                         };
                                     };
@@ -297,7 +312,6 @@ module {
                     }
                     else {
                         if(campaign.kind != CampaignTypes.KIND_VOTES and
-                            campaign.kind != CampaignTypes.KIND_ANON_VOTES and
                             campaign.kind != CampaignTypes.KIND_WEIGHTED_VOTES) {
                             #err("Invalid campaign kind");
                         }

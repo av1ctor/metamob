@@ -33,16 +33,18 @@ export const SignFrame = (props: Props) => {
     
     const {campaign} = props;
     
-    const signaturesCnt = Number(campaign.total);
+    const total = Number(campaign.total);
     
     const userSignature = useFindSignatureByCampaignAndUser(campaign?._id, auth.user?._id);
 
-    const goal = calcMaxSignatures(signaturesCnt);
+    const goal = campaign.goal === 0n? 
+        calcMaxSignatures(total):
+        Number(campaign.goal);
     
     return (
         <>
-            <progress className="progress mb-0 pb-0 is-success" value={signaturesCnt} max={goal}>{signaturesCnt}</progress>
-            <div><small><b>{signaturesCnt}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
+            <progress className="progress mb-0 pb-0 is-success" value={total} max={goal}>{total}</progress>
+            <div><small><b>{total}</b> have signed. {campaign.state === CampaignState.PUBLISHED? <span>Let's get to {goal}!</span>: null}</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>

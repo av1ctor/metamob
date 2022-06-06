@@ -5,8 +5,7 @@ module {
     public type CampaignKind = Nat32;
     public let KIND_SIGNATURES: Nat32 = 0;
     public let KIND_VOTES: Nat32 = 1;
-    public let KIND_ANON_VOTES: Nat32 = 2;
-    public let KIND_WEIGHTED_VOTES: Nat32 = 3;
+    public let KIND_WEIGHTED_VOTES: Nat32 = 2;
     public let KIND_DONATIONS: Nat32 = 4;
     
     public type CampaignState = Nat32;
@@ -23,36 +22,19 @@ module {
     public let RESULT_LOST: Nat32 = 2;
 
     public type SignatureInfo = {
-        goal: Nat32;
     };
 
     public type VoteInfo = {
-        pro: Nat32;
-        against: Nat32;
-        goal: Nat32;
-    };
-
-    public type WeightedVoteInfo = {
         pro: Nat;
         against: Nat;
-        goal: Nat;
-    };
-
-    public type AnonymousVoteInfo = {
-        pro: Nat32;
-        against: Nat32;
-        goal: Nat32;
     };
 
     public type DonationInfo = {
-        goal: Nat;
     };
 
     public type CampaignInfo = {
         #signatures: SignatureInfo;
         #votes: VoteInfo;
-        #anonVotes: AnonymousVoteInfo;
-        #weightedVotes: WeightedVoteInfo;
         #donations: DonationInfo;
     };
     
@@ -71,9 +53,11 @@ module {
         duration: Nat32;
         tags: [Text];
         info: CampaignInfo;
+        goal: Nat;
         total: Nat;
+        interactions: Nat32;
         boosting: Nat;
-        updatesCnt: Nat32;
+        updates: Nat32;
         publishedAt: ?Int;
         expiredAt: ?Int;
         createdAt: Int;

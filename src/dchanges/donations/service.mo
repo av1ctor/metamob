@@ -103,7 +103,12 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                repo.complete(entity, Nat64.toNat(amount), caller._id);
+                                                let amountNat = Nat64.toNat(amount);
+                                                let res = repo.complete(entity, amountNat, caller._id);
+                                                if(campaign.goal != 0 and campaign.total + amountNat >= campaign.goal) {
+                                                    ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
+                                                };
+                                                res;
                                             };
                                         };
                                     };
