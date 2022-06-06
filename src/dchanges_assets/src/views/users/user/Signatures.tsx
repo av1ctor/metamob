@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { SignatureResponse } from "../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
@@ -68,6 +68,13 @@ const Signatures = (props: Props) => {
         }));
     }, []);
 
+    useEffect(() => {
+        props.toggleLoading(signatures.status === "loading");
+        if(signatures.status === "error") {
+            props.onError(signatures.error.message);
+        }
+    }, [signatures.status]);
+
     if(!authState.user) {
         return <div>Forbidden</div>;
     }
@@ -79,18 +86,6 @@ const Signatures = (props: Props) => {
             </div>
 
             <div>
-                {signatures.status === 'loading' &&
-                    <div>
-                        Loading...
-                    </div>
-                }
-
-                {signatures.status === 'error' &&
-                    <div className="form-error">
-                        {signatures.error.message}
-                    </div>
-                }
-                
                 <div className="signatures columns is-multiline">
                     {signatures.status === 'success' && 
                         signatures.data && 

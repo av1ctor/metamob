@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { DonationResponse } from "../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
@@ -68,6 +68,13 @@ const Donations = (props: Props) => {
         }));
     }, []);
 
+    useEffect(() => {
+        props.toggleLoading(donations.status === "loading");
+        if(donations.status === "error") {
+            props.onError(donations.error.message);
+        }
+    }, [donations.status]);
+
     if(!authState.user) {
         return <div>Forbidden</div>;
     }
@@ -79,18 +86,6 @@ const Donations = (props: Props) => {
             </div>
 
             <div>
-                {donations.status === 'loading' &&
-                    <div>
-                        Loading...
-                    </div>
-                }
-
-                {donations.status === 'error' &&
-                    <div className="form-error">
-                        {donations.error.message}
-                    </div>
-                }
-                
                 <div className="donations columns is-multiline">
                     {donations.status === 'success' && 
                         donations.data && 

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { VoteResponse } from "../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
@@ -68,6 +68,13 @@ const Votes = (props: Props) => {
         }));
     }, []);
 
+    useEffect(() => {
+        props.toggleLoading(votes.status === "loading");
+        if(votes.status === "error") {
+            props.onError(votes.error.message);
+        }
+    }, [votes.status]);
+    
     if(!authState.user) {
         return <div>Forbidden</div>;
     }
@@ -79,18 +86,6 @@ const Votes = (props: Props) => {
             </div>
 
             <div>
-                {votes.status === 'loading' &&
-                    <div>
-                        Loading...
-                    </div>
-                }
-
-                {votes.status === 'error' &&
-                    <div className="form-error">
-                        {votes.error.message}
-                    </div>
-                }
-                
                 <div className="votes columns is-multiline">
                     {votes.status === 'success' && 
                         votes.data && 

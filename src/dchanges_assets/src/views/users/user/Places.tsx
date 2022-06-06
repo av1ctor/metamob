@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Place } from "../../../../../declarations/dchanges/dchanges.did";
 import Modal from "../../../components/Modal";
@@ -91,6 +91,13 @@ const Places = (props: Props) => {
             offset: limit.offset + limit.size
         }));
     }, []);
+
+    useEffect(() => {
+        props.toggleLoading(places.status === "loading");
+        if(places.status === "error") {
+            props.onError(places.error.message);
+        }
+    }, [places.status]);
     
     if(!authState.user) {
         return <div>Forbidden</div>;
@@ -116,18 +123,6 @@ const Places = (props: Props) => {
             </div>
             
             <div>
-                {places.status === 'loading' &&
-                    <div>
-                        Loading...
-                    </div>
-                }
-
-                {places.status === 'error' &&
-                    <div className="form-error">
-                        {places.error.message}
-                    </div>
-                }
-                
                 <div className="columns is-multiline is-align-items-center">
                     {places.status === 'success' && 
                         places.data && 

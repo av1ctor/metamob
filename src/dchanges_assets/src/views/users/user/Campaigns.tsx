@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Paginator } from "../../../components/Paginator";
 import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
 import { ActorContext } from "../../../stores/actor";
@@ -6,6 +6,9 @@ import { AuthContext } from "../../../stores/auth";
 import Item from "../../campaigns/Item";
 
 interface Props {
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -37,6 +40,13 @@ const Campaigns = (props: Props) => {
             offset: limit.offset + limit.size
         }));
     }, []);
+
+    useEffect(() => {
+        props.toggleLoading(campaigns.status === "loading");
+        if(campaigns.status === "error") {
+            props.onError(campaigns.error.message);
+        }
+    }, [campaigns.status]);
     
     if(!authState.user) {
         return <div>Forbidden</div>;
@@ -49,18 +59,6 @@ const Campaigns = (props: Props) => {
             </div>
             
             <div>
-                {campaigns.status === 'loading' &&
-                    <div>
-                        Loading...
-                    </div>
-                }
-
-                {campaigns.status === 'error' &&
-                    <div className="form-error">
-                        {campaigns.error.message}
-                    </div>
-                }
-                
                 <div className="columns is-desktop is-multiline is-align-items-center">
                     {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                         <div 
