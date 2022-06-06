@@ -7,6 +7,8 @@ import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
+import SelectField from "../../../components/SelectField";
+import countries from "../../../libs/countries";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -18,6 +20,7 @@ const formSchema = yup.object().shape({
     name: yup.string().min(3).max(64),
     email: yup.string().min(3).max(128),
     avatar: yup.string().required(),
+    country: yup.string().required(),
 });
 
 const Create = (props: Props) => {
@@ -30,7 +33,7 @@ const Create = (props: Props) => {
         roles: [],
         active: [],
         banned: [],
-        country: 'US'
+        country: ''
     });
     
     const changeForm = useCallback((e: any) => {
@@ -69,17 +72,7 @@ const Create = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const req: ProfileRequest = {
-                name: form.name, 
-                email: form.email, 
-                avatar: form.avatar,
-                roles: [],
-                active: [],
-                banned: [],
-                country: 'US',
-            };
-            
-            const res = await dchanges.userCreate(req);
+            const res = await dchanges.userCreate(form);
             
             if('ok' in res) {
                 const user = res.ok;
@@ -119,6 +112,13 @@ const Create = (props: Props) => {
                     required={true}
                     onChange={changeForm} 
                 />
+                <SelectField
+                        label="Country"
+                        name="country"
+                        value={form.country}
+                        options={countries.map(c => ({name: c.name, value: c.code}))}
+                        onChange={changeForm}
+                    />
                 <AvatarPicker 
                     label="Avatar"
                     name="avatar"

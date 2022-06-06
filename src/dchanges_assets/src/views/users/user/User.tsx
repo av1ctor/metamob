@@ -8,6 +8,8 @@ import {Profile, ProfileRequest } from "../../../../../declarations/dchanges/dch
 import { ActorContext } from "../../../stores/actor";
 import { AvatarPicker } from "../../../components/AvatarPicker";
 import { useFindUserById } from "../../../hooks/users";
+import SelectField from "../../../components/SelectField";
+import countries from "../../../libs/countries";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -19,6 +21,7 @@ const formSchema = yup.object().shape({
     name: yup.string().min(3).max(64),
     email: yup.string().min(3).max(128),
     avatar: yup.array(yup.string()).required(),
+    country: yup.string().required(),
 });
 
 const User = (props: Props) => {
@@ -29,10 +32,10 @@ const User = (props: Props) => {
         name: '',
         email: '',
         avatar: [],
-        roles: [] as any,
+        roles: [],
         active: [],
         banned: [],
-        country: 'US',
+        country: '',
     });
 
     const profile = useFindUserById(authState.user?._id || 0, actorState.main);
@@ -73,21 +76,11 @@ const User = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const req: ProfileRequest = {
-                name: form.name, 
-                email: form.email, 
-                avatar: form.avatar,
-                roles: [],
-                active: [],
-                banned: [],
-                country: '',
-            };
-
             if(!actorState.main) {
                 return;
             }
             
-            const res = await actorState.main.userUpdateMe(req);
+            const res = await actorState.main.userUpdateMe(form);
             
             if('ok' in res) {
                 const user = res.ok;
@@ -153,6 +146,13 @@ const User = (props: Props) => {
                         value={form.email || ''}
                         required={true}
                         onChange={changeForm} 
+                    />
+                    <SelectField
+                        label="Country"
+                        name="country"
+                        value={form.country}
+                        options={countries.map(c => ({name: c.name, value: c.code}))}
+                        onChange={changeForm}
                     />
                     <AvatarPicker 
                         label="Avatar"
