@@ -4,9 +4,10 @@ import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
-import {ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
+import {Profile, ProfileRequest } from "../../../../../declarations/dchanges/dchanges.did";
 import { ActorContext } from "../../../stores/actor";
 import { AvatarPicker } from "../../../components/AvatarPicker";
+import { useFindUserById } from "../../../hooks/users";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -31,9 +32,10 @@ const User = (props: Props) => {
         roles: [] as any,
         active: [],
         banned: [],
-        countryId: 0,
-        ...authState.user
+        country: 'US',
     });
+
+    const profile = useFindUserById(authState.user?._id || 0, actorState.main);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -78,7 +80,7 @@ const User = (props: Props) => {
                 roles: [],
                 active: [],
                 banned: [],
-                countryId: 0,
+                country: '',
             };
 
             if(!actorState.main) {
@@ -105,17 +107,26 @@ const User = (props: Props) => {
     }, [form]);
 
     useEffect(() => {
-        setForm({
-            name: '',
-            email: '',
-            avatar: [],
-            roles: [] as any,
-            active: [],
-            banned: [],
-            countryId: 0,
-            ...authState.user
-        });
-    }, [authState.user]);
+        switch(profile.status) {
+            case 'success':
+                const full = profile.data as Profile;
+                setForm({
+                    name: full.name,
+                    email: full.email,
+                    avatar: full.avatar,
+                    roles: [],
+                    active: [],
+                    banned: [],
+                    country: full.country,
+                });
+                break;
+
+            case 'error':
+                props.onError(profile.error.message);
+                break;
+        }
+        props.toggleLoading(profile.status === 'loading');
+    }, [profile.status]);
 
     if(!authState.user) {
         return null;

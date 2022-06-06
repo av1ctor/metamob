@@ -14,7 +14,7 @@ module {
         avatar: ?Text;
         roles: [Role];
         active: Bool;
-        countryId: Nat32;
+        country: Text;
         banned: Bool;
         createdAt: Int;
         createdBy: Nat32;
@@ -29,7 +29,7 @@ module {
         roles: ?[Role];
         active: ?Bool;
         banned: ?Bool;
-        countryId: Nat32;
+        country: Text;
     };
 
     public type ProfileResponse = {
@@ -39,6 +39,6 @@ module {
         email: Text;
         avatar: ?Text;
         roles: [Role];
-        countryId: Nat32;
+        country: Text;
     };
 };

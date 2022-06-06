@@ -107,7 +107,7 @@ shared({caller = owner}) actor class DChanges() = this {
             email = "";
             avatar = prof.avatar;
             roles = prof.roles;
-            countryId = prof.countryId;
+            country = prof.country;
         }
     };
 

@@ -25,7 +25,7 @@ const UserSetupForm = (props: Props) => {
         roles: [[{admin: null}]],
         active: [true],
         banned: [false],
-        countryId: 0
+        country: 'US'
     });
     
     const changeForm = useCallback((e: any) => {
@@ -68,7 +68,7 @@ const UserSetupForm = (props: Props) => {
             roles: [[{admin: null}]],
             active: [true],
             banned: [false],
-            countryId: 0,
+            country: 'US',
         });
     }, [props.onCreate, form]);
     

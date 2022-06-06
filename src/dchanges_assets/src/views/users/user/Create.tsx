@@ -30,7 +30,7 @@ const Create = (props: Props) => {
         roles: [],
         active: [],
         banned: [],
-        countryId: 0
+        country: 'US'
     });
     
     const changeForm = useCallback((e: any) => {
@@ -76,7 +76,7 @@ const Create = (props: Props) => {
                 roles: [],
                 active: [],
                 banned: [],
-                countryId: 0,
+                country: 'US',
             };
             
             const res = await dchanges.userCreate(req);

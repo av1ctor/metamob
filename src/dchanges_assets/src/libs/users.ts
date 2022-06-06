@@ -15,7 +15,7 @@ const anonymous: ProfileResponse = {
     email: '',
     avatar: ['anonymous'],
     roles: [],
-    countryId: 0,
+    country: 'US',
 };
 
 export const findById = async (

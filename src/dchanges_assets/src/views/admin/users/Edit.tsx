@@ -47,7 +47,7 @@ const formSchema = yup.object().shape({
     }))).required(),
     active: yup.array(yup.boolean()).required(),
     banned: yup.array(yup.boolean()).required(),
-    countryId: yup.number().required(),
+    country: yup.string().required(),
 });
 
 const roles: Option[] = [
@@ -66,7 +66,7 @@ const EditForm = (props: Props) => {
         roles: [props.user.roles],
         active: [props.user.active],
         banned: [props.user.banned],
-        countryId: props.user.countryId
+        country: props.user.country
     });
 
     const updateMut = useUpdateUser();
@@ -138,7 +138,7 @@ const EditForm = (props: Props) => {
                     roles: form.roles,
                     active: form.active,
                     banned: form.banned,
-                    countryId: form.countryId,
+                    country: form.country,
                 }
             });
             props.onSuccess('User updated!');
@@ -165,7 +165,7 @@ const EditForm = (props: Props) => {
             roles: [props.user.roles],
             active: [props.user.active],
             banned: [props.user.banned],
-            countryId: props.user.countryId
+            country: props.user.country
         });
     }, [props.user]);
     

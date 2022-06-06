@@ -25,8 +25,8 @@ module {
                 options = [#unique, #min(6), #max(64)];
             },
             {
-                name = "countryId";
-                options = [#sortable];
+                name = "country";
+                options = [#sortable, #min(2), #max(4)];
             },
             {
                 name = "avatar";
