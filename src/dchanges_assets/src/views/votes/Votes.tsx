@@ -84,7 +84,7 @@ const Votes = (props: Props) => {
                         disabled={!votes.hasNextPage || votes.isFetchingNextPage}
                         onClick={() => votes.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;Load more
+                        <i className="la la-sync" />&nbsp;{votes.hasNextPage? 'Load more': 'All loaded'}
                     </Button>
                 </div>
             </div>

@@ -84,7 +84,7 @@ const Signatures = (props: Props) => {
                         disabled={!signatures.hasNextPage || signatures.isFetchingNextPage}
                         onClick={() => signatures.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;Load more
+                        <i className="la la-sync" />&nbsp;{signatures.hasNextPage? 'Load more': 'All loaded'}
                     </Button>
                 </div>
             </div>

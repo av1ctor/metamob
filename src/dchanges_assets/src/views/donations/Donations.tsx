@@ -84,7 +84,7 @@ const Donations = (props: Props) => {
                         disabled={!donations.hasNextPage || donations.isFetchingNextPage}
                         onClick={() => donations.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;Load more
+                        <i className="la la-sync" />&nbsp;{donations.hasNextPage? 'Load more': 'All loaded'}
                     </Button>
                 </div>
             </div>

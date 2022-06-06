@@ -100,7 +100,7 @@ const Place = (props: Props) => {
                                     disabled={!campaigns.hasNextPage || campaigns.isFetchingNextPage}
                                     onClick={() => campaigns.fetchNextPage()}
                                 >
-                                    <i className="la la-sync" />&nbsp;Load more
+                                    <i className="la la-sync" />&nbsp;{campaigns.hasNextPage? 'Load more': 'All loaded'}
                                 </Button>
                             </div>
                         </div>
