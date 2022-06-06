@@ -66,13 +66,15 @@ module {
                                         };
                                     };
                                     case (#transfer(action)) {
-                                        if(req.kind != Types.KIND_DONATIONS) {
+                                        if(req.kind != Types.KIND_FUNDING and req.kind != Types.KIND_DONATIONS) {
                                             return #err("Wrong campaign kind");
                                         };
 
                                         if(action.receiver.size() == 0) {
                                             return #err("Receiver undefined");
                                         };
+                                    };
+                                    case(#nop) {
                                     };
                                 };
                                 
@@ -460,41 +462,6 @@ module {
                                         repo.delete(campaign, caller._id);
                                     };
                                 };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-
-        public func getBalance(
-            _id: Nat32,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<Nat64, Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findById(_id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(campaign)) {
-                                if(not canChange(caller, campaign, [Types.STATE_FINISHED])) {
-                                    return #err("Forbidden");
-                                };
-
-                                if(campaign.kind != Types.KIND_DONATIONS) {
-                                    return #err("Wrong campaign kind");
-                                };
-
-                                #ok(await LedgerUtils.getCampaignBalance(campaign, this));
                             };
                         };
                     };

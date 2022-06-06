@@ -6,24 +6,26 @@ import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
-import {SignFrame} from "./kinds/SignFrame";
-import Signatures from "../../signatures/Signatures";
-import {VoteFrame} from "./kinds/VoteFrame";
-import Votes from "../../votes/Votes";
 import Updates from "../../updates/Updates";
 import Avatar from "../../users/Avatar";
 import EditForm from "./Edit";
 import Category from "../../categories/category/Category";
 import Tag from "../../../components/Tag";
-import { CampaignKind, CampaignState } from "../../../libs/campaigns";
+import { CampaignKind, campaignKindToIcon, campaignKindToTitle, CampaignState } from "../../../libs/campaigns";
 import ReportForm from "../../reports/report/Create";
 import Tabs from "../../../components/Tabs";
 import { ReportType } from "../../../libs/reports";
 import PlaceTree from "../../places/place/PlaceTree";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
+import Signatures from "../../signatures/Signatures";
+import {SignFrame} from "./kinds/SignFrame";
+import Votes from "../../votes/Votes";
+import {VoteFrame} from "./kinds/VoteFrame";
 import Donations from "../../donations/Donations";
 import { DonationFrame } from "./kinds/DonationFrame";
+import Fundings from "../../fundings/Fundings";
+import { FundingFrame } from "./kinds/FundingFrame";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -112,6 +114,14 @@ const Campaign = (props: Props) => {
                                 toggleLoading={props.toggleLoading}
                             />
                         }
+                        {campaign.kind === CampaignKind.FUNDINGS &&
+                            <FundingFrame
+                                campaign={campaign} 
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                                toggleLoading={props.toggleLoading}
+                            />
+                        }
                         {campaign.kind === CampaignKind.DONATIONS &&
                             <DonationFrame
                                 campaign={campaign} 
@@ -172,16 +182,8 @@ const Campaign = (props: Props) => {
             <Tabs
                 tabs={[
                     {
-                        title: campaign.kind === CampaignKind.SIGNATURES? 
-                            'Signatures': 
-                            campaign.kind === CampaignKind.DONATIONS?
-                                'Donations':
-                                'Votes', 
-                        icon: campaign.kind === CampaignKind.SIGNATURES? 
-                            'signature':
-                            campaign.kind === CampaignKind.DONATIONS?
-                                'money-bill':
-                                'vote-yea'
+                        title: campaignKindToTitle(campaign.kind), 
+                        icon: campaignKindToIcon(campaign.kind),
                     },
                     {
                         title: 'Updates', 
@@ -214,7 +216,15 @@ const Campaign = (props: Props) => {
                                 toggleLoading={props.toggleLoading}
                             />
                         :
-                            <div></div>
+                            campaign.kind === CampaignKind.DONATIONS?
+                                <Fundings 
+                                    campaign={campaign} 
+                                    onSuccess={props.onSuccess}
+                                    onError={props.onError}
+                                    toggleLoading={props.toggleLoading}
+                                />
+                            :
+                                <div></div>
                 }
                 <Updates
                     campaign={campaign} 
@@ -272,4 +282,3 @@ const Campaign = (props: Props) => {
 };
 
 export default Campaign;
-  

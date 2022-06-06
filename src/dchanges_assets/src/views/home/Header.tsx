@@ -41,6 +41,10 @@ const Header = (props: Props) => {
         navigate('/user/donations');
     }, []);
     
+    const redirectToFundings = useCallback(() => {
+        navigate('/user/fundings');
+    }, []);
+    
     const redirectToSignatures = useCallback(() => {
         navigate('/user/signatures');
     }, []);
@@ -104,6 +108,9 @@ const Header = (props: Props) => {
                                 </a>
                                 <a className="navbar-item" onClick={redirectToDonations}>
                                     <i className="la la-money-bill"/>&nbsp;Donations
+                                </a>
+                                <a className="navbar-item" onClick={redirectToFundings}>
+                                    <i className="la la-money-bill"/>&nbsp;Fundings
                                 </a>
                                 <a className="navbar-item" onClick={redirectToSignatures}>
                                     <i className="la la-signature"/>&nbsp;Signatures

@@ -175,53 +175,6 @@ const EditForm = (props: Props) => {
                     required={true}
                     disabled={true}
                 />
-                {Number(form.kind) === CampaignKind.DONATIONS &&
-                    <>
-                        <label className="label">Options</label>
-                        <div className="p-2 border">
-                            <TextField 
-                                label="Receiver account" 
-                                name="action.transfer.receiver"
-                                value={'transfer' in form.action? 
-                                    form.action.transfer.receiver || '':
-                                    ''}
-                                required={true}
-                                onChange={changeForm}
-                            />
-                        </div>
-                    </>
-                }
-                {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
-                    <>
-                        <label className="label">Options</label>
-                        <div className="p-2 border">
-                            <TextField 
-                                label="Canister Id" 
-                                name="action.invoke.canisterId"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.canisterId || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                            <TextField 
-                                label="Method name" 
-                                name="action.invoke.method"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.method || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                            <TextField 
-                                label="Arguments" 
-                                name="action.invoke.args"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.args.toString() || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                        </div>
-                    </>
-                }
                 <TextField 
                     label="Title" 
                     name="title"
@@ -287,6 +240,53 @@ const EditForm = (props: Props) => {
                     maxTags={5}
                     onChange={changeForm} 
                 />
+                {(Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS) &&
+                    <>
+                        <label className="label">Action (transfer funds)</label>
+                        <div className="p-2 border">
+                            <TextField 
+                                label="Receiver account" 
+                                name="action.transfer.receiver"
+                                value={'transfer' in form.action? 
+                                    form.action.transfer.receiver || '':
+                                    ''}
+                                required={true}
+                                onChange={changeForm}
+                            />
+                        </div>
+                    </>
+                }
+                {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
+                    <>
+                        <label className="label">Action (invoke method)</label>
+                        <div className="p-2 border">
+                            <TextField 
+                                label="Canister Id" 
+                                name="action.invoke.canisterId"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.canisterId || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                            <TextField 
+                                label="Method name" 
+                                name="action.invoke.method"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.method || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                            <TextField 
+                                label="Arguments" 
+                                name="action.invoke.args"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.args.toString() || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                        </div>
+                    </>
+                }
                 {authState.user && isModerator(authState.user) &&
                     <SelectField
                         label="State"

@@ -6,7 +6,8 @@ import {Filter, Limit, Order} from "./common";
 export enum CampaignKind {
     SIGNATURES = 0,
     VOTES = 1,
-    WEIGHTED_VOTES = 3,
+    WEIGHTED_VOTES = 2,
+    FUNDINGS = 3,
     DONATIONS = 4
 };
 
@@ -29,6 +30,7 @@ export const kindOptions = [
     {name: 'Signatures', value: CampaignKind.SIGNATURES, icon: 'signature'},
     {name: 'Votes', value: CampaignKind.VOTES, icon: 'vote-yea'},
     {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES, icon: 'vote-yea'},
+    {name: 'Fundings', value: CampaignKind.FUNDINGS, icon: 'lightbulb'},
     {name: 'Donations', value: CampaignKind.DONATIONS, icon: 'money-bill'},
 ];
 
@@ -50,6 +52,42 @@ export const campaignStateToText = (
             return 'Published';
         default:
             return 'Unknown';
+    }
+};
+
+export const campaignKindToTitle = (
+    kind: number
+): string => {
+    switch(kind) {
+        case CampaignKind.SIGNATURES:
+            return 'Signatures';
+        case CampaignKind.DONATIONS:
+            return 'Donations';
+        case CampaignKind.FUNDINGS:
+            return 'Fundings';
+        case CampaignKind.VOTES:
+        case CampaignKind.WEIGHTED_VOTES:
+            return 'Votes';
+        default:
+            return 'Unknown';
+    }
+};
+
+export const campaignKindToIcon = (
+    kind: number
+): string => {
+    switch(kind) {
+        case CampaignKind.SIGNATURES:
+            return 'signature';
+        case CampaignKind.DONATIONS:
+            return 'money-bill';
+        case CampaignKind.FUNDINGS:
+            return 'money-bill';
+        case CampaignKind.VOTES:
+        case CampaignKind.WEIGHTED_VOTES:
+            return 'vote-yea';
+        default:
+            return '';
     }
 };
 
@@ -163,21 +201,4 @@ export const findByPlaceId = async (
     }
 
     return findAll(filters?.concat({key: 'placeId', op: 'eq', value: placeId}), orderBy, limit);
-}
-
-export const getBalance = async (
-    campaignId: number, 
-    main?: DChanges
-): Promise<bigint> => {
-    if(!main) {
-        return BigInt(0);
-    }
-
-    const res = await main.campaignGetBalance(campaignId);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return res.ok; 
 }

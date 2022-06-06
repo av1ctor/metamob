@@ -12,6 +12,7 @@ import CampaignTypes "../campaigns/types";
 import CampaignService "../campaigns/service";
 import SignatureService "../signatures/service";
 import VoteService "../votes/service";
+import FundingService "../fundings/service";
 import DonationService "../donations/service";
 import UpdateService "../updates/service";
 
@@ -21,6 +22,7 @@ module {
         campaignService: CampaignService.Service,
         signatureService: SignatureService.Service, 
         voteService: VoteService.Service, 
+        fundingService: FundingService.Service, 
         donationService: DonationService.Service, 
         updateService: UpdateService.Service
     ) {
@@ -29,6 +31,7 @@ module {
         let userRepo = userService.getRepository();
         let signatureRepo = signatureService.getRepository();
         let voteRepo = voteService.getRepository();
+        let fundingRepo = fundingService.getRepository();
         let donationRepo = donationService.getRepository();
         let updateRepo = updateService.getRepository();
 
@@ -286,6 +289,16 @@ module {
                     };
                 };
             }
+            else if(req.entityType == Types.TYPE_FUNDINGS) {
+                switch(fundingRepo.findById(req.entityId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case _ {
+                        #ok();
+                    };
+                };
+            }
             else if(req.entityType == Types.TYPE_DONATIONS) {
                 switch(donationRepo.findById(req.entityId)) {
                     case (#err(msg)) {
@@ -295,8 +308,7 @@ module {
                         #ok();
                     };
                 };
-            }
-            else {
+            }            else {
                 switch(updateRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);

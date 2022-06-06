@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import Container from "../../../components/Container";
 import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction} from "../../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
@@ -27,6 +26,27 @@ interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
+};
+
+const kindToGoal = (
+    kind: number
+): string => {
+    let suffix = '';
+    switch(kind) {
+        case CampaignKind.DONATIONS: 
+        case CampaignKind.FUNDINGS: 
+            suffix = '(ICP)';
+            break;
+        case CampaignKind.SIGNATURES: 
+            suffix = '(Signatures)'; 
+            break;
+        case CampaignKind.VOTES:
+        case CampaignKind.WEIGHTED_VOTES:
+            suffix = '(Votes)';
+            break;
+    }
+
+    return `Goal ${suffix}`;
 };
 
 const toCampaign = (
@@ -66,10 +86,6 @@ const toCampaign = (
 
 const steps: Step[] = [
     {
-        title: 'Kind',
-        icon: 'shapes',
-    },
-    {
         title: 'Title & Target',
         icon: 'heading',
     },
@@ -82,11 +98,11 @@ const steps: Step[] = [
         icon: 'image',
     },
     {
-        title: 'Duration & Goal',
-        icon: 'clock',
+        title: 'Kind',
+        icon: 'shapes',
     },
     {
-        title: 'Category & Place',
+        title: 'Options',
         icon: 'list-ol',
     },
     {
@@ -96,9 +112,6 @@ const steps: Step[] = [
 ];
 
 const formSchema = [
-    yup.object().shape({
-        kind: yup.number().required(),
-    }),
     yup.object().shape({
         title: yup.string().min(10).max(128),
         target: yup.string().min(3).max(64),
@@ -110,10 +123,11 @@ const formSchema = [
         cover: yup.string().min(7).max(256),
     }),
     yup.object().shape({
-        goal: yup.number().required().min(1),
-        duration: yup.number().min(1).max(365),
+        kind: yup.number().required(),
     }),
     yup.object().shape({
+        goal: yup.number().required().min(1),
+        duration: yup.number().min(1).max(365),
         categoryId: yup.number().required().min(1),
         placeId: yup.number().required().min(1),
         tags: yup.array(yup.string().max(12)).max(5),
@@ -206,6 +220,7 @@ const CreateForm = (props: Props) => {
         let action: CampaignAction = {nop: null};
         switch(Number(value)) {
             case CampaignKind.DONATIONS:
+            case CampaignKind.FUNDINGS:
                 action = {transfer: {receiver: ''}};
                 break;
             case CampaignKind.VOTES:
@@ -274,25 +289,101 @@ const CreateForm = (props: Props) => {
             <form onSubmit={handleCreate}>
                 {step === 0 &&
                     <>
-                        <div className="kind-selector columns is-multiline">
-                            {kindOptions.map((kind, index) =>
+                        <TextField 
+                            label="Title"
+                            name="title"
+                            value={form.title || ''}
+                            required={true}
+                            onChange={changeForm} 
+                        />
+                        <TextField 
+                            label="Target"
+                            name="target"
+                            value={form.target || ''}
+                            required={true}
+                            onChange={changeForm} 
+                        />
+                    </>
+                }
+                {step === 1 &&
+                    <MarkdownField
+                        label="Body"
+                        name="body"
+                        value={form.body || ''}
+                        rows={6}
+                        onChange={changeForm}
+                    />
+                }
+                {step === 2 &&
+                    <TextField 
+                        label="Cover image" 
+                        name="cover"
+                        value={form.cover || ''}
+                        required={true}
+                        onChange={changeForm}
+                    />
+                }
+                {step === 3 &&
+                    <div className="kind-selector columns is-multiline">
+                        {kindOptions.map((kind, index) =>
+                            <div 
+                                key={index} 
+                                className="column is-4"
+                            >
                                 <div 
-                                    key={index} 
-                                    className="column is-4"
+                                    className={form.kind === kind.value? 'selected': ''}
+                                    onClick={(e) => changeKind(e, kind.value)}
                                 >
-                                    <div 
-                                        className={form.kind === kind.value? 'selected': ''}
-                                        onClick={(e) => changeKind(e, kind.value)}
-                                    >
-                                        <div><i className={`la la-${kind.icon}`} /></div>
-                                        <div>{kind.name}</div>
-                                    </div>
+                                    <div><i className={`la la-${kind.icon}`} /></div>
+                                    <div>{kind.name}</div>
                                 </div>
-                            )}
-                        </div>
-                        {Number(form.kind) === CampaignKind.DONATIONS &&
+                            </div>
+                        )}
+                    </div>
+                }                
+                {step === 4 &&
+                    <>
+                        <NumberField
+                            label="Duration (in days)" 
+                            name="duration"
+                            value={form.duration}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <TextField 
+                            label={kindToGoal(form.kind)}
+                            name="goal"
+                            value={form.goal.toString()}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <SelectField 
+                            label="Category"
+                            name="categoryId"
+                            value={form.categoryId}
+                            options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
+                            required={true}
+                            onChange={changeForm} 
+                        />
+                        <AutocompleteField
+                            label="Place"
+                            name="placeId"
+                            value={place.data?.name || ''}
+                            required={true}
+                            disabled={!!props.place}
+                            onSearch={handleSearchPlace}
+                            onChange={changeForm}
+                        />
+                        <TagsField 
+                            label="Tags"
+                            name="tags"
+                            value={form.tags}
+                            maxTags={5}
+                            onChange={changeForm} 
+                        />
+                        {(Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS) &&
                             <>
-                                <label className="label">Options</label>
+                                <label className="label">Action (transfer funds)</label>
                                 <div className="p-2 border">
                                     <TextField 
                                         label="Receiver account" 
@@ -308,7 +399,7 @@ const CreateForm = (props: Props) => {
                         }
                         {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
                             <>
-                                <label className="label">Options</label>
+                                <label className="label">Action (invoke method)</label>
                                 <div className="p-2 border">
                                     <TextField 
                                         label="Canister Id" 
@@ -339,89 +430,7 @@ const CreateForm = (props: Props) => {
                         }
                     </>
                 }
-                {step === 1 &&
-                    <>
-                        <TextField 
-                            label="Title"
-                            name="title"
-                            value={form.title || ''}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                        <TextField 
-                            label="Target"
-                            name="target"
-                            value={form.target || ''}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                    </>
-                }
-                {step === 2 &&
-                    <MarkdownField
-                        label="Body"
-                        name="body"
-                        value={form.body || ''}
-                        rows={6}
-                        onChange={changeForm}
-                    />
-                }
-                {step === 3 &&
-                    <TextField 
-                        label="Cover image" 
-                        name="cover"
-                        value={form.cover || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
-                }
-                {step === 4 &&
-                    <>
-                        <NumberField
-                            label="Duration (in days)" 
-                            name="duration"
-                            value={form.duration}
-                            required={true}
-                            onChange={changeForm}
-                        />
-                        <TextField 
-                            label={`Goal ${Number(form.kind) === CampaignKind.DONATIONS? '(ICP)': (Number(form.kind) === CampaignKind.SIGNATURES? '(Signatures)': '(Votes)')}`}
-                            name="goal"
-                            value={form.goal.toString()}
-                            required={true}
-                            onChange={changeForm}
-                        />
-                    </>
-                }
-                {step === 5 &&
-                    <>
-                        <SelectField 
-                            label="Category"
-                            name="categoryId"
-                            value={form.categoryId}
-                            options={props.categories.map((cat) => ({name: cat.name, value: cat._id}))}
-                            required={true}
-                            onChange={changeForm} 
-                        />
-                        <AutocompleteField
-                            label="Place"
-                            name="placeId"
-                            value={place.data?.name || ''}
-                            required={true}
-                            disabled={!!props.place}
-                            onSearch={handleSearchPlace}
-                            onChange={changeForm}
-                        />
-                        <TagsField 
-                            label="Tags"
-                            name="tags"
-                            value={form.tags}
-                            maxTags={5}
-                            onChange={changeForm} 
-                        />
-                    </>
-                }
-                {step !== 6 &&
+                {step !== 5 &&
                     <div className="field is-grouped mt-5">
                         <div className="control">
                             <Button 
@@ -448,7 +457,7 @@ const CreateForm = (props: Props) => {
                         </div>
                     </div>
                 }                
-                {step === 6 &&
+                {step === 5 &&
                     <div>
                         <Item
                             campaign={toCampaign(form, authState.user)}

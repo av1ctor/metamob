@@ -12,6 +12,7 @@ import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import UserCampaigns from "../users/user/Campaigns";
 import UserDonations from "../users/user/Donations";
+import UserFundings from "../users/user/Fundings";
 import UserSignatures from "../users/user/Signatures";
 import UserVotes from "../users/user/Votes";
 import UserPlaces from "../users/user/Places";
@@ -162,6 +163,7 @@ export const Home = () => {
                         <Route path="/user/profile" element={<User {...props} />} />
                         <Route path="/user/campaigns" element={<UserCampaigns {...props} />} />
                         <Route path="/user/donations" element={<UserDonations {...props} />} />
+                        <Route path="/user/fundings" element={<UserFundings {...props} />} />
                         <Route path="/user/signatures" element={<UserSignatures {...props} />} />
                         <Route path="/user/votes" element={<UserVotes {...props} />} />
                         <Route path="/user/places" element={<UserPlaces {...props} />} />

@@ -9,6 +9,7 @@ import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
 import VoteTypes "./votes/types";
 import DonationTypes "./donations/types";
+import FundingTypes "./fundings/types";
 import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
 import PlaceTypes "./places/types";
@@ -19,6 +20,7 @@ import CampaignService "./campaigns/service";
 import SignatureService "./signatures/service";
 import VoteService "./votes/service";
 import DonationService "./donations/service";
+import FundingService "./fundings/service";
 import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
@@ -35,9 +37,10 @@ shared({caller = owner}) actor class DChanges() = this {
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
     let voteService = VoteService.Service(userService, campaignService, placeService);
     let donationService = DonationService.Service(userService, campaignService, placeService);
+    let fundingService = DonationService.Service(userService, campaignService, placeService);
     let updateService = UpdateService.Service(userService, campaignService, placeService);
     let reportService = ReportService.Service(
-        userService, campaignService, signatureService, voteService, donationService, updateService);
+        userService, campaignService, signatureService, voteService, fundingService, donationService, updateService);
 
     //
     // users facade
@@ -259,12 +262,6 @@ shared({caller = owner}) actor class DChanges() = this {
         pubId: Text
     ): async Result.Result<(), Text> {
         await campaignService.delete(pubId, msg.caller);
-    };
-
-    public shared(msg) func campaignGetBalance(
-        _id: Nat32
-    ): async Result.Result<Nat64, Text> {
-        await campaignService.getBalance(_id, msg.caller, this);
     };
 
     //
@@ -708,6 +705,158 @@ shared({caller = owner}) actor class DChanges() = this {
     };
 
     //
+    // fundings facade
+    //
+    public shared(msg) func fundingCreate(
+        req: FundingTypes.FundingRequest
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponseEx(await fundingService.create(req, msg.caller, this), false);
+    };
+
+    public shared(msg) func fundingComplete(
+        pubId: Text
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponseEx(await fundingService.complete(pubId, msg.caller, this), false);
+    };
+
+    public shared(msg) func fundingUpdate(
+        id: Text, 
+        req: FundingTypes.FundingRequest
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponseEx(await fundingService.update(id, req, msg.caller), false);
+    };
+
+    public shared query(msg) func fundingFindById(
+        _id: Nat32
+    ): async Result.Result<FundingTypes.Funding, Text> {
+        fundingService.findById(_id, msg.caller);
+    };
+
+    public query func fundingFindByPubId(
+        pubId: Text
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponse(fundingService.findByPubId(pubId));
+    };
+
+    public shared query(msg) func fundingFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[FundingTypes.FundingResponse], Text> {
+        _transformFundingResponses(fundingService.find(criterias, sortBy, limit));
+    };
+
+    public query func fundingFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[FundingTypes.FundingResponse], Text> {
+        _transformFundingResponses(fundingService.findByCampaign(campaignId, sortBy, limit));
+    };
+
+    public query func fundingCountByCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Nat, Text> {
+        fundingService.countByCampaign(campaignId);
+    };
+
+    public shared query(msg) func fundingFindByUser(
+        userId: /* Text */ Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[FundingTypes.FundingResponse], Text> {
+        _transformFundingResponses(fundingService.findByUser(userId, sortBy, limit, msg.caller));
+    };
+
+    public query func fundingFindByCampaignAndUser(
+        campaignId: Nat32,
+        userId: Nat32
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponse(fundingService.findByCampaignAndUser(campaignId, userId));
+    };
+
+    public shared(msg) func fundingDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        await fundingService.delete(id, msg.caller, this);
+    };
+
+    func _redactFundingEx(
+        e: FundingTypes.Funding,
+        checkAnonymous: Bool
+    ): FundingTypes.FundingResponse {
+        if(not checkAnonymous or not e.anonymous) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                anonymous = e.anonymous;
+                body = e.body;
+                value = e.value;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                body = e.body;
+                value = e.value;
+                createdAt = e.createdAt;
+                createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
+            };
+        };
+    };
+
+    func _redactFunding(
+        e: FundingTypes.Funding
+    ): FundingTypes.FundingResponse {
+        _redactFundingEx(e, true);
+    };
+
+    func _transformFundingResponseEx(
+        res: Result.Result<FundingTypes.Funding, Text>,
+        checkAnonymous: Bool
+    ): Result.Result<FundingTypes.FundingResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactFundingEx(e, checkAnonymous));
+            };
+        };
+    };
+
+    func _transformFundingResponse(
+        res: Result.Result<FundingTypes.Funding, Text>
+    ): Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponseEx(res, true);
+    };    
+
+    func _transformFundingResponses(
+        res: Result.Result<[FundingTypes.Funding], Text>
+    ): Result.Result<[FundingTypes.FundingResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(entities, _redactFunding));
+            };
+        };
+    };
+
+    //
     // updates facade
     //
     public shared(msg) func updateCreate(
@@ -904,6 +1053,7 @@ shared({caller = owner}) actor class DChanges() = this {
     stable var signatureEntities: [[(Text, Variant.Variant)]] = [];
     stable var voteEntities: [[(Text, Variant.Variant)]] = [];
     stable var donationEntities: [[(Text, Variant.Variant)]] = [];
+    stable var fundingEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
@@ -916,6 +1066,7 @@ shared({caller = owner}) actor class DChanges() = this {
         signatureEntities := signatureService.backup();
         voteEntities := voteService.backup();
         donationEntities := donationService.backup();
+        fundingEntities := fundingService.backup();
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
         placeEntities := placeService.backup();
@@ -940,6 +1091,9 @@ shared({caller = owner}) actor class DChanges() = this {
         
         donationService.restore(donationEntities);
         donationEntities := [];
+
+        fundingService.restore(fundingEntities);
+        fundingEntities := [];
         
         updateService.restore(updateEntities);
         updateEntities := [];

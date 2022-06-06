@@ -2,7 +2,6 @@ import Array "mo:base/Array";
 import Bool "mo:base/Bool";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
-import DonationTypes "../donations/types";
 import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
@@ -17,16 +16,18 @@ import Random "../common/random";
 import Result "mo:base/Result";
 import Schema "./schema";
 import SignatureTypes "../signatures/types";
+import FundingTypes "../fundings/types";
+import DonationTypes "../donations/types";
+import UpdateTypes "../updates/types";
+import VoteTypes "../votes/types";
 import Table "mo:mo-table/table";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Types "./types";
 import ULID "../common/ulid";
-import UpdateTypes "../updates/types";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
-import VoteTypes "../votes/types";
 
 module {
     public class Repository() {
@@ -407,6 +408,26 @@ module {
             );
         };
 
+        public func onFundingInserted(
+            campaign: Types.Campaign,
+            funding: FundingTypes.Funding
+        ) {
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenFundingInserted(campaign, funding)
+            );
+        };
+
+        public func onFundingDeleted(
+            campaign: Types.Campaign,
+            funding: FundingTypes.Funding
+        ) {
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenFundingDeleted(campaign, funding)
+            );
+        };
+
         public func onDonationInserted(
             campaign: Types.Campaign,
             donation: DonationTypes.Donation
@@ -473,6 +494,10 @@ module {
                     against = 0;
                 });
             }
+            else if(kind == Types.KIND_FUNDING) {
+                #funding({
+                });
+            }
             else {
                 #donations({
                 });
@@ -483,7 +508,7 @@ module {
             info: Types.CampaignInfo
         ): Types.CampaignInfo {
             switch(info) {
-                case (#signatures(i)) {
+                case (#signatures(_)) {
                     #signatures({
                     });
                 };
@@ -493,7 +518,11 @@ module {
                         against = i.against;
                     });
                 };
-                case (#donations(i)) {
+                case (#funding(_)) {
+                    #funding({
+                    });
+                };
+                case (#donations(_)) {
                     #donations({
                     });
                 };
@@ -852,6 +881,78 @@ module {
             };
         };
 
+        func _updateEntityWhenFundingInserted(
+            e: Types.Campaign, 
+            funding: FundingTypes.Funding
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
+                goal = e.goal;
+                total = e.total + funding.value;
+                interactions = e.interactions + 1;
+                boosting = e.boosting;
+                updates = e.updates;
+                action = e.action;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };        
+
+        func _updateEntityWhenFundingDeleted(
+            e: Types.Campaign, 
+            funding: FundingTypes.Funding
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = e.state;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
+                goal = e.goal;
+                total = e.total - funding.value;
+                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
+                boosting = e.boosting;
+                updates = e.updates;
+                action = e.action;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            };
+        };
+
         func _updateEntityWhenUpdateInserted(
             e: Types.Campaign, 
             update: UpdateTypes.Update
@@ -1068,6 +1169,8 @@ module {
                 res.put("info_pro", #nat(info.pro));
                 res.put("info_against", #nat(info.against));
             };
+            case (#funding(info)) {
+            };            
             case (#donations(info)) {
             };            
         };
@@ -1134,6 +1237,10 @@ module {
                 #votes({
                     pro = Variant.getOptNat(map.get("info_pro"));
                     against = Variant.getOptNat(map.get("info_against"));
+                });
+            }
+            else if(kind == Types.KIND_FUNDING) {
+                #funding({
                 });
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {

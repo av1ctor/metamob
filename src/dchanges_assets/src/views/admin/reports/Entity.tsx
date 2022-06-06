@@ -3,6 +3,8 @@ import { Profile, Report } from "../../../../../declarations/dchanges/dchanges.d
 import { Preview as CampaignPreview } from "../../campaigns/campaign/Preview";
 import { Preview as SignaturePreview } from "../../signatures/signature/Preview";
 import { Preview as VotePreview } from "../../votes/vote/Preview";
+import { Preview as DonationPreview } from "../../donations/donation/Preview";
+import { Preview as FundingPreview } from "../../fundings/funding/Preview";
 import { Preview as UpdatePreview } from "../../updates/update/Preview";
 import { ReportType } from "../../../libs/reports";
 
@@ -38,6 +40,18 @@ const Entity = (props: Props) => {
             }
             {report.entityType === ReportType.VOTES &&
                 <VotePreview 
+                    id={report.entityId} 
+                    onEditUser={props.onEditUser}
+                />
+            }
+            {report.entityType === ReportType.DONATIONS &&
+                <DonationPreview 
+                    id={report.entityId} 
+                    onEditUser={props.onEditUser}
+                />
+            }
+            {report.entityType === ReportType.FUNDINGS &&
+                <FundingPreview 
                     id={report.entityId} 
                     onEditUser={props.onEditUser}
                 />

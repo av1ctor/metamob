@@ -6,6 +6,7 @@ module {
     public let KIND_SIGNATURES: Nat32 = 0;
     public let KIND_VOTES: Nat32 = 1;
     public let KIND_WEIGHTED_VOTES: Nat32 = 2;
+    public let KIND_FUNDING: Nat32 = 3;
     public let KIND_DONATIONS: Nat32 = 4;
     
     public type CampaignState = Nat32;
@@ -36,9 +37,13 @@ module {
     public type DonationInfo = {
     };
 
+    public type FundingInfo = {
+    };
+
     public type CampaignInfo = {
         #signatures: SignatureInfo;
         #votes: VoteInfo;
+        #funding: FundingInfo;
         #donations: DonationInfo;
     };
 

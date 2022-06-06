@@ -16,6 +16,7 @@ module {
     public let TYPE_UPDATES: Nat32 = 3;
     public let TYPE_VOTES: Nat32 = 4;
     public let TYPE_DONATIONS: Nat32 = 5;
+    public let TYPE_FUNDINGS: Nat32 = 6;
 
     public type Report = {
         _id: Nat32;
