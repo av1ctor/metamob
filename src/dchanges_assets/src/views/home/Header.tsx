@@ -110,7 +110,7 @@ const Header = (props: Props) => {
                                     <i className="la la-money-bill"/>&nbsp;Donations
                                 </a>
                                 <a className="navbar-item" onClick={redirectToFundings}>
-                                    <i className="la la-money-bill"/>&nbsp;Fundings
+                                    <i className="la la-lightbulb"/>&nbsp;Fundings
                                 </a>
                                 <a className="navbar-item" onClick={redirectToSignatures}>
                                     <i className="la la-signature"/>&nbsp;Signatures

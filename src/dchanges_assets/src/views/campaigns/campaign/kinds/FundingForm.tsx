@@ -220,7 +220,7 @@ const FundingForm = (props: Props) => {
                             onChange={changeForm}
                         />
                         <CheckboxField
-                            label="Donate as anonymous"
+                            label="Fund as anonymous"
                             id="anonymous"
                             value={form.anonymous}
                             onChange={changeForm}
@@ -235,7 +235,7 @@ const FundingForm = (props: Props) => {
                             onClick={isLoggedIn? handleFunding: redirectToLogon}
                             disabled={isLoading}
                         >
-                            <i className="la la-money-bill"/>&nbsp;DONATE
+                            <i className="la la-lightbulb"/>&nbsp;FUND
                         </Button>
                     </div>
                 </div>

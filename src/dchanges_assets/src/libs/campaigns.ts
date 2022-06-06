@@ -82,7 +82,7 @@ export const campaignKindToIcon = (
         case CampaignKind.DONATIONS:
             return 'money-bill';
         case CampaignKind.FUNDINGS:
-            return 'money-bill';
+            return 'lightbulb';
         case CampaignKind.VOTES:
         case CampaignKind.WEIGHTED_VOTES:
             return 'vote-yea';
