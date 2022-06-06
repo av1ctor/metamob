@@ -4,6 +4,8 @@ import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import Container from "../../../components/Container";
 import {ProfileRequest} from "../../../../../declarations/dchanges/dchanges.did";
+import SelectField from "../../../components/SelectField";
+import countries from "../../../libs/countries";
 
 interface Props {
     onCreate: (req: ProfileRequest) => void,
@@ -25,7 +27,7 @@ const UserSetupForm = (props: Props) => {
         roles: [[{admin: null}]],
         active: [true],
         banned: [false],
-        country: 'US'
+        country: ''
     });
     
     const changeForm = useCallback((e: any) => {
@@ -61,15 +63,7 @@ const UserSetupForm = (props: Props) => {
             return;
         }
         
-        props.onCreate({
-            name: form.name, 
-            email: form.email, 
-            avatar: form.avatar,
-            roles: [[{admin: null}]],
-            active: [true],
-            banned: [false],
-            country: 'US',
-        });
+        props.onCreate(form);
     }, [props.onCreate, form]);
     
     return (
@@ -88,6 +82,13 @@ const UserSetupForm = (props: Props) => {
                     value={form.email || ''}
                     required={true}
                     onChange={changeForm} 
+                />
+                <SelectField
+                    label="Country"
+                    name="country"
+                    value={form.country}
+                    options={countries.map(c => ({name: c.name, value: c.code}))}
+                    onChange={changeForm}
                 />
                 <TextField 
                     label="Avatar"

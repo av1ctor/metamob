@@ -7,6 +7,7 @@ import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
 import { useUpdateUser } from "../../../hooks/users";
+import countries from "../../../libs/countries";
 import { ActorContext } from "../../../stores/actor";
 
 function rolesToString(
@@ -131,15 +132,7 @@ const EditForm = (props: Props) => {
             await updateMut.mutateAsync({
                 main: actorContext.main,
                 pubId: props.user.pubId, 
-                req: {
-                    name: form.name, 
-                    email: form.email, 
-                    avatar: form.avatar,
-                    roles: form.roles,
-                    active: form.active,
-                    banned: form.banned,
-                    country: form.country,
-                }
+                req: form
             });
             props.onSuccess('User updated!');
             props.onClose();
@@ -190,6 +183,13 @@ const EditForm = (props: Props) => {
                 value={form.email || ''}
                 required={true}
                 onChange={changeForm} 
+            />
+            <SelectField
+                label="Country"
+                name="country"
+                value={form.country}
+                options={countries.map(c => ({name: c.name, value: c.code}))}
+                onChange={changeForm}
             />
             <AvatarPicker 
                 label="Avatar"
