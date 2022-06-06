@@ -227,6 +227,11 @@ const EditForm = (props: Props) => {
                 options={auths}
                 onChange={changeAuth}
             />
+            {'email' in form.auth &&
+                <div className="p-2 border has-text-centered">
+                    List can only be edited by its creator
+                </div>
+            }
             {'dip20' in form.auth &&
                 <div className="p-2 border">
                     <TextField 
