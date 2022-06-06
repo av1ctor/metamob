@@ -163,7 +163,7 @@ const Create = (props: Props) => {
                     rows={5}
                     onChange={changeForm}
                 />
-                {form.kind === PlaceKind.COUNTRY?
+                {Number(form.kind) === PlaceKind.COUNTRY?
                     <FlagPicker
                         label="Icon"
                         name="icon"
