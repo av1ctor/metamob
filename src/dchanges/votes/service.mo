@@ -24,7 +24,8 @@ module {
 
         public func create(
             req: Types.VoteRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Vote, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -51,18 +52,11 @@ module {
                                             };
                                             case _ {
                                                 let res = repo.create(req, caller._id);
-                                                if(campaign.goal != 0) {
-                                                    if(req.pro) {
-                                                        let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
-                                                        if(votes + 1 >= campaign.goal) {
-                                                            ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
-                                                        };
-                                                    }
-                                                    else {
-                                                        let votes = switch(campaign.info) {case (#votes(info)) info.against; case _ 0;};
-                                                        if(votes + 1 >= campaign.goal) {
-                                                            ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_LOST, caller._id);
-                                                        };
+                                                switch(await _checkIfFinished(campaign, req, caller, this)) {
+                                                    case (#err(msg)) {
+                                                        return #err(msg);
+                                                    };
+                                                    case _ {
                                                     };
                                                 };
                                                 res;
@@ -111,6 +105,9 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
+                                                if(req.pro != entity.pro) {
+                                                    return #err("Can't change if in favor or against. Delete this vote and cast a new one");
+                                                };
                                                 repo.update(entity, req, caller._id);
                                             };
                                         };
@@ -121,6 +118,44 @@ module {
                     };
                 };
             };
+        };
+
+        func _checkIfFinished(
+            campaign: CampaignTypes.Campaign,
+            req: Types.VoteRequest,
+            caller: UserTypes.Profile, 
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            if(campaign.goal != 0) {
+                if(req.pro) {
+                    let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
+                    if(votes + 1 >= campaign.goal) {
+                        switch(await campaignService.finishAndRunAction(
+                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case _ {
+                            };
+                        };
+                    };
+                }
+                else {
+                    let votes = switch(campaign.info) {case (#votes(info)) info.against; case _ 0;};
+                    if(votes + 1 >= campaign.goal) {
+                        switch(await campaignService.finishAndRunAction(
+                                campaign, CampaignTypes.RESULT_LOST, caller, this)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case _ {
+                            };
+                        };
+                    };
+                };
+            };
+
+            #ok();
         };
 
         public func findById(

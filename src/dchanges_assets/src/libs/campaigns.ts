@@ -181,21 +181,3 @@ export const getBalance = async (
 
     return res.ok; 
 }
-
-export const withdraw = async (
-    campaignId: number, 
-    to: string,
-    main?: DChanges
-): Promise<void> => {
-    if(!main) {
-        return;
-    }
-
-    const res = await main.campaignWithdraw(campaignId, to);
-    
-    if('err' in res) {
-        throw new Error(res.err);
-    }
-
-    return; 
-}

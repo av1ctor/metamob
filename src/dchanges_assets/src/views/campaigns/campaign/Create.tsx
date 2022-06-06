@@ -4,7 +4,7 @@ import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Container from "../../../components/Container";
-import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction} from "../../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
@@ -17,6 +17,7 @@ import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
 import { AuthContext } from "../../../stores/auth";
+import { setField } from "../../../libs/utils";
 
 interface Props {
     mutation: any;
@@ -51,6 +52,7 @@ const toCampaign = (
         total: BigInt(0),
         interactions: 0,
         updates: 0,
+        action: {nop: null},
         createdAt: now,
         createdBy: user?._id || 0,
         updatedAt: [],
@@ -133,7 +135,8 @@ const CreateForm = (props: Props) => {
         duration: 7,
         categoryId: 0,
         placeId: props.place?._id || 0,
-        tags: []
+        tags: [],
+        action: {nop: null}
     });
     const [step, setStep] = useState(0);
 
@@ -173,7 +176,8 @@ const CreateForm = (props: Props) => {
                     duration: Number(form.duration),
                     categoryId: Number(form.categoryId),
                     placeId: Number(form.placeId),
-                    tags: form.tags
+                    tags: form.tags,
+                    action: form.action,
                 }
             });
 
@@ -189,17 +193,34 @@ const CreateForm = (props: Props) => {
     }, [form, actorState.main, props.onClose]);
 
     const changeForm = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            [e.target.name]: e.target.value
-        }));
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setForm(form => setField(form, field, value));
     }, []);
 
     const changeKind = useCallback((e: any, value: CampaignKind) => {
         e.preventDefault();
+
+        let action: CampaignAction = {nop: null};
+        switch(Number(value)) {
+            case CampaignKind.DONATIONS:
+                action = {transfer: {receiver: ''}};
+                break;
+            case CampaignKind.VOTES:
+            case CampaignKind.WEIGHTED_VOTES:
+                action = {invoke: {canisterId: '', method: '', args: []}};
+                break;
+            default:
+                action = {nop: null};
+                break;
+        }
+    
         setForm(form => ({
             ...form, 
-            kind: value
+            kind: value,
+            action: action,
         }));
     }, []);
 
@@ -252,22 +273,71 @@ const CreateForm = (props: Props) => {
 
             <form onSubmit={handleCreate}>
                 {step === 0 &&
-                    <div className="kind-selector columns is-multiline">
-                        {kindOptions.map((kind, index) =>
-                            <div 
-                                key={index} 
-                                className="column is-4"
-                            >
+                    <>
+                        <div className="kind-selector columns is-multiline">
+                            {kindOptions.map((kind, index) =>
                                 <div 
-                                    className={form.kind === kind.value? 'selected': ''}
-                                    onClick={(e) => changeKind(e, kind.value)}
+                                    key={index} 
+                                    className="column is-4"
                                 >
-                                    <div><i className={`la la-${kind.icon}`} /></div>
-                                    <div>{kind.name}</div>
+                                    <div 
+                                        className={form.kind === kind.value? 'selected': ''}
+                                        onClick={(e) => changeKind(e, kind.value)}
+                                    >
+                                        <div><i className={`la la-${kind.icon}`} /></div>
+                                        <div>{kind.name}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                        {Number(form.kind) === CampaignKind.DONATIONS &&
+                            <>
+                                <label className="label">Options</label>
+                                <div className="p-2 border">
+                                    <TextField 
+                                        label="Receiver account" 
+                                        name="action.transfer.receiver"
+                                        value={'transfer' in form.action? 
+                                            form.action.transfer.receiver || '':
+                                            ''}
+                                        required={true}
+                                        onChange={changeForm}
+                                    />
+                                </div>
+                            </>
+                        }
+                        {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
+                            <>
+                                <label className="label">Options</label>
+                                <div className="p-2 border">
+                                    <TextField 
+                                        label="Canister Id" 
+                                        name="action.invoke.canisterId"
+                                        value={'invoke' in form.action? 
+                                            form.action.invoke.canisterId || '':
+                                            ''}
+                                        onChange={changeForm}
+                                    />
+                                    <TextField 
+                                        label="Method name" 
+                                        name="action.invoke.method"
+                                        value={'invoke' in form.action? 
+                                            form.action.invoke.method || '':
+                                            ''}
+                                        onChange={changeForm}
+                                    />
+                                    <TextField 
+                                        label="Arguments" 
+                                        name="action.invoke.args"
+                                        value={'invoke' in form.action? 
+                                            form.action.invoke.args.toString() || '':
+                                            ''}
+                                        onChange={changeForm}
+                                    />
+                                </div>
+                            </>
+                        }
+                    </>
                 }
                 {step === 1 &&
                     <>
@@ -351,13 +421,6 @@ const CreateForm = (props: Props) => {
                         />
                     </>
                 }
-                <Container>
-                    {props.mutation.isError && 
-                        <div className="form-error">
-                            {props.mutation.error.message}
-                        </div>
-                    }
-                </Container>
                 {step !== 6 &&
                     <div className="field is-grouped mt-5">
                         <div className="control">

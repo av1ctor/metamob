@@ -107,15 +107,13 @@ const EditForm = (props: Props) => {
             <Container>
                 <CheckboxField
                     label="In favor"
-                    id="__edit__pro"
                     value={!!form.pro}
-                    onChange={changeForm}
+                    disabled
                 />
                 <CheckboxField
                     label="Against"
-                    id="__edit__pro"
                     value={!form.pro}
-                    onChange={changeForm}
+                    disabled
                 />
                 <TextAreaField
                     label="Message"

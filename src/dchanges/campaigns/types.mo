@@ -21,6 +21,10 @@ module {
     public let RESULT_WON: Nat32 = 1;
     public let RESULT_LOST: Nat32 = 2;
 
+    public let ACTION_NOP: Nat32 = 0;
+    public let ACTION_TRANSFER_FUNDS: Nat32 = 1;
+    public let ACTION_INVOKE_METHOD: Nat32 = 2;
+
     public type SignatureInfo = {
     };
 
@@ -36,6 +40,22 @@ module {
         #signatures: SignatureInfo;
         #votes: VoteInfo;
         #donations: DonationInfo;
+    };
+
+    public type CampaignTransferFundsAction = {
+        receiver: Text;
+    };
+
+    public type CampaignInvokeMethodAction = {
+        canisterId: Text;
+        method: Text;
+        args: Blob;
+    };
+
+    public type CampaignAction = {
+        #nop;
+        #transfer: CampaignTransferFundsAction;
+        #invoke: CampaignInvokeMethodAction;
     };
     
     public type Campaign = {
@@ -58,6 +78,7 @@ module {
         interactions: Nat32;
         boosting: Nat;
         updates: Nat32;
+        action: CampaignAction;
         publishedAt: ?Int;
         expiredAt: ?Int;
         createdAt: Int;
@@ -80,5 +101,6 @@ module {
         tags: [Text];
         duration: Nat32;
         goal: Nat;
+        action: CampaignAction;
     };
 };

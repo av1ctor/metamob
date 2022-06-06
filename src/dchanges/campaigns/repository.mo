@@ -397,16 +397,6 @@ module {
             );
         };
 
-        public func onVoteUpdated(
-            campaign: Types.Campaign,
-            vote: VoteTypes.Vote
-        ) {
-            ignore campaigns.replace(
-                campaign._id, 
-                _updateEntityWhenVoteUpdated(campaign, vote)
-            );
-        };
-
         public func onVoteDeleted(
             campaign: Types.Campaign,
             vote: VoteTypes.Vote
@@ -538,6 +528,7 @@ module {
                 interactions = 0;
                 boosting = 0;
                 updates = 0;
+                action = req.action;
                 publishedAt = null;
                 expiredAt = null;
                 createdAt = now;
@@ -577,6 +568,7 @@ module {
                 interactions = e.interactions;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = req.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -612,6 +604,7 @@ module {
                 interactions = e.interactions;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -647,6 +640,7 @@ module {
                 interactions = e.interactions + 1;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -682,6 +676,7 @@ module {
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -727,6 +722,7 @@ module {
                 interactions = e.interactions + 1;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -737,51 +733,6 @@ module {
                 deletedBy = e.deletedBy;
             }  
         };   
-
-        func _updateEntityWhenVoteUpdated(
-            e: Types.Campaign, 
-            vote: VoteTypes.Vote
-        ): Types.Campaign {
-            {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = switch(e.info) {
-                    case (#votes(info)) {
-                        #votes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro - 1;
-                            against = if(not vote.pro) info.against + 1 else info.against - 1;
-                        });
-                    };
-                    case _ {
-                        e.info;
-                    };
-                };
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
-            }  
-        };       
 
         func _updateEntityWhenVoteDeleted(
             e: Types.Campaign, 
@@ -817,6 +768,7 @@ module {
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -852,6 +804,7 @@ module {
                 interactions = e.interactions + 1;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -887,6 +840,7 @@ module {
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -922,6 +876,7 @@ module {
                 interactions = e.interactions + 1;
                 boosting = e.boosting;
                 updates = e.updates + 1;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -957,6 +912,7 @@ module {
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = if(e.updates > 0) e.updates - 1 else 0;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -994,6 +950,7 @@ module {
                 interactions = e.interactions;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = ?now;
                 expiredAt = ?limit;
                 createdAt = e.createdAt;
@@ -1030,6 +987,7 @@ module {
                 interactions = e.interactions;
                 boosting = e.boosting;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1065,6 +1023,7 @@ module {
                 interactions = e.interactions;
                 boosting = e.boosting + value;
                 updates = e.updates;
+                action = e.action;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1100,6 +1059,7 @@ module {
         res.put("total", #nat(e.total));
         res.put("interactions", #nat32(e.interactions));
         res.put("boosting", #nat(e.boosting));
+        res.put("updates", #nat32(e.updates));
         
         switch(e.info) {
             case (#signatures(info)) {
@@ -1112,7 +1072,22 @@ module {
             };            
         };
 
-        res.put("updates", #nat32(e.updates));
+        switch(e.action) {
+            case (#nop) {
+                res.put("action_type", #nat32(Types.ACTION_NOP));
+            };
+            case (#transfer(action)) {
+                res.put("action_type", #nat32(Types.ACTION_TRANSFER_FUNDS));
+                res.put("action_receiver", #text(action.receiver));
+            };
+            case (#invoke(action)) {
+                res.put("action_type", #nat32(Types.ACTION_INVOKE_METHOD));
+                res.put("action_canisterId", #text(action.canisterId));
+                res.put("action_method", #text(action.method));
+                res.put("action_args", #blob(action.args));
+            };            
+        };
+
         res.put("publishedAt", switch(e.publishedAt) {case null #nil; case (?publishedAt) #int(publishedAt);});
         res.put("expiredAt", switch(e.expiredAt) {case null #nil; case (?expiredAt) #int(expiredAt);});
         res.put("createdAt", #int(e.createdAt));
@@ -1129,6 +1104,7 @@ module {
         map: HashMap.HashMap<Text, Variant.Variant>
     ): Types.Campaign {
         let kind: Types.CampaignKind = Variant.getOptNat32(map.get("kind"));
+        let action = Variant.getOptNat32(map.get("action_type"));
 
         {
             _id = Variant.getOptNat32(map.get("_id"));
@@ -1148,6 +1124,7 @@ module {
             total = Variant.getOptNat(map.get("total"));
             interactions = Variant.getOptNat32(map.get("interactions"));
             boosting = Variant.getOptNat(map.get("boosting"));
+            updates = Variant.getOptNat32(map.get("updates"));
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
                 });
@@ -1163,7 +1140,21 @@ module {
                 #donations({
                 });
             };
-            updates = Variant.getOptNat32(map.get("updates"));
+            action = if(action == Types.ACTION_TRANSFER_FUNDS) {
+                #transfer({
+                    receiver = Variant.getOptText(map.get("action_receiver"));
+                });
+            }
+            else if(action == Types.ACTION_INVOKE_METHOD) {
+                #invoke({
+                    canisterId = Variant.getOptText(map.get("action_canisterId"));
+                    method = Variant.getOptText(map.get("action_method"));
+                    args = Variant.getOptBlob(map.get("action_args"));
+                });
+            }
+            else {
+                #nop;
+            };
             publishedAt = Variant.getOptIntOpt(map.get("publishedAt"));
             expiredAt = Variant.getOptIntOpt(map.get("expiredAt"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

@@ -5,6 +5,8 @@ import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Error "mo:base/Error";
+import ExpICP "mo:base/ExperimentalInternetComputer";
 import Variant "mo:mo-table/variant";
 import Repository "./repository";
 import Types "./types";
@@ -48,6 +50,32 @@ module {
                                 #err(msg);
                             };
                             case _ {
+                                switch(req.action) {
+                                    case (#invoke(action)) {
+                                        if(req.kind != Types.KIND_VOTES and req.kind != Types.KIND_WEIGHTED_VOTES) {
+                                            return #err("Wrong campaign kind");
+                                        };
+
+                                        if(action.canisterId.size() > 0) {
+                                            if(action.method.size() == 0) {
+                                                return #err("Method undefined");
+                                            };
+                                            if(action.args.size() == 0) {
+                                                return #err("Arguments undefined");
+                                            };
+                                        };
+                                    };
+                                    case (#transfer(action)) {
+                                        if(req.kind != Types.KIND_DONATIONS) {
+                                            return #err("Wrong campaign kind");
+                                        };
+
+                                        if(action.receiver.size() == 0) {
+                                            return #err("Receiver undefined");
+                                        };
+                                    };
+                                };
+                                
                                 repo.create(req, caller._id);
                             };
                         };
@@ -59,7 +87,8 @@ module {
         public func update(
             id: Text, 
             req: Types.CampaignRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -100,7 +129,22 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
-                                        return repo.update(campaign, req, caller._id);
+                                        let res = repo.update(campaign, req, caller._id);
+                                        if(campaign.goal != req.goal) {
+                                            if(req.goal > 0) {
+                                                if(campaign.total >= req.goal) {
+                                                    switch(await finishAndRunAction(
+                                                            campaign, CampaignTypes.RESULT_WON, caller, this)) {
+                                                        case (#err(msg)) {
+                                                            return #err(msg);
+                                                        };
+                                                        case _ {
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+                                        res;
                                     };
                                 };
                             };
@@ -144,39 +188,136 @@ module {
             };
         };
 
-        public func finish(
-            _id: Nat32, 
-            result: Types.CampaignResult,
-            invoker: Principal
-        ): async Result.Result<Types.Campaign, Text> {
-            switch(userService.findByPrincipal(invoker)) {
+        func _transferFunds(
+            campaign: Types.Campaign,
+            action: Types.CampaignTransferFundsAction,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            let balance = await LedgerUtils.getCampaignBalance(campaign, this);
+            if(balance <= Types.MIN_WITHDRAW_VALUE) {
+                return #err("Nothing to withdraw");
+            };
+
+            let cut = (balance * (100 - Types.DONATIONS_TAX)) / 100;
+
+            let appAccountId = Account.accountIdentifier(
+                Principal.fromActor(this), 
+                Account.defaultSubaccount()
+            );
+
+            let toAccountId = Account.accountIdentifier(
+                Principal.fromText(action.receiver), 
+                Account.defaultSubaccount()
+            );
+
+            switch(await LedgerUtils.withdrawFromCampaignSubaccount(
+                campaign, 
+                balance - cut, 
+                toAccountId, 
+                caller
+            )) {
                 case (#err(msg)) {
                     #err(msg);
                 };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        #err("Forbidden");
+                case _ {
+                    if(cut > 0) {
+                        await LedgerUtils.withdrawFromCampaignSubaccount(
+                            campaign, 
+                            cut, 
+                            appAccountId, 
+                            caller
+                        );
                     }
                     else {
-                        switch(repo.findById(_id)) {
-                            case (#err(msg)) {
-                                #err(msg);
-                            };
-                            case (#ok(campaign)) {
-                                if(not canChange(caller, campaign, [Types.STATE_PUBLISHED])) {
-                                    return #err("Forbidden");
-                                };
+                        #ok();
+                    };
+                };
+            };
+        };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                    case _ {
-                                        repo.finish(campaign, result, caller._id);
-                                    };
-                                };
-                            };
+        func _invokeMethod(
+            campaign: Types.Campaign,
+            action: Types.CampaignInvokeMethodAction,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            if(action.canisterId.size() == 0) {
+                return #ok();
+            };
+
+            try {
+                ignore await ExpICP.call(Principal.fromText(action.canisterId), action.method, action.args);
+                #ok();
+            }
+            catch(e) { 
+                #err(Error.message e) 
+            };
+        };
+
+        func _runAction(
+            campaign: Types.Campaign,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(campaign.action) {
+                case (#transfer(action)) {
+                    await _transferFunds(campaign, action, caller, this);
+                };
+                case (#invoke(action)) {
+                    await _invokeMethod(campaign, action, caller, this);
+                };
+                case _ {
+                    #ok();
+                };
+            };
+        };
+
+        public func finishAndRunAction(
+            campaign: Types.Campaign, 
+            result: Types.CampaignResult,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            let res = repo.finish(campaign, result, caller._id);
+
+            if(result == Types.RESULT_WON) {
+                switch(await _runAction(campaign, caller, this)) {
+                    case (#err(msg)) {
+                        return #err(msg);
+                    };
+                    case _ {
+                    };
+                };
+            };
+
+            res;
+        };
+
+        public func finish(
+            campaign: Types.Campaign, 
+            result: Types.CampaignResult,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            if(not hasAuth(caller)) {
+                #err("Forbidden");
+            }
+            else {
+                if(not canChange(caller, campaign, [Types.STATE_PUBLISHED])) {
+                    return #err("Forbidden");
+                };
+
+                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case _ {
+                        if(result == Types.RESULT_WON and campaign.goal != 0) {
+                            return #err("Victory will be automatically declared when the goal is reached");
                         };
+
+                        await finishAndRunAction(campaign, result, caller, this);
                     };
                 };
             };
@@ -354,88 +495,6 @@ module {
                                 };
 
                                 #ok(await LedgerUtils.getCampaignBalance(campaign, this));
-                            };
-                        };
-                    };
-                };
-            };
-        };
-
-        public func withdraw(
-            _id: Nat32,
-            to: Text,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<(), Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findById(_id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(campaign)) {
-                                if(not canChange(caller, campaign, [Types.STATE_FINISHED])) {
-                                    return #err("Forbidden");
-                                };
-
-                                if(campaign.kind != Types.KIND_DONATIONS) {
-                                    return #err("Wrong campaign kind");
-                                };
-
-                                let balance = await LedgerUtils.getCampaignBalance(campaign, this);
-                                if(balance <= Types.MIN_WITHDRAW_VALUE) {
-                                    return #err("Nothing to withdraw");
-                                };
-
-                                let cut = (balance * (100 - Types.DONATIONS_TAX)) / 100;
-
-                                let appAccountId = Account.accountIdentifier(
-                                    Principal.fromActor(this), 
-                                    Account.defaultSubaccount()
-                                );
-
-                                let toAccountId = Account.accountIdentifier(
-                                    Principal.fromText(to), 
-                                    Account.defaultSubaccount()
-                                );
-
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                    case _ {
-                                        switch(await LedgerUtils.withdrawFromCampaignSubaccount(
-                                            campaign, 
-                                            balance - cut, 
-                                            toAccountId, 
-                                            caller
-                                        )) {
-                                            case (#err(msg)) {
-                                                #err(msg);
-                                            };
-                                            case _ {
-                                                if(cut > 0) {
-                                                    await LedgerUtils.withdrawFromCampaignSubaccount(
-                                                        campaign, 
-                                                        cut, 
-                                                        appAccountId, 
-                                                        caller
-                                                    );
-                                                }
-                                                else {
-                                                    #ok();
-                                                };
-                                            };
-                                        };
-                                    };
-                                };
                             };
                         };
                     };

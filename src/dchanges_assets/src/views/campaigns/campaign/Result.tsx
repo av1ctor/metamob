@@ -2,10 +2,9 @@ import React, { useCallback, useContext, useState } from "react";
 import { Campaign } from "../../../../../declarations/dchanges/dchanges.did";
 import Box from "../../../components/Box";
 import Modal from "../../../components/Modal";
-import { CampaignKind, CampaignResult } from "../../../libs/campaigns";
+import { CampaignResult } from "../../../libs/campaigns";
 import { AuthContext } from "../../../stores/auth";
 import Email from "./results/Email";
-import WithdrawICP from "./results/WithdrawICP";
 
 interface Props {
     campaign: Campaign;
@@ -16,9 +15,6 @@ interface Props {
 
 enum Action {
     GEN_EMAIL,
-    WITHDRAW_ICP,
-    CALL_METHOD,
-    GEN_NFT,
 }
 
 const Result = (props: Props) => {
@@ -38,16 +34,6 @@ const Result = (props: Props) => {
 
     const toggleGenEmail = useCallback(() => {
         setAction(Action.GEN_EMAIL);
-        toggleShow();
-    }, []);
-
-    const toggleWithdrawICP = useCallback(() => {
-        setAction(Action.WITHDRAW_ICP);
-        toggleShow();
-    }, []);
-
-    const toggleCallCanister = useCallback(() => {
-        setAction(Action.CALL_METHOD);
         toggleShow();
     }, []);
 
@@ -83,15 +69,6 @@ const Result = (props: Props) => {
                                     <div className="is-size-7">Generate e-mail</div>
                                 </div>
                             </div>
-                            <div className="column is-3">
-                                <div 
-                                        className={`action ${campaign.kind !== CampaignKind.DONATIONS? 'disabled': ''}`}
-                                        onClick={campaign.kind === CampaignKind.DONATIONS? toggleWithdrawICP: undefined}
-                                    >
-                                        <div><i className="la la-money-bill is-size-1"/></div>
-                                        <div className="is-size-7">Withdraw ICP</div>
-                                </div>
-                            </div>
                         </div>
                     </Box>
                     
@@ -102,15 +79,6 @@ const Result = (props: Props) => {
                     >
                         {action === Action.GEN_EMAIL &&
                             <Email
-                                campaign={campaign}
-                                onClose={toggleShow}
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
-                                toggleLoading={props.toggleLoading}
-                            />
-                        }
-                        {action === Action.WITHDRAW_ICP &&
-                            <WithdrawICP
                                 campaign={campaign}
                                 onClose={toggleShow}
                                 onSuccess={props.onSuccess}

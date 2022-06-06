@@ -105,8 +105,17 @@ module {
                                             case (#ok(amount)) {
                                                 let amountNat = Nat64.toNat(amount);
                                                 let res = repo.complete(entity, amountNat, caller._id);
-                                                if(campaign.goal != 0 and campaign.total + amountNat >= campaign.goal) {
-                                                    ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
+                                                if(campaign.goal != 0) {
+                                                    if(campaign.total + amountNat >= campaign.goal) {
+                                                        switch(await campaignService.finishAndRunAction(
+                                                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
+                                                            case (#err(msg)) {
+                                                                return #err(msg);
+                                                            };
+                                                            case _ {
+                                                            };
+                                                        };
+                                                    };
                                                 };
                                                 res;
                                             };

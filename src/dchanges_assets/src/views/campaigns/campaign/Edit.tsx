@@ -16,6 +16,7 @@ import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, CampaignState, kindOptions } from "../../../libs/campaigns";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { setField } from "../../../libs/utils";
 
 interface Props {
     campaign: Campaign;
@@ -47,6 +48,7 @@ const formSchema = yup.object().shape({
     categoryId: yup.number().required().min(1),
     placeId: yup.number().required().min(1),
     tags: yup.array(yup.string().max(12)).max(5),
+    actions: yup.object().required(),
 });
 
 const EditForm = (props: Props) => {
@@ -65,17 +67,19 @@ const EditForm = (props: Props) => {
     const place = useFindPlaceById(props.campaign.placeId);
 
     const changeForm = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            [e.target.name]: e.target.value
-        }));
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setForm(form => setField(form, field, value));
     }, []);
 
     const changeFormOpt = useCallback((e: any) => {
-        setForm(form => ({
-            ...form, 
-            [e.target.name]: [e.target.value]
-        }));
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setForm(form => setField(form, field, [value]));
     }, []);
 
     const validate = async (form: any): Promise<string[]> => {
@@ -118,7 +122,8 @@ const EditForm = (props: Props) => {
                     body: form.body,
                     cover: form.cover,
                     duration: Number(form.duration),
-                    tags: form.tags
+                    tags: form.tags,
+                    action: form.action,
                 }
             });
             props.onSuccess('Campaign updated!');
@@ -170,6 +175,53 @@ const EditForm = (props: Props) => {
                     required={true}
                     disabled={true}
                 />
+                {Number(form.kind) === CampaignKind.DONATIONS &&
+                    <>
+                        <label className="label">Options</label>
+                        <div className="p-2 border">
+                            <TextField 
+                                label="Receiver account" 
+                                name="action.transfer.receiver"
+                                value={'transfer' in form.action? 
+                                    form.action.transfer.receiver || '':
+                                    ''}
+                                required={true}
+                                onChange={changeForm}
+                            />
+                        </div>
+                    </>
+                }
+                {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
+                    <>
+                        <label className="label">Options</label>
+                        <div className="p-2 border">
+                            <TextField 
+                                label="Canister Id" 
+                                name="action.invoke.canisterId"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.canisterId || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                            <TextField 
+                                label="Method name" 
+                                name="action.invoke.method"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.method || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                            <TextField 
+                                label="Arguments" 
+                                name="action.invoke.args"
+                                value={'invoke' in form.action? 
+                                    form.action.invoke.args.toString() || '':
+                                    ''}
+                                onChange={changeForm}
+                            />
+                        </div>
+                    </>
+                }
                 <TextField 
                     label="Title" 
                     name="title"

@@ -62,7 +62,8 @@ module {
         public func createAndFinishCampaign(
             req: Types.UpdateRequest,
             result: CampaignTypes.CampaignResult,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -93,8 +94,14 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(upd)) {
-                                                ignore campaignRepo.finish(campaign, result, caller._id);
-                                                #ok(upd);
+                                                switch(await campaignService.finish(campaign, result, caller, this)) {
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                    case _ {
+                                                        #ok(upd);
+                                                    };
+                                                };
                                             };
                                         };
                                     };

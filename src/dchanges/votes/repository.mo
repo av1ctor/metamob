@@ -31,7 +31,6 @@ module {
 
         private type CampaignUpdateKind = {
             #inserted;
-            #updated;
             #deleted;
         };
 
@@ -56,17 +55,12 @@ module {
             req: Types.VoteRequest,
             callerId: Nat32
         ): Result.Result<Types.Vote, Text> {
-            let changed = req.pro != vote.pro;
-            
             let e = _updateEntity(vote, req, callerId);
             switch(votes.replace(vote._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    if(changed) {
-                        _updateCampaign(e, #updated);
-                    };
                     return #ok(e);
                 };
             };
@@ -97,9 +91,6 @@ module {
                     switch(kind) {
                         case (#inserted) {
                             campaignRepository.onVoteInserted(campaign, vote);
-                        };
-                        case (#updated) {
-                            campaignRepository.onVoteUpdated(campaign, vote);
                         };
                         case (#deleted) {
                             campaignRepository.onVoteDeleted(campaign, vote);

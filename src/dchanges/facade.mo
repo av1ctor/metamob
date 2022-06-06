@@ -195,7 +195,7 @@ shared({caller = owner}) actor class DChanges() = this {
         pubId: Text, 
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        await campaignService.update(pubId, req, msg.caller);
+        await campaignService.update(pubId, req, msg.caller, this);
     };
 
     public shared(msg) func campaignPublish(
@@ -267,20 +267,13 @@ shared({caller = owner}) actor class DChanges() = this {
         await campaignService.getBalance(_id, msg.caller, this);
     };
 
-    public shared(msg) func campaignWithdraw(
-        _id: Nat32,
-        to: Text
-    ): async Result.Result<(), Text> {
-        await campaignService.withdraw(_id, to, msg.caller, this);
-    };
-
     //
     // signatures facade
     //
     public shared(msg) func signatureCreate(
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(await signatureService.create(req, msg.caller), false);
+        _transformSignatureResponseEx(await signatureService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func signatureUpdate(
@@ -422,7 +415,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func voteCreate(
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(await voteService.create(req, msg.caller), false);
+        _transformVoteResponseEx(await voteService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func voteUpdate(
@@ -727,7 +720,7 @@ shared({caller = owner}) actor class DChanges() = this {
         req: UpdateTypes.UpdateRequest,
         result: CampaignTypes.CampaignResult
     ): async Result.Result<UpdateTypes.Update, Text> {
-        await updateService.createAndFinishCampaign(req, result, msg.caller);
+        await updateService.createAndFinishCampaign(req, result, msg.caller, this);
     };
 
     public shared(msg) func updateUpdate(

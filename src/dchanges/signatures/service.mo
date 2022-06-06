@@ -24,7 +24,8 @@ module {
 
         public func create(
             req: Types.SignatureRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -51,8 +52,17 @@ module {
                                             };
                                             case _ {
                                                 let res = repo.create(req, caller._id);
-                                                if(campaign.goal != 0 and campaign.total + 1 >= campaign.goal) {
-                                                    ignore campaignRepo.finish(campaign, CampaignTypes.RESULT_WON, caller._id);
+                                                if(campaign.goal != 0) {
+                                                    if(campaign.total + 1 >= campaign.goal) {
+                                                        switch(await campaignService.finishAndRunAction(
+                                                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
+                                                            case (#err(msg)) {
+                                                                return #err(msg);
+                                                            };
+                                                            case _ {
+                                                            };
+                                                        };
+                                                    };
                                                 };
                                                 res;
                                             };
