@@ -560,19 +560,24 @@ module {
                         };
                     };
                 };
-                case (#funding(_)) {
+                case (#funding(a)) {
                     switch(req.info) {
-                        case (#funding(info)) {
-                            // note: info can only be updated if campaign.total = 0, so the tiers' totals can be assumed to be 0
-                            #funding({
-                                tiers = Array.map(info.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
-                                    title = tier.title;
-                                    desc = tier.desc;
-                                    value = tier.value;
-                                    max = tier.max;
-                                    total = 0;
-                                })
-                            });
+                        case (#funding(b)) {
+                            if(a != b) {
+                                // note: info can only be updated if campaign.total = 0, so the tiers' totals can be assumed to be 0
+                                #funding({
+                                    tiers = Array.map(b.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
+                                        title = tier.title;
+                                        desc = tier.desc;
+                                        value = tier.value;
+                                        max = tier.max;
+                                        total = 0;
+                                    })
+                                });
+                            }
+                            else {
+                                #funding(a);
+                            };
                         };
                         case _ {
                             #funding({

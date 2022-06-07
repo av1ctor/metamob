@@ -170,7 +170,12 @@ const EditForm = (props: Props) => {
     const handleUpdate = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = validate(form);
+        const formt = {
+            ...form,
+            info: transformInfo(form.info)
+        };
+
+        const errors = validate(formt);
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -179,7 +184,7 @@ const EditForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const kind = Number(form.kind);
+            const kind = Number(formt.kind);
 
             await updateMut.mutateAsync({
                 main: actorState.main,
@@ -187,19 +192,19 @@ const EditForm = (props: Props) => {
                 req: {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS?
-                        decimalToIcp(form.goal.toString()):
-                        BigInt(form.goal),
-                    state: form.state.length > 0? [Number(form.state[0])]: [],
-                    categoryId: Number(form.categoryId),
-                    placeId: Number(form.placeId),
-                    title: form.title,
-                    target: form.target,
-                    body: form.body,
-                    cover: form.cover,
-                    duration: Number(form.duration),
-                    tags: form.tags,
-                    info: transformInfo(form.info),
-                    action: form.action,
+                        decimalToIcp(formt.goal.toString()):
+                        BigInt(formt.goal),
+                    state: formt.state.length > 0? [Number(formt.state[0])]: [],
+                    categoryId: Number(formt.categoryId),
+                    placeId: Number(formt.placeId),
+                    title: formt.title,
+                    target: formt.target,
+                    body: formt.body,
+                    cover: formt.cover,
+                    duration: Number(formt.duration),
+                    tags: formt.tags,
+                    info: transformInfo(formt.info),
+                    action: formt.action,
                 }
             });
             props.onSuccess('Campaign updated!');

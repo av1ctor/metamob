@@ -24,7 +24,7 @@ export const FundingFrame = (props: Props) => {
         <>
             <div><small><b>{icpToDecimal(funded)} ICP</b> funded. More <b>{icpToDecimal(campaign.goal - funded)} ICP</b> to goal. Keep going!</small></div>
             <br/>
-            {campaign.state === CampaignState.PUBLISHED? 
+            {campaign.state === CampaignState.PUBLISHED || campaign.state === CampaignState.BUILDING? 
                 <>
                     <Box>
                         <div className="is-size-4">
