@@ -352,7 +352,8 @@ module {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                    if(campaign.state != CampaignTypes.STATE_PUBLISHED and
+                        campaign.state != CampaignTypes.STATE_BUILDING) {
                         #err("Invalid campaign state");
                     }
                     else {
