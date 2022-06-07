@@ -3,20 +3,21 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction} from "../../../../../declarations/dchanges/dchanges.did";
+import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier} from "../../../../../declarations/dchanges/dchanges.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
-import { CampaignKind, CampaignResult, CampaignState, kindOptions } from "../../../libs/campaigns";
+import { CampaignKind, campaignKindToGoal, CampaignResult, CampaignState, kindOptions } from "../../../libs/campaigns";
 import { decimalToIcp } from "../../../libs/icp";
 import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
 import { AuthContext } from "../../../stores/auth";
 import { setField } from "../../../libs/utils";
+import { Tiers } from "./kinds/fundings/Tiers";
 
 interface Props {
     mutation: any;
@@ -26,27 +27,6 @@ interface Props {
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
-};
-
-const kindToGoal = (
-    kind: number
-): string => {
-    let suffix = '';
-    switch(kind) {
-        case CampaignKind.DONATIONS: 
-        case CampaignKind.FUNDINGS: 
-            suffix = '(ICP)';
-            break;
-        case CampaignKind.SIGNATURES: 
-            suffix = '(Signatures)'; 
-            break;
-        case CampaignKind.VOTES:
-        case CampaignKind.WEIGHTED_VOTES:
-            suffix = '(Votes)';
-            break;
-    }
-
-    return `Goal ${suffix}`;
 };
 
 const toCampaign = (
@@ -111,6 +91,28 @@ const steps: Step[] = [
     },
 ];
 
+const fundingSchema = yup.object().shape({
+    tiers: yup.array(
+        yup.object().shape({
+            title: yup.string().min(3).max(256),
+            desc: yup.string().min(10).max(1024),
+            value: yup.string().required(),
+            max: yup.number().required().min(1),
+            total: yup.number().required().min(0).max(0),
+        }).required()
+    ).required().min(1).max(20)
+}).required();
+
+const transferActionSchema = yup.object().shape({
+    receiver: yup.string().required().min(63).max(63)
+});
+
+const invokeActionSchema = yup.object().shape({
+    canisterId: yup.string().required().min(58).max(58),
+    method: yup.string().required().min(1).max(128),
+    args: yup.array(yup.number()).required(),
+});
+
 const formSchema = [
     yup.object().shape({
         title: yup.string().min(10).max(128),
@@ -124,6 +126,19 @@ const formSchema = [
     }),
     yup.object().shape({
         kind: yup.number().required(),
+        info: yup.object().required().test('is-funding', 'Funding tiers invalid', (val) => {
+            if('funding' in val) {
+                try {
+                    fundingSchema.validateSync(val.funding, {abortEarly: false});
+                    return true;
+                }
+                catch(e: any) {
+                    return e;
+                }
+            }
+
+            return true;
+        }),
     }),
     yup.object().shape({
         goal: yup.number().required().min(1),
@@ -131,8 +146,54 @@ const formSchema = [
         categoryId: yup.number().required().min(1),
         placeId: yup.number().required().min(1),
         tags: yup.array(yup.string().max(12)).max(5),
+        action: yup.object().required().test('is-action', 'Action invalid', (val) => {
+            if('transfer' in val) {
+                try {
+                    transferActionSchema.validateSync(val.transfer, {abortEarly: false});
+                    return true;
+                }
+                catch(e: any) {
+                    return e;
+                }
+            }
+            else if('invoke' in val) {
+                try {
+                    invokeActionSchema.validateSync(val.invoke, {abortEarly: false});
+                    return true;
+                }
+                catch(e: any) {
+                    return e;
+                }
+            }
+            return true;   
+        }),
     })
 ];
+
+export const transformInfo = (
+    info: CampaignInfo
+): CampaignInfo => {
+    if(!('funding' in info)) {
+        return info;
+    }
+
+    const tiers: FundingTier[] = [];
+    for(const tier of info.funding.tiers) {
+        tiers.push({
+            title: tier.title,
+            desc: tier.desc,
+            total: 0,
+            max: Number(tier.max),
+            value: BigInt(tier.value)
+        });
+    }
+
+    return {
+        funding: {
+            tiers
+        }
+    };
+};
 
 const CreateForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
@@ -150,16 +211,17 @@ const CreateForm = (props: Props) => {
         categoryId: 0,
         placeId: props.place?._id || 0,
         tags: [],
-        action: {nop: null}
+        info: {signatures: {}},
+        action: {nop: null},
     });
     const [step, setStep] = useState(0);
 
     const place = useFindPlaceById(props.place?._id || 0);
 
-    const validate = useCallback(async (
-    ): Promise<string[]> => {
+    const validate = useCallback((
+    ): string[] => {
         try {
-            await formSchema[step].validate(form, {abortEarly: false});
+            formSchema[step].validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -191,6 +253,7 @@ const CreateForm = (props: Props) => {
                     categoryId: Number(form.categoryId),
                     placeId: Number(form.placeId),
                     tags: form.tags,
+                    info: transformInfo(form.info),
                     action: form.action,
                 }
             });
@@ -214,21 +277,59 @@ const CreateForm = (props: Props) => {
         setForm(form => setField(form, field, value));
     }, []);
 
+    const changeTiersItem = useCallback((field: string, value: any, index: number) => {
+        setForm(form => {
+            const tiers = 'funding' in form.info?
+            Array.from(form.info.funding.tiers):
+            [];
+
+            (tiers[index] as any)[field] = value;
+
+            return {
+                ...form, 
+                info: {
+                    funding: {
+                        tiers
+                    }                
+                }
+            };
+        });
+    }, []);
+
+    const changeTiers = useCallback((tiers: FundingTier[]) => {
+        setForm(form => ({
+            ...form,
+            info: {
+                funding: {
+                    tiers
+                }
+            }
+        }));
+    }, []);
+
     const changeKind = useCallback((e: any, value: CampaignKind) => {
         e.preventDefault();
 
         let action: CampaignAction = {nop: null};
+        let info: CampaignInfo = {signatures: {}};
+        const receiver = authState.identity? 
+            authState.identity.getPrincipal().toString(): 
+            ''
         switch(Number(value)) {
             case CampaignKind.DONATIONS:
+                action = {transfer: {receiver: receiver}};
+                info = {donations: {}};
+                break;
             case CampaignKind.FUNDINGS:
-                action = {transfer: {receiver: ''}};
+                action = {transfer: {receiver: receiver}};
+                info = {funding: {tiers: []}};
                 break;
             case CampaignKind.VOTES:
             case CampaignKind.WEIGHTED_VOTES:
                 action = {invoke: {canisterId: '', method: '', args: []}};
+                info = {votes: {pro: BigInt(0), against: BigInt(0)}};
                 break;
             default:
-                action = {nop: null};
                 break;
         }
     
@@ -236,8 +337,9 @@ const CreateForm = (props: Props) => {
             ...form, 
             kind: value,
             action: action,
+            info: info,
         }));
-    }, []);
+    }, [authState.identity]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -256,14 +358,14 @@ const CreateForm = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
 
-    const handlePrev = useCallback(async (e: any) => {
+    const handlePrev = useCallback((e: any) => {
         e.preventDefault();
         setStep(step => step > 0? step - 1: 0);
     }, []);
     
-    const handleNext = useCallback(async (e: any) => {
+    const handleNext = useCallback((e: any) => {
         e.preventDefault();
-        const errors = await validate();
+        const errors = validate();
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -324,22 +426,33 @@ const CreateForm = (props: Props) => {
                     />
                 }
                 {step === 3 &&
-                    <div className="kind-selector columns is-multiline">
-                        {kindOptions.map((kind, index) =>
-                            <div 
-                                key={index} 
-                                className="column is-4"
-                            >
+                    <>
+                        <div className="kind-selector columns is-multiline">
+                            {kindOptions.map((kind, index) =>
                                 <div 
-                                    className={form.kind === kind.value? 'selected': ''}
-                                    onClick={(e) => changeKind(e, kind.value)}
+                                    key={index} 
+                                    className="column is-4"
                                 >
-                                    <div><i className={`la la-${kind.icon}`} /></div>
-                                    <div>{kind.name}</div>
+                                    <div 
+                                        className={form.kind === kind.value? 'selected': ''}
+                                        onClick={(e) => changeKind(e, kind.value)}
+                                    >
+                                        <div><i className={`la la-${kind.icon}`} /></div>
+                                        <div>{kind.name}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                        {Number(form.kind) === CampaignKind.FUNDINGS &&
+                            <>
+                                <Tiers
+                                    info={form.info}
+                                    onChange={changeTiers}
+                                    onChangeItem={changeTiersItem}
+                                />
+                            </>
+                        }
+                    </>
                 }                
                 {step === 4 &&
                     <>
@@ -351,7 +464,7 @@ const CreateForm = (props: Props) => {
                             onChange={changeForm}
                         />
                         <TextField 
-                            label={kindToGoal(form.kind)}
+                            label={campaignKindToGoal(form.kind)}
                             name="goal"
                             value={form.goal.toString()}
                             required={true}
@@ -386,7 +499,7 @@ const CreateForm = (props: Props) => {
                                 <label className="label">Action (transfer funds)</label>
                                 <div className="p-2 border">
                                     <TextField 
-                                        label="Receiver account" 
+                                        label="To account" 
                                         name="action.transfer.receiver"
                                         value={'transfer' in form.action? 
                                             form.action.transfer.receiver || '':

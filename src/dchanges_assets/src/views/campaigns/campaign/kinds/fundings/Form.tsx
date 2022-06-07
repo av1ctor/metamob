@@ -1,19 +1,21 @@
 import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCompleteFunding, useCreateFunding, useDeleteFunding} from "../../../../hooks/fundings";
-import {FundingRequest, Campaign} from "../../../../../../declarations/dchanges/dchanges.did";
-import {idlFactory as Ledger} from "../../../../../../declarations/ledger";
-import { AuthContext } from "../../../../stores/auth";
-import Button from "../../../../components/Button";
-import TextAreaField from "../../../../components/TextAreaField";
-import { ActorActionType, ActorContext } from "../../../../stores/actor";
-import CheckboxField from "../../../../components/CheckboxField";
-import TextField from "../../../../components/TextField";
-import { depositIcp, getBalance } from "../../../../libs/users";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../libs/backend";
-import { decimalToIcp, icpToDecimal } from "../../../../libs/icp";
+import {useCompleteFunding, useCreateFunding, useDeleteFunding} from "../../../../../hooks/fundings";
+import {FundingRequest, Campaign} from "../../../../../../../declarations/dchanges/dchanges.did";
+import {idlFactory as Ledger} from "../../../../../../../declarations/ledger";
+import { AuthContext } from "../../../../../stores/auth";
+import Button from "../../../../../components/Button";
+import TextAreaField from "../../../../../components/TextAreaField";
+import { ActorActionType, ActorContext } from "../../../../../stores/actor";
+import CheckboxField from "../../../../../components/CheckboxField";
+import TextField from "../../../../../components/TextField";
+import { depositIcp, getBalance } from "../../../../../libs/users";
+import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
+import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
+import SelectField from "../../../../../components/SelectField";
+import NumberField from "../../../../../components/NumberField";
 
 interface Props {
     campaign: Campaign;
@@ -24,7 +26,8 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string(),
-    value: yup.number().required().min(0.00010000 * 10),
+    tier: yup.number().required(),
+    amount: yup.number().required().min(1),
     anonymous: yup.bool().required(),
 });
 
@@ -38,6 +41,8 @@ const FundingForm = (props: Props) => {
         campaignId: props.campaign._id,
         anonymous: false,
         body: '',
+        tier: 0,
+        amount: 0,
         value: BigInt(0)
     });
     const [isLoading, setIsLoading] = useState(false);
@@ -101,9 +106,9 @@ const FundingForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: FundingRequest): Promise<string[]> => {
+    const validate = (form: FundingRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -114,7 +119,7 @@ const FundingForm = (props: Props) => {
     const handleFunding = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -131,8 +136,13 @@ const FundingForm = (props: Props) => {
             if(!authState.user) {
                 throw Error("Not logged in");
             }
-            
-            const value = decimalToIcp(form.value.toString());
+
+            const info = props.campaign.info;
+            const tiers = 'funding' in info?
+                info.funding.tiers:
+                [];
+
+            const value = tiers[Number(form.tier)].value * BigInt(form.amount);
 
             if(value + LEDGER_TRANSFER_FEE >= balance) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
@@ -143,6 +153,8 @@ const FundingForm = (props: Props) => {
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
+                    tier: Number(form.tier),
+                    amount: Number(form.amount),
                     value: value,
                     anonymous: form.anonymous,
                 }
@@ -176,7 +188,7 @@ const FundingForm = (props: Props) => {
             setIsLoading(false);
             props.toggleLoading(false);
         }
-    }, [form, balance, updateState]);
+    }, [form, balance, props.campaign, updateState]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
@@ -188,15 +200,27 @@ const FundingForm = (props: Props) => {
 
     const isLoggedIn = !!authState.user;
 
+    const tiers = 'funding' in props.campaign.info?
+        props.campaign.info.funding.tiers.map((tier, index) => ({name: `${tier.title} (${icpToDecimal(tier.value)} ICP)`, value: index})):
+        [];
+
     return (
         <form onSubmit={handleFunding}>
             <div>
                 {isLoggedIn && 
                     <>
-                        <TextField
-                            label="Value (ICP)"
-                            id="value"
-                            value={form.value.toString()}
+                        <SelectField
+                            label="Tier"
+                            name="tier"
+                            value={form.tier}
+                            options={tiers}
+                            onChange={changeForm}
+                        />
+                        <NumberField
+                            label="Amount"
+                            name="amount"
+                            value={form.amount}
+                            required
                             onChange={changeForm}
                         />
                         <TextField

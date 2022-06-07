@@ -1,5 +1,6 @@
 module {
     public let DONATIONS_TAX: Nat64 = 10; // 10%
+    public let FUNDING_TAX: Nat64 = 20; // 20%
     public let MIN_WITHDRAW_VALUE: Nat64 = 20_000; // ledger's fee * 2
     
     public type CampaignKind = Nat32;
@@ -15,12 +16,12 @@ module {
     public let STATE_DELETED: Nat32 = 2;
     public let STATE_PUBLISHED: Nat32 = 3;
     public let STATE_FINISHED: Nat32 = 4;
-    public let STATE_BANNED: Nat32 = 5;
+    public let STATE_BUILDING: Nat32 = 5;
 
     public type CampaignResult = Nat32;
     public let RESULT_NONE: Nat32 = 0;
-    public let RESULT_WON: Nat32 = 1;
-    public let RESULT_LOST: Nat32 = 2;
+    public let RESULT_OK: Nat32 = 1;
+    public let RESULT_NOK: Nat32 = 2;
 
     public let ACTION_NOP: Nat32 = 0;
     public let ACTION_TRANSFER_FUNDS: Nat32 = 1;
@@ -37,7 +38,16 @@ module {
     public type DonationInfo = {
     };
 
+    public type FundingTier = {
+        title: Text;
+        desc: Text;
+        total: Nat32;
+        max: Nat32; 
+        value: Nat;
+    };
+
     public type FundingInfo = {
+        tiers: [FundingTier];
     };
 
     public type CampaignInfo = {
@@ -107,5 +117,6 @@ module {
         duration: Nat32;
         goal: Nat;
         action: CampaignAction;
+        info: CampaignInfo;
     };
 };

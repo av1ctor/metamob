@@ -18,8 +18,6 @@ import PlaceTypes "../places/types";
 import LedgerUtils "../utils/ledger";
 
 module {
-    let icp_fee: Nat = 10_000;
-
     public class Service(
         userService: UserService.Service,
         campaignService: CampaignService.Service,
@@ -31,8 +29,7 @@ module {
 
         public func create(
             req: Types.FundingRequest,
-            invoker: Principal,
-            this: actor {}
+            invoker: Principal
         ): async Result.Result<Types.Funding, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -53,6 +50,30 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
+                                        switch(campaign.info) {
+                                            case (#funding(info)) {
+                                                if(Nat32.toNat(req.tier) >= info.tiers.size()) {
+                                                    return #err("Invalid tier");
+                                                };
+                                                
+                                                if(req.amount == 0) {
+                                                    return #err("Invalid amount");
+                                                };
+
+                                                let tier = info.tiers[Nat32.toNat(req.tier)];
+                                                if(tier.total + req.amount > tier.max) {
+                                                    return #err("Not enough left on the selected tier");
+                                                };
+
+                                                if(req.value != tier.value * Nat32.toNat(req.amount)) {
+                                                    return #err("Incorrect value");
+                                                };
+                                            };
+                                            case _ {
+                                                return #err("Invalid campaign kind");
+                                            };
+                                        };
+
                                         repo.create(req, Types.STATE_CREATED, caller._id);
                                     };
                                 };
@@ -103,17 +124,22 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                let amountNat = Nat64.toNat(amount);
-                                                let res = repo.complete(entity, amountNat, caller._id);
+                                                let res = repo.complete(entity, Nat64.toNat(amount), caller._id);
                                                 if(campaign.goal != 0) {
-                                                    if(campaign.total + amountNat >= campaign.goal) {
-                                                        switch(await campaignService.finishAndRunAction(
-                                                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
-                                                            case (#err(msg)) {
-                                                                return #err(msg);
+                                                    switch(campaignRepo.findById(campaign._id)) {
+                                                        case (#ok(campaign)) {
+                                                            if(campaign.total >= campaign.goal) {
+                                                                switch(await campaignService.startBuildingAndRunAction(
+                                                                    campaign, caller, this)) {
+                                                                    case (#err(msg)) {
+                                                                        return #err(msg);
+                                                                    };
+                                                                    case _ {
+                                                                    };
+                                                                };
                                                             };
-                                                            case _ {
-                                                            };
+                                                        };
+                                                        case _ {
                                                         };
                                                     };
                                                 };
@@ -308,7 +334,7 @@ module {
                                                             switch(
                                                                 await LedgerUtils
                                                                     .transferFromCampaignSubaccountToUserAccount(
-                                                                        campaign, amount - icp_fee, caller, invoker, this)) {
+                                                                        campaign, amount - LedgerUtils.icp_fee, caller, invoker, this)) {
                                                                 case (#err(msg)) {
                                                                     ignore repo.insert(entity);
                                                                     #err(msg);
@@ -387,11 +413,12 @@ module {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    if(campaign.state != CampaignTypes.STATE_PUBLISHED) {
+                    if(campaign.state != CampaignTypes.STATE_PUBLISHED and
+                        campaign.state != CampaignTypes.STATE_BUILDING) {
                         #err("Invalid campaign state");
                     }
                     else {
-                        if(campaign.kind != CampaignTypes.KIND_DONATIONS) {
+                        if(campaign.kind != CampaignTypes.KIND_FUNDING) {
                             #err("Invalid campaign kind");
                         }
                         else {

@@ -44,9 +44,9 @@ const UserSetupForm = (props: Props) => {
         }));
     }, []);
     
-    const validate = async (form: ProfileRequest): Promise<string[]> => {
+    const validate = (form: ProfileRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -57,7 +57,7 @@ const UserSetupForm = (props: Props) => {
     const handleCreate = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;

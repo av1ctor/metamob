@@ -1,12 +1,13 @@
-import React from "react";
-import Box from "../../../../components/Box";
-import { CampaignState } from "../../../../libs/campaigns";
-import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
-import DonationForm from "./DonationForm";
-import Result from "../Result";
-import Share from "../Share";
-import { icpToDecimal } from "../../../../libs/icp";
-import Boost from "../Boost";
+import React, { useContext } from "react";
+import Box from "../../../../../components/Box";
+import { CampaignState, getAgainstVotes, getProVotes } from "../../../../../libs/campaigns";
+import { useFindVoteByCampaignAndUser } from "../../../../../hooks/votes";
+import { Campaign } from "../../../../../../../declarations/dchanges/dchanges.did";
+import { AuthContext } from "../../../../../stores/auth";
+import VoteForm from "./Form";
+import Result from "../../Result";
+import Share from "../../Share";
+import Boost from "../../Boost";
 
 interface Props {
     campaign: Campaign;
@@ -15,14 +16,22 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 }
 
-export const DonationFrame = (props: Props) => {
+export const VoteFrame = (props: Props) => {
+    const [auth] = useContext(AuthContext);
+    
     const {campaign} = props;
     
-    const donated = campaign.total;
-
+    const proVotes = getProVotes(campaign);
+    const againstVotes = getAgainstVotes(campaign);
+    const totalVotes = proVotes + againstVotes;
+    const proPercentage = (proVotes / (totalVotes || 1n));
+    const againstPercentage = (againstVotes / (totalVotes || 1n));
+    
+    const userVote = useFindVoteByCampaignAndUser(campaign?._id, auth.user?._id);
+   
     return (
         <>
-            <div><small><b>{icpToDecimal(donated)} ICP</b> donated. More <b>{icpToDecimal(campaign.goal - donated)} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{proPercentage.toString()}</b> in favor/<b>{againstPercentage.toString()}</b> against of {totalVotes.toString()} votes in total.</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>
@@ -30,8 +39,9 @@ export const DonationFrame = (props: Props) => {
                         <div className="is-size-4">
                             To: <span className="is-size-4 has-text-link">{campaign.target}</span>
                         </div>
-                        <DonationForm 
+                        <VoteForm 
                             campaign={campaign}
+                            vote={userVote?.data} 
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}

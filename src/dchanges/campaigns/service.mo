@@ -50,6 +50,14 @@ module {
                                 #err(msg);
                             };
                             case _ {
+                                switch(_validateInfo(req.kind, req.info)) {
+                                    case (#err(msg)) {
+                                        return #err(msg);
+                                    };
+                                    case _ {
+                                    };
+                                };
+
                                 switch(req.action) {
                                     case (#invoke(action)) {
                                         if(req.kind != Types.KIND_VOTES and req.kind != Types.KIND_WEIGHTED_VOTES) {
@@ -126,6 +134,20 @@ module {
                                     return #err("Kind can not be changed");
                                 };
 
+                                if(req.info != campaign.info) {
+                                    if(campaign.total != 0) {
+                                        return #err("Info can not be changed because campaign total is greater than 0");
+                                    };
+                                };
+
+                                switch(_validateInfo(req.kind, req.info)) {
+                                    case (#err(msg)) {
+                                        return #err(msg);
+                                    };
+                                    case _ {
+                                    };
+                                };
+
                                 switch(await placeService.checkAccess(caller, req.placeId)) {
                                     case (#err(msg)) {
                                         #err(msg);
@@ -135,12 +157,30 @@ module {
                                         if(campaign.goal != req.goal) {
                                             if(req.goal > 0) {
                                                 if(campaign.total >= req.goal) {
-                                                    switch(await finishAndRunAction(
-                                                            campaign, CampaignTypes.RESULT_WON, caller, this)) {
+                                                    switch(res) {
                                                         case (#err(msg)) {
                                                             return #err(msg);
                                                         };
-                                                        case _ {
+                                                        case(#ok(e)) {
+                                                            if(e.kind != Types.KIND_FUNDING) {
+                                                                switch(await finishAndRunAction(
+                                                                        e, CampaignTypes.RESULT_OK, caller, this)) {
+                                                                    case (#err(msg)) {
+                                                                        return #err(msg);
+                                                                    };
+                                                                    case _ {
+                                                                    };
+                                                                };
+                                                            }
+                                                            else {
+                                                                switch(await startBuildingAndRunAction(e, caller, this)) {
+                                                                    case (#err(msg)) {
+                                                                        return #err(msg);
+                                                                    };
+                                                                    case _ {
+                                                                    };
+                                                                };
+                                                            };
                                                         };
                                                     };
                                                 };
@@ -154,6 +194,57 @@ module {
                     };
                 };
             };
+        };
+
+        func _validateInfo(
+            kind: Types.CampaignKind,
+            info: Types.CampaignInfo
+        ): Result.Result<(), Text> {
+            switch(info) {
+                case (#signatures(_)) {
+                    if(kind != Types.KIND_SIGNATURES) {
+                        return #err("Invalid field: info");
+                    };
+                };
+                case (#donations(_)) {
+                    if(kind != Types.KIND_DONATIONS) {
+                        return #err("Invalid field: info");
+                    };
+                };
+                case (#votes(_)) {
+                    if(kind != Types.KIND_VOTES and kind != Types.KIND_WEIGHTED_VOTES) {
+                        return #err("Invalid field: info");
+                    };
+                };
+                case (#funding(info)) {
+                    if(kind != Types.KIND_FUNDING) {
+                        return #err("Invalid field: info");
+                    };
+
+                    if(info.tiers.size() == 0 or info.tiers.size() > 20) {
+                        return #err("Invalid field: tiers[]");
+                    };
+                    for(tier in info.tiers.vals()) {
+                        if(tier.title.size() == 0 or tier.title.size() > 256) {
+                            return #err("Invalid field: tiers[].title");
+                        };
+                        if(tier.desc.size() == 0 or tier.desc.size() > 1024) {
+                            return #err("Invalid field: tiers[].desc");
+                        };
+                        if(tier.total != 0) {
+                            return #err("Invalid field: tiers[].total");
+                        };
+                        if(tier.max == 0) {
+                            return #err("Invalid field: tiers[].max");
+                        };
+                        if(tier.value <= Nat64.toNat(Types.MIN_WITHDRAW_VALUE)) {
+                            return #err("Invalid field: tiers[].value");
+                        };
+                    };
+                };
+            };
+
+            return #ok();
         };
 
         public func publish(
@@ -201,7 +292,12 @@ module {
                 return #err("Nothing to withdraw");
             };
 
-            let cut = (balance * (100 - Types.DONATIONS_TAX)) / 100;
+            let tax = 
+                if(campaign.kind == Types.KIND_DONATIONS) 
+                    Types.DONATIONS_TAX 
+                else 
+                    Types.FUNDING_TAX;
+            let cut = (balance * (100 - tax)) / 100;
 
             let appAccountId = Account.accountIdentifier(
                 Principal.fromActor(this), 
@@ -249,11 +345,15 @@ module {
             };
 
             try {
-                ignore await ExpICP.call(Principal.fromText(action.canisterId), action.method, action.args);
+                ignore await ExpICP.call(
+                    Principal.fromText(action.canisterId), 
+                    action.method, 
+                    action.args
+                );
                 #ok();
             }
             catch(e) { 
-                #err(Error.message e) 
+                #err(Error.message(e)) 
             };
         };
 
@@ -283,13 +383,31 @@ module {
         ): async Result.Result<Types.Campaign, Text> {
             let res = repo.finish(campaign, result, caller._id);
 
-            if(result == Types.RESULT_WON) {
+            if(result == Types.RESULT_OK) {
                 switch(await _runAction(campaign, caller, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
                     case _ {
                     };
+                };
+            };
+
+            res;
+        };
+
+        public func startBuildingAndRunAction(
+            campaign: Types.Campaign, 
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            let res = repo.startBuilding(campaign, caller._id);
+
+            switch(await _runAction(campaign, caller, this)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
                 };
             };
 
@@ -306,7 +424,7 @@ module {
                 #err("Forbidden");
             }
             else {
-                if(not canChange(caller, campaign, [Types.STATE_PUBLISHED])) {
+                if(not canChange(caller, campaign, [Types.STATE_PUBLISHED, Types.STATE_BUILDING])) {
                     return #err("Forbidden");
                 };
 
@@ -315,11 +433,15 @@ module {
                         #err(msg);
                     };
                     case _ {
-                        if(result == Types.RESULT_WON and campaign.goal != 0) {
-                            return #err("Victory will be automatically declared when the goal is reached");
+                        if(campaign.state != Types.STATE_BUILDING) {
+                            if(result == Types.RESULT_OK and campaign.goal != 0) {
+                                return #err("Result will be automatically set when the goal is reached");
+                            };
+                            await finishAndRunAction(campaign, result, caller, this);
+                        }
+                        else {
+                            repo.finish(campaign, result, caller._id);
                         };
-
-                        await finishAndRunAction(campaign, result, caller, this);
                     };
                 };
             };

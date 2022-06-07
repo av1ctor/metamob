@@ -42,9 +42,9 @@ const Create = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: UpdateRequest): Promise<string[]> => {
+    const validate = (form: UpdateRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -55,7 +55,7 @@ const Create = (props: Props) => {
     const handleCreate = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -92,18 +92,18 @@ const Create = (props: Props) => {
     const toggleResult = useCallback(() => {
         setResult(result => 
             result === CampaignResult.NONE? 
-                CampaignResult.WON 
+                CampaignResult.OK 
             : 
                 CampaignResult.NONE
         );
     }, []);
     
     const changeResultToEnded = useCallback(() => {
-        setResult(CampaignResult.LOST);
+        setResult(CampaignResult.NOK);
     }, []);
 
     const changeResultToFinished = useCallback(() => {
-        setResult(CampaignResult.WON);
+        setResult(CampaignResult.OK);
     }, []);
 
     const handleClose = useCallback((e: any) => {
@@ -136,7 +136,7 @@ const Create = (props: Props) => {
                 <CheckboxField
                     label="Goal accomplished! 🤗"
                     id="finished"
-                    value={result === CampaignResult.WON? true: false}
+                    value={result === CampaignResult.OK? true: false}
                     disabled={result === CampaignResult.NONE}
                     onChange={changeResultToFinished}
                 />
@@ -145,7 +145,7 @@ const Create = (props: Props) => {
                     label="Goal failed 😢"
                     id="ended"
                     color="danger"
-                    value={result === CampaignResult.LOST? true: false}
+                    value={result === CampaignResult.NOK? true: false}
                     disabled={result === CampaignResult.NONE}
                     onChange={changeResultToEnded}
                 />

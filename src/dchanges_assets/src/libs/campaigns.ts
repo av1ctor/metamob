@@ -17,13 +17,13 @@ export enum CampaignState {
     DELETED = 2,
     PUBLISHED = 3,
     FINISHED = 4,
-    BANNED = 5,
+    BUILDING = 5,
 }
 
 export enum CampaignResult {
     NONE = 0,
-    WON = 1,
-    LOST = 2,
+    OK = 1,
+    NOK = 2,
 }
 
 export const kindOptions = [
@@ -34,12 +34,19 @@ export const kindOptions = [
     {name: 'Donations', value: CampaignKind.DONATIONS, icon: 'money-bill'},
 ];
 
+export const stateOptions = [
+    {name: 'Created', value: CampaignState.CREATED},
+    {name: 'Published', value: CampaignState.PUBLISHED},
+    {name: 'Finished', value: CampaignState.FINISHED},
+    {name: 'Canceled', value: CampaignState.CANCELED},
+    {name: 'Deleted', value: CampaignState.DELETED},
+    {name: 'Building', value: CampaignState.BUILDING},
+];
+
 export const campaignStateToText = (
     state: CampaignState
 ): string => {
     switch(state) {
-        case CampaignState.BANNED:
-            return 'Banned';
         case CampaignState.CANCELED:
             return 'Canceled';
         case CampaignState.CREATED:
@@ -50,6 +57,8 @@ export const campaignStateToText = (
             return 'Finished';
         case CampaignState.PUBLISHED:
             return 'Published';
+        case CampaignState.BUILDING:
+            return 'Building';
         default:
             return 'Unknown';
     }
@@ -89,6 +98,27 @@ export const campaignKindToIcon = (
         default:
             return '';
     }
+};
+
+export const campaignKindToGoal = (
+    kind: number
+): string => {
+    let suffix = '';
+    switch(kind) {
+        case CampaignKind.DONATIONS: 
+        case CampaignKind.FUNDINGS: 
+            suffix = '(ICP)';
+            break;
+        case CampaignKind.SIGNATURES: 
+            suffix = '(Signatures)'; 
+            break;
+        case CampaignKind.VOTES:
+        case CampaignKind.WEIGHTED_VOTES:
+            suffix = '(Votes)';
+            break;
+    }
+
+    return `Goal ${suffix}`;
 };
 
 export const getProVotes = (

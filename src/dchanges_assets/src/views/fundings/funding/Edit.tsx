@@ -29,6 +29,8 @@ const EditForm = (props: Props) => {
     const [form, setForm] = useState<FundingRequest>({
         campaignId: props.funding.campaignId,
         body: props.funding.body,
+        tier: props.funding.tier,
+        amount: props.funding.amount,
         value: props.funding.value,
         anonymous: props.funding.anonymous,
     });
@@ -46,9 +48,9 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: FundingRequest): Promise<string[]> => {
+    const validate = (form: FundingRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -59,7 +61,7 @@ const EditForm = (props: Props) => {
     const handleUpdate = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -74,6 +76,8 @@ const EditForm = (props: Props) => {
                 req: {
                     campaignId: Number(props.funding.campaignId),
                     body: form.body,
+                    tier: form.tier,
+                    amount: form.amount,
                     value: BigInt(form.value),
                     anonymous: form.anonymous,
                 }
@@ -98,6 +102,8 @@ const EditForm = (props: Props) => {
         setForm({
             campaignId: props.funding.campaignId,
             body: props.funding.body,
+            tier: props.funding.tier,
+            amount: props.funding.amount,
             value: props.funding.value,
             anonymous: props.funding.anonymous,
         });

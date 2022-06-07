@@ -96,6 +96,21 @@ module {
             };
         };
 
+        public func startBuilding(
+            campaign: Types.Campaign, 
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWhenBuilding(campaign, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
         public func boost(
             campaign: Types.Campaign, 
             value: Nat
@@ -480,23 +495,38 @@ module {
         };
 
         func _createInfoEntity(
-            kind: Types.CampaignKind,
-            goal: Nat
+            req: Types.CampaignRequest
         ): Types.CampaignInfo {
-            if(kind == Types.KIND_SIGNATURES) {
+            if(req.kind == Types.KIND_SIGNATURES) {
                 #signatures({
                 });
             }
-            else if(kind == Types.KIND_VOTES or
-                kind == Types.KIND_WEIGHTED_VOTES) {
+            else if(req.kind == Types.KIND_VOTES or
+                req.kind == Types.KIND_WEIGHTED_VOTES) {
                 #votes({
                     pro = 0;
                     against = 0;
                 });
             }
-            else if(kind == Types.KIND_FUNDING) {
-                #funding({
-                });
+            else if(req.kind == Types.KIND_FUNDING) {
+                switch(req.info) {
+                    case (#funding(info)) {
+                        #funding({
+                            tiers = Array.map(info.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
+                                title = tier.title;
+                                desc = tier.desc;
+                                value = tier.value;
+                                max = tier.max;
+                                total = 0;
+                            })
+                        });
+                    };
+                    case _ {
+                        #funding({
+                            tiers = [];
+                        });
+                    };
+                };
             }
             else {
                 #donations({
@@ -505,26 +535,51 @@ module {
         };
 
         func _updateInfoEntity(
-            info: Types.CampaignInfo
+            info: Types.CampaignInfo,
+            req: Types.CampaignRequest
         ): Types.CampaignInfo {
             switch(info) {
                 case (#signatures(_)) {
                     #signatures({
                     });
                 };
-                case (#votes(i)) {
-                    #votes({
-                        pro = i.pro;
-                        against = i.against;
-                    });
-                };
-                case (#funding(_)) {
-                    #funding({
-                    });
-                };
                 case (#donations(_)) {
                     #donations({
                     });
+                };
+                case (#votes(a)) {
+                    switch(req.info) {
+                        case (#votes(_)) {
+                            #votes(a);
+                        };
+                        case _ {
+                            #votes({
+                                pro = 0;
+                                against = 0;
+                            });
+                        };
+                    };
+                };
+                case (#funding(_)) {
+                    switch(req.info) {
+                        case (#funding(info)) {
+                            // note: info can only be updated if campaign.total = 0, so the tiers' totals can be assumed to be 0
+                            #funding({
+                                tiers = Array.map(info.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
+                                    title = tier.title;
+                                    desc = tier.desc;
+                                    value = tier.value;
+                                    max = tier.max;
+                                    total = 0;
+                                })
+                            });
+                        };
+                        case _ {
+                            #funding({
+                                tiers = [];
+                            });
+                        };
+                    };
                 };
             };
         };
@@ -533,7 +588,13 @@ module {
             req: Types.CampaignRequest,
             callerId: Nat32
         ): Types.Campaign {
-            let now: Int = Time.now();
+            let state = switch(req.state) { 
+                case null Types.STATE_PUBLISHED;
+                case (?state) state;
+            };
+            let now = Time.now();
+            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000))));
+
             {
                 _id = campaigns.nextId();
                 pubId = ulid.next();
@@ -544,22 +605,19 @@ module {
                 body = req.body;
                 categoryId = req.categoryId;
                 placeId = req.placeId;
-                state = switch(req.state) { 
-                    case null Types.STATE_PUBLISHED;
-                    case (?state) state;
-                };
+                state = state;
                 result = Types.RESULT_NONE;
                 duration = req.duration;
                 tags = req.tags;
-                info = _createInfoEntity(req.kind, req.goal);
+                info = _createInfoEntity(req);
                 goal = req.goal;
                 total = 0;
                 interactions = 0;
                 boosting = 0;
                 updates = 0;
                 action = req.action;
-                publishedAt = null;
-                expiredAt = null;
+                publishedAt = if(state == Types.STATE_PUBLISHED) ?now else null;
+                expiredAt = if(state == Types.STATE_PUBLISHED) ?limit else null;
                 createdAt = now;
                 createdBy = callerId;
                 updatedAt = null;
@@ -591,7 +649,7 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = req.tags;
-                info = _updateInfoEntity(e.info);
+                info = _updateInfoEntity(e.info, req);
                 goal = req.goal;
                 total = e.total;
                 interactions = e.interactions;
@@ -899,7 +957,32 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = e.info;
+                info = switch(e.info) {
+                    case (#funding(info)) {
+                        #funding({
+                            tiers = Array.mapEntries(
+                                info.tiers, 
+                                func (tier: Types.FundingTier, i: Nat): Types.FundingTier {
+                                    if(Nat32.fromNat(i) == funding.tier) {
+                                        {
+                                            title = tier.title;
+                                            desc = tier.desc;
+                                            value = tier.value;
+                                            max = tier.max;
+                                            total = tier.total + funding.amount;
+                                        };
+                                    }
+                                    else {
+                                        tier;
+                                    };
+                                }
+                            )
+                        });
+                    };
+                    case (other) {
+                        other;
+                    };
+                };
                 goal = e.goal;
                 total = e.total + funding.value;
                 interactions = e.interactions + 1;
@@ -935,7 +1018,32 @@ module {
                 result = e.result;
                 duration = e.duration;
                 tags = e.tags;
-                info = e.info;
+                info = switch(e.info) {
+                    case (#funding(info)) {
+                        #funding({
+                            tiers = Array.mapEntries(
+                                info.tiers, 
+                                func (tier: Types.FundingTier, i: Nat): Types.FundingTier {
+                                    if(Nat32.fromNat(i) == funding.tier) {
+                                        {
+                                            title = tier.title;
+                                            desc = tier.desc;
+                                            value = tier.value;
+                                            max = tier.max;
+                                            total = if(tier.total >= funding.amount) tier.total - funding.amount else 0;
+                                        };
+                                    }
+                                    else {
+                                        tier;
+                                    };
+                                }
+                            )
+                        });
+                    };
+                    case (other) {
+                        other;
+                    };
+                };
                 goal = e.goal;
                 total = e.total - funding.value;
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
@@ -1031,6 +1139,7 @@ module {
         ): Types.Campaign {
             let now = Time.now();
             let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * (24 * 60 * 60 * 1000000))));
+
             {
                 _id = e._id;
                 pubId = e.pubId;
@@ -1061,7 +1170,43 @@ module {
                 deletedAt = e.deletedAt;
                 deletedBy = e.deletedBy;
             }  
-        };        
+        };
+
+        func _updateEntityWhenBuilding(
+            e: Types.Campaign, 
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = e.kind;
+                title = e.title;
+                target = e.target;
+                cover = e.cover;
+                body = e.body;
+                categoryId = e.categoryId;
+                placeId = e.placeId;
+                state = Types.STATE_BUILDING;
+                result = e.result;
+                duration = e.duration;
+                tags = e.tags;
+                info = e.info;
+                goal = e.goal;
+                total = e.total;
+                interactions = e.interactions;
+                boosting = e.boosting;
+                updates = e.updates;
+                action = e.action;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };
 
         func _updateEntityWhenFinished(
             e: Types.Campaign, 
@@ -1170,6 +1315,11 @@ module {
                 res.put("info_against", #nat(info.against));
             };
             case (#funding(info)) {
+                res.put("info_tiers_titles", #array(Array.map(info.tiers, func(l: Types.FundingTier): Variant.Variant = #text(l.title))));
+                res.put("info_tiers_descs", #array(Array.map(info.tiers, func(l: Types.FundingTier): Variant.Variant = #text(l.desc))));
+                res.put("info_tiers_values", #array(Array.map(info.tiers, func(l: Types.FundingTier): Variant.Variant = #nat(l.value))));
+                res.put("info_tiers_maxes", #array(Array.map(info.tiers, func(l: Types.FundingTier): Variant.Variant = #nat32(l.max))));
+                res.put("info_tiers_totals", #array(Array.map(info.tiers, func(l: Types.FundingTier): Variant.Variant = #nat32(l.total))));
             };            
             case (#donations(info)) {
             };            
@@ -1240,7 +1390,22 @@ module {
                 });
             }
             else if(kind == Types.KIND_FUNDING) {
+                let titles = Array.map(Variant.getOptArray(map.get("info_tiers_titles")), Variant.getText);
+                let descs = Array.map(Variant.getOptArray(map.get("info_tiers_descs")), Variant.getText);
+                let values = Array.map(Variant.getOptArray(map.get("info_tiers_values")), Variant.getNat);
+                let maxes = Array.map(Variant.getOptArray(map.get("info_tiers_maxes")), Variant.getNat32);
+                let totals = Array.map(Variant.getOptArray(map.get("info_tiers_totals")), Variant.getNat32);
+
                 #funding({
+                    tiers = Array.mapEntries(titles, func (t: Text, i: Nat): Types.FundingTier {
+                        {
+                            title = titles[i];
+                            desc = descs[i];
+                            value = values[i];
+                            max = maxes[i];
+                            total = totals[i];
+                        }
+                    });
                 });
             }
             else /*if(kind == Types.KIND_DONATIONS)*/ {

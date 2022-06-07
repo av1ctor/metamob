@@ -106,7 +106,7 @@ module {
                                             };
                                             case _ {
                                                 if(req.pro != entity.pro) {
-                                                    return #err("Can't change if in favor or against. Delete this vote and cast a new one");
+                                                    return #err("Can't change type. Delete this vote and cast a new one");
                                                 };
                                                 repo.update(entity, req, caller._id);
                                             };
@@ -127,30 +127,36 @@ module {
             this: actor {}
         ): async Result.Result<(), Text> {
             if(campaign.goal != 0) {
-                if(req.pro) {
-                    let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
-                    if(votes + 1 >= campaign.goal) {
-                        switch(await campaignService.finishAndRunAction(
-                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
-                            case (#err(msg)) {
-                                return #err(msg);
+                switch(campaignRepo.findById(campaign._id)) {
+                    case (#ok(campaign)) {
+                        if(req.pro) {
+                            let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
+                            if(votes >= campaign.goal) {
+                                switch(await campaignService.finishAndRunAction(
+                                        campaign, CampaignTypes.RESULT_OK, caller, this)) {
+                                    case (#err(msg)) {
+                                        return #err(msg);
+                                    };
+                                    case _ {
+                                    };
+                                };
                             };
-                            case _ {
+                        }
+                        else {
+                            let votes = switch(campaign.info) {case (#votes(info)) info.against; case _ 0;};
+                            if(votes >= campaign.goal) {
+                                switch(await campaignService.finishAndRunAction(
+                                        campaign, CampaignTypes.RESULT_NOK, caller, this)) {
+                                    case (#err(msg)) {
+                                        return #err(msg);
+                                    };
+                                    case _ {
+                                    };
+                                };
                             };
                         };
                     };
-                }
-                else {
-                    let votes = switch(campaign.info) {case (#votes(info)) info.against; case _ 0;};
-                    if(votes + 1 >= campaign.goal) {
-                        switch(await campaignService.finishAndRunAction(
-                                campaign, CampaignTypes.RESULT_LOST, caller, this)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case _ {
-                            };
-                        };
+                    case _ {
                     };
                 };
             };

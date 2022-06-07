@@ -19,13 +19,13 @@ import PlaceTree from "../../places/place/PlaceTree";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
 import Signatures from "../../signatures/Signatures";
-import {SignFrame} from "./kinds/SignFrame";
+import {SignFrame} from "./kinds/signatures/Frame";
 import Votes from "../../votes/Votes";
-import {VoteFrame} from "./kinds/VoteFrame";
+import {VoteFrame} from "./kinds/votes/Frame";
 import Donations from "../../donations/Donations";
-import { DonationFrame } from "./kinds/DonationFrame";
+import { DonationFrame } from "./kinds/donations/Frame";
 import Fundings from "../../fundings/Fundings";
-import { FundingFrame } from "./kinds/FundingFrame";
+import { FundingFrame } from "./kinds/fundings/Frame";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -216,7 +216,7 @@ const Campaign = (props: Props) => {
                                 toggleLoading={props.toggleLoading}
                             />
                         :
-                            campaign.kind === CampaignKind.DONATIONS?
+                            campaign.kind === CampaignKind.FUNDINGS?
                                 <Fundings 
                                     campaign={campaign} 
                                     onSuccess={props.onSuccess}

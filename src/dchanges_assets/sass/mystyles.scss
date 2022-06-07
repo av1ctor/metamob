@@ -328,3 +328,32 @@
         }
     }
 }
+
+.tier-container {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 4px;
+
+    .bar {
+        position: relative;
+        display: flex;
+
+        .buttons {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+
+            div {
+                &:hover {
+                    cursor: pointer;
+                }
+
+                &.disabled {
+                    color: #888;
+                }
+            }
+        }
+    }
+}

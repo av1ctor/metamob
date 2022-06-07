@@ -37,7 +37,7 @@ shared({caller = owner}) actor class DChanges() = this {
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
     let voteService = VoteService.Service(userService, campaignService, placeService);
     let donationService = DonationService.Service(userService, campaignService, placeService);
-    let fundingService = DonationService.Service(userService, campaignService, placeService);
+    let fundingService = FundingService.Service(userService, campaignService, placeService);
     let updateService = UpdateService.Service(userService, campaignService, placeService);
     let reportService = ReportService.Service(
         userService, campaignService, signatureService, voteService, fundingService, donationService, updateService);
@@ -558,7 +558,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func donationCreate(
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(await donationService.create(req, msg.caller, this), false);
+        _transformDonationResponseEx(await donationService.create(req, msg.caller), false);
     };
 
     public shared(msg) func donationComplete(
@@ -710,7 +710,7 @@ shared({caller = owner}) actor class DChanges() = this {
     public shared(msg) func fundingCreate(
         req: FundingTypes.FundingRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponseEx(await fundingService.create(req, msg.caller, this), false);
+        _transformFundingResponseEx(await fundingService.create(req, msg.caller), false);
     };
 
     public shared(msg) func fundingComplete(
@@ -792,6 +792,8 @@ shared({caller = owner}) actor class DChanges() = this {
                 state = e.state;
                 anonymous = e.anonymous;
                 body = e.body;
+                tier = e.tier;
+                amount = e.amount;
                 value = e.value;
                 campaignId = e.campaignId;
                 createdAt = e.createdAt;
@@ -808,6 +810,8 @@ shared({caller = owner}) actor class DChanges() = this {
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = e.body;
+                tier = e.tier;
+                amount = e.amount;
                 value = e.value;
                 createdAt = e.createdAt;
                 createdBy = null;

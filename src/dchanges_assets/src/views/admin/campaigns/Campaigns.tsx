@@ -4,7 +4,7 @@ import { Filter, Order } from "../../../libs/common";
 import { Campaign, Profile } from "../../../../../declarations/dchanges/dchanges.did";
 import TextField from "../../../components/TextField";
 import { useFindCampaigns } from "../../../hooks/campaigns";
-import { CampaignState, campaignStateToText } from "../../../libs/campaigns";
+import { campaignStateToText, stateOptions } from "../../../libs/campaigns";
 import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import View from "./View";
@@ -15,15 +15,6 @@ const orderBy: Order[] = [{
     key: '_id',
     dir: 'desc'
 }];
-
-const states: Option[] = [
-    {name: 'Created', value: CampaignState.CREATED},
-    {name: 'Published', value: CampaignState.PUBLISHED},
-    {name: 'Finished', value: CampaignState.FINISHED},
-    {name: 'Canceled', value: CampaignState.CANCELED},
-    {name: 'Deleted', value: CampaignState.DELETED},
-    {name: 'Banned', value: CampaignState.BANNED},
-];
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -151,7 +142,7 @@ const Campaigns = (props: Props) => {
                         <SelectField
                             name="state"
                             value={filters[2].value !== null? filters[2].value: ''}
-                            options={states}
+                            options={stateOptions}
                             onChange={handleChangeStateFilter}
                         />
                     </div>

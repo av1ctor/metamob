@@ -44,7 +44,7 @@ const Result = (props: Props) => {
     return (
         <>
             <div>
-                {campaign.result === CampaignResult.WON? 
+                {campaign.result === CampaignResult.OK? 
                     <div className="notification is-success is-light">
                         This campaign finished and the goal was achieved! Congratulations!
                     </div>

@@ -1,12 +1,12 @@
 import React from "react";
-import Box from "../../../../components/Box";
-import { CampaignState } from "../../../../libs/campaigns";
-import { Campaign } from "../../../../../../declarations/dchanges/dchanges.did";
-import FundingForm from "./FundingForm";
-import Result from "../Result";
-import Share from "../Share";
-import { icpToDecimal } from "../../../../libs/icp";
-import Boost from "../Boost";
+import Box from "../../../../../components/Box";
+import { CampaignState } from "../../../../../libs/campaigns";
+import { Campaign } from "../../../../../../../declarations/dchanges/dchanges.did";
+import DonationForm from "./Form";
+import Result from "../../Result";
+import Share from "../../Share";
+import { icpToDecimal } from "../../../../../libs/icp";
+import Boost from "../../Boost";
 
 interface Props {
     campaign: Campaign;
@@ -15,7 +15,7 @@ interface Props {
     toggleLoading: (to: boolean) => void;
 }
 
-export const FundingFrame = (props: Props) => {
+export const DonationFrame = (props: Props) => {
     const {campaign} = props;
     
     const donated = campaign.total;
@@ -30,7 +30,7 @@ export const FundingFrame = (props: Props) => {
                         <div className="is-size-4">
                             To: <span className="is-size-4 has-text-link">{campaign.target}</span>
                         </div>
-                        <FundingForm 
+                        <DonationForm 
                             campaign={campaign}
                             onSuccess={props.onSuccess}
                             onError={props.onError}

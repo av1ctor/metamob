@@ -1,38 +1,40 @@
-import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
+import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCreateSignature} from "../../../../hooks/signatures";
-import {SignatureRequest, Campaign, SignatureResponse} from "../../../../../../declarations/dchanges/dchanges.did";
-import { AuthContext } from "../../../../stores/auth";
-import Button from "../../../../components/Button";
-import TextAreaField from "../../../../components/TextAreaField";
-import { ActorContext } from "../../../../stores/actor";
-import CheckboxField from "../../../../components/CheckboxField";
+import {useCreateVote} from "../../../../../hooks/votes";
+import {VoteRequest, Campaign, VoteResponse} from "../../../../../../../declarations/dchanges/dchanges.did";
+import { AuthContext } from "../../../../../stores/auth";
+import Button from "../../../../../components/Button";
+import TextAreaField from "../../../../../components/TextAreaField";
+import { ActorContext } from "../../../../../stores/actor";
+import CheckboxField from "../../../../../components/CheckboxField";
 
 interface Props {
     campaign: Campaign;
-    signature?: SignatureResponse;
+    vote?: VoteResponse;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
-    body: yup.string().min(3).max(256),
+    body: yup.string(),
+    pro: yup.number().required(),
     anonymous: yup.bool().required(),
 });
 
-const SignForm = (props: Props) => {
+const VoteForm = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
     const [actorState, ] = useContext(ActorContext);
 
-    const [form, setForm] = useState<SignatureRequest>({
+    const [form, setForm] = useState<VoteRequest>({
         campaignId: props.campaign._id,
-        body: props.signature?.body || '',
         anonymous: false,
+        body: props.vote?.body || '',
+        pro: props.vote?.pro || true
     });
     
-    const createMut = useCreateSignature();
+    const createMut = useCreateVote();
 
     const navigate = useNavigate();
 
@@ -47,9 +49,9 @@ const SignForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: SignatureRequest): Promise<string[]> => {
+    const validate = (form: VoteRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -57,10 +59,10 @@ const SignForm = (props: Props) => {
         }
     };
 
-    const handleSign = useCallback(async (e: any) => {
+    const handleVote = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
@@ -74,10 +76,11 @@ const SignForm = (props: Props) => {
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
+                    pro: Boolean(form.pro),
                     anonymous: form.anonymous,
                 }
             });
-            props.onSuccess('Campaign signed!');
+            props.onSuccess('Your vote has been cast!');
         }
         catch(e) {
             props.onError(e);
@@ -94,32 +97,46 @@ const SignForm = (props: Props) => {
     useEffect(() => {
         setForm(form => ({
             ...form,
-            body: props.signature?.body || ''
+            pro: props.vote?.pro || true,
+            body: props.vote?.body || ''
         }));
-    }, [props.signature]);
+    }, [props.vote]);
 
     const isLoggedIn = !!authState.user;
-    const hasSigned = !!props.signature?._id;
+    const hasVoted = !!props.vote?._id;
 
     return (
-        <form onSubmit={handleSign}>
+        <form onSubmit={handleVote}>
             <div>
                 {isLoggedIn && 
                     <>
+                        <CheckboxField
+                            label="In favor"
+                            id="pro"
+                            value={!!form.pro}
+                            disabled={hasVoted}
+                            onChange={changeForm}
+                        />
+                        <CheckboxField
+                            label="Against"
+                            id="pro"
+                            value={!form.pro}
+                            disabled={hasVoted}
+                            onChange={changeForm}
+                        />
                         <TextAreaField
                             label="Message"
                             name="body"
                             value={form.body || ''}
                             rows={3}
-                            required={true}
-                            disabled={hasSigned}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                         <CheckboxField
-                            label="Sign as anonymous"
+                            label="Vote as anonymous"
                             id="anonymous"
                             value={form.anonymous}
-                            disabled={hasSigned}
+                            disabled={hasVoted}
                             onChange={changeForm}
                         />
                     </>
@@ -129,10 +146,10 @@ const SignForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleSign: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || hasSigned: false}
+                            onClick={isLoggedIn? handleVote: redirectToLogon}
+                            disabled={isLoggedIn? createMut.isLoading || hasVoted: false}
                         >
-                            <i className="la la-pen-fancy"/>&nbsp;SIGN
+                            <i className="la la-vote-yea"/>&nbsp;VOTE
                         </Button>
                     </div>
                 </div>
@@ -141,4 +158,4 @@ const SignForm = (props: Props) => {
     );
 };
 
-export default SignForm;
+export default VoteForm;

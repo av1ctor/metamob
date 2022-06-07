@@ -50,7 +50,7 @@ const Item = (props: Props) => {
                 <div className="level-left">
                     <span title="State">
                         {campaign.state === CampaignState.FINISHED? 
-                            campaign.result === CampaignResult.WON?
+                            campaign.result === CampaignResult.OK?
                                 <span className="tag is-rounded is-success">finished</span>
                             :
                                 <span className="tag is-rounded is-danger">ended</span>

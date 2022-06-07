@@ -14,7 +14,7 @@ import AccountTypes "../accounts/types";
 import Ledger "canister:ledger";
 
 module {
-    let icp_fee: Nat = 10_000;
+    public let icp_fee: Nat = 10_000;
 
     public func getAccountId(
         invoker: Principal,

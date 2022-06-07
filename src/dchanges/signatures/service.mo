@@ -53,16 +53,22 @@ module {
                                             case _ {
                                                 let res = repo.create(req, caller._id);
                                                 if(campaign.goal != 0) {
-                                                    if(campaign.total + 1 >= campaign.goal) {
-                                                        switch(await campaignService.finishAndRunAction(
-                                                                campaign, CampaignTypes.RESULT_WON, caller, this)) {
-                                                            case (#err(msg)) {
-                                                                return #err(msg);
-                                                            };
-                                                            case _ {
+                                                    switch(campaignRepo.findById(campaign._id)) {
+                                                        case (#ok(campaign)) {
+                                                            if(campaign.total >= campaign.goal) {
+                                                                switch(await campaignService.finishAndRunAction(
+                                                                        campaign, CampaignTypes.RESULT_OK, caller, this)) {
+                                                                    case (#err(msg)) {
+                                                                        return #err(msg);
+                                                                    };
+                                                                    case _ {
+                                                                    };
+                                                                };
                                                             };
                                                         };
-                                                    };
+                                                        case _ {
+                                                        };
+                                                    }
                                                 };
                                                 res;
                                             };

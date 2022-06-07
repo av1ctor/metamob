@@ -1,18 +1,18 @@
 import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
-import {useCompleteDonation, useCreateDonation, useDeleteDonation} from "../../../../hooks/donations";
-import {DonationRequest, Campaign} from "../../../../../../declarations/dchanges/dchanges.did";
-import {idlFactory as Ledger} from "../../../../../../declarations/ledger";
-import { AuthContext } from "../../../../stores/auth";
-import Button from "../../../../components/Button";
-import TextAreaField from "../../../../components/TextAreaField";
-import { ActorActionType, ActorContext } from "../../../../stores/actor";
-import CheckboxField from "../../../../components/CheckboxField";
-import TextField from "../../../../components/TextField";
-import { depositIcp, getBalance } from "../../../../libs/users";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../libs/backend";
-import { decimalToIcp, icpToDecimal } from "../../../../libs/icp";
+import {useCompleteDonation, useCreateDonation, useDeleteDonation} from "../../../../../hooks/donations";
+import {DonationRequest, Campaign} from "../../../../../../../declarations/dchanges/dchanges.did";
+import {idlFactory as Ledger} from "../../../../../../../declarations/ledger";
+import { AuthContext } from "../../../../../stores/auth";
+import Button from "../../../../../components/Button";
+import TextAreaField from "../../../../../components/TextAreaField";
+import { ActorActionType, ActorContext } from "../../../../../stores/actor";
+import CheckboxField from "../../../../../components/CheckboxField";
+import TextField from "../../../../../components/TextField";
+import { depositIcp, getBalance } from "../../../../../libs/users";
+import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
+import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
 
 interface Props {
@@ -101,9 +101,9 @@ const DonationForm = (props: Props) => {
         }));
     }, []);
 
-    const validate = async (form: DonationRequest): Promise<string[]> => {
+    const validate = (form: DonationRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -114,7 +114,7 @@ const DonationForm = (props: Props) => {
     const handleDonation = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;

@@ -114,12 +114,12 @@ module {
 
         func _updateCampaign(
             funding: Types.Funding,
-            inc: Bool
+            inserted: Bool
         ) {
             switch(campaignRepository.findById(funding.campaignId))
             {
                 case (#ok(campaign)) {
-                    if(inc) {
+                    if(inserted) {
                         campaignRepository.onFundingInserted(campaign, funding);
                     }
                     else {
@@ -378,6 +378,8 @@ module {
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
                 body = req.body;
+                tier = req.tier;
+                amount = req.amount;
                 value = req.value;
                 createdAt = Time.now();
                 createdBy = callerId;
@@ -399,6 +401,8 @@ module {
                 anonymous = req.anonymous;
                 campaignId = e.campaignId;
                 body = req.body;
+                tier = req.tier;
+                amount = req.amount;
                 value = req.value;                
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -419,6 +423,8 @@ module {
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = e.body;
+                tier = e.tier;
+                amount = e.amount;
                 value = value;                
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -440,6 +446,8 @@ module {
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("tier", #nat32(e.tier));
+        res.put("amount", #nat32(e.amount));
         res.put("value", #nat(e.value));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -459,6 +467,8 @@ module {
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
             body = Variant.getOptText(map.get("body"));
+            tier = Variant.getOptNat32(map.get("tier"));
+            amount = Variant.getOptNat32(map.get("amount"));
             value = Variant.getOptNat(map.get("value"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

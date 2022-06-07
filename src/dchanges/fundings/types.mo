@@ -12,6 +12,8 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        tier: Nat32;
+        amount: Nat32;
         value: Nat;
         createdAt: Int;
         createdBy: Nat32;
@@ -23,6 +25,8 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        tier: Nat32;
+        amount: Nat32;
         value: Nat;
     };
 
@@ -33,6 +37,8 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        tier: Nat32;
+        amount: Nat32;
         value: Nat;
         createdAt: Int;
         createdBy: ?Nat32;

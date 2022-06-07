@@ -34,9 +34,9 @@ const Report = (props: Props) => {
 
     const mutation = useCreateReport();
 
-    const validate = async (form: ReportRequest): Promise<string[]> => {
+    const validate = (form: ReportRequest): string[] => {
         try {
-            await formSchema.validate(form, {abortEarly: false});
+            formSchema.validateSync(form, {abortEarly: false});
             return [];
         }
         catch(e: any) {
@@ -47,7 +47,7 @@ const Report = (props: Props) => {
     const handleCreate = useCallback(async (e: any) => {
         e.preventDefault();
 
-        const errors = await validate(form);
+        const errors = validate(form);
         if(errors.length > 0) {
             props.onError(errors);
             return;
