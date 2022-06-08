@@ -10,23 +10,23 @@
       "wasm": "ledger.wasm",
       "candid": "ledger.public.did"
     },
-    "dchanges": {
-      "main": "src/dchanges/facade.mo",
+    "metamob": {
+      "main": "src/metamob/facade.mo",
       "type": "motoko",
       "dependencies": [
         "ledger"
       ]
     },
-    "dchanges_assets": {
+    "metamob_assets": {
       "dependencies": [
-        "dchanges"
+        "metamob"
       ],
       "frontend": {
-        "entrypoint": "src/dchanges_assets/src/index.html"
+        "entrypoint": "src/metamob_assets/src/index.html"
       },
       "source": [
-        "src/dchanges_assets/assets",
-        "dist/dchanges_assets/"
+        "src/metamob_assets/assets",
+        "dist/metamob_assets/"
       ],
       "type": "assets"
     },
