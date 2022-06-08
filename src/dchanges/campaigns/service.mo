@@ -719,13 +719,16 @@ module {
             };
 
             // any valid state?
-            for(state in states.vals()) {
-                if(campaign.state == state) {
-                    return true;
-                };                    
+            if(Option.isNull(
+                Array.find(
+                    states, 
+                    func(s: Types.CampaignState): Bool = s == campaign.state
+                )
+            )) {
+                return false;
             };
 
-            return false;
+            return true;
         };
     };
 };

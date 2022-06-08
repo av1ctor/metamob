@@ -3,8 +3,10 @@ import Blob "mo:base/Blob";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
+import Array "mo:base/Array";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
 import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
@@ -43,7 +45,8 @@ module {
                         #err("Forbidden");
                     }
                     else {
-                        switch(canChangeCampaign(req.campaignId)) {
+                        switch(canChangeCampaign(
+                                req.campaignId, [CampaignTypes.STATE_PUBLISHED, CampaignTypes.STATE_BUILDING])) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
@@ -111,7 +114,8 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangeCampaign(entity.campaignId)) {
+                                switch(canChangeCampaign(
+                                        entity.campaignId, [CampaignTypes.STATE_PUBLISHED, CampaignTypes.STATE_BUILDING])) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -181,7 +185,8 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(canChangeCampaign(entity.campaignId)) {
+                                switch(canChangeCampaign(
+                                        entity.campaignId, [CampaignTypes.STATE_PUBLISHED, CampaignTypes.STATE_BUILDING])) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -230,7 +235,8 @@ module {
                                     return #err("Forbidden");
                                 };
                                 
-                                switch(canChangeCampaign(entity.campaignId)) {
+                                switch(canChangeCampaign(
+                                        entity.campaignId, [CampaignTypes.STATE_PUBLISHED])) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -417,15 +423,20 @@ module {
         };
 
         func canChangeCampaign(
-            campaignId: Nat32
+            campaignId: Nat32,
+            states: [CampaignTypes.CampaignState]
         ): Result.Result<CampaignTypes.Campaign, Text> {
             switch(campaignRepo.findById(campaignId)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    if(campaign.state != CampaignTypes.STATE_PUBLISHED and
-                        campaign.state != CampaignTypes.STATE_BUILDING) {
+                    if(Option.isNull(
+                        Array.find(
+                            states, 
+                            func(s: CampaignTypes.CampaignState): Bool = s == campaign.state
+                        )
+                    )) {
                         #err("Invalid campaign state");
                     }
                     else {
