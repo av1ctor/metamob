@@ -959,7 +959,7 @@ module {
                 tags = e.tags;
                 info = e.info;
                 goal = e.goal;
-                total = e.total - donation.value;
+                total = if(e.total > donation.value) e.total - donation.value else 0;
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = e.updates;
@@ -1081,7 +1081,7 @@ module {
                     };
                 };
                 goal = e.goal;
-                total = e.total - funding.value;
+                total = if(e.total > funding.value) e.total - funding.value else 0;
                 interactions = if(e.interactions > 0) e.interactions - 1 else 0;
                 boosting = e.boosting;
                 updates = e.updates;
