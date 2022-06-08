@@ -15,6 +15,7 @@ import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
+import FundingRepository "../fundings/repository";
 import LedgerUtils "../utils/ledger";
 import Account "../accounts/account";
 import D "mo:base/Debug";
@@ -25,7 +26,9 @@ module {
         placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository();
+        let userRepo = userService.getRepository();
         let placeRepo = placeService.getRepository();
+        var fundingRepo: ?FundingRepository.Repository = null;
         
         public func create(
             req: Types.CampaignRequest,
@@ -298,41 +301,25 @@ module {
                     Types.DONATIONS_TAX 
                 else 
                     Types.FUNDING_TAX;
-            let cut = (balance * (100 - tax)) / 100;
 
-            let appAccountId = Account.accountIdentifier(
+            let app = Account.accountIdentifier(
                 Principal.fromActor(this), 
                 Account.defaultSubaccount()
             );
 
-            let toAccountId = Account.accountIdentifier(
+            let to = Account.accountIdentifier(
                 Principal.fromText(action.receiver), 
                 Account.defaultSubaccount()
             );
 
-            switch(await LedgerUtils.withdrawFromCampaignSubaccount(
+            await LedgerUtils.withdrawFromCampaignSubaccountLessTax(
                 campaign, 
-                balance - cut, 
-                toAccountId, 
-                caller
-            )) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case _ {
-                    if(cut > 0) {
-                        await LedgerUtils.withdrawFromCampaignSubaccount(
-                            campaign, 
-                            cut, 
-                            appAccountId, 
-                            caller
-                        );
-                    }
-                    else {
-                        #ok();
-                    };
-                };
-            };
+                balance, 
+                tax,
+                to, 
+                app,
+                caller._id
+            );
         };
 
         func _invokeMethod(
@@ -395,6 +382,73 @@ module {
             };
 
             res;
+        };
+
+        public func setFundingRepo(
+            repo: FundingRepository.Repository
+        ) {
+            fundingRepo := ?repo;
+        };
+
+        func _refundFunders(
+            campaign: Types.Campaign,
+            this: actor {}
+        ): async () {
+            let app = Account.accountIdentifier(
+                Principal.fromActor(this), 
+                Account.defaultSubaccount()
+            );
+
+            switch(fundingRepo) {
+                case (?fundingRepo) {
+                    label l loop {
+                        switch(fundingRepo.findByCampaign(campaign._id, null, ?(0, 50))) {
+                            case (#err(_)) {
+                                break l;
+                            };
+                            case (#ok(entities)) {
+                                if(entities.size() == 0) {
+                                    break l;
+                                };
+
+                                for(e in entities.vals()) {
+                                    try {
+                                        let amount = Nat64.fromNat(e.value);
+                                        ignore fundingRepo.deleteRaw(e);
+
+                                        switch(userRepo.findById(e.createdBy)) {
+                                            case (#ok(user)) {
+                                                let to = Account.accountIdentifier(
+                                                    Principal.fromText(user.principal), 
+                                                    Account.defaultSubaccount()
+                                                );
+
+                                                switch(await LedgerUtils.withdrawFromCampaignSubaccountLessTax(
+                                                    campaign, amount, Types.REFUND_TAX, to, app, 1
+                                                )) {
+                                                    case (#err(msg)) {
+                                                        D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # msg);
+                                                    };
+                                                    case _ {
+                                                    };
+                                                };
+                                            };
+                                            case _ {
+                                                D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): user not found");
+                                            };
+                                        };
+                                    }
+                                    catch(error: Error) {
+                                        D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # Error.message(error));
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+                case null {
+                };
+            };
         };
 
         public func startBuildingAndRunAction(
@@ -471,7 +525,7 @@ module {
                             
                             switch(await LedgerUtils
                                 .transferFromUserSubaccountToCampaignSubaccountEx(
-                                    campaign, caller, value, invoker, this)) {
+                                    campaign, caller._id, value, invoker, this)) {
                                 case (#err(msg)) {
                                     #err(msg);
                                 };
@@ -604,7 +658,8 @@ module {
         };
 
         public func verify(
-        ) {
+            this: actor {}
+        ): async () {
             let res = repo.findExpired(100);
             switch(res) {
                 case (#ok(campaigns)) {
@@ -613,6 +668,10 @@ module {
                         for(campaign in campaigns.vals()) {
                             // note: super admin should always have id = 1
                             ignore repo.finish(campaign, Types.RESULT_NOK, 1);
+                            
+                            if(campaign.kind == Types.KIND_FUNDING) {
+                                await _refundFunders(campaign, this);
+                            };
                         };
                     };
                 };

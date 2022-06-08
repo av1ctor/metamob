@@ -1114,16 +1114,23 @@ shared({caller = owner}) actor class DChanges() = this {
         placeEmailEntities := [];
     };
 
-    var lastExec: Nat = Int.abs(Time.now());
     let interval: Nat = 60 * 1000_000_000; // 1 minute
+    var lastExec: Nat = Int.abs(Time.now());
+    var running: Bool = false;
 
     system func heartbeat(
     ): async () {
         let now = Int.abs(Time.now());
-        if(now >= lastExec + interval) {
+        if(now >= lastExec + interval and not running) {
+            running := true;
             lastExec := now;
             D.print("Info: heartbeat: Verifying...");
-            campaignService.verify();
+            try {
+                await campaignService.verify(this);
+            }
+            catch(e) {
+            };
+            running := false;
         };
     };
 };

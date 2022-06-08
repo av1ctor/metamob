@@ -1,4 +1,5 @@
 module {
+    public let REFUND_TAX: Nat64 = 10; // 10%
     public let DONATIONS_TAX: Nat64 = 10; // 10%
     public let FUNDING_TAX: Nat64 = 20; // 20%
     public let MIN_WITHDRAW_VALUE: Nat64 = 20_000; // ledger's fee * 2

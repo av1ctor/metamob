@@ -16,6 +16,7 @@ import CampaignTypes "../campaigns/types";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
 import LedgerUtils "../utils/ledger";
+import Account "../accounts/account";
 
 module {
     public class Service(
@@ -26,6 +27,8 @@ module {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
         let placeRepo = placeService.getRepository();
+
+        campaignService.setFundingRepo(repo);
 
         public func create(
             req: Types.FundingRequest,
@@ -119,7 +122,7 @@ module {
 
                                         switch(await LedgerUtils
                                             .transferFromUserSubaccountToCampaignSubaccount(
-                                                campaign, caller, invoker, this)) {
+                                                campaign, caller._id, invoker, this)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -193,6 +196,85 @@ module {
                                                 };
                                                 
                                                 repo.update(entity, req, caller._id);
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func delete(
+            id: Text,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(entity)) {
+                                if(not canChange(caller, entity)) {
+                                    return #err("Forbidden");
+                                };
+                                
+                                switch(canChangeCampaign(entity.campaignId)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case (#ok(campaign)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case _ {
+                                                if(entity.state == Types.STATE_COMPLETED) {
+                                                    let amount = Nat64.fromNat(entity.value);
+                                                    switch(repo.delete(entity, caller._id)) {
+                                                        case (#err(msg)) {
+                                                            #err(msg);
+                                                        };
+                                                        case _ {
+                                                            let to = Account.accountIdentifier(
+                                                                invoker, 
+                                                                Account.defaultSubaccount()
+                                                            );
+
+                                                            let app = Account.accountIdentifier(
+                                                                Principal.fromActor(this), 
+                                                                Account.defaultSubaccount()
+                                                            );
+
+                                                            switch(
+                                                                await LedgerUtils
+                                                                    .withdrawFromCampaignSubaccountLessTax(
+                                                                        campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
+                                                                case (#err(msg)) {
+                                                                    ignore repo.insert(entity);
+                                                                    #err(msg);
+                                                                };
+                                                                case _ {
+                                                                    #ok();
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                }
+                                                else {
+                                                    repo.delete(entity, caller._id);
+                                                };
                                             };
                                         };
                                     };
@@ -289,75 +371,6 @@ module {
             userId: Nat32
         ): Result.Result<Types.Funding, Text> {
             repo.findByCampaignAndUser(campaignId, userId);
-        };
-
-        public func delete(
-            id: Text,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<(), Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        return #err("Forbidden");
-                    }
-                    else {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                return #err(msg);
-                            };
-                            case (#ok(entity)) {
-                                if(not canChange(caller, entity)) {
-                                    return #err("Forbidden");
-                                };
-                                
-                                switch(canChangeCampaign(entity.campaignId)) {
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                    case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
-                                            case (#err(msg)) {
-                                                #err(msg);
-                                            };
-                                            case _ {
-                                                if(entity.state == Types.STATE_COMPLETED) {
-                                                    let amount = entity.value;
-                                                    switch(repo.delete(entity, caller._id)) {
-                                                        case (#err(msg)) {
-                                                            #err(msg);
-                                                        };
-                                                        case _ {
-                                                            switch(
-                                                                await LedgerUtils
-                                                                    .transferFromCampaignSubaccountToUserAccount(
-                                                                        campaign, amount - LedgerUtils.icp_fee, caller, invoker, this)) {
-                                                                case (#err(msg)) {
-                                                                    ignore repo.insert(entity);
-                                                                    #err(msg);
-                                                                };
-                                                                case _ {
-                                                                    #ok();
-                                                                };
-                                                            };
-                                                        };
-                                                    };
-                                                }
-                                                else {
-                                                    repo.delete(entity, caller._id);
-                                                };
-                                            };
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            };
         };
 
         public func backup(

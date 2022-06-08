@@ -49,14 +49,14 @@ module {
 
     public func transferFromUserSubaccountToCampaignSubaccountEx(
         campaign: CampaignTypes.Campaign,
-        caller: UserTypes.Profile,
+        callerId: Nat32,
         amount: Nat64,
         invoker: Principal,
         this: actor {}
     ): async Result.Result<Nat64, Text> {
         
         let receipt = await Ledger.transfer({
-            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+            memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
             from_subaccount = ?Account.principalToSubaccount(invoker);
             to = Account.accountIdentifier(
                 Principal.fromActor(this), 
@@ -79,58 +79,28 @@ module {
 
     public func transferFromUserSubaccountToCampaignSubaccount(
         campaign: CampaignTypes.Campaign,
-        caller: UserTypes.Profile,
+        callerId: Nat32,
         invoker: Principal,
         this: actor {}
     ): async Result.Result<Nat64, Text> {
         await transferFromUserSubaccountToCampaignSubaccountEx(
             campaign, 
-            caller, 
+            callerId, 
             await getUserBalance(invoker, this), 
             invoker, 
             this
         );
     };
 
-    public func transferFromCampaignSubaccountToUserAccount(
-        campaign: CampaignTypes.Campaign,
-        amount: Nat,
-        caller: UserTypes.Profile,
-        invoker: Principal,
-        this: actor {}
-    ): async Result.Result<(), Text> {
-        
-        let receipt = await Ledger.transfer({
-            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
-            from_subaccount = ?Account.textToSubaccount(campaign.pubId);
-            to = Account.accountIdentifier(
-                invoker, 
-                Account.defaultSubaccount()
-            );
-            amount = { e8s = Nat64.fromNat(amount) - Nat64.fromNat(icp_fee) };
-            fee = { e8s = Nat64.fromNat(icp_fee) };
-            created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-        });
-
-        switch (receipt) {
-            case (#Err(e)) {
-                #err("Transfer failed: " # debug_show(e));
-            };
-            case _ {
-                #ok();
-            };
-        };
-    };
-
     public func withdrawFromCampaignSubaccount(
         campaign: CampaignTypes.Campaign,
         amount: Nat64,
         to: AccountTypes.AccountIdentifier,
-        caller: UserTypes.Profile
+        callerId: Nat32
     ): async Result.Result<(), Text> {
         
         let receipt = await Ledger.transfer({
-            memo: Nat64 = Nat64.fromNat(Nat32.toNat(caller._id));
+            memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
             from_subaccount = ?Account.textToSubaccount(campaign.pubId);
             to = to;
             amount = { e8s = amount - Nat64.fromNat(icp_fee) };
@@ -144,6 +114,41 @@ module {
             };
             case _ {
                 #ok();
+            };
+        };
+    };
+
+    public func withdrawFromCampaignSubaccountLessTax(
+        campaign: CampaignTypes.Campaign,
+        amount: Nat64,
+        tax: Nat64,
+        to: AccountTypes.AccountIdentifier,
+        appAccountId: AccountTypes.AccountIdentifier,
+        callerId: Nat32
+    ): async Result.Result<(), Text> {
+        let cut = (amount * (100 - tax)) / 100;
+        
+        switch(await withdrawFromCampaignSubaccount(
+            campaign, 
+            amount - cut, 
+            to, 
+            callerId
+        )) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case _ {
+                if(cut > Nat64.fromNat(icp_fee)) {
+                    await withdrawFromCampaignSubaccount(
+                        campaign, 
+                        cut, 
+                        appAccountId, 
+                        callerId
+                    );
+                }
+                else {
+                    #ok();
+                };
             };
         };
     };

@@ -404,11 +404,6 @@ module {
                     key = "expiredAt";
                     op = #lte;
                     value = #int(Time.now());
-                },
-                {       
-                    key = "deletedAt";
-                    op = #eq;
-                    value = #nil;
                 }                    
             ];
             

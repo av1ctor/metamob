@@ -79,6 +79,12 @@ module {
             };
         };
 
+        public func deleteRaw(
+            funding: Types.Funding
+        ): Result.Result<(), Text> {
+            fundings.delete(funding._id);
+        };
+
         public func delete(
             funding: Types.Funding,
             callerId: Nat32

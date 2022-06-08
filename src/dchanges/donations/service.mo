@@ -16,6 +16,7 @@ import CampaignTypes "../campaigns/types";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
 import LedgerUtils "../utils/ledger";
+import Account "../accounts/account";
 
 module {
     public class Service(
@@ -95,7 +96,7 @@ module {
 
                                         switch(await LedgerUtils
                                             .transferFromUserSubaccountToCampaignSubaccount(
-                                                campaign, caller, invoker, this)) {
+                                                campaign, caller._id, invoker, this)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -301,16 +302,26 @@ module {
                                             };
                                             case _ {
                                                 if(entity.state == Types.STATE_COMPLETED) {
-                                                    let amount = entity.value;
+                                                    let amount = Nat64.fromNat(entity.value);
                                                     switch(repo.delete(entity, caller._id)) {
                                                         case (#err(msg)) {
                                                             #err(msg);
                                                         };
                                                         case _ {
+                                                            let to = Account.accountIdentifier(
+                                                                invoker, 
+                                                                Account.defaultSubaccount()
+                                                            );
+
+                                                            let app = Account.accountIdentifier(
+                                                                Principal.fromActor(this), 
+                                                                Account.defaultSubaccount()
+                                                            );
+
                                                             switch(
                                                                 await LedgerUtils
-                                                                    .transferFromCampaignSubaccountToUserAccount(
-                                                                        campaign, amount - LedgerUtils.icp_fee, caller, invoker, this)) {
+                                                                    .withdrawFromCampaignSubaccountLessTax(
+                                                                        campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
                                                                 case (#err(msg)) {
                                                                     ignore repo.insert(entity);
                                                                     #err(msg);
