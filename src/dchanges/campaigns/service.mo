@@ -1,5 +1,5 @@
 import Array "mo:base/Array";
-import CampaignTypes "types";
+import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
@@ -17,6 +17,7 @@ import PlaceService "../places/service";
 import PlaceTypes "../places/types";
 import LedgerUtils "../utils/ledger";
 import Account "../accounts/account";
+import D "mo:base/Debug";
 
 module {
     public class Service(
@@ -118,8 +119,8 @@ module {
                                     caller, 
                                     campaign, 
                                     [
-                                        CampaignTypes.STATE_CREATED, 
-                                        CampaignTypes.STATE_PUBLISHED
+                                        Types.STATE_CREATED, 
+                                        Types.STATE_PUBLISHED
                                 ])) {
                                     return #err("Forbidden");
                                 };
@@ -164,7 +165,7 @@ module {
                                                         case(#ok(e)) {
                                                             if(e.kind != Types.KIND_FUNDING) {
                                                                 switch(await finishAndRunAction(
-                                                                        e, CampaignTypes.RESULT_OK, caller, this)) {
+                                                                        e, Types.RESULT_OK, caller, this)) {
                                                                     case (#err(msg)) {
                                                                         return #err(msg);
                                                                     };
@@ -600,6 +601,25 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        public func verify(
+        ) {
+            let res = repo.findExpired(100);
+            switch(res) {
+                case (#ok(campaigns)) {
+                    if(campaigns.size() > 0) {
+                        D.print("Info: CampaignService.verify: Finishing " # Nat.toText(campaigns.size()) # " expired campaigns");
+                        for(campaign in campaigns.vals()) {
+                            // note: super admin should always have id = 1
+                            ignore repo.finish(campaign, Types.RESULT_NOK, 1);
+                        };
+                    };
+                };
+                case (#err(msg)) {
+                    D.print("Error: CampaignService.verify: " # msg);
+                };
+            };
         };
 
         public func getRepository(

@@ -34,6 +34,8 @@ module {
         let campaigns = Table.Table<Types.Campaign>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("campaigns")));
 
+        let ONE_DAY: Nat = 24 * 60 * 60 * 1000_000_000;
+
         public func create(
             req: Types.CampaignRequest,
             callerId: Nat32
@@ -212,6 +214,11 @@ module {
                             key = crit.0;
                             op = switch(crit.1) {
                                 case "contains" #contains; 
+                                case "neq" #neq;
+                                case "lt" #lt;
+                                case "lte" #lte;
+                                case "gt" #gt;
+                                case "gte" #gte;
                                 case _ #eq;
                             };
                             value = switch(crit.2) {
@@ -380,6 +387,35 @@ module {
                 criterias, 
                 FilterUtils.toSortBy<Types.Campaign>(sortBy, _comparer), 
                 FilterUtils.toLimit(limit)
+            );
+        };
+
+        public func findExpired(
+            size: Nat
+        ): Result.Result<[Types.Campaign], Text> {
+
+            let criterias = ?[
+                {
+                    key = "state";
+                    op = #eq;
+                    value = #nat32(Types.STATE_PUBLISHED);
+                },
+                {       
+                    key = "expiredAt";
+                    op = #lte;
+                    value = #int(Time.now());
+                },
+                {       
+                    key = "deletedAt";
+                    op = #eq;
+                    value = #nil;
+                }                    
+            ];
+            
+            return campaigns.find(
+                criterias, 
+                null, 
+                ?{offset = 0; size = size;}
             );
         };
 
@@ -598,7 +634,7 @@ module {
                 case (?state) state;
             };
             let now = Time.now();
-            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * (24 * 60 * 60 * 1000000))));
+            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(req.duration) * ONE_DAY)));
 
             {
                 _id = campaigns.nextId();
@@ -1143,7 +1179,7 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             let now = Time.now();
-            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * (24 * 60 * 60 * 1000000))));
+            let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * ONE_DAY)));
 
             {
                 _id = e._id;

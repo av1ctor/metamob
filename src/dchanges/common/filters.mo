@@ -25,6 +25,11 @@ module {
                             key = crit.0;
                             op = switch(crit.1) {
                                 case "contains" #contains; 
+                                case "neq" #neq;
+                                case "lt" #lt;
+                                case "lte" #lte;
+                                case "gt" #gt;
+                                case "gte" #gte;
                                 case _ #eq;
                             };
                             value = switch(crit.2) {

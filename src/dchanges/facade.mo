@@ -1,7 +1,8 @@
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Array "mo:base/Array";
-import Options "mo:base/Option";
+import Time "mo:base/Time";
+import Int "mo:base/Int";
 import Variant "mo:mo-table/variant";
 import UserTypes "./users/types";
 import CategoryTypes "./categories/types";
@@ -25,6 +26,7 @@ import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
 import PlaceEmailService "./places-emails/service";
+import D "mo:base/Debug";
 
 shared({caller = owner}) actor class DChanges() = this {
 
@@ -1110,5 +1112,18 @@ shared({caller = owner}) actor class DChanges() = this {
         
         placeEmailService.restore(placeEmailEntities);
         placeEmailEntities := [];
-    };      
+    };
+
+    var lastExec: Nat = Int.abs(Time.now());
+    let interval: Nat = 60 * 1000_000_000; // 1 minute
+
+    system func heartbeat(
+    ): async () {
+        let now = Int.abs(Time.now());
+        if(now >= lastExec + interval) {
+            lastExec := now;
+            D.print("Info: heartbeat: Verifying...");
+            campaignService.verify();
+        };
+    };
 };
