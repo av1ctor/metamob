@@ -49,9 +49,6 @@ const Campaigns = (props: Props) => {
         }
     }, [campaigns.status]);
 
-    if(campaigns.status === "success")
-        console.log(campaigns.data)
-
     return (
         <div className="container">
             <div>

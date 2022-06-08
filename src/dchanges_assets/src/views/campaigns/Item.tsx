@@ -6,7 +6,8 @@ import Avatar from "../users/Avatar";
 import Category from "../categories/category/Category";
 import Tag from "../../components/Tag";
 import Card from "../../components/Card";
-import { CampaignKind, CampaignResult, CampaignState } from "../../libs/campaigns";
+import { CampaignKind } from "../../libs/campaigns";
+import State from "./campaign/State";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
 import { icpToDecimal } from "../../libs/icp";
@@ -19,7 +20,7 @@ interface Props {
 const Item = (props: Props) => {
     const campaign = props.campaign;
 
-    const total = campaign.kind === CampaignKind.DONATIONS?
+    const total = campaign.kind === CampaignKind.DONATIONS || campaign.kind === CampaignKind.FUNDINGS?
         icpToDecimal(campaign.total):
         campaign.total.toString();
 
@@ -49,14 +50,9 @@ const Item = (props: Props) => {
             <div className="level">
                 <div className="level-left">
                     <span title="State">
-                        {campaign.state === CampaignState.FINISHED? 
-                            campaign.result === CampaignResult.OK?
-                                <span className="tag is-rounded is-success">finished</span>
-                            :
-                                <span className="tag is-rounded is-danger">ended</span>
-                        :
-                        <span className="tag is-rounded is-light">published</span>
-                        }
+                        <State 
+                            campaign={campaign} 
+                        />
                     </span>
                     &nbsp;·&nbsp;
                     <span className="tag is-rounded is-success" title={`Total: ${total}`}>{total}</span>

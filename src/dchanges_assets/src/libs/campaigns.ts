@@ -64,6 +64,27 @@ export const campaignStateToText = (
     }
 };
 
+export const campaignStateToColor = (
+    state: CampaignState
+): string => {
+    switch(state) {
+        case CampaignState.CANCELED:
+            return 'danger';
+        case CampaignState.CREATED:
+            return 'light';
+        case CampaignState.DELETED:
+            return 'danger';
+        case CampaignState.FINISHED:
+            return 'success';
+        case CampaignState.PUBLISHED:
+            return 'info';
+        case CampaignState.BUILDING:
+            return 'warning';
+        default:
+            return '';
+    }
+};
+
 export const campaignKindToTitle = (
     kind: number
 ): string => {
