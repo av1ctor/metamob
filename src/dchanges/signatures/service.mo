@@ -285,10 +285,6 @@ module {
                 return false;
             };
 
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             return true;
         };
 
@@ -297,11 +293,9 @@ module {
             entity: Types.Signature
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(UserUtils.isAdmin(caller)) {
-                    return true;
+                if(not UserUtils.isModerator(caller)) {
+                    return false;
                 };
-                
-                return false;
             };
 
             return true;

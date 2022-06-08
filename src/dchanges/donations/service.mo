@@ -363,10 +363,6 @@ module {
                 return false;
             };
 
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             return true;
         };
 
@@ -375,7 +371,9 @@ module {
             entity: Types.Donation
         ): Bool {
             if(caller._id != entity.createdBy) {
-                return false;
+                if(not UserUtils.isModerator(caller)) {
+                    return false;
+                };
             };
 
             return true;

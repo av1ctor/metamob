@@ -618,10 +618,6 @@ module {
                 return false;
             };
 
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             return true;
         };
 
@@ -633,7 +629,7 @@ module {
             // not the same author?
             if(caller._id != campaign.createdBy) {
                 // not an admin?
-                if(not UserUtils.isAdmin(caller)) {
+                if(not UserUtils.isModerator(caller)) {
                     return false;
                 };
             };

@@ -309,39 +309,33 @@ module {
                 return false;
             };
 
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             return true;
         };
 
         func canCreate(
             caller: UserTypes.Profile,
-            entity: CampaignTypes.Campaign
+            campaign: CampaignTypes.Campaign
         ): Bool {
-            if(caller._id == entity.createdBy) {
-                return true;
-            }
-            else if(UserUtils.isAdmin(caller)) {
-                return true;
+            if(caller._id != campaign.createdBy) {
+                if(not UserUtils.isModerator(caller)) {
+                    return false;
+                };
             };
                 
-            return false;
+            return true;
         };
 
         func canChange(
             caller: UserTypes.Profile,
             entity: Types.Update
         ): Bool {
-            if(caller._id == entity.createdBy) {
-                return true;
-            }
-            else if(UserUtils.isAdmin(caller)) {
-                return true;
+            if(caller._id != entity.createdBy) {
+                if(not UserUtils.isModerator(caller)) {
+                    return false;
+                };
             };
                 
-            return false;
+            return true;
         };
 
         func canChangeCampaign(
@@ -352,8 +346,8 @@ module {
                     #err(msg);
                 };
                 case (#ok(campaign)) {
-                    if(campaign.state != CampaignTypes.STATE_PUBLISHED and
-                        campaign.state != CampaignTypes.STATE_BUILDING) {
+                    if(campaign.state == CampaignTypes.STATE_CANCELED or
+                        campaign.state == CampaignTypes.STATE_DELETED) {
                         #err("Invalid campaign state");
                     }
                     else {
