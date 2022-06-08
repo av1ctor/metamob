@@ -70,7 +70,7 @@ const steps: Step[] = [
         icon: 'heading',
     },
     {
-        title: 'Body',
+        title: 'Message',
         icon: 'align-justify',
     },
     {
