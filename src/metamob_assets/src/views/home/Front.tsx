@@ -52,7 +52,7 @@ const Front = (props: Props) => {
                     </div>
                     <div className="mt-2"></div>
                     <div className="subtitle is-size-4">
-                        metamob is a decentralized app, running on the <a href="https://dfinity.org/" target="_blank">Internet Computer</a>, 
+                        metamob is a decentralized web3 app, running on the <a href="https://dfinity.org/" target="_blank">Internet Computer</a>, 
                         that let's any user start mobilizations by creating campaigns of different types
                     </div>
                     <div className="field is-grouped has-text-centered">
