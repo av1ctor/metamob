@@ -8,7 +8,8 @@ import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
 import PlacesEmailsRepo "../places-emails/repository";
-import DIPTypes "../common/dip";
+import DIP20 "../common/dip20";
+import DIP721 "../common/dip721";
 
 module {
     public class Service(
@@ -144,9 +145,7 @@ module {
             caller: UserTypes.Profile,
             res: Types.PlaceDip20Auth
         ): async Result.Result<(), Text> {
-            let dip20 = actor (res.canisterId) : DIPTypes.DIP20Interface;
-            
-            let balance = await dip20.balanceOf(Principal.fromText(caller.principal));
+            let balance = await DIP20.balanceOf(res.canisterId, Principal.fromText(caller.principal));
             if(balance < res.minValue) {
                 #err("Forbidden: not enough DIP20 balance");
             }
@@ -159,9 +158,7 @@ module {
             caller: UserTypes.Profile,
             res: Types.PlaceDip20Auth
         ): async Result.Result<(), Text> {
-            let dip721 = actor (res.canisterId) : DIPTypes.DIP721Interface;
-            
-            let balance = await dip721.balanceOf(Principal.fromText(caller.principal));
+            let balance = await DIP721.balanceOf(res.canisterId, Principal.fromText(caller.principal));
             if(balance < res.minValue) {
                 #err("Forbidden: not enough DIP721 balance");
             }

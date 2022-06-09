@@ -12,6 +12,7 @@ export enum ReportResult {
     VERIFYING = 0,
     SOLVED = 1,
     DUPLICATED = 2,
+    IGNORED = 3,
 }
 
 export enum ReportType {

@@ -159,10 +159,14 @@ export const getAccountId = async (
     return Uint8Array.from(res);
 }
 
-export const getBalance = async (
-    identity: Identity,
-    ledger: Ledger
+export const getIcpBalance = async (
+    identity?: Identity,
+    ledger?: Ledger
 ): Promise<bigint> => {
+    if(!identity || !ledger) {
+        return BigInt(0);
+    }
+    
     const principal = identity.getPrincipal();
     
     const res = await ledger.account_balance({

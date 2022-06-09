@@ -8,6 +8,7 @@ module {
     public let RESULT_VERIFYING: Nat32 = 0;
     public let RESULT_SOLVED: Nat32 = 1;
     public let RESULT_DUPLICATED: Nat32 = 2;
+    public let RESULT_IGNORED: Nat32 = 3;
 
     public type ReportType = Nat32;
     public let TYPE_CAMPAIGNS: Nat32 = 0;

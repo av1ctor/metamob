@@ -7,7 +7,7 @@ import {AuthActionType, AuthContext} from "../../stores/auth";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
-import { createMainActor } from "../../libs/backend";
+import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import UserCampaigns from "../users/user/Campaigns";
@@ -119,6 +119,18 @@ export const Home = () => {
             actorDispatch({
                 type: ActorActionType.SET_MAIN,
                 payload: main
+            });
+
+            const ledger = createLedgerActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_LEDGER,
+                payload: ledger
+            });
+
+            const mmt = createMmtActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_MMT,
+                payload: mmt
             });
 
             const user = await loadAuthenticatedUser(main);

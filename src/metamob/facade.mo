@@ -26,11 +26,15 @@ import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
 import PlaceEmailService "./places-emails/service";
+import DaoService "./dao/service";
 import D "mo:base/Debug";
 
-shared({caller = owner}) actor class Metamob() = this {
+shared({caller = owner}) actor class Metamob(
+    mmtCanisterId: Text
+) = this {
 
     // services
+    let daoService = DaoService.Service(mmtCanisterId);
     let userService = UserService.Service();
     let placeService = PlaceService.Service(userService);
     let placeEmailService = PlaceEmailService.Service(userService, placeService);
@@ -41,8 +45,8 @@ shared({caller = owner}) actor class Metamob() = this {
     let donationService = DonationService.Service(userService, campaignService, placeService);
     let fundingService = FundingService.Service(userService, campaignService, placeService);
     let updateService = UpdateService.Service(userService, campaignService, placeService);
-    let reportService = ReportService.Service(
-        userService, campaignService, signatureService, voteService, fundingService, donationService, updateService);
+    let reportService = ReportService.Service(daoService, userService, campaignService, 
+        signatureService, voteService, fundingService, donationService, updateService);
 
     //
     // users facade
@@ -960,7 +964,7 @@ shared({caller = owner}) actor class Metamob() = this {
         id: Text, 
         req: ReportTypes.ReportCloseRequest
     ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.close(id, req, msg.caller);
+        await reportService.close(id, req, msg.caller);
     };
 
     public shared query(msg) func reportFindById(
@@ -1053,6 +1057,7 @@ shared({caller = owner}) actor class Metamob() = this {
     //
     // migration
     //
+    stable var daoConfig: [(Text, Variant.Variant)] = [];
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
@@ -1066,6 +1071,7 @@ shared({caller = owner}) actor class Metamob() = this {
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
+        daoConfig := daoService.backup();
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
         campaignEntities := campaignService.backup();
@@ -1080,6 +1086,9 @@ shared({caller = owner}) actor class Metamob() = this {
     };
 
     system func postupgrade() {
+        daoService.restore(daoConfig);
+        daoConfig := [];
+        
         userService.restore(userEntities);
         userEntities := [];
         

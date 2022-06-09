@@ -1,15 +1,18 @@
 import React, {createContext, useReducer} from "react";
 import { Metamob } from "../../../declarations/metamob/metamob.did";
 import { idlFactory as Ledger } from "../../../declarations/ledger";
+import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 
 export interface ActorState {
     main?: Metamob;
     ledger?: Ledger;
+    mmt?: MMT;
 };
 
 export enum ActorActionType {
     SET_MAIN,
     SET_LEDGER,
+    SET_MMT,
 };
 
 interface Action {
@@ -20,6 +23,7 @@ interface Action {
 const initialState: ActorState = {
     main: undefined,
     ledger: undefined,
+    mmt: undefined,
 };
 
 export const ActorContext = createContext<[ActorState, (action: Action) => void]>([
@@ -38,6 +42,12 @@ const reducer = (state: ActorState, action: Action): ActorState => {
             return {
                 ...state,
                 ledger: action.payload
+            };
+
+        case ActorActionType.SET_MMT:
+            return {
+                ...state,
+                mmt: action.payload
             };
 
         default:

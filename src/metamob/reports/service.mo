@@ -15,9 +15,12 @@ import VoteService "../votes/service";
 import FundingService "../fundings/service";
 import DonationService "../donations/service";
 import UpdateService "../updates/service";
+import DaoService "../dao/service";
+import D "mo:base/Debug";
 
 module {
     public class Service(
+        daoService: DaoService.Service,
         userService: UserService.Service,
         campaignService: CampaignService.Service,
         signatureService: SignatureService.Service, 
@@ -136,7 +139,7 @@ module {
             id: Text, 
             req: Types.ReportCloseRequest,
             invoker: Principal
-        ): Result.Result<Types.Report, Text> {
+        ): async Result.Result<Types.Report, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -155,7 +158,13 @@ module {
                                 return #err("Invalid state");
                             };
 
-                            repo.close(e, req, caller._id);
+                            let res = repo.close(e, req, caller._id);
+
+                            if(req.result == Types.RESULT_SOLVED) {
+                                ignore await daoService.rewardUser(caller, daoService.config.getAsNat64("REPORT_REWARD"));
+                            };
+
+                            res;
                         };
                     };
                 };

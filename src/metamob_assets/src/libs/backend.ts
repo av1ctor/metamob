@@ -1,58 +1,39 @@
-import { Actor, ActorSubclass, HttpAgent, Identity } from "@dfinity/agent";
-import { idlFactory, canisterId } from "../../../declarations/metamob";
-import { Metamob, Variant } from "../../../declarations/metamob/metamob.did";
-import { idlFactory as Ledger } from "../../../declarations/ledger";
-import { config } from "../config";
+import { ActorSubclass, Identity } from "@dfinity/agent";
+import { createActor as metamobCreateActor, canisterId as metamobCanisterId, idlFactory as MetamobActor } from "../../../declarations/metamob";
+import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId, idlFactory as LedgerActor } from "../../../declarations/ledger";
+import { createActor as mmtCreateActor, canisterId as mmtCanisterId, idlFactory as MMTActor } from "../../../declarations/mmt";
+import { Variant } from "../../../declarations/metamob/metamob.did";
 
 export const LEDGER_TRANSFER_FEE = BigInt(10000);
 
-export const createAgent = (
-    identity: Identity
-): HttpAgent => {
-    const host = config.IC_URL;
-    const agent = new HttpAgent({identity, host});
-    return agent;
-};
-
-export const createActor = <T> (
-    interfaceFactory: (IDL: any) => any,
-    id: string,
-    agent: HttpAgent
-): ActorSubclass<T> => {
-    
-    //FIXME: only to be used in development mode!!!
-    if(process.env.NODE_ENV === 'development') {
-        agent.fetchRootKey();
-    }
-    
-    const actor = Actor.createActor<T>(interfaceFactory, {
-        agent: agent,
-        canisterId: id,
-    });    
-
-    return actor;
-};
-
 export const createMainActor = (
     identity: Identity
-): ActorSubclass<Metamob> => {
-    if(!canisterId) {
-        throw Error('canisterId is undefined');
+): ActorSubclass<MetamobActor> => {
+    if(!metamobCanisterId) {
+        throw Error('Metamob canister is undefined');
     }
 
-    const agent = createAgent(identity);
-    return createActor<Metamob>(idlFactory, canisterId, agent);
+    return metamobCreateActor(metamobCanisterId, {agentOptions: {identity}})
 };
 
 export const createLedgerActor = (
     identity: Identity
-): ActorSubclass<Ledger> => {
-    if(!config.LEDGER_CANISTER_ID) {
+): ActorSubclass<LedgerActor> => {
+    if(!ledgerCanisterId) {
         throw Error('Ledger canister id is undefined');
     }
 
-    const agent = createAgent(identity);
-    return createActor<Ledger>(Ledger, config.LEDGER_CANISTER_ID, agent);
+    return ledgerCreateActor(ledgerCanisterId, {agentOptions: {identity}})
+};
+
+export const createMmtActor = (
+    identity: Identity
+): ActorSubclass<MMTActor> => {
+    if(!mmtCanisterId) {
+        throw Error('MMT canister id is undefined');
+    }
+    
+    return mmtCreateActor(mmtCanisterId, {agentOptions: {identity}})
 };
 
 export const valueToVariant = (

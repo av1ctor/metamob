@@ -7,7 +7,7 @@ import { Metamob, ProfileResponse } from "../../../../declarations/metamob/metam
 import Steps, { Step } from "../../components/Steps";
 import UserCreateForm from "../users/user/Create";
 import { loginUser } from "../../libs/users";
-import { createLedgerActor, createMainActor } from "../../libs/backend";
+import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 
 interface Props {
@@ -91,6 +91,12 @@ const Logon = (props: Props) => {
             actorDispatch({
                 type: ActorActionType.SET_LEDGER,
                 payload: ledger
+            });        
+
+            const mmt = createMmtActor(identity);
+            actorDispatch({
+                type: ActorActionType.SET_MMT,
+                payload: mmt
             });        
 
             const user = await loadAuthenticatedUser(main);

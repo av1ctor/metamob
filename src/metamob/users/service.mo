@@ -196,13 +196,6 @@ module {
             LedgerUtils.getAccountId(invoker, this);
         };
 
-        public func beginDeposit(
-            amount: Nat64,
-            invoker: Principal
-        ) {
-
-        };
-
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             repo.backup();

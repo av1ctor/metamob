@@ -30,8 +30,9 @@
       ],
       "type": "assets"
     },
-    "dip20": {
-      "main": "src/dip20/token.mo"
+    "mmt": {
+      "main": "src/mmt/token.mo",
+      "type": "motoko"
     }
   },
   "defaults": {

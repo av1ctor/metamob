@@ -8,7 +8,7 @@ import TextField from "../../../components/TextField";
 import { useBoostCampaign } from "../../../hooks/campaigns";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { depositIcp, getBalance } from "../../../libs/users";
+import { depositIcp, getIcpBalance } from "../../../libs/users";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
@@ -106,7 +106,7 @@ const Boost = (props: Props) => {
 
             const ledger = await getLedgerCanister();
 
-            const balance = await getBalance(authState.identity, ledger);
+            const balance = await getIcpBalance(authState.identity, ledger);
 
             if(value + LEDGER_TRANSFER_FEE >= balance) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)

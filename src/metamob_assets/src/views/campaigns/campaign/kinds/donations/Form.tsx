@@ -10,7 +10,7 @@ import TextAreaField from "../../../../../components/TextAreaField";
 import { ActorActionType, ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import TextField from "../../../../../components/TextField";
-import { depositIcp, getBalance } from "../../../../../libs/users";
+import { depositIcp, getIcpBalance } from "../../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
@@ -71,7 +71,7 @@ const DonationForm = (props: Props) => {
         identity: Identity, 
         ledger: Ledger
     ) => {
-        const balance = await getBalance(identity, ledger);
+        const balance = await getIcpBalance(identity, ledger);
         setBalance(balance);
     };
 

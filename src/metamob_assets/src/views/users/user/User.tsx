@@ -10,6 +10,9 @@ import { AvatarPicker } from "../../../components/AvatarPicker";
 import { useFindUserById } from "../../../hooks/users";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
+import { getMmtBalance } from "../../../libs/mmt";
+import { getIcpBalance } from "../../../libs/users";
+import { icpToDecimal } from "../../../libs/icp";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -28,6 +31,9 @@ const User = (props: Props) => {
     const [authState, authDispatch] = useContext(AuthContext);
     const [actorState, ] = useContext(ActorContext);
 
+    const [principal, setPrincipal] = useState('');
+    const [mmtBalance, setMmtBalance] = useState(BigInt(0));
+    const [icpBalance, setIcpBalance] = useState(BigInt(0));
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
@@ -99,10 +105,20 @@ const User = (props: Props) => {
         }
     }, [form]);
 
+    const updateBalances = async () => {
+        const mmt = await getMmtBalance(authState.identity, actorState.mmt);
+        const icp = await getIcpBalance(authState.identity, actorState.ledger);
+        
+        setMmtBalance(mmt);
+        setIcpBalance(icp);
+    };
+
     useEffect(() => {
         switch(profile.status) {
             case 'success':
+                updateBalances();
                 const full = profile.data as Profile;
+                setPrincipal(full.principal);
                 setForm({
                     name: full.name,
                     email: full.email,
@@ -159,6 +175,21 @@ const User = (props: Props) => {
                         name="avatar"
                         value={form.avatar[0] || ''}
                         onChange={changeFormOpt} 
+                    />
+                    <TextField 
+                        label="ICP principal"
+                        value={principal}
+                        disabled
+                    />
+                    <TextField 
+                        label="ICP balance"
+                        value={icpToDecimal(icpBalance)}
+                        disabled
+                    />
+                    <TextField 
+                        label="MMT balance"
+                        value={icpToDecimal(mmtBalance)}
+                        disabled
                     />
                     <div className="field is-grouped mt-2">
                         <div className="control">
