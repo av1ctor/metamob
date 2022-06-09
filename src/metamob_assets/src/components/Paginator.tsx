@@ -13,7 +13,7 @@ export const Paginator = (props: Props) => {
         <div className="field is-grouped mt-4">
             <div className="control">
                 <Button
-                    small
+                    size="small"
                     disabled={props.limit.offset === 0}
                     onClick={props.onPrev}
                 >
@@ -22,7 +22,7 @@ export const Paginator = (props: Props) => {
             </div>
             <div className="control">
                 <Button
-                    small
+                    size="small"
                     disabled={(props.length || 0) < props.limit.size}
                     onClick={props.onNext}
                 >

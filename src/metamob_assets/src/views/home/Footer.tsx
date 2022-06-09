@@ -72,6 +72,8 @@ const Footer = () => {
                         </a>
                     </div>
                 </div>
+                <div className="divider">
+                </div>
                 <div>
                     © 2022 metamob
                 </div>

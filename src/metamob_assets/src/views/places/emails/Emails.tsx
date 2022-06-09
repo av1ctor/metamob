@@ -105,7 +105,7 @@ const PlaceEmails = (props: Props) => {
                                 <div className="column is-1">
                                     <Button
                                         color="danger"
-                                        small
+                                        size="small"
                                         title="Delete"
                                         onClick={() => handleDelete(item._id)}
                                     >

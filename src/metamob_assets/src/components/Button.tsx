@@ -5,7 +5,7 @@ interface Props {
     color?: string,
     className?: string,
     disabled?: boolean,
-    small?: boolean,
+    size?: string,
     onClick?: React.MouseEventHandler<HTMLButtonElement>,
     children: any
 };
@@ -13,7 +13,7 @@ interface Props {
 const Button = (props: Props) => {
     return (
         <button
-            className={`${props.className} button is-${props.color || 'primary'} ${props.small? 'is-small': ''}`}
+            className={`${props.className} button is-${props.color || 'primary'} is-${props.size || 'normal'}`}
             title={props.title}
             disabled={props.disabled}
             onClick={props.onClick}

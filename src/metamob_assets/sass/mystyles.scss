@@ -11,6 +11,21 @@
     height: 100%;
 }
 
+.container {
+    .front-info {
+        .icon {
+            color: $success;
+        }
+    }
+}
+
+.divider {
+    border-bottom: 2px solid rgba(255,255,255,.1);
+    border-radius: 0;
+    margin-bottom: 1rem;
+    padding: 0;
+}
+
 .loading {
     position: absolute;
     left: 50vw;

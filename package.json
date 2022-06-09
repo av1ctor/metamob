@@ -75,6 +75,7 @@
     "react-dom": "^18.1.0",
     "react-markdown": "^8.0.3",
     "react-query": "^3.38.1",
+    "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^6.3.0",
     "react-simplemde-editor": "^5.0.2",
     "yup": "^0.32.11"

@@ -22,7 +22,10 @@ import Footer from "./Footer";
 import User from "../users/user/User";
 import Admin from "../admin/Admin";
 import Place from "../places/Place";
+import Front from "./Front";
 import { Limit, Order } from "../../libs/common";
+
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const showError = (e: any) => {
     if(e) {
@@ -182,7 +185,8 @@ export const Home = () => {
                         <Route path="/c/:id" element={<Campaign {...props} />} />
                         <Route path="/p/:id" element={<Place {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />
-                        <Route path="/" element={<Campaigns {...props} />} />
+                        <Route path="/campaigns" element={<Campaigns {...props} />} />
+                        <Route path="/" element={<Front {...props} />} />
                     </Routes>
                 </div>
             </section>

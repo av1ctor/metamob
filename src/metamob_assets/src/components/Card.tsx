@@ -20,13 +20,13 @@ const Card = (props: Props) => {
             </div>
             <div className="card-content">
                 <div className="media">
-                    <div className="media-content">
+                    <div className="media-content has-text-left">
                         <div className="title is-4">{props.title}</div>
                         <div className="subtitle is-6">{props.subtitle}</div>
                     </div>
                 </div>
 
-                <div className="content">
+                <div className="content has-text-left">
                     {props.children}
                 </div>
             </div>
