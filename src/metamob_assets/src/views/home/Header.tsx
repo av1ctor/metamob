@@ -1,5 +1,5 @@
 import React, { useContext, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
@@ -67,9 +67,9 @@ const Header = (props: Props) => {
     return (
         <nav className="navbar is-warning has-shadow is-fixed-top" role="navigation" aria-label="main navigation">
             <div className="navbar-brand">
-                <a className="navbar-item" href="/">
+                <Link className="navbar-item" to="/">
                     <img src="logo.svg" width="112" height="28"/>
-                </a>
+                </Link>
 
                 <a 
                     ref={burgerRef}
@@ -90,9 +90,9 @@ const Header = (props: Props) => {
                 className="navbar-menu"
             >
                 <div className="navbar-start">
-                    <a className="navbar-item" href="/">
-                    <i className="la la-home"/>&nbsp;Home
-                    </a>
+                    <Link className="navbar-item" to="/">
+                        <i className="la la-home"/>&nbsp;Home
+                    </Link>
                 </div>
 
                 <div className="navbar-end">
