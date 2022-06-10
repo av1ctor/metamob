@@ -7,12 +7,15 @@ import Button from "../../components/Button";
 import SearchForm from "./Search";
 import CreateForm from "./place/Create";
 import { Sort } from "./Sort";
+import { Modes } from "./Places";
 
 interface Props {
     filters: Filter[];
     orderBy: Order[];
+    mode: Modes;
     onSearch: (e: Filter[]) => void;
     onSort: (orderBy: Order[]) => void;
+    onSwitchMode: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
@@ -62,6 +65,15 @@ export const Bar = (props: Props) => {
                 </div>
                 <div className="level-right">
                     <div className="level-item">
+                        <div className="mr-4">
+                            <Button
+                                color="info"
+                                title={`Switch to ${props.mode === Modes.MAP? 'list': 'map'} view`}
+                                onClick={props.onSwitchMode}
+                            >
+                                <i className={`la la-${props.mode === Modes.MAP? 'list': 'globe'}`} />
+                            </Button>
+                        </div>
                         <div className="is-flex">
                             <div className="field">
                                 <div className="control">
