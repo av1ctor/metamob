@@ -6,7 +6,7 @@ import Avatar from "../users/Avatar";
 import Category from "../categories/category/Category";
 import Tag from "../../components/Tag";
 import Card from "../../components/Card";
-import { CampaignKind } from "../../libs/campaigns";
+import { CampaignKind, campaignKindToIcon, campaignKindToTitle } from "../../libs/campaigns";
 import State from "./campaign/State";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
@@ -55,8 +55,8 @@ const Item = (props: Props) => {
                         />
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-success" title={`Total: ${total}`}>{total}</span>
-                    {campaign.updates > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updates}`}>{campaign.updates}</span></>}
+                    <span className="tag is-rounded is-success" title={`${campaignKindToTitle(campaign.kind)}: ${total}`}>{total}&nbsp;<i className={`la la-${campaignKindToIcon(campaign.kind)}`} /></span>
+                    {campaign.updates > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updates}`}>{campaign.updates}&nbsp;<i className="la la-newspaper" /></span></>}
                 </div>
                 <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
