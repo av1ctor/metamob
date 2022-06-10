@@ -92,23 +92,42 @@ const Front = (props: Props) => {
                 <div className="columns">
                     <div className="column is-3 front-info">
                         <div className="icon is-size-2"><i className="la la-key"/></div>
-                        <div className="subtitle mb-1"><strong>Authenticate on II</strong></div>
-                        <div className="text">Authenticate on the Internet Identity and create a new user profile.</div>
+                        <div className="subtitle mb-1">
+                            <strong>Authenticate on II</strong>
+                        </div>
+                        <div className="text">
+                            Authenticate using <a href="https://dfinity.org/howitworks/web-authentication-identity" target="_blank">Internet Identity</a> and create a new user profile.<br/>
+                        </div>
                     </div>
                     <div className="column is-3 front-info">
                         <div className="icon is-size-2"><i className="la la-mountain"/></div>
-                        <div className="subtitle mb-1"><strong>Find or create your place</strong></div>
-                        <div className="text">You can create a new place <Link to="/user/places">here</Link> or use an existent one.</div>
+                        <div className="subtitle mb-1">
+                            <strong>Find or create your place</strong>
+                        </div>
+                        <div className="text">
+                            You can create a new place <Link to="/user/places">here</Link> or use an existent one.<br/>
+                            They can be restricted by e-mail list, DIP20 (tokens) or DIP721 (NFT's) balances, so you can control who can participate.
+                        </div>
                     </div>
                     <div className="column is-3 front-info">
                         <div className="icon is-size-2"><i className="la la-cog"/></div>
-                        <div className="subtitle mb-1"><strong>Create your campaign</strong></div>
-                        <div className="text">Create a new campaign and start a mobilization! Four types of campaigns are supported: signatures, donations, votes and fund raising.</div>
+                        <div className="subtitle mb-1">
+                            <strong>Create your campaign</strong>
+                        </div>
+                        <div className="text">
+                            Create a new campaign and start a mobilization!<br/>
+                            Four types of campaigns are supported: signatures, donations, votes and fund raising.
+                        </div>
                     </div>
                     <div className="column is-3 front-info">
                         <div className="icon is-size-2"><i className="la la-people-carry"/></div>
-                        <div className="subtitle mb-1"><strong>Participate!</strong></div>
-                        <div className="text">Depending on the campaign, you can sign, donate, vote and fund them. You can also open reports about any abusive content.</div>
+                        <div className="subtitle mb-1">
+                            <strong>Participate!</strong>
+                        </div>
+                        <div className="text">
+                            Depending on the campaign, you can sign, donate, vote and fund them.<br/>
+                            You can also open reports about any abusive content and get a reward in metamob tokens (MMT) if they are accepted!
+                        </div>
                     </div>
                 </div>
             </div>
