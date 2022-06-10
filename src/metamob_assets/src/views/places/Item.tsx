@@ -7,10 +7,10 @@ import Card from "../../components/Card";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
 import { PlaceIcon } from "./place/PlaceIcon";
+import Badge from "../../components/Badge";
 
 interface Props {
-    place: Place,
-    isPreview?: boolean,
+    place: Place;
 };
 
 const Item = (props: Props) => {
@@ -20,7 +20,7 @@ const Item = (props: Props) => {
         <Card 
             title={
                 <Link to={`/p/${place.pubId}`}>
-                    {limitText(place.name, 45)}
+                    {limitText(place.name, 60)}
                 </Link>
             } 
             subtitle={<>
@@ -40,13 +40,16 @@ const Item = (props: Props) => {
                 </Link>
             }
         >
-            {props.isPreview &&
-                <div className="mb-5">
-                    {limitText(place.description, 200)}
-                </div>
-            }
+            <div className="mb-5">
+                {limitText(place.description, 200)}
+            </div>
             <div className="level">
                 <div className="level-left">
+                    <Badge
+                        color={'none' in place.auth? 'success': 'danger'}
+                    >
+                        {'none' in place.auth? 'public': 'restricted'}
+                    </Badge>
                 </div>
                 <div className="level-right is-flex">
                     <Avatar id={place.createdBy} />&nbsp;·&nbsp;
