@@ -35,6 +35,8 @@ const formSchema = yup.object().shape({
         test: validateAuth
     }).required(),
     active: yup.bool().required(),
+    lat: yup.number().required(),
+    lng: yup.number().required(),
 });
 
 const EditForm = (props: Props) => {
@@ -47,7 +49,9 @@ const EditForm = (props: Props) => {
         kind: props.place.kind,
         auth: props.place.auth,
         parentId: props.place.parentId,
-        active: props.place.active
+        active: props.place.active,
+        lat: props.place.lat,
+        lng: props.place.lng,
     });
 
     const updateMut = useUpdatePlace();
@@ -131,6 +135,8 @@ const EditForm = (props: Props) => {
                     auth: transformAuth(form.auth),
                     parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
                     active: form.active,
+                    lat: Number(form.lat),
+                    lng: Number(form.lng),
                 }
             });
             props.onSuccess('Place updated!');
@@ -170,7 +176,9 @@ const EditForm = (props: Props) => {
             kind: place.kind,
             auth: place.auth,
             parentId: place.parentId,
-            active: place.active
+            active: place.active,
+            lat: place.lat,
+            lng: place.lng,
         });
     }, [props.place]);
 
@@ -218,6 +226,20 @@ const EditForm = (props: Props) => {
                 name="kind"
                 value={form.kind}
                 options={kinds}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Latitude"
+                name="lat"
+                value={form.lat.toString()}
+                required={true}
+                onChange={changeForm}
+            />
+            <TextField 
+                label="Longitude"
+                name="lng"
+                value={form.lng.toString()}
+                required={true}
                 onChange={changeForm}
             />
             <SelectField 

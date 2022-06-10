@@ -211,6 +211,8 @@ module {
                 description = req.description;
                 icon = req.icon;
                 active = req.active;
+                lat = req.lat;
+                lng = req.lng;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -233,6 +235,8 @@ module {
                 description = req.description;
                 icon = req.icon;
                 active = req.active;
+                lat = req.lat;
+                lng = req.lng;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -273,6 +277,8 @@ module {
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("icon", #text(e.icon));
         res.put("active", #bool(e.active));
+        res.put("lat", #float(e.lat));
+        res.put("lng", #float(e.lng));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -314,6 +320,8 @@ module {
             description = Variant.getOptText(map.get("description"));
             icon = Variant.getOptText(map.get("icon"));
             active = Variant.getOptBool(map.get("active"));
+            lat = Variant.getOptFloat(map.get("lat"));
+            lng = Variant.getOptFloat(map.get("lng"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

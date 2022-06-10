@@ -1,20 +1,16 @@
 import React, {useState, useCallback, useContext} from "react";
-import SearchForm from "./Search";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
-import {CategoryContext} from "../../stores/category";
 import {Filter, Order} from "../../libs/common";
-import {useCreateCampaign} from "../../hooks/campaigns";
-import CreateForm from "./campaign/Create";
 import Button from "../../components/Button";
-import { Place } from "../../../../declarations/metamob/metamob.did";
+import SearchForm from "./Search";
+import CreateForm from "./place/Create";
 import { Sort } from "./Sort";
 
 interface Props {
     filters: Filter[];
     orderBy: Order[];
-    place?: Place;
     onSearch: (e: Filter[]) => void;
     onSort: (orderBy: Order[]) => void;
     onSuccess: (message: string) => void;
@@ -24,7 +20,6 @@ interface Props {
 
 export const Bar = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
-    const [categoryState, ] = useContext(CategoryContext);
 
     const [modals, setModals] = useState({
         create: false,
@@ -43,8 +38,6 @@ export const Bar = (props: Props) => {
         navigate('/user/login');
     }, []);
 
-    const createCampaignMut = useCreateCampaign();
-
     const isLoggedIn = !!authState.user;
 
     return (
@@ -61,7 +54,6 @@ export const Bar = (props: Props) => {
 
                         <SearchForm 
                             filters={props.filters}
-                            categories={categoryState.categories}
                             onSearch={props.onSearch} 
                             onError={props.onError}
                         />
@@ -73,7 +65,7 @@ export const Bar = (props: Props) => {
                             <div className="field">
                                 <div className="control">
                                     <Button
-                                        title="Create a new campaign" 
+                                        title="Create a new place" 
                                         onClick={isLoggedIn? toggleCreate: redirectToLogon}
                                     >
                                         <i className="la la-plus-circle" />&nbsp;Create
@@ -86,14 +78,11 @@ export const Bar = (props: Props) => {
             </nav>
 
             <Modal
-                header={<span>Create campaign</span>}
+                header={<span>Create place</span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >
                 <CreateForm
-                    categories={categoryState.categories}
-                    mutation={createCampaignMut}
-                    place={props.place}
                     onClose={toggleCreate}
                     onSuccess={props.onSuccess}
                     onError={props.onError}

@@ -10,7 +10,6 @@ import { search } from "../../libs/places";
 interface Props {
     filters: Filter[];
     categories: Category[];
-    indexedColumns: string[];
     onSearch: (filters: Filter[]) => unknown
     onError: (message: any) => void;
 };

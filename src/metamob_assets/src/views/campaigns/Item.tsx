@@ -27,19 +27,29 @@ const Item = (props: Props) => {
     return (
         <Card 
             title={
-                <Link to={`/c/${campaign.pubId}`}>{limitText(campaign.title, 45)}</Link>
+                <Link to={`/c/${campaign.pubId}`}>
+                    {limitText(campaign.title, 45)}
+                </Link>
             } 
             subtitle={<>
                 <div className="mb-1">
-                    <PlaceTree id={campaign.placeId} />
+                    <PlaceTree 
+                        id={campaign.placeId} 
+                    />
                 </div>
                 <div>
-                    <Category id={campaign.categoryId} />
-                    {campaign.tags.map(id => <Tag key={id} id={id} />)}
+                    <Category 
+                        id={campaign.categoryId} 
+                    />
+                    {campaign.tags.map(id => 
+                        <Tag key={id} id={id} />
+                    )}
                 </div>
             </>}
             img={
-                <Link to={`/c/${campaign.pubId}`}><img src={campaign.cover}/></Link>
+                <Link to={`/c/${campaign.pubId}`}>
+                    <img src={campaign.cover}/>
+                </Link>
             }
         >
             {props.isPreview &&
@@ -55,13 +65,19 @@ const Item = (props: Props) => {
                         />
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-light is-success" title={`${campaignKindToTitle(campaign.kind)}: ${total}`}>
+                    <span 
+                        className="tag is-rounded is-light is-success" 
+                        title={`${campaignKindToTitle(campaign.kind)}: ${total}`}
+                    >
                         {total}&nbsp;<i className={`la la-${campaignKindToIcon(campaign.kind)}`} />
                     </span>
                     {campaign.updates > 0 && 
                         <>
                             &nbsp;·&nbsp;
-                            <span className="tag is-rounded is-light is-warning" title={`Updates: ${campaign.updates}`}>
+                            <span 
+                                className="tag is-rounded is-light is-warning" 
+                                title={`Updates: ${campaign.updates}`}
+                            >
                                 {campaign.updates}&nbsp;<i className="la la-newspaper" />
                             </span>
                         </>}

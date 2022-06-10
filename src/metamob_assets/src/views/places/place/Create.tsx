@@ -31,6 +31,8 @@ const formSchema = yup.object().shape({
         test: validateAuth
     }).required(),
     active: yup.bool().required(),
+    lat: yup.number().required(),
+    lng: yup.number().required(),
 });
 
 const Create = (props: Props) => {
@@ -44,6 +46,8 @@ const Create = (props: Props) => {
         auth: {none: null},
         parentId: [],
         active: true,
+        lat: 0,
+        lng: 0,
     });
 
     const mutation = useCreatePlace();
@@ -114,6 +118,8 @@ const Create = (props: Props) => {
                     auth: transformAuth(form.auth),
                     parentId: form.parentId,
                     active: form.active,
+                    lat: Number(form.lat),
+                    lng: Number(form.lng),
                 }
             });
 
@@ -184,6 +190,20 @@ const Create = (props: Props) => {
                     options={kinds}
                     onChange={changeForm}
                 />
+                <TextField 
+                    label="Latitude"
+                    name="lat"
+                    value={form.lat.toString()}
+                    required={true}
+                    onChange={changeForm}
+                />
+                <TextField 
+                    label="Longitude"
+                    name="lng"
+                    value={form.lng.toString()}
+                    required={true}
+                    onChange={changeForm}
+                />
                 <SelectField 
                     label="Authorization"
                     id="auth"
@@ -233,7 +253,7 @@ const Create = (props: Props) => {
                     value=""
                     onSearch={handleSearchPlace}
                     onChange={changeForm}
-                />            
+                />
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button

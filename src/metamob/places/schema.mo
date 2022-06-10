@@ -37,6 +37,14 @@ module {
                 options = [];
             },
             {
+                name = "lat";
+                options = [];
+            },
+            {
+                name = "lng";
+                options = [];
+            },
+            {
                 name = "icon";
                 options = [#max(512)];
             },

@@ -3,7 +3,8 @@ import React, { ReactElement } from "react";
 interface Props {
     title: string | ReactElement,
     subtitle?: string | ReactElement,
-    img: string | ReactElement,
+    img?: string | ReactElement,
+    icon?: string | ReactElement,
     children: any
 };
 
@@ -11,12 +12,22 @@ const Card = (props: Props) => {
     return (
         <div className="card">
             <div className="card-image">
-                <figure className="image is-4by3">
-                    {typeof props.img === "string"?
-                        <img src={props.img} />:
-                        props.img
-                    }
-                </figure>
+                {props.img &&
+                    <figure className="image is-4by3">
+                        {typeof props.img === "string"?
+                            <img src={props.img} />:
+                            props.img
+                        }
+                    </figure>
+                }
+                {props.icon &&
+                    <figure className="">
+                        {typeof props.icon === "string"?
+                            <i className={props.icon} />:
+                            props.icon
+                        }
+                    </figure>
+                }
             </div>
             <div className="card-content">
                 <div className="media">

@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
+import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
 import {Place, PlaceRequest, Metamob} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findByPubId, findByUser, findTreeById } from '../libs/places';
@@ -52,6 +52,23 @@ export const useFindPlaces = (
         ['places', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit),
         {keepPreviousData: limit.offset > 0}
+    );
+};
+
+export const useFindPlacesInf = (
+    filters: Filter[], 
+    orderBy: Order[], 
+    size: number
+): UseInfiniteQueryResult<Place [], Error> => {
+    return useInfiniteQuery<Place[], Error>(
+        ['places', ...filters, ...orderBy], 
+        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}),
+        {
+            getNextPageParam: (lastPage, pages) => 
+                lastPage.length < size? 
+                undefined: 
+                pages.length * size,
+        }
     );
 };
 

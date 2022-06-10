@@ -10,6 +10,8 @@ import {useFindCategories} from "../../hooks/categories";
 import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
+import Places from "../places/Places";
+import Place from "../places/Place";
 import UserCampaigns from "../users/user/Campaigns";
 import UserDonations from "../users/user/Donations";
 import UserFundings from "../users/user/Fundings";
@@ -21,7 +23,6 @@ import Header from "./Header";
 import Footer from "./Footer";
 import User from "../users/user/User";
 import Admin from "../admin/Admin";
-import Place from "../places/Place";
 import Front from "./Front";
 import { Limit, Order } from "../../libs/common";
 
@@ -186,6 +187,7 @@ export const Home = () => {
                         <Route path="/p/:id" element={<Place {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />
                         <Route path="/campaigns" element={<Campaigns {...props} />} />
+                        <Route path="/places" element={<Places {...props} />} />
                         <Route path="/" element={<Front {...props} />} />
                     </Routes>
                 </div>

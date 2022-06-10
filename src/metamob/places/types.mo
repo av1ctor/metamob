@@ -44,6 +44,8 @@ module {
         description: Text;
         icon: Text;
         active: Bool;
+        lat: Float;
+        lng: Float;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -58,5 +60,7 @@ module {
         description: Text;
         icon: Text;
         active: Bool;
+        lat: Float;
+        lng: Float;
     };
 };
