@@ -145,6 +145,10 @@ module {
                     Utils.order2Int(Nat32.compare(a._id, b._id)) * dir;
                 case "pubId" func(a: Types.Place, b: Types.Place): Int = 
                     Utils.order2Int(Text.compare(a.pubId, b.pubId)) * dir;
+                case "name" func(a, b) = 
+                    Utils.order2Int(Text.compare(a.name, b.name)) * dir;
+                case "kind" func(a, b) = 
+                    Utils.order2Int(Nat32.compare(a.kind, b.kind)) * dir;
                 case "createdAt" func(a: Types.Place, b: Types.Place): Int = 
                     Utils.order2Int(Int.compare(a.createdAt, b.createdAt)) * dir;
                 case _ {

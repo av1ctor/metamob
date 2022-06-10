@@ -24,6 +24,11 @@ const Places = (props: Props) => {
             op: 'eq',
             value: null
         },
+        {
+            key: 'active',
+            op: 'eq',
+            value: true
+        },
     ]);
 
     const [orderBy, setOrderBy] = useState<Order[]>(sortByKind);

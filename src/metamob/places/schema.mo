@@ -34,7 +34,7 @@ module {
             },
             {
                 name = "active";
-                options = [];
+                options = [#sortable];
             },
             {
                 name = "lat";

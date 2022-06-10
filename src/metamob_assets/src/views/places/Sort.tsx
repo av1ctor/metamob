@@ -7,6 +7,10 @@ export const sortByKind: Order[] = [
         key: 'kind',
         dir: 'asc'
     },
+    {
+        key: 'name',
+        dir: 'asc'
+    },
 ];
 
 export const sortByDate: Order[] = [
