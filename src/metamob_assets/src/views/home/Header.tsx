@@ -1,5 +1,6 @@
 import React, { useContext, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import NavItem from "../../components/NavItem";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 
@@ -29,34 +30,6 @@ const Header = (props: Props) => {
         props.onSuccess('Logged out!');
     }, []);
 
-    const redirectToProfile = useCallback(() => {
-        navigate('/user/profile');
-    }, []);
-
-    const redirectToCampaigns = useCallback(() => {
-        navigate('/user/campaigns');
-    }, []);
-
-    const redirectToDonations = useCallback(() => {
-        navigate('/user/donations');
-    }, []);
-    
-    const redirectToFundings = useCallback(() => {
-        navigate('/user/fundings');
-    }, []);
-    
-    const redirectToSignatures = useCallback(() => {
-        navigate('/user/signatures');
-    }, []);
-
-    const redirectToVotes = useCallback(() => {
-        navigate('/user/votes');
-    }, []);
-
-    const redirectToPlaces = useCallback(() => {
-        navigate('/user/places');
-    }, []);
-
     const handleToggleMenu = useCallback(() => {
         burgerRef.current?.classList.toggle('is-active');
         menuRef.current?.classList.toggle('is-active');
@@ -65,7 +38,11 @@ const Header = (props: Props) => {
     const isLogged = !!authState.user;
 
     return (
-        <nav className="navbar is-warning has-shadow is-fixed-top" role="navigation" aria-label="main navigation">
+        <nav 
+            className="navbar is-warning has-shadow is-fixed-top" 
+            role="navigation" 
+            aria-label="main navigation"
+        >
             <div className="navbar-brand">
                 <Link className="navbar-item" to="/">
                     <img src="logo.svg" width="112" height="28"/>
@@ -90,9 +67,21 @@ const Header = (props: Props) => {
                 className="navbar-menu"
             >
                 <div className="navbar-start">
-                    <Link className="navbar-item" to="/">
-                        <i className="la la-home"/>&nbsp;Home
-                    </Link>
+                    <NavItem
+                        title="Home"
+                        icon="home"
+                        href="/"
+                    />
+                    <NavItem
+                        title="Places"
+                        icon="mountain"
+                        href="/places"
+                    />
+                    <NavItem
+                        title="Campaigns"
+                        icon="bullhorn"
+                        href="/campaigns"
+                    />
                 </div>
 
                 <div className="navbar-end">
@@ -103,28 +92,49 @@ const Header = (props: Props) => {
                             </a>
 
                             <div className="navbar-dropdown is-right">
-                                <a className="navbar-item" onClick={redirectToCampaigns}>
-                                    <i className="la la-volume-up"/>&nbsp;Campaigns
-                                </a>
-                                <a className="navbar-item" onClick={redirectToDonations}>
-                                    <i className="la la-money-bill"/>&nbsp;Donations
-                                </a>
-                                <a className="navbar-item" onClick={redirectToFundings}>
-                                    <i className="la la-lightbulb"/>&nbsp;Fundings
-                                </a>
-                                <a className="navbar-item" onClick={redirectToSignatures}>
-                                    <i className="la la-signature"/>&nbsp;Signatures
-                                </a>
-                                <a className="navbar-item" onClick={redirectToVotes}>
-                                    <i className="la la-vote-yea"/>&nbsp;Votes
-                                </a>
-                                <a className="navbar-item" onClick={redirectToPlaces}>
-                                    <i className="la la-globe"/>&nbsp;Places
-                                </a>
+                                <NavItem
+                                    title="Campaigns"
+                                    icon="bullhorn"
+                                    href="/user/campaigns"
+                                    redirect
+                                />
+                                <NavItem
+                                    title="Donations"
+                                    icon="money-bill"
+                                    href="/user/donations"
+                                    redirect
+                                />
+                                <NavItem
+                                    title="Fundings"
+                                    icon="lightbulb"
+                                    href="/user/fundings"
+                                    redirect
+                                />
+                                <NavItem
+                                    title="Signatures"
+                                    icon="signature"
+                                    href="/user/signatures"
+                                    redirect
+                                />
+                                <NavItem
+                                    title="Votes"
+                                    icon="vote-yea"
+                                    href="/user/votes"
+                                    redirect
+                                />
+                                <NavItem
+                                    title="Places"
+                                    icon="globe"
+                                    href="/user/places"
+                                    redirect
+                                />
                                 <hr className="navbar-divider"/>
-                                <a className="navbar-item" onClick={redirectToProfile}>
-                                    <i className="la la-user"/>&nbsp;Profile
-                                </a>
+                                <NavItem
+                                    title="Profile"
+                                    icon="user"
+                                    href="/user/profile"
+                                    redirect
+                                />
                                 <hr className="navbar-divider"/>
                                 <a className="navbar-item" onClick={handleLogout}>
                                     <i className="la la-sign-out-alt"/>&nbsp;Logout
@@ -140,7 +150,7 @@ const Header = (props: Props) => {
                                     className="button is-success"
                                     onClick={redirectToLogon}
                                 >
-                                    <i className="la la-user"/>&nbsp;Login
+                                    <i className="la la-user"/>&nbsp;Log in
                                 </a>
                             </div>
                         </div>

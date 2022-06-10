@@ -18,11 +18,11 @@ interface Props {
 
 const steps: Step[] = [
     {
-        title: 'IC Identity',
+        title: 'II Authentication',
         icon: 'key',
     },
     {
-        title: 'User registration',
+        title: 'Registration',
         icon: 'user',
     },
     {

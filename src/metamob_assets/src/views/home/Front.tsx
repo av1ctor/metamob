@@ -110,7 +110,7 @@ const Front = (props: Props) => {
                         </div>
                     </div>
                     <div className="column is-3 front-info">
-                        <div className="icon is-size-2"><i className="la la-cog"/></div>
+                        <div className="icon is-size-2"><i className="la la-bullhorn"/></div>
                         <div className="subtitle mb-1">
                             <strong>Create your campaign</strong>
                         </div>

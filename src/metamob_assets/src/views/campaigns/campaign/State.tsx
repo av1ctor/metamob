@@ -11,7 +11,7 @@ const State = (props: Props) => {
 
     return (
         <span 
-            className={`tag is-rounded is-${campaignStateToColor(campaign.state)}`}
+            className={`tag is-rounded is-light is-${campaignStateToColor(campaign.state)}`}
         >
             {campaignStateToText(campaign.state).toLowerCase()}
         </span>
