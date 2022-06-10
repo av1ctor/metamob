@@ -55,8 +55,16 @@ const Item = (props: Props) => {
                         />
                     </span>
                     &nbsp;·&nbsp;
-                    <span className="tag is-rounded is-success" title={`${campaignKindToTitle(campaign.kind)}: ${total}`}>{total}&nbsp;<i className={`la la-${campaignKindToIcon(campaign.kind)}`} /></span>
-                    {campaign.updates > 0 && <>&nbsp;·&nbsp;<span className="tag is-rounded is-warning" title={`Updates: ${campaign.updates}`}>{campaign.updates}&nbsp;<i className="la la-newspaper" /></span></>}
+                    <span className="tag is-rounded is-success" title={`${campaignKindToTitle(campaign.kind)}: ${total}`}>
+                        {total}&nbsp;<i className={`la la-${campaignKindToIcon(campaign.kind)}`} />
+                    </span>
+                    {campaign.updates > 0 && 
+                        <>
+                            &nbsp;·&nbsp;
+                            <span className="tag is-rounded is-warning" title={`Updates: ${campaign.updates}`}>
+                                {campaign.updates}&nbsp;<i className="la la-newspaper" />
+                            </span>
+                        </>}
                 </div>
                 <div className="level-right is-flex">
                     <Avatar id={campaign.createdBy} />&nbsp;·&nbsp;
