@@ -131,6 +131,11 @@ const Front = (props: Props) => {
                     </div>
                 </div>
             </div>
+            <div className="has-text-centered">
+                <div className="subtitle is-size-4 mt-6 mb-6">
+                    <strong>Together we can change to world! One campaign at time.</strong>
+                </div>
+            </div>
 
             <Modal
                 header={<span>Create campaign</span>}
