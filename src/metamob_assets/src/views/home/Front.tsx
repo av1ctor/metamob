@@ -53,7 +53,7 @@ const Front = (props: Props) => {
                     <div className="mt-2"></div>
                     <div className="subtitle is-size-4">
                         metamob is a decentralized web3 app, running on the <a href="https://dfinity.org/" target="_blank">Internet Computer</a>, 
-                        that let's any user start mobilizations by creating campaigns of different types
+                        that let's any user start mobilizations by creating campaigns
                     </div>
                     <div className="field is-grouped has-text-centered">
                         <p className="control">
@@ -93,7 +93,7 @@ const Front = (props: Props) => {
                     <div className="column is-3 front-info">
                         <div className="icon is-size-2"><i className="la la-key"/></div>
                         <div className="subtitle mb-1">
-                            <strong>Authenticate on II</strong>
+                            <strong>Authenticate on the II</strong>
                         </div>
                         <div className="text">
                             Authenticate using <a href="https://dfinity.org/howitworks/web-authentication-identity" target="_blank">Internet Identity</a> and create a new user profile.<br/>
@@ -105,7 +105,7 @@ const Front = (props: Props) => {
                             <strong>Find or create your place</strong>
                         </div>
                         <div className="text">
-                            You can create a new place <Link to="/user/places">here</Link> or use an existent one.<br/>
+                            You can create a new place <Link to="/user/places">here</Link> or use an existing one.<br/>
                             They can be restricted by e-mail list, DIP20 (tokens) or DIP721 (NFT's) balances, so you can control who can participate.
                         </div>
                     </div>
@@ -116,7 +116,7 @@ const Front = (props: Props) => {
                         </div>
                         <div className="text">
                             Create a new campaign and start a mobilization!<br/>
-                            Four types of campaigns are supported: signatures, donations, votes and fund raising.
+                            Four types of campaigns are supported: signatures, donations, votes and fundraising.
                         </div>
                     </div>
                     <div className="column is-3 front-info">
