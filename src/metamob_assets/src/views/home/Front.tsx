@@ -100,7 +100,7 @@ const Front = (props: Props) => {
                         </div>
                     </div>
                     <div className="column is-3 front-info">
-                        <div className="icon is-size-2"><i className="la la-mountain"/></div>
+                        <div className="icon is-size-2"><i className="la la-globe"/></div>
                         <div className="subtitle mb-1">
                             <strong>Find or create your place</strong>
                         </div>

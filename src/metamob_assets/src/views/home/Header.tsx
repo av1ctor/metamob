@@ -74,7 +74,7 @@ const Header = (props: Props) => {
                     />
                     <NavItem
                         title="Places"
-                        icon="mountain"
+                        icon="globe"
                         href="/places"
                     />
                     <NavItem
