@@ -32,7 +32,7 @@ const Campaigns = (props: Props) => {
     ]);
     const [orderBy, setOrderBy] = useState(sortByHot);
 
-    const campaigns = useFindCampaignsInf(filters, orderBy, 4);
+    const campaigns = useFindCampaignsInf(filters, orderBy, 8);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
