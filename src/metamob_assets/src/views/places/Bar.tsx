@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useContext} from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
 import { AuthContext } from "../../stores/auth";
 import {Filter, Order} from "../../libs/common";
@@ -26,6 +26,7 @@ export const Bar = (props: Props) => {
     });
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const toggleCreate = useCallback(() => {
         setModals(modals => ({
@@ -35,7 +36,7 @@ export const Bar = (props: Props) => {
     }, []);
 
     const redirectToLogon = useCallback(() => {
-        navigate('/user/login');
+        navigate(`/user/login?return=${location.pathname}`);
     }, []);
 
     const isLoggedIn = !!authState.user;
