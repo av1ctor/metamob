@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback, useEffect} from "react";
+import React, {useState, useContext, useCallback, useEffect, useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCompleteFunding, useCreateFunding, useDeleteFunding} from "../../../../../hooks/fundings";
@@ -12,10 +12,12 @@ import CheckboxField from "../../../../../components/CheckboxField";
 import TextField from "../../../../../components/TextField";
 import { depositIcp, getIcpBalance } from "../../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
-import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
+import { icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
 import SelectField from "../../../../../components/SelectField";
 import NumberField from "../../../../../components/NumberField";
+import CustomSelectField from "../../../../../components/CustomSelectField";
+import Badge from "../../../../../components/Badge";
 
 interface Props {
     campaign: Campaign;
@@ -130,7 +132,7 @@ const FundingForm = (props: Props) => {
             props.toggleLoading(true);
 
             if(!actorState.main) {
-                throw Error("Main caninster undefined");
+                throw Error("Main canister undefined");
             }
 
             if(!authState.user) {
@@ -200,26 +202,47 @@ const FundingForm = (props: Props) => {
 
     const isLoggedIn = !!authState.user;
 
-    const tiers = 'funding' in props.campaign.info?
-        props.campaign.info.funding.tiers.map((tier, index) => ({name: `${tier.title} (${icpToDecimal(tier.value)} ICP)`, value: index})):
-        [];
+    const tiersAsOptions = useMemo(() => {
+        return 'funding' in props.campaign.info?
+            props.campaign.info.funding.tiers.map((tier, index) => {
+                return {
+                    name: `${tier.title} (${icpToDecimal(tier.value)} ICP)`, 
+                    value: index,
+                    node: 
+                        <div className="">
+                            <div>
+                                <strong>{tier.title} ({icpToDecimal(tier.value)} ICP)</strong>
+                            </div> 
+                            <div>
+                                <small>{tier.desc}</small>
+                            </div>
+                            <div className="has-text-right">
+                                <Badge color="info">{tier.total.toString()}/{tier.max.toString()}</Badge>
+                            </div>
+                        </div>, 
+                };
+            })
+        :
+            []
+    }, [props.campaign.info]);
 
     return (
         <form onSubmit={handleFunding}>
             <div>
                 {isLoggedIn && 
                     <>
-                        <SelectField
+                        <CustomSelectField
                             label="Tier"
                             name="tier"
                             value={form.tier}
-                            options={tiers}
+                            options={tiersAsOptions}
                             onChange={changeForm}
                         />
                         <NumberField
                             label="Amount"
                             name="amount"
                             value={form.amount}
+                            min={1}
                             required
                             onChange={changeForm}
                         />

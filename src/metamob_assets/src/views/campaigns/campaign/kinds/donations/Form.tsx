@@ -125,7 +125,7 @@ const DonationForm = (props: Props) => {
             props.toggleLoading(true);
 
             if(!actorState.main) {
-                throw Error("Main caninster undefined");
+                throw Error("Main canister undefined");
             }
 
             if(!authState.user) {
