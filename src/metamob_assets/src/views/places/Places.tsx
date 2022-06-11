@@ -1,5 +1,4 @@
-import React, {useState, useCallback, useEffect, Fragment} from "react";
-import Globe from "react-globe.gl";
+import React, {lazy, Suspense, useState, useCallback, useEffect, Fragment} from "react";
 import {Filter, Order} from "../../libs/common";
 import {useFindPlacesInf} from "../../hooks/places";
 import Button from "../../components/Button";
@@ -8,6 +7,8 @@ import Item from "./Item";
 import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { useNavigate } from "react-router-dom";
+
+const Globe = lazy(() => import("react-globe.gl"));
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -31,7 +32,7 @@ const calcHeight = () => {
 
 const Places = (props: Props) => {
     const [size, setSize] = useState({w: calcWidth(), h: calcHeight()});
-    const [mode, setMode] = useState(Modes.MAP);
+    const [mode, setMode] = useState(Modes.LIST);
     const [filters, setFilters] = useState<Filter[]>([
         {
             key: 'name',
@@ -53,7 +54,7 @@ const Places = (props: Props) => {
 
     const navigate = useNavigate();
 
-    const places = useFindPlacesInf(filters, orderBy, 8);
+    const places = useFindPlacesInf(filters, orderBy, 9);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
@@ -100,22 +101,24 @@ const Places = (props: Props) => {
 
             {mode === Modes.MAP?
                 <div>
-                    <Globe
-                        rendererConfig={{ antialias: false }}
-                        width={size.w}
-                        height={size.h}
-                        globeImageUrl="/earth-day.jpg"
-                        backgroundColor="#fff"
-                        showAtmosphere={false}
-                        labelsData={places.data?.pages.flat()}
-                        labelText={(p: Place|any) => p.name}
-                        labelSize={(p: Place|any) => 4 / (1 + p.kind)}
-                        labelDotRadius={(p: Place|any) => 4 / (1 + p.kind)}
-                        labelColor={() => 'rgba(255, 165, 0, 0.9)'}
-                        onLabelClick={(p: Place|any) => handleRedirect(p)}
-                        labelResolution={2}
-                        labelAltitude={0.01}
-                    />
+                    <Suspense fallback={<div>Loading globe...</div>}>
+                        <Globe
+                            rendererConfig={{ antialias: false }}
+                            width={size.w}
+                            height={size.h}
+                            globeImageUrl="/earth-day.jpg"
+                            backgroundColor="#fff"
+                            showAtmosphere={false}
+                            labelsData={places.data?.pages.flat()}
+                            labelText={(p: Place|any) => p.name}
+                            labelSize={(p: Place|any) => 4 / (1 + p.kind)}
+                            labelDotRadius={(p: Place|any) => 4 / (1 + p.kind)}
+                            labelColor={() => 'rgba(255, 165, 0, 0.9)'}
+                            onLabelClick={(p: Place|any) => handleRedirect(p)}
+                            labelResolution={2}
+                            labelAltitude={0.01}
+                        />
+                    </Suspense>
                 </div>
             :
                 <div className="columns is-desktop is-multiline is-align-items-center">
@@ -125,7 +128,7 @@ const Places = (props: Props) => {
                         <Fragment key={index}>
                             {page.map((place) => 
                                 <div 
-                                    className="column is-half"
+                                    className="column is-4"
                                     key={place._id}
                                 >
                                     <Item 
