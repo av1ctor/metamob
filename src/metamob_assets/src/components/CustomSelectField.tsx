@@ -46,11 +46,13 @@ const CustomSelectField = (props: Props) => {
         }
     }, [props.onChange, props.id, props.name]);
 
-    const handleShowMenu = useCallback(() => {
+    const handleShowMenu = useCallback((e: any) => {
+        e.preventDefault();
         setIsVisible(true);
     }, []);
 
     const handleHideMenu = useCallback((e: any) => {
+        e.preventDefault();
         if (!e.relatedTarget || 
             !e.relatedTarget.classList.contains('dropdown-item')) {
             setIsVisible(false);
@@ -68,22 +70,21 @@ const CustomSelectField = (props: Props) => {
             }
             <div className="dropdown is-flex">
                 <div 
-                    className={`control dropdown-trigger is-flex-grow-1 ${props.leftIcon? 'has-icons-left': ''} has-icons-right`}
+                    className={`control dropdown-trigger is-flex-grow-1 ${props.leftIcon? 'has-icons-left': ''}`}
                 >
-                    <input 
-                        className="input"
-                        id={props.id}
-                        name={props.name}
-                        placeholder={props.placeholder}
-                        title={props.title}
-                        value={value}
+                    <button 
+                        className="button has-icons-right is-fullwidth is-flex" 
                         disabled={props.disabled}
-                        readOnly
-                        autoComplete="off"
                         onClick={handleShowMenu}
-                        onFocus={handleShowMenu}
                         onBlur={handleHideMenu}
-                    />
+                    >
+                        <div className="is-flex-grow-1 has-text-left">
+                            <span>{value || props.placeholder}</span>
+                        </div>
+                        <span className="icon is-small is-right">
+                                <i className="la la-angle-down"/>
+                            </span>
+                    </button>
                     {props.leftIcon && 
                         <span className="icon is-left">
                             <i className={`la la-${props.leftIcon}`}></i>
