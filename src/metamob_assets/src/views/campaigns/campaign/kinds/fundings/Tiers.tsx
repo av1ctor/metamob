@@ -4,7 +4,6 @@ import Button from "../../../../../components/Button";
 import NumberField from "../../../../../components/NumberField";
 import TextAreaField from "../../../../../components/TextAreaField";
 import TextField from "../../../../../components/TextField";
-import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 
 interface Props {
     info: CampaignInfo;
@@ -23,13 +22,7 @@ export const Tiers = (props: Props) => {
     const handleChange = useCallback((e: any, index: number) => {
         const field = e.target.name || e.target.id;
         const value = e.target.value;
-        props.onChangeItem(
-            field, 
-            field !== 'value'? 
-                value:
-                decimalToIcp(value), 
-            index
-        );
+        props.onChangeItem(field, value, index);
     }, [props.onChangeItem]);
 
     const handleCreate = useCallback((e: any) => {
@@ -119,9 +112,9 @@ export const Tiers = (props: Props) => {
                             onChange={(e) => handleChange(e, index)}
                         />
                         <TextField
-                            label="Value"
+                            label="Value (ICP)"
                             name="value"
-                            value={icpToDecimal(tier.value)}
+                            value={tier.value.toString()}
                             required
                             onChange={(e) => handleChange(e, index)}
                         />

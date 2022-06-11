@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, CampaignAction, CampaignTransferFundsAction} from "../../../../../declarations/metamob/metamob.did";
+import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -99,6 +99,35 @@ const formSchema = yup.object().shape({
     }),
 });
 
+const cloneInfo = (info: CampaignInfo): CampaignInfo => {
+    if('signatures' in info) {
+        return {signatures: {}};
+    }
+    else if('donations' in info) {
+        return {donations: {}};
+    }
+    else if('votes' in info) {
+        return {votes: {
+            pro: info.votes.pro,
+            against: info.votes.against
+        }};
+    }
+    else if('funding' in info) {
+        return {funding: {
+            tiers: info.funding.tiers.map(tier => ({
+                title: tier.title,
+                desc: tier.desc,
+                value: tier.value,
+                max: tier.max,
+                total: tier.total
+            }))
+        }};
+    }
+    else {
+        throw Error('Unknown kind');
+    }
+};
+
 const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext)
     const [authState, ] = useContext(AuthContext);
@@ -106,6 +135,7 @@ const EditForm = (props: Props) => {
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
         state: [props.campaign.state],
+        info: cloneInfo(props.campaign.info),
     });
     
     const updateMut = useUpdateCampaign();
@@ -191,7 +221,7 @@ const EditForm = (props: Props) => {
                 pubId: props.campaign.pubId, 
                 req: {
                     kind: kind,
-                    goal: kind === CampaignKind.DONATIONS?
+                    goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
                         decimalToIcp(formt.goal.toString()):
                         BigInt(formt.goal),
                     state: formt.state.length > 0? [Number(formt.state[0])]: [],
@@ -239,6 +269,7 @@ const EditForm = (props: Props) => {
         setForm({
             ...props.campaign,
             state: [props.campaign.state],
+            info: cloneInfo(props.campaign.info),
         });
     }, [props.campaign]);
 

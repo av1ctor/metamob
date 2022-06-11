@@ -184,7 +184,7 @@ export const transformInfo = (
             desc: tier.desc,
             total: 0,
             max: Number(tier.max),
-            value: BigInt(tier.value)
+            value: decimalToIcp(tier.value.toString())
         });
     }
 
@@ -241,7 +241,7 @@ const CreateForm = (props: Props) => {
                 main: actorState.main,
                 req: {
                     kind: kind,
-                    goal: kind === CampaignKind.DONATIONS?
+                    goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
                         decimalToIcp(form.goal.toString()):
                         BigInt(form.goal),
                     state: form.state,
