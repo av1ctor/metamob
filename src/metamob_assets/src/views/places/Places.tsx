@@ -103,7 +103,7 @@ const Places = (props: Props) => {
                 <div>
                     <Suspense fallback={<div>Loading globe...</div>}>
                         <Globe
-                            rendererConfig={{ antialias: false }}
+                            rendererConfig={{ antialias: true }}
                             width={size.w}
                             height={size.h}
                             globeImageUrl="/earth-day.jpg"
@@ -113,7 +113,7 @@ const Places = (props: Props) => {
                             labelText={(p: Place|any) => p.name}
                             labelSize={(p: Place|any) => 4 / (1 + p.kind)}
                             labelDotRadius={(p: Place|any) => 4 / (1 + p.kind)}
-                            labelColor={() => 'rgba(255, 165, 0, 0.9)'}
+                            labelColor={() => '#fff'}
                             onLabelClick={(p: Place|any) => handleRedirect(p)}
                             labelResolution={2}
                             labelAltitude={0.01}
