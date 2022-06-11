@@ -209,7 +209,8 @@ const FundingForm = (props: Props) => {
                     name: `${tier.title} (${icpToDecimal(tier.value)} ICP)`, 
                     value: index,
                     node: 
-                        <div className="">
+                        <div className="tier-option">
+                            <div className="has-text-info"><b>Tier {1+index}</b></div>
                             <div>
                                 <strong>{tier.title} ({icpToDecimal(tier.value)} ICP)</strong>
                             </div> 

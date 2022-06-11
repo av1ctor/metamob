@@ -22,7 +22,6 @@
 .divider {
     border-bottom: 2px solid rgba(255,255,255,.1);
     border-radius: 0;
-    margin-bottom: 1rem;
     padding: 0;
 }
 
@@ -383,5 +382,16 @@
                 }
             }
         }
+    }
+}
+
+.tier-option {
+    min-width: 20rem;
+    overflow-x: hidden;
+}
+
+a:not(:first-child) {
+    &> .tier-option {
+        border-top: 1px solid #f0f0f0;
     }
 }
