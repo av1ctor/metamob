@@ -19,7 +19,7 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().min(3).max(64),
     email: yup.string().min(3).max(128),
-    avatar: yup.string().required(),
+    avatar: yup.array(yup.string().required()).required(),
     country: yup.string().required(),
 });
 

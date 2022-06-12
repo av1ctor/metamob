@@ -57,6 +57,7 @@ const Logon = (props: Props) => {
             }
         }
         catch(e) {
+            props.onError(e);
         }
         finally {
             props.toggleLoading(false);
@@ -110,6 +111,9 @@ const Logon = (props: Props) => {
             else {
                 setStep(step => step + 1);
             }
+        }
+        catch(e) {
+            props.onError(e);
         }
         finally {
             props.toggleLoading(false);

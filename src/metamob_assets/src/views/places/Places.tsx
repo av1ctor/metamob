@@ -83,8 +83,6 @@ const Places = (props: Props) => {
         setSize({w: calcWidth(), h: calcHeight()})
     }, [window.innerWidth, window.innerHeight])
 
-    console.log(places.data?.pages.flat())
-
     return (
         <div className="container">
             <Bar
