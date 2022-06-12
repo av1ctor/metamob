@@ -180,7 +180,7 @@ module {
                     case (?val) val;
                 };
                 active = switch(req.active) {
-                    case null false;
+                    case null true;
                     case (?val) val;
                 };
                 banned = false;
