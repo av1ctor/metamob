@@ -12,7 +12,7 @@ import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
 import { getMmtBalance } from "../../../libs/mmt";
 import { getIcpBalance } from "../../../libs/users";
-import { icpToDecimal } from "../../../libs/icp";
+import { accountIdentifierFromBytes, icpToDecimal, principalToAccountDefaultIdentifier } from "../../../libs/icp";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -32,6 +32,7 @@ const User = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
 
     const [principal, setPrincipal] = useState('');
+    const [accountId, setAccountId] = useState('');
     const [mmtBalance, setMmtBalance] = useState(BigInt(0));
     const [icpBalance, setIcpBalance] = useState(BigInt(0));
     const [form, setForm] = useState<ProfileRequest>({
@@ -116,9 +117,14 @@ const User = (props: Props) => {
     useEffect(() => {
         switch(profile.status) {
             case 'success':
+                if(!authState.identity) {
+                    props.onError("Identity undefined");
+                    return
+                }
                 updateBalances();
                 const full = profile.data as Profile;
                 setPrincipal(full.principal);
+                setAccountId(accountIdentifierFromBytes(principalToAccountDefaultIdentifier(authState.identity?.getPrincipal())));
                 setForm({
                     name: full.name,
                     email: full.email,
@@ -179,6 +185,11 @@ const User = (props: Props) => {
                     <TextField 
                         label="ICP principal"
                         value={principal}
+                        disabled
+                    />
+                    <TextField 
+                        label="Ledger account id"
+                        value={accountId}
                         disabled
                     />
                     <TextField 

@@ -51,20 +51,21 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Write your own `createActor` constructor
 
 ### deploying the local internet_identity canister:
-- Run: II_ENV=development dfx deploy --no-wallet --argument '(null)' internet_identity
+- Run: ./deploy-ii.sh
 - Copy the local II address and replace the II_URL_LOCAL variable at .env with http://localhost:8000/?canisterId=**{II_CANISTER_ID}**&id=**{II_CANISTER_ID}**
 
 ### deploying the local ledger canister:
 - Follow: https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally
+- Run: ./deploy-ledger.sh
 
 ### tranfering ICP from the LEDGER_ACC to the admin account:
-- Run: dfx ledger transfer --amount 100.0 --ledger-canister-id ${dfx canister id ledger} --memo 1234 **{ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX}**
+- Run: dfx ledger transfer --amount 1000.0 --ledger-canister-id ${dfx canister id ledger} --memo 1234 **{ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX}**
 
 ### deploying the metamob token:
 - Run: ./deploy-mmt.sh
 
 ### deploying the mydaocoin for testing:
 - Add to dfx.json: "mydaocoin": {"main": "src/mydaocoin/token.mo","type": "motoko"},
-- Fill on ./deploy-mydaocoin.sh: **ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX**
+- Fill on ./deploy-mydaocoin.sh: **ADMIN_PRINCIPAL**
 - Run: ./deploy-mydaocoin.sh
 - Remove from dfx.json: "mydaocoin": ...
