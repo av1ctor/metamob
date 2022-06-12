@@ -9,6 +9,7 @@ import {ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
+import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -24,6 +25,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
+    const [actorState, ] = useContext(ActorContext);
     const [state, dispatch] = useContext(AuthContext);
 
     const [form, setForm] = useState<ProfileRequest>({
@@ -72,8 +74,12 @@ const Create = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const res = await metamob.userCreate(form);
+            if(!actorState.main) {
+                throw Error('Main actor undefined');
+            }
             
+            const res = await actorState.main.userCreate(form);
+
             if('ok' in res) {
                 const user = res.ok;
                 dispatch({type: AuthActionType.SET_USER, payload: user});
