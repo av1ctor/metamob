@@ -108,9 +108,14 @@ const transferActionSchema = yup.object().shape({
 });
 
 const invokeActionSchema = yup.object().shape({
-    canisterId: yup.string().required().min(58).max(58),
-    method: yup.string().required().min(1).max(128),
-    args: yup.array(yup.number()).required(),
+    canisterId: yup.string().test("is-defined", 'Invalid Canister Id', (val) => {
+        if(!val) {
+            return true;
+        }
+        return val.length === 58;
+    }),
+    method: yup.string().optional().max(128),
+    args: yup.array(yup.number()).optional(),
 });
 
 const formSchema = [
@@ -536,7 +541,7 @@ const CreateForm = (props: Props) => {
                                         value={'invoke' in form.action? 
                                             form.action.invoke.args.toString() || '':
                                             ''}
-                                        onChange={changeForm}
+                                        disabled
                                     />
                                 </div>
                             </>

@@ -1,6 +1,7 @@
 import React, {useState, useCallback, useContext} from "react";
 import {useParams} from "react-router-dom";
 import ReactMarkdown from 'react-markdown';
+import remarkBreaks from 'remark-breaks';
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
@@ -95,7 +96,12 @@ const Campaign = (props: Props) => {
                         <div className="image campaign-cover mb-2">
                             <img src={campaign.cover} />
                         </div>
-                        <ReactMarkdown className="campaign-body" children={campaign.body}/>
+                        <ReactMarkdown 
+                            className="campaign-body" 
+                            remarkPlugins={[remarkBreaks]}
+                            skipHtml={true}
+                            children={campaign.body}
+                        />
                     </div>
                     <div className="column">
                         {campaign.kind === CampaignKind.SIGNATURES &&

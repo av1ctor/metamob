@@ -28,7 +28,7 @@ interface Props {
 const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
     description: yup.string().required().min(3).max(1024),
-    icon: yup.string().required().min(3).max(512),
+    icon: yup.string().required().min(2).max(512),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     auth: yup.object().test({

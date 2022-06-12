@@ -120,7 +120,7 @@ const Boost = (props: Props) => {
                 value
             });
 
-            props.onSuccess('Campaign boosted!');
+            props.onSuccess('Campaign promoted!');
         }
         catch(e) {
             props.onError(e);
@@ -142,8 +142,8 @@ const Boost = (props: Props) => {
             <div
                 className="mb-2"
             >
-                <div className="is-size-4 has-text-success-dark">Boost this campaign</div>
-                <div>Total boosted: {icpToDecimal(props.campaign.boosting)} ICP</div>
+                <div className="is-size-4 has-text-success-dark">Promote this campaign</div>
+                <div>Total promoted: {icpToDecimal(props.campaign.boosting)} ICP</div>
             </div>
             <form onSubmit={handleBoost}>
                 <TextField
