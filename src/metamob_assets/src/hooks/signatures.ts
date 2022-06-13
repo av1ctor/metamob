@@ -80,7 +80,7 @@ export const useFindUserSignatures = (
 export const useCreateSignature = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, req: SignatureRequest}) => {
+        async (options: {main?: Metamob, req: SignatureRequest, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -92,8 +92,9 @@ export const useCreateSignature = () => {
             return res.ok;
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['signatures']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );
@@ -124,7 +125,7 @@ export const useUpdateSignature = () => {
 export const useDeleteSignature = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
+        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -136,8 +137,9 @@ export const useDeleteSignature = () => {
             return {};
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['signatures']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );

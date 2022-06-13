@@ -395,3 +395,14 @@ a:not(:first-child) {
         border-top: 1px solid #f0f0f0;
     }
 }
+
+.progress {
+    &.voting {
+        background-color: $danger;
+    }
+}
+
+.voting progress::-webkit-progress-bar {
+        background-color: $danger !important;
+}
+

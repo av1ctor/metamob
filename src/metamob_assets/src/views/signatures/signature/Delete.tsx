@@ -4,6 +4,7 @@ import {SignatureResponse} from "../../../../../declarations/metamob/metamob.did
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import { useFindCampaignById } from "../../../hooks/campaigns";
 
 interface Props {
     signature: SignatureResponse;
@@ -18,6 +19,7 @@ const DeleteForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const deleteMut = useDeleteSignature();
+    const campaign = useFindCampaignById(props.signature.campaignId);
 
     const handleDelete = useCallback(async (e: any) => {
         e.preventDefault();
@@ -25,9 +27,14 @@ const DeleteForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
+            if(!campaign.data) {
+                throw new Error("Campaign not found");
+            }
+
             await deleteMut.mutateAsync({
                 main: actorState.main,
                 pubId: props.signature.pubId, 
+                campaignPubId: campaign.data.pubId,
             });
             
             props.onSuccess('Signature deleted!');

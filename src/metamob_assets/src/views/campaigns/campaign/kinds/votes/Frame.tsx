@@ -24,14 +24,15 @@ export const VoteFrame = (props: Props) => {
     const proVotes = getProVotes(campaign);
     const againstVotes = getAgainstVotes(campaign);
     const totalVotes = proVotes + againstVotes;
-    const proPercentage = (proVotes / (totalVotes || 1n));
-    const againstPercentage = (againstVotes / (totalVotes || 1n));
     
     const userVote = useFindVoteByCampaignAndUser(campaign?._id, auth.user?._id);
    
     return (
         <>
-            <div><small><b>{proPercentage.toString()}</b> in favor/<b>{againstPercentage.toString()}</b> against of {totalVotes.toString()} votes in total.</small></div>
+            <div className="voting">
+                <progress className="progress voting mb-0 pb-0 is-success" value={Number(proVotes)} max={Number(totalVotes)}>{proVotes.toString()}</progress>
+            </div>
+            <div><small><b>{proVotes.toString()}</b> in favor/<b>{againstVotes.toString()}</b> against of {totalVotes.toString()} votes in total.</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>

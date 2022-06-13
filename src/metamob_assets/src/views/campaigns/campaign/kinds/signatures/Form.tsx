@@ -75,7 +75,8 @@ const SignForm = (props: Props) => {
                     campaignId: props.campaign._id,
                     body: form.body,
                     anonymous: form.anonymous,
-                }
+                },
+                campaignPubId: props.campaign.pubId
             });
             props.onSuccess('Campaign signed!');
         }

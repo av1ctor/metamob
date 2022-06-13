@@ -79,7 +79,7 @@ export const useFindUserVotes = (
 export const useCreateVote = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, req: VoteRequest}) => {
+        async (options: {main?: Metamob, req: VoteRequest, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -91,8 +91,9 @@ export const useCreateVote = () => {
             return res.ok;
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['votes']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );
@@ -123,7 +124,7 @@ export const useUpdateVote = () => {
 export const useDeleteVote = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
+        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
@@ -135,8 +136,9 @@ export const useDeleteVote = () => {
             return {};
         },
         {
-            onSuccess: () => {
+            onSuccess: (data, variables) => {
                 queryClient.invalidateQueries(['votes']);
+                queryClient.invalidateQueries(['campaigns', variables.campaignPubId]);
             }   
         }
     );

@@ -19,7 +19,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     body: yup.string(),
-    pro: yup.number().required(),
+    pro: yup.boolean().required(),
     anonymous: yup.bool().required(),
 });
 
@@ -78,7 +78,8 @@ const VoteForm = (props: Props) => {
                     body: form.body,
                     pro: Boolean(form.pro),
                     anonymous: form.anonymous,
-                }
+                },
+                campaignPubId: props.campaign.pubId
             });
             props.onSuccess('Your vote has been cast!');
         }
