@@ -13,7 +13,7 @@ const anonymous: ProfileResponse = {
     pubId: '',
     name: 'Anonymous',
     email: '',
-    avatar: ['anonymous'],
+    avatar: ['rapper2'],
     roles: [],
     country: 'US',
 };

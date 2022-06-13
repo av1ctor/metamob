@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import ReactMarkdown from 'react-markdown';
 import {Campaign, ProfileResponse, SignatureResponse} from "../../../../declarations/metamob/metamob.did";
+import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
@@ -30,7 +30,10 @@ export const BaseItem = (props: BaseItemProps) => {
                 <div className="content">
                     <strong>{props.user?.name}</strong>
                     <br />
-                    <ReactMarkdown className="update-body" children={signature.body}/>
+                    <Markdown 
+                        className="update-body" 
+                        body={signature.body}
+                    />
                     {props.children}
                 </div>
             </div>

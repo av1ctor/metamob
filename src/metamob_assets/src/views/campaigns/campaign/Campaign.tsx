@@ -1,6 +1,5 @@
 import React, {useState, useCallback, useContext} from "react";
 import {useParams} from "react-router-dom";
-import ReactMarkdown from 'react-markdown';
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
@@ -26,6 +25,7 @@ import Donations from "../../donations/Donations";
 import { DonationFrame } from "./kinds/donations/Frame";
 import Fundings from "../../fundings/Fundings";
 import { FundingFrame } from "./kinds/fundings/Frame";
+import { Markdown } from "../../../components/Markdown";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -95,9 +95,9 @@ const Campaign = (props: Props) => {
                         <div className="image campaign-cover mb-2">
                             <img src={campaign.cover} />
                         </div>
-                        <ReactMarkdown 
+                        <Markdown 
                             className="campaign-body" 
-                            children={campaign.body.replace(/\n/g, '&nbsp;\n\n')}
+                            body={campaign.body}
                         />
                     </div>
                     <div className="column">

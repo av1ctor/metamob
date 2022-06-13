@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import ReactMarkdown from 'react-markdown';
 import {Update} from "../../../../declarations/metamob/metamob.did";
+import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { AuthContext } from "../../stores/auth";
@@ -32,7 +32,10 @@ export const Item = (props: ItemProps) => {
                 <div className="content">
                     <strong>{profile?.isSuccess && profile?.data.name}</strong>
                     <br />
-                    <ReactMarkdown className="update-body" children={update.body}/>
+                    <Markdown 
+                        className="update-body" 
+                        body={update.body}
+                    />
                     <p>
                         <small>
                             {props.canEdit && 

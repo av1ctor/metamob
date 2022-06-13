@@ -88,7 +88,11 @@
 }
 
 .campaign-body {
-    font-size: larger;
+    text-align: justify;
+
+    p {
+        margin-bottom: 1rem;
+    }
 }
 
 .campaign-cover {

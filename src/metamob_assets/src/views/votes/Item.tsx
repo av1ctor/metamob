@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
-import ReactMarkdown from "react-markdown";
 import {Campaign, ProfileResponse, VoteResponse} from "../../../../declarations/metamob/metamob.did";
+import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
@@ -33,7 +33,10 @@ export const BaseItem = (props: BaseItemProps) => {
                     <br />
                     Voted: <Badge pro={props.vote.pro} />
                     <br />
-                    <ReactMarkdown className="update-body" children={vote.body}/>
+                    <Markdown 
+                        className="update-body" 
+                        body={vote.body}
+                    />
                     {props.children}
                 </div>
             </div>

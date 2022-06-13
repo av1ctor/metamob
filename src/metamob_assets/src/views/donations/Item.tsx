@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import ReactMarkdown from "react-markdown";
 import {Campaign, ProfileResponse, DonationResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
@@ -9,6 +8,7 @@ import { isModerator } from "../../libs/users";
 import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
+import { Markdown } from "../../components/Markdown";
 
 interface BaseItemProps {
     donation: DonationResponse;
@@ -44,7 +44,10 @@ export const BaseItem = (props: BaseItemProps) => {
                         }
                     </span>
                     <br />
-                    <ReactMarkdown className="update-body" children={donation.body}/>
+                    <Markdown
+                        className="update-body" 
+                        body={donation.body}
+                    />
                     {props.children}
                 </div>
             </div>
