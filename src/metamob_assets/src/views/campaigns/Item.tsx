@@ -11,6 +11,7 @@ import State from "./campaign/State";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
 import { icpToDecimal } from "../../libs/icp";
+import Badge from "../../components/Badge";
 
 interface Props {
     campaign: Campaign,
@@ -21,15 +22,17 @@ const Item = (props: Props) => {
     const campaign = props.campaign;
 
     const total = campaign.kind === CampaignKind.DONATIONS || campaign.kind === CampaignKind.FUNDINGS?
-        icpToDecimal(campaign.total):
+        icpToDecimal(campaign.total, 2):
         campaign.total.toString();
 
     return (
         <Card 
             title={
-                <Link to={`/c/${campaign.pubId}`}>
-                    {limitText(campaign.title, 45)}
-                </Link>
+                <>
+                    <Link to={`/c/${campaign.pubId}`}>
+                        {limitText(campaign.title, 45)}
+                    </Link>                    
+                </>
             } 
             subtitle={<>
                 <div className="mb-1">
@@ -41,9 +44,13 @@ const Item = (props: Props) => {
                     <Category 
                         id={campaign.categoryId} 
                     />
-                    {campaign.tags.map(id => 
-                        <Tag key={id} id={id} />
-                    )}
+                    {campaign.tags.length > 0 &&
+                        <span>&nbsp;·&nbsp;
+                            {campaign.tags.map(id => 
+                                <Tag key={id} id={id} />
+                            )}
+                        </span>
+                    }
                 </div>
             </>}
             img={
@@ -64,6 +71,9 @@ const Item = (props: Props) => {
                             campaign={campaign} 
                         />
                     </span>
+                    {campaign.boosting > 0n && 
+                        <span>&nbsp;·&nbsp;<Badge color="primary is-light"><i className="la la-rocket"/>&nbsp;promoted</Badge></span>
+                    }
                     &nbsp;·&nbsp;
                     <span 
                         className="tag is-rounded is-light is-success" 

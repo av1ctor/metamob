@@ -163,10 +163,11 @@ const removeZerosAtRight = (s: string): string => {
 };
 
 export const icpToDecimal = (
-    icp: bigint
+    icp: bigint,
+    decimals?: number
 ): string => {
     const int = Number(icp / BigInt(1e8));
-    const dec = ('0000000' + Math.abs(Number(icp % BigInt(1e8))).toString()).substr(-8);
+    const dec = ('0000000' + Math.abs(Number(icp % BigInt(1e8))).toString()).substr(-8, decimals || 8);
     return `${int}.${removeZerosAtRight(dec)}`; 
 }
 
