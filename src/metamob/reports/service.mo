@@ -161,7 +161,16 @@ module {
                             let res = repo.close(e, req, caller._id);
 
                             if(req.result == Types.RESULT_SOLVED) {
-                                ignore await daoService.rewardUser(caller, daoService.config.getAsNat64("REPORT_REWARD"));
+                                switch(userService.findById(e.createdBy)) {
+                                    case (#err(_)) {
+                                    };
+                                    case (#ok(reporter)) {
+                                        ignore await daoService.rewardUser(
+                                            reporter, 
+                                            daoService.config.getAsNat64("REPORT_REWARD")
+                                        );
+                                    };
+                                };
                             };
 
                             res;

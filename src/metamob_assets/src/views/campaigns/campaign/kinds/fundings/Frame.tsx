@@ -23,7 +23,7 @@ export const FundingFrame = (props: Props) => {
     return (
         <>
             <progress className="progress mb-0 pb-0 is-success" value={Number(funded / 100000000n)} max={Number(campaign.goal / 100000000n)}>{funded.toString()}</progress>
-            <div><small><b>{icpToDecimal(funded)} ICP</b> funded. More <b>{icpToDecimal(campaign.goal - funded)} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{icpToDecimal(funded, 2)} ICP</b> funded. More <b>{icpToDecimal(campaign.goal - funded, 2)} ICP</b> to goal. Keep going!</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED || campaign.state === CampaignState.BUILDING? 
                 <>

@@ -139,8 +139,10 @@ module {
                         return #err("Forbidden: not active");
                     };
 
-                    if(not Utils.isModerator(caller)) {
-                        return #err("Forbidden");
+                    if(caller._id != _id) {
+                        if(not Utils.isModerator(caller)) {
+                            return #err("Forbidden");
+                        };
                     };
             
                     repo.findById(_id);

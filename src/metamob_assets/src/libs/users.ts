@@ -125,9 +125,9 @@ export const loginUser = async (
 };
 
 export const isAdmin = (
-    user: ProfileResponse
+    user?: ProfileResponse
 ): boolean => {
-    if(user.roles.length === 0) {
+    if(!user || user.roles.length === 0) {
         return false;
     }
     
@@ -139,9 +139,9 @@ export const isAdmin = (
 }
 
 export const isModerator = (
-    user: ProfileResponse
+    user?: ProfileResponse
 ): boolean => {
-    if(user.roles.length === 0) {
+    if(!user || user.roles.length === 0) {
         return false;
     }
     

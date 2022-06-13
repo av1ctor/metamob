@@ -229,7 +229,9 @@ const EditForm = (props: Props) => {
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
                         decimalToIcp(formt.goal.toString()):
                         BigInt(formt.goal),
-                    state: formt.state.length > 0? [Number(formt.state[0])]: [],
+                    state: isModerator(authState.user) && formt.state.length > 0? 
+                        [Number(formt.state[0])]: 
+                        [],
                     categoryId: Number(formt.categoryId),
                     placeId: Number(formt.placeId),
                     title: formt.title,
