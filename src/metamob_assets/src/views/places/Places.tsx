@@ -56,7 +56,7 @@ const Places = (props: Props) => {
 
     const navigate = useNavigate();
 
-    const places = useFindPlacesInf(filters, orderBy, 9);
+    const places = useFindPlacesInf(filters, orderBy, 12);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
@@ -155,7 +155,7 @@ const Places = (props: Props) => {
                         <Fragment key={index}>
                             {page.map((place) => 
                                 <div 
-                                    className="column is-4"
+                                    className="column is-3"
                                     key={place._id}
                                 >
                                     <Item 

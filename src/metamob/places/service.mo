@@ -31,6 +31,11 @@ module {
                         #err("Forbidden");
                     }
                     else {
+                        if(req.kind <= Types.KIND_COUNTRY) {
+                            if(not UserUtils.isModerator(caller)) {
+                                return #err("Forbidden place kind");
+                            };
+                        };
                         repo.create(req, caller._id);
                     };
                 };
