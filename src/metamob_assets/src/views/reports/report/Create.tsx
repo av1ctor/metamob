@@ -65,7 +65,7 @@ const Report = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Thank, your report was created. If it is accepted, you will receive 1 MMT as reward!');
+            props.onSuccess('Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!');
             props.onClose();
         }
         catch(e) {
