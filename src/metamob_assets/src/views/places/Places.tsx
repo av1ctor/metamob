@@ -1,4 +1,4 @@
-import React, {lazy, Suspense, useState, useCallback, useEffect, Fragment} from "react";
+import React, {lazy, Suspense, useState, useCallback, useEffect, Fragment, useMemo} from "react";
 import {Filter, Order} from "../../libs/common";
 import {useFindPlacesInf} from "../../hooks/places";
 import Button from "../../components/Button";
@@ -7,6 +7,7 @@ import Item from "./Item";
 import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { useNavigate } from "react-router-dom";
+import { number } from "yup";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
@@ -33,6 +34,7 @@ const calcHeight = () => {
 const Places = (props: Props) => {
     const [size, setSize] = useState({w: calcWidth(), h: calcHeight()});
     const [mode, setMode] = useState(Modes.LIST);
+    const [altitude, setAltitude] = useState(2.5);
     const [filters, setFilters] = useState<Filter[]>([
         {
             key: 'name',
@@ -68,9 +70,27 @@ const Places = (props: Props) => {
         setMode(mode => mode === Modes.LIST? Modes.MAP: Modes.LIST);
     }, []);
 
-    const handleRedirect = useCallback((place: Place) => {
-        navigate(`/p/${place.pubId}`);
+    const handleRedirect = useCallback((place: Object, ...rest: any[]) => {
+        navigate(`/p/${(place as Place).pubId}`);
     }, []);
+
+    const handleZoom = useCallback((pos: {lat: number, lng: number, altitude: number}) => {
+        setAltitude(pos.altitude);
+    }, []);
+
+    const getPlaceLabelName = useCallback((p: Place|any) => {
+        return p.name;
+    }, []);
+
+    const getPlaceLabelSize = useCallback((p: Place|any) => {
+        return 4 / (1 + p.kind);
+    }, []);
+
+    const getPlaceLabelRadius = useCallback((p: Place|any) => {
+        return 4 / (1 + p.kind);
+    }, []);
+
+    const getPlaceLabelColor = useCallback(() => '#fffffff0', []);
 
     useEffect(() => {
         props.toggleLoading(places.status === "loading");
@@ -82,6 +102,14 @@ const Places = (props: Props) => {
     useEffect(() => {
         setSize({w: calcWidth(), h: calcHeight()})
     }, [window.innerWidth, window.innerHeight])
+
+    const data = useMemo(() => {
+        return places.data?.pages.flat()
+            .filter(place => {
+                const k = place.kind * altitude;
+                return k >= 1.0 && k <= 2.55;
+            });
+    }, [places.data?.pages, altitude]);
 
     return (
         <div className="container">
@@ -101,20 +129,21 @@ const Places = (props: Props) => {
                 <div>
                     <Suspense fallback={<div>Loading globe...</div>}>
                         <Globe
-                            rendererConfig={{ antialias: true }}
                             width={size.w}
                             height={size.h}
                             globeImageUrl="/earth-day.jpg"
                             backgroundColor="#fff"
                             showAtmosphere={false}
-                            labelsData={places.data?.pages.flat()}
-                            labelText={(p: Place|any) => p.name}
-                            labelSize={(p: Place|any) => 4 / (1 + p.kind)}
-                            labelDotRadius={(p: Place|any) => 4 / (1 + p.kind)}
-                            labelColor={() => '#fff'}
-                            onLabelClick={(p: Place|any) => handleRedirect(p)}
+                            labelsData={data}
+                            labelText={getPlaceLabelName}
+                            labelSize={getPlaceLabelSize}
+                            labelDotRadius={getPlaceLabelRadius}
+                            labelColor={getPlaceLabelColor}
+                            onLabelClick={handleRedirect}
+                            labelsTransitionDuration={100}
                             labelResolution={2}
                             labelAltitude={0.01}
+                            onZoom={handleZoom}
                         />
                     </Suspense>
                 </div>
