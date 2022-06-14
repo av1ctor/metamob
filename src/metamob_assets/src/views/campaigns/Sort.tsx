@@ -8,7 +8,7 @@ export const sortByHot: Order[] = [
         dir: 'desc'
     },
     {
-        key: 'total',
+        key: 'interactions',
         dir: 'desc'
     },
     {

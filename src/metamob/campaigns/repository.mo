@@ -1118,7 +1118,7 @@ module {
                 info = e.info;
                 goal = e.goal;
                 total = e.total;
-                interactions = e.interactions + 1;
+                interactions = e.interactions;
                 boosting = e.boosting;
                 updates = e.updates + 1;
                 action = e.action;
@@ -1154,7 +1154,7 @@ module {
                 info = e.info;
                 goal = e.goal;
                 total = e.total;
-                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
+                interactions = e.interactions;
                 boosting = e.boosting;
                 updates = if(e.updates > 0) e.updates - 1 else 0;
                 action = e.action;
