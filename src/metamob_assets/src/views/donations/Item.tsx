@@ -30,23 +30,25 @@ export const BaseItem = (props: BaseItemProps) => {
             </div>
             <div className="media-content">
                 <div className="content">
-                    <strong>{props.user?.name}</strong>
-                    <br />
-                    Value:&nbsp;
-                    <span 
-                        className={`${props.donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
-                    >
-                        {icpToDecimal(props.donation.value)} ICP&nbsp;
-                        {props.donation.state === DonationState.COMPLETED? 
-                            <i className="la la-check-circle" title="Completed!" />
-                        :  
-                            <i className="la la-times-circle" title="Ongoing..." />
-                        }
-                    </span>
-                    <br />
+                    <div>
+                        <strong>{props.user?.name}</strong>
+                    </div>
+                    <div>
+                        Value:&nbsp;
+                        <span 
+                            className={`${props.donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
+                        >
+                            {icpToDecimal(props.donation.value)} ICP&nbsp;
+                            {props.donation.state === DonationState.COMPLETED? 
+                                <i className="la la-check-circle" title="Completed!" />
+                            :  
+                                <i className="la la-times-circle" title="Ongoing..." />
+                            }
+                        </span>
+                    </div>
                     <Markdown
                         className="update-body" 
-                        body={donation.body}
+                        body={donation.body || '\n&nbsp;\n'}
                     />
                     {props.children}
                 </div>

@@ -29,13 +29,15 @@ export const BaseItem = (props: BaseItemProps) => {
             </div>
             <div className="media-content">
                 <div className="content">
-                    <strong>{props.user?.name}</strong>
-                    <br />
-                    Voted: <Badge pro={props.vote.pro} />
-                    <br />
+                    <div>
+                        <strong>{props.user?.name}</strong>
+                    </div>
+                    <div>
+                        Voted: <Badge pro={props.vote.pro} />
+                    </div>
                     <Markdown 
                         className="update-body" 
-                        body={vote.body}
+                        body={vote.body || '\n&nbsp;\n'}
                     />
                     {props.children}
                 </div>

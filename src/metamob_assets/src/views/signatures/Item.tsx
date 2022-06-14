@@ -28,11 +28,12 @@ export const BaseItem = (props: BaseItemProps) => {
             </div>
             <div className="media-content">
                 <div className="content">
-                    <strong>{props.user?.name}</strong>
-                    <br />
+                    <div>
+                        <strong>{props.user?.name}</strong>
+                    </div>
                     <Markdown 
                         className="update-body" 
-                        body={signature.body}
+                        body={signature.body || '\n&nbsp;\n'}
                     />
                     {props.children}
                 </div>

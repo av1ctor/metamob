@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {Campaign, ProfileResponse, FundingResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
-import { CampaignState } from "../../libs/campaigns";
+import { CampaignState, findById } from "../../libs/campaigns";
 import { FundingState } from "../../libs/fundings";
 import { isModerator } from "../../libs/users";
 import { icpToDecimal } from "../../libs/icp";
@@ -11,42 +11,69 @@ import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 
 interface BaseItemProps {
-    funding: FundingResponse;
     user?: ProfileResponse;
+    campaign?: Campaign;
+    funding: FundingResponse;
     children?: any;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
+    
     const funding = props.funding;
+    const [campaign, setCampaign] = useState(props.campaign);
+
+    const loadCampaign = async () => {
+        if(!props.campaign) {
+            const campaign = await findById(funding.campaignId);
+            setCampaign(campaign);
+        }
+    }
+
+    useEffect(() => {
+        loadCampaign();
+    }, [props.funding.campaignId]);
+
+    const tiers = campaign && 'funding' in campaign.info?
+        campaign.info.funding.tiers:
+        [];
 
     return (
         <article className="media">
             <div className="media-left">
                 <div className="flex-node w-12">
                     {props.user &&
-                        <Avatar id={props.user._id} size='lg' noName={true} />
+                        <Avatar 
+                            id={props.user._id} 
+                            size='lg' 
+                            noName={true} 
+                        />
                     }
                 </div>
             </div>
             <div className="media-content">
                 <div className="content">
-                    <strong>{props.user?.name}</strong>
-                    <br />
-                    Value:&nbsp;
-                    <span 
-                        className={`${props.funding.state === FundingState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
-                    >
-                        {icpToDecimal(props.funding.value)} ICP&nbsp;
-                        {props.funding.state === FundingState.COMPLETED? 
-                            <i className="la la-check-circle" title="Completed!" />
-                        :  
-                            <i className="la la-times-circle" title="Ongoing..." />
-                        }
-                    </span>
-                    <br />
+                    <div>
+                        <strong>{props.user?.name}</strong>
+                    </div>
+                    <div>
+                        Tier:&nbsp;<strong>{props.funding.tier} - "{tiers.length > 0? tiers[props.funding.tier].title: ''}"</strong>
+                    </div>
+                    <div>
+                        Value:&nbsp;
+                        <span 
+                            className={`${props.funding.state === FundingState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
+                        >
+                            {icpToDecimal(props.funding.value)} ICP&nbsp;
+                            {props.funding.state === FundingState.COMPLETED? 
+                                <i className="la la-check-circle" title="Completed!" />
+                            :  
+                                <i className="la la-times-circle" title="Ongoing..." />
+                            }
+                        </span>
+                    </div>
                     <Markdown
                         className="update-body" 
-                        body={funding.body}
+                        body={funding.body || '\n&nbsp;\n'}
                     />
                     {props.children}
                 </div>
@@ -81,6 +108,7 @@ export const Item = (props: ItemProps) => {
     return (
         <BaseItem
             user={user.data}
+            campaign={props.campaign}
             funding={funding}
         >
             <p>
