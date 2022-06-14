@@ -296,28 +296,28 @@ const EditForm = (props: Props) => {
                 <TextField 
                     label="Title" 
                     name="title"
-                    value={form.title || ''}
+                    value={form.title}
                     required={true}
                     onChange={changeForm}
                 />
                 <TextField 
                     label="Target" 
                     name="target"
-                    value={form.target || ''}
+                    value={form.target}
                     required={true}
                     onChange={changeForm}
                 />
                 <MarkdownField
                     label="Body"
                     name="body"
-                    value={form.body || ''}
+                    value={form.body}
                     rows={6}
                     onChange={changeForm}
                 />
                 <TextField 
                     label="Cover image" 
                     name="cover"
-                    value={form.cover || ''}
+                    value={form.cover}
                     required={true}
                     onChange={changeForm}
                 />
