@@ -240,7 +240,7 @@ const EditForm = (props: Props) => {
                     cover: formt.cover,
                     duration: Number(formt.duration),
                     tags: formt.tags,
-                    info: transformInfo(formt.info),
+                    info: formt.info,
                     action: formt.action,
                 }
             });
