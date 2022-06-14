@@ -4,6 +4,7 @@ import Button from "../../../../../components/Button";
 import NumberField from "../../../../../components/NumberField";
 import TextAreaField from "../../../../../components/TextAreaField";
 import TextField from "../../../../../components/TextField";
+import { icpToDecimal } from "../../../../../libs/icp";
 
 interface Props {
     info: CampaignInfo;
@@ -114,7 +115,7 @@ export const Tiers = (props: Props) => {
                         <TextField
                             label="Value (ICP)"
                             name="value"
-                            value={tier.value.toString()}
+                            value={typeof tier.value === 'string'? tier.value: icpToDecimal(tier.value)}
                             required
                             onChange={(e) => handleChange(e, index)}
                         />

@@ -11,7 +11,7 @@ import TagsField from "../../../components/TagsField";
 import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, campaignKindToGoal, CampaignResult, CampaignState, kindOptions } from "../../../libs/campaigns";
-import { decimalToIcp } from "../../../libs/icp";
+import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
@@ -189,7 +189,9 @@ export const transformInfo = (
             desc: tier.desc,
             total: 0,
             max: Number(tier.max),
-            value: decimalToIcp(tier.value.toString())
+            value: typeof tier.value === 'string'? 
+                decimalToIcp(tier.value): 
+                tier.value
         });
     }
 
@@ -247,7 +249,9 @@ const CreateForm = (props: Props) => {
                 req: {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
-                        decimalToIcp(form.goal.toString()):
+                        typeof form.goal === 'string'? 
+                            decimalToIcp(form.goal):
+                            form.goal:
                         BigInt(form.goal),
                     state: form.state,
                     title: form.title,
@@ -471,7 +475,7 @@ const CreateForm = (props: Props) => {
                         <TextField 
                             label={campaignKindToGoal(form.kind)}
                             name="goal"
-                            value={form.goal.toString()}
+                            value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
                             required={true}
                             onChange={changeForm}
                         />

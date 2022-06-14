@@ -15,7 +15,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, campaignKindToGoal, kindOptions, stateOptions } from "../../../libs/campaigns";
-import { decimalToIcp } from "../../../libs/icp";
+import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
@@ -227,7 +227,9 @@ const EditForm = (props: Props) => {
                 req: {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
-                        decimalToIcp(formt.goal.toString()):
+                        typeof formt.goal === 'string'? 
+                            decimalToIcp(formt.goal):
+                            formt.goal:    
                         BigInt(formt.goal),
                     state: isModerator(authState.user) && formt.state.length > 0? 
                         [Number(formt.state[0])]: 
@@ -339,7 +341,7 @@ const EditForm = (props: Props) => {
                 <TextField 
                     label={campaignKindToGoal(form.kind)}
                     name="goal"
-                    value={form.goal.toString()}
+                    value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
                     required={true}
                     onChange={changeForm}
                 />
