@@ -5,7 +5,7 @@ import Result "mo:base/Result";
 import Error "mo:base/Error";
 import D "mo:base/Debug";
 import Variant "mo:mo-table/variant";
-import DIP20 "../common/dip20";
+import DIP20 "../interfaces/dip20";
 import UserTypes "../users/types";
 import Config "./config";
 

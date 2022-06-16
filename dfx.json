@@ -1,21 +1,8 @@
 {
   "canisters": {
-    "internet_identity": {
-      "type": "custom",
-      "candid": "internet_identity.did",
-      "wasm": "internet_identity.wasm"
-    },    
-    "ledger": {
-      "type": "custom",
-      "wasm": "ledger.wasm",
-      "candid": "ledger.public.did"
-    },
     "metamob": {
       "main": "src/metamob/facade.mo",
-      "type": "motoko",
-      "dependencies": [
-        "ledger"
-      ]
+      "type": "motoko"
     },
     "metamob_assets": {
       "dependencies": [

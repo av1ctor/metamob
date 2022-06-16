@@ -8,10 +8,11 @@ import Types "./types";
 import Repository "./repository";
 import Utils "./utils";
 import AccountTypes "../accounts/types";
-import LedgerUtils "../utils/ledger";
+import LedgerUtils "../common/ledger";
 
 module {
     public class Service(
+        ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
         var hasAdmin: Bool = false;
@@ -195,7 +196,7 @@ module {
             invoker: Principal,
             this: actor {}
         ): AccountTypes.AccountIdentifier {
-            LedgerUtils.getAccountId(invoker, this);
+            ledgerUtils.getAccountId(invoker, this);
         };
 
         public func backup(

@@ -1,32 +1,13 @@
 import Principal "mo:base/Principal";
+import Dip20 "../interfaces/dip20";
 
 module {
-    public type TxReceipt = {
-        #Ok: Nat;
-        #Err: {
-            #InsufficientAllowance;
-            #InsufficientBalance;
-            #ErrorOperationStyle;
-            #Unauthorized;
-            #LedgerTrap;
-            #ErrorTo;
-            #Other: Text;
-            #BlockUsed;
-            #AmountTooSmall;
-        };
-    };
-    
-    public type Interface = actor {
-        balanceOf: (who: Principal) -> async Nat;
-        transfer: (to: Principal, value: Nat) -> async TxReceipt;
-        transferFrom: (from: Principal, to: Principal, value: Nat) -> async TxReceipt;
-    };
 
     public func balanceOf(
         canisterId: Text,
         who: Principal
     ): async Nat {
-        let dip20 = actor (canisterId) : Interface;
+        let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.balanceOf(who);
     };
 
@@ -34,8 +15,8 @@ module {
         canisterId: Text,
         to: Principal, 
         value: Nat
-    ): async TxReceipt {
-        let dip20 = actor (canisterId) : Interface;
+    ): async Dip20.TxReceipt {
+        let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.transfer(to, value);
     };
 
@@ -44,8 +25,8 @@ module {
         from: Principal, 
         to: Principal, 
         value: Nat
-    ): async TxReceipt {
-        let dip20 = actor (canisterId) : Interface;
+    ): async Dip20.TxReceipt {
+        let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.transferFrom(from, to, value);
     };
 };

@@ -15,14 +15,15 @@ import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
-import LedgerUtils "../utils/ledger";
+import LedgerUtils "../common/ledger";
 import Account "../accounts/account";
 
 module {
     public class Service(
         userService: UserService.Service,
         campaignService: CampaignService.Service,
-        placeService: PlaceService.Service
+        placeService: PlaceService.Service,
+        ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
@@ -94,7 +95,7 @@ module {
                                             return #err("Invalid donation state");
                                         };
 
-                                        switch(await LedgerUtils
+                                        switch(await ledgerUtils
                                             .transferFromUserSubaccountToCampaignSubaccount(
                                                 campaign, caller._id, invoker, this)) {
                                             case (#err(msg)) {
@@ -319,7 +320,7 @@ module {
                                                             );
 
                                                             switch(
-                                                                await LedgerUtils
+                                                                await ledgerUtils
                                                                     .withdrawFromCampaignSubaccountLessTax(
                                                                         campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
                                                                 case (#err(msg)) {

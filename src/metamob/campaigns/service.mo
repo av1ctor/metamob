@@ -16,14 +16,15 @@ import UserUtils "../users/utils";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
 import FundingRepository "../fundings/repository";
-import LedgerUtils "../utils/ledger";
+import LedgerUtils "../common/ledger";
 import Account "../accounts/account";
 import D "mo:base/Debug";
 
 module {
     public class Service(
         userService: UserService.Service,
-        placeService: PlaceService.Service
+        placeService: PlaceService.Service,
+        ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
         let userRepo = userService.getRepository();
@@ -291,7 +292,7 @@ module {
             caller: UserTypes.Profile,
             this: actor {}
         ): async Result.Result<(), Text> {
-            let balance = await LedgerUtils.getCampaignBalance(campaign, this);
+            let balance = await ledgerUtils.getCampaignBalance(campaign, this);
             if(balance <= Types.MIN_WITHDRAW_VALUE) {
                 return #err("Nothing to withdraw");
             };
@@ -312,7 +313,7 @@ module {
                 Account.defaultSubaccount()
             );
 
-            await LedgerUtils.withdrawFromCampaignSubaccountLessTax(
+            await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
                 campaign, 
                 balance, 
                 tax,
@@ -423,7 +424,7 @@ module {
                                                     Account.defaultSubaccount()
                                                 );
 
-                                                switch(await LedgerUtils.withdrawFromCampaignSubaccountLessTax(
+                                                switch(await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
                                                     campaign, amount, Types.REFUND_TAX, to, app, 1
                                                 )) {
                                                     case (#err(msg)) {
@@ -518,12 +519,12 @@ module {
                             #err(msg);
                         };
                         case (#ok(campaign)) {
-                            let balance = await LedgerUtils.getUserBalance(invoker, this);
+                            let balance = await ledgerUtils.getUserBalance(invoker, this);
                             if(balance < value) {
                                 return #err("Insufficient funds");
                             };
                             
-                            switch(await LedgerUtils
+                            switch(await ledgerUtils
                                 .transferFromUserSubaccountToCampaignSubaccountEx(
                                     campaign, caller._id, value, invoker, this)) {
                                 case (#err(msg)) {

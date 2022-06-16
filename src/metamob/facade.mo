@@ -27,23 +27,28 @@ import ReportService "./reports/service";
 import PlaceService "./places/service";
 import PlaceEmailService "./places-emails/service";
 import DaoService "./dao/service";
+import LedgerUtils "./common/ledger";
 import D "mo:base/Debug";
 
 shared({caller = owner}) actor class Metamob(
+    ledgerCanisterId: Text,
     mmtCanisterId: Text
 ) = this {
 
+    // helpers
+    let ledgerUtils = LedgerUtils.LedgerUtils(ledgerCanisterId);
+
     // services
     let daoService = DaoService.Service(mmtCanisterId);
-    let userService = UserService.Service();
+    let userService = UserService.Service(ledgerUtils);
     let placeService = PlaceService.Service(userService);
     let placeEmailService = PlaceEmailService.Service(userService, placeService);
     let categoryService = CategoryService.Service(userService);
-    let campaignService = CampaignService.Service(userService, placeService);
+    let campaignService = CampaignService.Service(userService, placeService, ledgerUtils);
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
     let voteService = VoteService.Service(userService, campaignService, placeService);
-    let donationService = DonationService.Service(userService, campaignService, placeService);
-    let fundingService = FundingService.Service(userService, campaignService, placeService);
+    let donationService = DonationService.Service(userService, campaignService, placeService, ledgerUtils);
+    let fundingService = FundingService.Service(userService, campaignService, placeService, ledgerUtils);
     let updateService = UpdateService.Service(userService, campaignService, placeService);
     let reportService = ReportService.Service(daoService, userService, campaignService, 
         signatureService, voteService, fundingService, donationService, updateService);
