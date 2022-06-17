@@ -1,8 +1,14 @@
 {
   "metamob": {
-    "ic": "ksa6h-viaaa-aaaah-ableq-cai"
+    "ic": "kagj6-zyaaa-aaaah-ablhq-cai"
+  },
+  "metamob_assets": {
+    "ic": "wbpm2-ciaaa-aaaan-qajta-cai"
   },
   "mmt": {
-    "ic": "lyp45-xyaaa-aaaah-abldq-cai"
+    "ic": "tbqmo-6aaaa-aaaan-qajoq-cai"
+  },
+  "ledger": {
+    "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
   }
 }

@@ -5,9 +5,6 @@
       "type": "motoko"
     },
     "metamob_assets": {
-      "dependencies": [
-        "metamob"
-      ],
       "frontend": {
         "entrypoint": "src/metamob_assets/src/index.html"
       },
