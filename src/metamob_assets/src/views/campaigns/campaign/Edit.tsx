@@ -341,7 +341,12 @@ const EditForm = (props: Props) => {
                 <TextField 
                     label={campaignKindToGoal(form.kind)}
                     name="goal"
-                    value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
+                    value={typeof form.goal === 'string'? 
+                        form.goal: 
+                        Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS?
+                            icpToDecimal(form.goal):
+                            form.goal.toString()
+                    }
                     required={true}
                     onChange={changeForm}
                 />

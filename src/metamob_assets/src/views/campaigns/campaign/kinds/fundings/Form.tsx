@@ -276,6 +276,8 @@ const FundingForm = (props: Props) => {
                     </>
                 }
 
+                <div className="has-text-danger is-size-7"><b>Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!</b></div>
+
                 <div className="field mt-2">
                     <div className="control">
                         <Button
