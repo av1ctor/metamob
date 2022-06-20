@@ -1,5 +1,6 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import {useParams} from "react-router-dom";
+import Skeleton from "react-loading-skeleton";
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
@@ -26,7 +27,6 @@ import { DonationFrame } from "./kinds/donations/Frame";
 import Fundings from "../../fundings/Fundings";
 import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
-import Skeleton from "react-loading-skeleton";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -161,10 +161,12 @@ const Campaign = (props: Props) => {
                                 }
                             </>:
                             <>
+                                <Skeleton count={2} />
+                                <div className="mt-2" />
                                 <Skeleton height={300} />
-                                <br/>
+                                <div className="mt-2" />
                                 <Skeleton height={250} />
-                                <br/>
+                                <div className="mt-2" />
                                 <Skeleton height={125} />
                             </>
                         }
