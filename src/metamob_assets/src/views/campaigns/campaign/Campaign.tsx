@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import {useParams} from "react-router-dom";
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
@@ -43,10 +43,7 @@ const Campaign = (props: Props) => {
         report: false
     });
     
-    const res = useFindCampaignByPubId(id);
-    const campaign = res.status === 'success' && res.data?
-        res.data:
-        undefined;
+    const data = useFindCampaignByPubId(id);
 
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
@@ -68,6 +65,17 @@ const Campaign = (props: Props) => {
             report: !modals.report
         }));
     }, []);
+
+    useEffect(() => {
+        props.toggleLoading(data.status === "loading");
+        if(data.status === "error") {
+            props.onError(data.error.message);
+        }
+    }, [data.status]);
+
+    const campaign = data.status === 'success' && data.data?
+        data.data:
+        undefined;
 
     const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
         auth.user && auth.user._id === campaign?.createdBy) ||
