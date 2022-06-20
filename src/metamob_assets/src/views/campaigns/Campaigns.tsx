@@ -68,27 +68,30 @@ const Campaigns = (props: Props) => {
                             {campaigns.status === 'success'? 
                                 campaigns.data && 
                                     campaigns.data.pages.map((page, index) => 
-                                <Fragment key={index}>
-                                    {page.map((campaign) => 
-                                        <div 
-                                            className="column is-half"
-                                            key={campaign._id}
-                                        >
-                                            <Item 
-                                                key={campaign._id} 
-                                                campaign={campaign} />
-                                        </div>
-                                    )}
-                                </Fragment>
-                            ): Array.from([1,2,3,4]).map(index => 
-                                <div 
-                                    className="column is-half"
-                                    key={index}
-                                >
-                                    <Skeleton height={490} />
-                                    <Skeleton height={170} />
-                                </div>
-                            )}
+                                    <Fragment key={index}>
+                                        {page.map((campaign) => 
+                                            <div 
+                                                className="column is-half"
+                                                key={campaign._id}
+                                            >
+                                                <Item 
+                                                    key={campaign._id} 
+                                                    campaign={campaign} />
+                                            </div>
+                                        )}
+                                    </Fragment>
+                                )
+                            : 
+                                Array.from([1,2,3,4]).map(index => 
+                                    <div 
+                                        className="column is-half"
+                                        key={index}
+                                    >
+                                        <Skeleton height={490} />
+                                        <Skeleton height={170} />
+                                    </div>
+                                )
+                            }
                         </div>        
                         <div className="has-text-centered">
                             <div className="control">
