@@ -87,7 +87,9 @@ const Campaigns = (props: Props) => {
                                         className="column is-half"
                                         key={index}
                                     >
-                                        <Skeleton height={490} />
+                                        <div className="image is-4by3" style={{maxHeight: '450px'}}>
+                                            <Skeleton className="is-overlay" style={{position: 'absolute'}} />
+                                        </div>
                                         <Skeleton height={170} />
                                     </div>
                                 )
