@@ -5,6 +5,7 @@ import Item from "./Item";
 import { Bar } from "./Bar";
 import Button from "../../components/Button";
 import { sortByHot } from "./Sort";
+import Skeleton from "react-loading-skeleton";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -64,7 +65,7 @@ const Campaigns = (props: Props) => {
                     />
                     <div>
                         <div className="columns is-desktop is-multiline is-align-items-center">
-                            {campaigns.status === 'success' && 
+                            {campaigns.status === 'success'? 
                                 campaigns.data && 
                                     campaigns.data.pages.map((page, index) => 
                                 <Fragment key={index}>
@@ -79,6 +80,14 @@ const Campaigns = (props: Props) => {
                                         </div>
                                     )}
                                 </Fragment>
+                            ): Array.from([1,2,3,4]).map(index => 
+                                <div 
+                                    className="column is-half"
+                                    key={index}
+                                >
+                                    <Skeleton height={490} />
+                                    <Skeleton height={170} />
+                                </div>
                             )}
                         </div>        
                         <div className="has-text-centered">
