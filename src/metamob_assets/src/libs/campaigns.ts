@@ -94,7 +94,7 @@ export const campaignKindToTitle = (
         case CampaignKind.DONATIONS:
             return 'Donations';
         case CampaignKind.FUNDINGS:
-            return 'Fundraising';
+            return 'Raised';
         case CampaignKind.VOTES:
         case CampaignKind.WEIGHTED_VOTES:
             return 'Votes';
