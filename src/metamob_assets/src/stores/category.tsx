@@ -27,6 +27,9 @@ const reducer = (state: CategoryState, action: Action): CategoryState => {
         case CategoryActionType.SET:
             return {
                 categories: action.payload
+                    .sort((a: Category, b: Category) => 
+                        a.name.localeCompare(b.name)
+                    )
             };
 
         case CategoryActionType.RESET:
