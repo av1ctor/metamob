@@ -4,7 +4,7 @@ import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx } from '../libs/users';
 
 export const useFindUserById = (
-    _id: number, 
+    _id?: number, 
     main?: Metamob
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
     return useQuery<ProfileResponse|Profile, Error>(

@@ -74,6 +74,7 @@
     "react-contenteditable": "^3.3.6",
     "react-dom": "^18.1.0",
     "react-globe.gl": "^2.22.1",
+    "react-loading-skeleton": "^3.1.0",
     "react-markdown": "^8.0.3",
     "react-query": "^3.38.1",
     "react-responsive-carousel": "^3.2.23",

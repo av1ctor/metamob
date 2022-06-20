@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from 'react-dom/client';
 import {App} from './App';
 
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../sass/mystyles.scss';
 
 const container = document.getElementById('app');

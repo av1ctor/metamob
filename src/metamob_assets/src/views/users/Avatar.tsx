@@ -4,7 +4,7 @@ import { useFindUserById } from '../../hooks/users';
 import { ActorContext } from '../../stores/actor';
 
 interface Props {
-    id: number;
+    id?: number;
     size?: string;
     noName?: boolean;
     onClick?: (profile: Profile) => void;

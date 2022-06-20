@@ -1,4 +1,5 @@
 import React from 'react';
+import Skeleton from 'react-loading-skeleton';
 import { useFindCategoryById } from '../../../hooks/categories';
 
 interface Props {
@@ -19,7 +20,9 @@ const Category = (props: Props) => {
             >
                 <b>{category.data.name}</b>
             </span>:
-        null
+            <Skeleton 
+                width={100} 
+            />
     );
 };
 
