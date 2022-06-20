@@ -30,7 +30,7 @@ export const kindOptions = [
     {name: 'Signatures', value: CampaignKind.SIGNATURES, icon: 'signature'},
     {name: 'Votes', value: CampaignKind.VOTES, icon: 'vote-yea'},
     {name: 'Votes (weighted)', value: CampaignKind.WEIGHTED_VOTES, icon: 'vote-yea'},
-    {name: 'Fundings', value: CampaignKind.FUNDINGS, icon: 'lightbulb'},
+    {name: 'Fundraising', value: CampaignKind.FUNDINGS, icon: 'lightbulb'},
     {name: 'Donations', value: CampaignKind.DONATIONS, icon: 'money-bill'},
 ];
 
@@ -94,7 +94,7 @@ export const campaignKindToTitle = (
         case CampaignKind.DONATIONS:
             return 'Donations';
         case CampaignKind.FUNDINGS:
-            return 'Fundings';
+            return 'Fundraising';
         case CampaignKind.VOTES:
         case CampaignKind.WEIGHTED_VOTES:
             return 'Votes';

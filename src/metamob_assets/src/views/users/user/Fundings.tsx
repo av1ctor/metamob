@@ -82,7 +82,7 @@ const Fundings = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My fundings
+                My fundraisings
             </div>
 
             <div>

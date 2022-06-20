@@ -53,7 +53,7 @@ export const entityTypeToText = (
         case ReportType.DONATIONS:
             return 'Donation';
         case ReportType.FUNDINGS:
-            return 'Fundings';
+            return 'Fundraising';
         case ReportType.UPDATES:
             return 'Update';
         case ReportType.USERS:

@@ -105,7 +105,7 @@ const Header = (props: Props) => {
                                     redirect
                                 />
                                 <NavItem
-                                    title="Fundings"
+                                    title="Fundraisings"
                                     icon="lightbulb"
                                     href="/user/fundings"
                                     redirect
