@@ -54,11 +54,14 @@ const Place = (props: Props) => {
     }, [place.status]);
 
     useEffect(() => {
-        props.toggleLoading(campaigns.status === "loading");
+        props.toggleLoading(place.status === 'loading' || campaigns.status === "loading");
+        if(place.status === "error") {
+            props.onError(place.error.message);
+        }
         if(campaigns.status === "error") {
             props.onError(campaigns.error.message);
         }
-    }, [campaigns.status]);
+    }, [place.status, campaigns.status]);
 
     return (
         <>

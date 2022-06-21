@@ -3,7 +3,7 @@ import { Place } from "../../../../../declarations/metamob/metamob.did";
 import { PlaceKind } from "../../../libs/places";
 
 interface Props {
-    place: Place;
+    place?: Place;
     size?: string;
     className?: string;
 }
@@ -14,9 +14,9 @@ export const PlaceIcon = (props: Props) => {
 
     return (
         <div className={`place-icon ${props.size || 'sm'} ${props.className}`}>
-            {place.kind == PlaceKind.COUNTRY?
+            {place?.kind == PlaceKind.COUNTRY?
                 <span className={`fi fi-${place.icon} fis`} />:
-                <i className={`pl-${place.icon || 'map'}`} />
+                <i className={`pl-${place?.icon || 'map'}`} />
             }
         </div>
     );

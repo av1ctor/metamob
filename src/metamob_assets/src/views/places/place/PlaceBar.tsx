@@ -1,4 +1,5 @@
 import React from "react";
+import Skeleton from "react-loading-skeleton";
 import { Place } from "../../../../../declarations/metamob/metamob.did";
 import { PlaceIcon } from "./PlaceIcon";
 
@@ -10,10 +11,6 @@ export const PlaceBar = (props: Props) => {
     
     const {place} = props;
 
-    if(!place) {
-        return null;
-    }
-    
     return (
         <div className="place-bar has-text-primary-dark">
             <PlaceIcon 
@@ -21,7 +18,7 @@ export const PlaceBar = (props: Props) => {
                 size="lg"
             />
             <div className="place-name ml-4">
-                {place.name}
+                {place? place.name: <Skeleton />}
             </div>
         </div>
     );
