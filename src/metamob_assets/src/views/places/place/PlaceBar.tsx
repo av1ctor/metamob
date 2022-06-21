@@ -18,7 +18,7 @@ export const PlaceBar = (props: Props) => {
                 size="lg"
             />
             <div className="place-name ml-4">
-                {place? place.name: <Skeleton />}
+                {place? place.name: <Skeleton width={100} />}
             </div>
         </div>
     );
