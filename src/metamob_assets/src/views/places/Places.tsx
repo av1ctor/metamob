@@ -8,6 +8,7 @@ import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { useNavigate } from "react-router-dom";
 import { number } from "yup";
+import Skeleton from "react-loading-skeleton";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
@@ -127,7 +128,13 @@ const Places = (props: Props) => {
 
             {mode === Modes.MAP?
                 <div>
-                    <Suspense fallback={<div>Loading globe...</div>}>
+                    <Suspense fallback={
+                        <div className="has-text-centered">
+                            <div style={{height: 100}} />
+                            <Skeleton circle width={400} height={400} />
+                            <div style={{height: 100}} />
+                        </div>
+                    }>
                         <Globe
                             width={size.w}
                             height={size.h}
@@ -149,22 +156,34 @@ const Places = (props: Props) => {
                 </div>
             :
                 <div className="columns is-desktop is-multiline is-align-items-center">
-                    {places.status === 'success' && 
-                        places.data && 
-                            places.data.pages.map((page, index) => 
-                        <Fragment key={index}>
-                            {page.map((place) => 
-                                <div 
-                                    className="column is-3"
-                                    key={place._id}
-                                >
-                                    <Item 
-                                        key={place._id} 
-                                        place={place} />
+                    {places.status === 'success'? 
+                        places.data.pages.map((page, index) => 
+                            <Fragment key={index}>
+                                {page.map((place) => 
+                                    <div 
+                                        className="column is-3"
+                                        key={place._id}
+                                    >
+                                        <Item 
+                                            key={place._id} 
+                                            place={place} />
+                                    </div>
+                                )}
+                            </Fragment>
+                        )
+                    :
+                        Array.from([1,2,3,4,5,6,7,8]).map(index => 
+                            <div 
+                                className="column is-3"
+                                key={index}
+                            >
+                                <div className="image is-4by3" style={{minHeight: '325px'}}>
+                                    <Skeleton className="is-overlay" style={{position: 'absolute'}} />
                                 </div>
-                            )}
-                        </Fragment>
-                    )}
+                                <Skeleton height={200} />
+                            </div>
+                        )
+                    }
                 </div>        
             }
 

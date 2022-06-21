@@ -8,6 +8,8 @@ import { useFindPlaceByPubId } from "../../hooks/places";
 import { PlaceBar } from "./place/PlaceBar";
 import Button from "../../components/Button";
 import { sortByDate } from "../campaigns/Sort";
+import { ScrollToTop } from "../../components/ScrollToTop";
+import Skeleton from "react-loading-skeleton";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -59,56 +61,64 @@ const Place = (props: Props) => {
     }, [campaigns.status]);
 
     return (
-        <div className="container">
+        <>
+            <ScrollToTop />
+            <PlaceBar
+                place={place.data}
+            />
+            <Bar
+                place={place.data}
+                filters={filters}
+                orderBy={orderBy}
+                onSearch={handleChangeFilters}
+                onSort={handleChangeSort}
+                onSuccess={props.onSuccess}
+                onError={props.onError}
+                toggleLoading={props.toggleLoading}
+            />
             <div>
-                <div>
-                    <PlaceBar
-                        place={place.data}
-                    />
-                    <Bar
-                        place={place.data}
-                        filters={filters}
-                        orderBy={orderBy}
-                        onSearch={handleChangeFilters}
-                        onSort={handleChangeSort}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
-                    />
-                    <div>
-                        <div className="columns is-desktop is-multiline is-align-items-center">
-                            {campaigns.status === 'success' && 
-                                campaigns.data && 
-                                    campaigns.data.pages.map((page, index) => 
-                                <Fragment key={index}>
-                                    {page.map(campaign => 
-                                        <div 
-                                            className="column is-half"
-                                            key={campaign._id}
-                                        >
-                                            <Item 
-                                                key={campaign._id} 
-                                                campaign={campaign} />
-                                        </div>
-                                    )}
-                                </Fragment>
-                            )}
-                        </div>
-                        <div className="has-text-centered">
-                            <div className="control">
-                                <Button
-                                    disabled={!campaigns.hasNextPage || campaigns.isFetchingNextPage}
-                                    onClick={() => campaigns.fetchNextPage()}
-                                >
-                                    <i className="la la-sync" />&nbsp;{campaigns.hasNextPage? 'Load more': 'All loaded'}
-                                </Button>
+                <div className="columns is-desktop is-multiline is-align-items-center">
+                    {campaigns.status === 'success'? 
+                        campaigns.data.pages.map((page, index) => 
+                            <Fragment key={index}>
+                                {page.map(campaign => 
+                                    <div 
+                                        className="column is-half"
+                                        key={campaign._id}
+                                    >
+                                        <Item 
+                                            key={campaign._id} 
+                                            campaign={campaign} />
+                                    </div>
+                                )}
+                            </Fragment>
+                        )
+                    :
+                        Array.from([1,2,3,4]).map(index => 
+                            <div 
+                                className="column is-half"
+                                key={index}
+                            >
+                                <div className="image is-4by3" style={{maxHeight: '450px'}}>
+                                    <Skeleton className="is-overlay" style={{position: 'absolute'}} />
+                                </div>
+                                <Skeleton height={170} />
                             </div>
-                        </div>
+                        )
+                    }
+                </div>
+                <div className="has-text-centered">
+                    <div className="control">
+                        <Button
+                            disabled={!campaigns.hasNextPage || campaigns.isFetchingNextPage}
+                            onClick={() => campaigns.fetchNextPage()}
+                        >
+                            <i className="la la-sync" />&nbsp;{campaigns.hasNextPage? 'Load more': 'All loaded'}
+                        </Button>
                     </div>
                 </div>
             </div>
-
-        </div>
+        </>
     );
 };
 

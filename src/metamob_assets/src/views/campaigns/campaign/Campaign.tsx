@@ -27,6 +27,7 @@ import { DonationFrame } from "./kinds/donations/Frame";
 import Fundings from "../../fundings/Fundings";
 import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
+import { ScrollToTop } from "../../../components/ScrollToTop";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -84,6 +85,7 @@ const Campaign = (props: Props) => {
 
     return (
         <>
+            <ScrollToTop />
             <div className="container mb-2">
                 <div className="is-size-2 overflow-hidden">
                     {campaign? campaign.title: <Skeleton />}

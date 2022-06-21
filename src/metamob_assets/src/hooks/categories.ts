@@ -5,7 +5,7 @@ import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCategoryById = (
     queryKey: any[], 
-    _id: number
+    _id?: number
 ): UseQueryResult<Category, Error> => {
     return useQuery<Category, Error>(
         queryKey, 
