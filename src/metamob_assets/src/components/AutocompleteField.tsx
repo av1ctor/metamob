@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useTransition } from "react";
 import Button from "./Button";
 import { Option } from "./SelectField";
 
@@ -20,23 +20,24 @@ interface Props {
 const AutocompleteField = (props: Props) => {
     const [suggestion, setSuggestion] = useState(String(props.value));
     const [suggestions, setSuggestions] = useState<Option[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
 
-    const handleChangeSuggestion = useCallback(async (e: any) => {
+    const [isLoading, startTransition] = useTransition();
+
+    const updateSuggestions = useCallback(async (suggestion: string) => {
+        const options = await props.onSearch(suggestion);
+        setSuggestions(options);
+        if(options.length > 0 || props.onAdd !== undefined) {
+            setIsVisible(true);
+        }
+    }, [props.onChange, props.onAdd]);
+
+    const handleChangeSuggestion = useCallback((e: any) => {
         const suggestion = e.target.value;
         if(suggestion.length >= 3) {
-            try {
-                setIsLoading(true);
-                const options = await props.onSearch(suggestion);
-                setSuggestions(options);
-                if(options.length > 0 || props.onAdd !== undefined) {
-                    setIsVisible(true);
-                }
-            }
-            finally {
-                setIsLoading(false);
-            }
+            startTransition(() => {
+                updateSuggestions(suggestion);
+            });
         }
         else if(suggestion.length === 0) {
             if(props.onChange) {
@@ -51,7 +52,7 @@ const AutocompleteField = (props: Props) => {
             }
         }
         setSuggestion(suggestion);
-    }, [props.onSearch]);
+    }, [updateSuggestions]);
 
     const handleSelectSuggestion = useCallback((e: any) => {
         e.preventDefault();
