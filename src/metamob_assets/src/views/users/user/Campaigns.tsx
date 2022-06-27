@@ -22,7 +22,7 @@ const Campaigns = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 4
+        size: 3
     });
 
     const campaigns = useFindCampaignsByUserId(authState.user?._id || 0, orderBy, limit, actorState.main);
