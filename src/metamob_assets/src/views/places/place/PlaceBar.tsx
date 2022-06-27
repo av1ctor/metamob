@@ -64,17 +64,15 @@ export const PlaceBar = (props: Props) => {
                     </div>
                     {hasTerms &&
                         <div className="level-right place-buttons">
-                            {!termsAccepted && 
-                                <div>
-                                    <Button
-                                        color="danger"
-                                        title="View terms and conditions"
-                                        onClick={isLoggedIn? toggleTerms: redirectToLogon}
-                                    >
-                                        <i className="la la-check-square"/>&nbsp;Terms
-                                    </Button>
-                                </div>
-                            }
+                            <div>
+                                <Button
+                                    color={termsAccepted? 'primary': 'danger'}
+                                    title="View terms and conditions"
+                                    onClick={isLoggedIn? toggleTerms: redirectToLogon}
+                                >
+                                    <i className={`la la-${termsAccepted? 'check-square': 'align-left'}`}/>&nbsp;Terms
+                                </Button>
+                            </div>
                         </div>
                     }
                 </div>
@@ -88,6 +86,7 @@ export const PlaceBar = (props: Props) => {
                 {place &&
                     <TermsForm
                         place={place}
+                        placeUser={placeUser.data}
                         onClose={toggleTerms}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

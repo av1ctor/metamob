@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Place, PlaceUserRequest } from "../../../../../declarations/metamob/metamob.did";
+import { Place, PlaceUser, PlaceUserRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import { Markdown } from "../../../components/Markdown";
@@ -9,6 +9,7 @@ import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     place: Place;
+    placeUser?: PlaceUser;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -17,7 +18,7 @@ interface Props {
 
 const formSchema = yup.object().shape({
     placeId: yup.number().required(),
-    termsAccepted: yup.bool().required().isTrue("You must agree to the terms and conditions"),
+    termsAccepted: yup.bool(),
 });
 
 const TermsForm = (props: Props) => {
@@ -25,7 +26,7 @@ const TermsForm = (props: Props) => {
 
     const [form, setForm] = useState<PlaceUserRequest>({
         placeId: props.place._id,
-        termsAccepted: false,
+        termsAccepted: props.placeUser?.termsAccepted || false,
     });
 
     const createMut = useCreatePlaceUser();
@@ -70,7 +71,7 @@ const TermsForm = (props: Props) => {
                     termsAccepted: form.termsAccepted
                 }
             });
-            props.onSuccess('Place terms accepted!');
+            props.onSuccess(`Place terms ${form.termsAccepted? 'accepted': 'refused'}!`);
             props.onClose();
         }
         catch(e) {
@@ -85,6 +86,13 @@ const TermsForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    useEffect(() => {
+        setForm({
+            ...form,
+            termsAccepted: props.placeUser?.termsAccepted || false
+        });
+    }, [props.placeUser]);
     
     const terms = props.place.terms.length > 0?
         props.place.terms[0]:
@@ -106,13 +114,13 @@ const TermsForm = (props: Props) => {
                 value={form.termsAccepted}
                 onChange={changeForm}
             />
-            <div className="field is-grouped mt-2">
+            <div className="field is-grouped mt-6">
                 <div className="control">
                     <Button
                         onClick={handleCreate}
-                        disabled={createMut.isLoading || !form.termsAccepted}
+                        disabled={createMut.isLoading}
                     >
-                        Agree
+                        Submit
                     </Button>
                 </div>
                 <div className="control">
