@@ -122,7 +122,7 @@ const Places = (props: Props) => {
                 </div>
             </div>
             
-            <div>
+            <div className="user-places">
                 <div className="columns is-multiline is-align-items-center">
                     {places.status === 'success' && 
                         places.data && 

@@ -214,6 +214,8 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
+                banner = req.banner;
+                terms = req.terms;
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
@@ -238,6 +240,8 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
+                banner = req.banner;
+                terms = req.terms;
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
@@ -280,6 +284,8 @@ module {
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("icon", #text(e.icon));
+        res.put("banner", switch(e.banner) {case null #nil; case (?banner) #text(banner);});
+        res.put("terms", switch(e.terms) {case null #nil; case (?terms) #text(terms);});
         res.put("active", #bool(e.active));
         res.put("lat", #float(e.lat));
         res.put("lng", #float(e.lng));
@@ -323,6 +329,8 @@ module {
             name = Variant.getOptText(map.get("name"));
             description = Variant.getOptText(map.get("description"));
             icon = Variant.getOptText(map.get("icon"));
+            banner = Variant.getOptTextOpt(map.get("banner"));
+            terms = Variant.getOptTextOpt(map.get("terms"));
             active = Variant.getOptBool(map.get("active"));
             lat = Variant.getOptFloat(map.get("lat"));
             lng = Variant.getOptFloat(map.get("lng"));

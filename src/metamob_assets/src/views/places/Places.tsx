@@ -7,7 +7,6 @@ import Item from "./Item";
 import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { useNavigate } from "react-router-dom";
-import { number } from "yup";
 import Skeleton from "react-loading-skeleton";
 
 const Globe = lazy(() => import("react-globe.gl"));

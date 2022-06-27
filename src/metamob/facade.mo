@@ -15,6 +15,7 @@ import UpdateTypes "./updates/types";
 import ReportTypes "./reports/types";
 import PlaceTypes "./places/types";
 import PlaceEmailTypes "./places-emails/types";
+import PlaceUserTypes "./places-users/types";
 import UserService "./users/service";
 import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
@@ -26,6 +27,7 @@ import UpdateService "./updates/service";
 import ReportService "./reports/service";
 import PlaceService "./places/service";
 import PlaceEmailService "./places-emails/service";
+import PlaceUserService "./places-users/service";
 import DaoService "./dao/service";
 import LedgerUtils "./common/ledger";
 import D "mo:base/Debug";
@@ -43,6 +45,7 @@ shared({caller = owner}) actor class Metamob(
     let userService = UserService.Service(ledgerUtils);
     let placeService = PlaceService.Service(userService);
     let placeEmailService = PlaceEmailService.Service(userService, placeService);
+    let placeUserService = PlaceUserService.Service(userService, placeService);
     let categoryService = CategoryService.Service(userService);
     let campaignService = CampaignService.Service(userService, placeService, ledgerUtils);
     let signatureService = SignatureService.Service(userService, campaignService, placeService);
@@ -1060,6 +1063,34 @@ shared({caller = owner}) actor class Metamob(
     };   
 
     //
+    // places-users facade
+    //
+    public shared(msg) func placeUserCreate(
+        req: PlaceUserTypes.PlaceUserRequest
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.create(req, msg.caller);
+    };
+
+    public shared(msg) func placeUserUpdate(
+        req: PlaceUserTypes.PlaceUserRequest
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.update(req, msg.caller);
+    };
+
+    public shared query(msg) func placeUserFindByPlaceAndUser(
+        placeId: Nat32,
+        userId: Nat32
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.findByPlaceIdAndUserId(placeId, userId);
+    };
+
+    public shared(msg) func placeUserDelete(
+        _id: Nat32
+    ): async Result.Result<(), Text> {
+        placeUserService.delete(_id, msg.caller);
+    };
+
+    //
     // migration
     //
     stable var daoConfig: [(Text, Variant.Variant)] = [];
@@ -1074,6 +1105,7 @@ shared({caller = owner}) actor class Metamob(
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
+    stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         daoConfig := daoService.backup();
@@ -1088,6 +1120,7 @@ shared({caller = owner}) actor class Metamob(
         reportEntities := reportService.backup();
         placeEntities := placeService.backup();
         placeEmailEntities := placeEmailService.backup();
+        placeUserEntities := placeUserService.backup();
     };
 
     system func postupgrade() {
@@ -1126,6 +1159,9 @@ shared({caller = owner}) actor class Metamob(
         
         placeEmailService.restore(placeEmailEntities);
         placeEmailEntities := [];
+
+        placeUserService.restore(placeUserEntities);
+        placeUserEntities := [];
     };
 
     let interval: Nat = 60 * 1000_000_000; // 1 minute

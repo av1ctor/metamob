@@ -49,6 +49,14 @@ module {
                 options = [#max(512)];
             },
             {
+                name = "banner";
+                options = [#nullable, #max(512)];
+            },
+            {
+                name = "terms";
+                options = [#nullable, #max(32768)];
+            },
+            {
                 name = "createdAt";
                 options = [#sortable];
             },

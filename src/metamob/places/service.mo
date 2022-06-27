@@ -1,6 +1,7 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
 import Variant "mo:mo-table/variant";
 import Types "./types";
 import Repository "./repository";
@@ -8,6 +9,7 @@ import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
 import PlacesEmailsRepo "../places-emails/repository";
+import PlacesUsersRepo "../places-users/repository";
 import DIP20 "../common/dip20";
 import DIP721 "../common/dip721";
 
@@ -17,6 +19,7 @@ module {
     ) {
         let repo = Repository.Repository();
         var placesEmailsRepo: ?PlacesEmailsRepo.Repository = null;
+        var placesUsersRepo: ?PlacesUsersRepo.Repository = null;
 
         public func create(
             req: Types.PlaceRequest,
@@ -131,7 +134,7 @@ module {
         ): Result.Result<(), Text> {
             switch(placesEmailsRepo) {
                 case (null) {
-                    #err("E-mails table undefined");
+                    #err("Places-emails repository undefined");
                 };
                 case (?emails) {
                     switch(emails.findByPlaceIdAndEmail(_id, caller.email)) {
@@ -172,9 +175,36 @@ module {
             };
         };
 
-        public func checkAccess(
+        private func _checkTermsAccepted(
             caller: UserTypes.Profile,
-            _id: Nat32
+            placeId: Nat32
+        ): Result.Result<(), Text> {
+            switch(placesUsersRepo) {
+                case null {
+                    #err("Places-users repository undefined");
+                };
+                case (?placesUsers) {
+                    switch(placesUsers.findByPlaceIdAndUserId(placeId, caller._id)) {
+                        case (#err(_)) {
+                            #err("Forbidden: terms and conditions were not accepted yet");
+                        };
+                        case (#ok(e)) {
+                            if(e.termsAccepted) {
+                                #ok();
+                            }
+                            else {
+                                #err("Forbidden: terms and conditions were not accepted yet");
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func checkAccessEx(
+            caller: UserTypes.Profile,
+            _id: Nat32,
+            checkTerms: Bool
         ): async Result.Result<(), Text> {
             switch(repo.findById(_id)) {
                 case (#err(msg)) {
@@ -185,6 +215,20 @@ module {
                         #err("Place inactive");
                     }
                     else {
+                        if(UserUtils.isModerator(caller)) {
+                            return #ok();
+                        };
+
+                        if(checkTerms and Option.isSome(place.terms)) {
+                            switch(_checkTermsAccepted(caller, _id)) {
+                                case (#err(msg)) {
+                                    return #err(msg);
+                                };
+                                case _ {
+                                };
+                            };
+                        };
+
                         switch(place.auth) {
                             case (#none_) {
                                 #ok();
@@ -202,6 +246,13 @@ module {
                     };
                 };
             };
+        };
+
+        public func checkAccess(
+            caller: UserTypes.Profile,
+            _id: Nat32
+        ): async Result.Result<(), Text> {
+            await checkAccessEx(caller, _id, true);
         };
 
         public func backup(
@@ -224,6 +275,12 @@ module {
             repo: PlacesEmailsRepo.Repository
         ) {
             placesEmailsRepo := ?repo;
+        };
+
+        public func setPlacesUsersRepo(
+            repo: PlacesUsersRepo.Repository
+        ) {
+            placesUsersRepo := ?repo;
         };
 
         func hasAuth(

@@ -4,6 +4,7 @@ import { PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/met
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import { FlagPicker } from "../../../components/FlagPicker";
+import MarkdownField from "../../../components/MarkdownField";
 import { PlacePicker } from "../../../components/PlacePicker";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
@@ -25,6 +26,8 @@ const formSchema = yup.object().shape({
     name: yup.string().required().min(3).max(96),
     description: yup.string().required().min(3).max(1024),
     icon: yup.string().required().min(2).max(512),
+    banner: yup.array(yup.string().optional().max(512)),
+    terms: yup.array(yup.string().optional().max(32768)),
     kind: yup.number().required(),
     parentId: yup.array(yup.number().required().min(1)).required(),
     auth: yup.object().test({
@@ -42,6 +45,8 @@ const Create = (props: Props) => {
         name: '',
         description: '',
         icon: '',
+        banner: [''],
+        terms: [''],
         kind: PlaceKind.OTHER,
         auth: {none: null},
         parentId: [],
@@ -58,6 +63,14 @@ const Create = (props: Props) => {
             e.target.checked:
             e.target.value;
         setForm(form => setField(form, field, field === 'parentId'? [Number(value)]: value));
+    }, []);
+
+    const changeFormOpt = useCallback((e: any) => {
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setForm(form => setField(form, field, [value]));
     }, []);
 
     const changeAuth = useCallback((e: any) => {
@@ -114,6 +127,12 @@ const Create = (props: Props) => {
                     name: form.name,
                     description: form.description,
                     icon: form.icon,
+                    banner: form.banner[0]?
+                        form.banner:
+                        [],
+                    terms: form.terms[0]?
+                        form.terms:
+                        [],
                     kind: Number(form.kind),
                     auth: transformAuth(form.auth),
                     parentId: form.parentId,
@@ -169,20 +188,40 @@ const Create = (props: Props) => {
                     rows={5}
                     onChange={changeForm}
                 />
-                {Number(form.kind) === PlaceKind.COUNTRY?
-                    <FlagPicker
+                {Number(form.kind) === PlaceKind.PLANET || Number(form.kind) === PlaceKind.CONTINENT?
+                    <PlacePicker 
                         label="Icon"
                         name="icon"
                         value={form.icon}
                         onChange={changeForm}
                     />:
-                    <PlacePicker
-                        label="Icon"
-                        name="icon"
-                        value={form.icon}
-                        onChange={changeForm}
-                    />
+                        Number(form.kind) === PlaceKind.COUNTRY?
+                            <FlagPicker
+                                label="Icon"
+                                name="icon"
+                                value={form.icon}
+                                onChange={changeForm}
+                            />:
+                            <TextField
+                                label="Icon URL"
+                                name="icon"
+                                value={form.icon}
+                                required
+                                onChange={changeForm}
+                            />
                 }
+                <TextField 
+                    label="Banner URL"
+                    name="banner"
+                    value={form.banner[0] || ''}
+                    onChange={changeFormOpt}
+                />
+                <MarkdownField 
+                    label="Terms and conditions"
+                    name="terms"
+                    value={form.terms[0] || ''}
+                    onChange={changeFormOpt}
+                />
                 <SelectField
                     label="Kind"
                     id="kind"
