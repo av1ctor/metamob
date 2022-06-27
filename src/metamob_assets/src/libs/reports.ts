@@ -25,6 +25,26 @@ export enum ReportType {
     FUNDINGS = 6,
 }
 
+export enum ReportKind {
+    FAKE = 0,
+    NUDITY = 1,
+    HATE = 2,
+    SPAM = 3,
+    CONFIDENTIAL = 4,
+    COPYRIGHT = 5,
+    OTHER = 99,
+}
+
+export const kinds: {name: string, value: any}[] = [
+    {name: 'Fake or fraudulent', value: ReportKind.FAKE},
+    {name: 'Contains nudity', value: ReportKind.NUDITY},
+    {name: 'Promotes hate, violence or illegal/offensive activities', value: ReportKind.HATE},
+    {name: 'Spam, malware or "phishing" (fake login)', value: ReportKind.SPAM},
+    {name: 'Private or confidential information', value: ReportKind.CONFIDENTIAL},
+    {name: 'Copyright infringement', value: ReportKind.COPYRIGHT},
+    {name: 'Other', value: ReportKind.OTHER},
+];
+
 export const reportStateToText = (
     state: ReportState
 ): string => {
@@ -110,6 +130,26 @@ export const findAll = async (
 
     const res = await main.reportFind(
         criterias, 
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
+export const findByUser = async (
+    orderBy?: Order[], 
+    limit?: Limit,
+    main?: Metamob
+): Promise<Report[]> => {
+    if(!main) {
+        return [];
+    }
+
+    const res = await main.reportFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     

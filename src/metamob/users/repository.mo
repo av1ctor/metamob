@@ -152,6 +152,29 @@ module {
             );
         };
 
+        public func findByRole(
+            role: Types.Role
+        ): Result.Result<[Types.Profile], Text> {
+            let criterias = ?[
+                {       
+                    key = "roles";
+                    op = #eq;
+                    value = #nat32(_roleToNumber(role));
+                },
+                {
+                    key = "active";
+                    op = #eq;
+                    value = #bool(true);
+                }
+            ];
+            
+            return users.find(
+                criterias, 
+                null, 
+                null
+            );
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             return users.backup();
@@ -270,20 +293,26 @@ module {
         }
     };
 
+    func _roleToNumber(
+        role: Types.Role
+    ): Nat32 {
+        switch(role) {
+            case (#admin) {
+                0;
+            };
+            case (#moderator) {
+                1;
+            };
+            case (#user) {
+                2;
+            };
+        };
+    };
+
     func _roleToVariant(
         role: Types.Role
     ): Variant.Variant {
-        switch(role) {
-            case (#admin) {
-                #nat32(0);
-            };
-            case (#moderator) {
-                #nat32(1);
-            };
-            case (#user) {
-                #nat32(2);
-            };
-        };
+        #nat32(_roleToNumber(role));
     };
 
     func _variantToRole(

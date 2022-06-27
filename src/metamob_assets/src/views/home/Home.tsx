@@ -18,6 +18,7 @@ import UserFundings from "../users/user/Fundings";
 import UserSignatures from "../users/user/Signatures";
 import UserVotes from "../users/user/Votes";
 import UserPlaces from "../users/user/Places";
+import UserReports from "../users/user/Reports";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -183,6 +184,7 @@ export const Home = () => {
                         <Route path="/user/signatures" element={<UserSignatures {...props} />} />
                         <Route path="/user/votes" element={<UserVotes {...props} />} />
                         <Route path="/user/places" element={<UserPlaces {...props} />} />
+                        <Route path="/user/reports" element={<UserReports {...props} />} />
                         <Route path="/c/:id" element={<Campaign {...props} />} />
                         <Route path="/p/:id" element={<Place {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />

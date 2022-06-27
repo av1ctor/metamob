@@ -7,6 +7,7 @@ import Avatar from "../../users/Avatar";
 
 interface Props {
     id: number;
+    partial?: boolean;
     onEditUser?: (user: Profile) => void;
 }
 
@@ -23,48 +24,56 @@ export const Preview = (props: Props) => {
     
     return (
         <div className="mb-2">
-            {funding.data && 
-                <div className="field">
-                    <label className="label">
-                        Funding
-                    </label>
-                    <div className="control preview-box">
-                        <div>
-                            <label className="label">
-                                Id
-                            </label>
-                            {funding.data.pubId}
-                        </div>
-                        <div>
-                            <label className="label">
-                                Value
-                            </label>
-                            {funding.data.value.toString()}
-                        </div>
-                        <div>
-                            <label className="label">
-                                Message
-                            </label>
-                            {limitText(funding.data.body, 60)}
-                        </div>
-                        <div>
-                            <label className="label mb-0 pb-0">
-                                Author
-                            </label>
-                            <Avatar 
-                                id={funding.data.createdBy} 
-                                size='lg'
-                                onClick={props.onEditUser}
-                            />
-                        </div>
-                        <div>
-                            <label className="label mb-0 pb-0">
-                                Campaign
-                            </label>
-                            <CampaignLink id={funding.data.campaignId} />
+            {funding.data?
+                props.partial?
+                    <div>
+                        <b>Fundraising at campaign</b>:&nbsp;
+                        <CampaignLink id={funding.data.campaignId} />
+                    </div>
+                :
+                    <div className="field">
+                        <label className="label">
+                            Funding
+                        </label>
+                        <div className="control preview-box">
+                            <div>
+                                <label className="label">
+                                    Id
+                                </label>
+                                {funding.data.pubId}
+                            </div>
+                            <div>
+                                <label className="label">
+                                    Value
+                                </label>
+                                {funding.data.value.toString()}
+                            </div>
+                            <div>
+                                <label className="label">
+                                    Message
+                                </label>
+                                {limitText(funding.data.body, 60)}
+                            </div>
+                            <div>
+                                <label className="label mb-0 pb-0">
+                                    Author
+                                </label>
+                                <Avatar 
+                                    id={funding.data.createdBy} 
+                                    size='lg'
+                                    onClick={props.onEditUser}
+                                />
+                            </div>
+                            <div>
+                                <label className="label mb-0 pb-0">
+                                    Campaign
+                                </label>
+                                <CampaignLink id={funding.data.campaignId} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                :
+                    null
             }
         </div>
     );

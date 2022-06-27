@@ -6,9 +6,8 @@ import { useFindReports } from "../../../hooks/reports";
 import { Filter, Order } from "../../../libs/common";
 import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
-import AssignForm from "./Assign";
-import EditForm from "./Edit";
-import EditUserForm from "../users/Edit";
+import ModerateForm from "../../../views/reports/report/Moderate";
+import EditUserForm from "../../../views/users/user/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";
@@ -40,7 +39,6 @@ const Reports = (props: Props) => {
         size: 10
     });
     const [modals, setModals] = useState({
-        assign: false,
         edit: false,
         editUser: false,
     });
@@ -61,13 +59,6 @@ const Reports = (props: Props) => {
         );
     }, []);
     
-    const toggleAssign = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            assign: !modals.assign
-        }));
-    }, []);
-
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
             ...modals,
@@ -85,9 +76,6 @@ const Reports = (props: Props) => {
     const handleReport = useCallback((item: Report) => {
         setReport(item);
         switch(item.state) {
-            case ReportState.CREATED:
-                toggleAssign();
-                break;
             case ReportState.ASSIGNED:
                 toggleEdit();
                 break;
@@ -195,28 +183,12 @@ const Reports = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Assign report</span>}
-                isOpen={modals.assign}
-                onClose={toggleAssign}
-            >
-                {report &&
-                    <AssignForm
-                        report={report}
-                        onClose={toggleAssign}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
-                    />
-                }
-            </Modal>
-
-            <Modal
                 header={<span>Edit report</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
                 {report &&
-                    <EditForm
+                    <ModerateForm
                         report={report}
                         onEditUser={handleEditUser}
                         onClose={toggleEdit}

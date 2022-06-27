@@ -21,6 +21,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "kind";
+                options = [];
+            },
+            {
                 name = "description";
                 options = [#min(10), #max(4096)];
             },
@@ -54,11 +58,11 @@ module {
             },
             {
                 name = "assignedAt";
-                options = [#nullable, #sortable];
+                options = [#sortable];
             },
             {
                 name = "assignedTo";
-                options = [#nullable, #sortable];
+                options = [#sortable];
             }
         ];
     };

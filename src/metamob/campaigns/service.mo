@@ -661,8 +661,7 @@ module {
         public func verify(
             this: actor {}
         ): async () {
-            let res = repo.findExpired(100);
-            switch(res) {
+            switch(repo.findExpired(100)) {
                 case (#ok(campaigns)) {
                     if(campaigns.size() > 0) {
                         D.print("Info: CampaignService.verify: Finishing " # Nat.toText(campaigns.size()) # " expired campaigns");

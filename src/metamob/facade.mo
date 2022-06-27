@@ -42,7 +42,7 @@ shared({caller = owner}) actor class Metamob(
 
     // services
     let daoService = DaoService.Service(mmtCanisterId);
-    let userService = UserService.Service(ledgerUtils);
+    let userService = UserService.Service(daoService, ledgerUtils);
     let placeService = PlaceService.Service(userService);
     let placeEmailService = PlaceEmailService.Service(userService, placeService);
     let placeUserService = PlaceUserService.Service(userService, placeService);
@@ -56,6 +56,19 @@ shared({caller = owner}) actor class Metamob(
     let reportService = ReportService.Service(daoService, userService, campaignService, 
         signatureService, voteService, fundingService, donationService, updateService);
 
+    // DAO facade
+    public shared query(msg) func daoConfigGetAsNat32(
+        key: Text
+    ): async Nat32 {
+        daoService.configGetAsNat32(key);
+    };
+
+    public shared query(msg) func daoConfigGetAsNat64(
+        key: Text
+    ): async Nat64 {
+        daoService.configGetAsNat64(key);
+    };
+    
     //
     // users facade
     //
@@ -76,6 +89,11 @@ shared({caller = owner}) actor class Metamob(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
         _transformUserReponse(userService.update(id, req, msg.caller));
+    };
+
+    public shared(msg) func userSignupAsModerator(
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
+        _transformUserReponse(await userService.signupAsModerator(msg.caller));
     };
 
     public query func userFindById(
@@ -961,13 +979,6 @@ shared({caller = owner}) actor class Metamob(
         reportService.update(id, req, msg.caller);
     };
 
-    public shared(msg) func reportAssign(
-        id: Text, 
-        toUserId: Nat32
-    ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.assign(id, toUserId, msg.caller);
-    };    
-
     public shared(msg) func reportClose(
         id: Text, 
         req: ReportTypes.ReportCloseRequest
@@ -987,6 +998,13 @@ shared({caller = owner}) actor class Metamob(
         limit: ?(Nat, Nat)
     ): async Result.Result<[ReportTypes.Report], Text> {
         reportService.find(criterias, sortBy, limit, msg.caller);
+    };
+
+    public shared query(msg) func reportFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ReportTypes.Report], Text> {
+        reportService.findByUser(sortBy, limit, msg.caller);
     };
 
     //
@@ -1176,6 +1194,7 @@ shared({caller = owner}) actor class Metamob(
             lastExec := now;
             D.print("Info: heartbeat: Verifying...");
             try {
+                await userService.verify(this);
                 await campaignService.verify(this);
             }
             catch(e) {

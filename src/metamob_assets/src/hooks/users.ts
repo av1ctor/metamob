@@ -47,3 +47,25 @@ export const useUpdateUser = () => {
         }
     );
 };
+
+export const useSignupAsModerator = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.userSignupAsModerator();
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['users']);
+            }   
+        }
+    );
+};

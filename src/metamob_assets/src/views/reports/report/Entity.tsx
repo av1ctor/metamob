@@ -10,6 +10,7 @@ import { ReportType } from "../../../libs/reports";
 
 interface Props {
     report: Report;
+    partial?: boolean;
     onEditUser?: (user: Profile) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -23,36 +24,42 @@ const Entity = (props: Props) => {
             {report.entityType === ReportType.CAMPAIGNS &&
                 <CampaignPreview 
                     id={report.entityId} 
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }
             {report.entityType === ReportType.SIGNATURES &&
                 <SignaturePreview 
                     id={report.entityId} 
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }
             {report.entityType === ReportType.UPDATES &&
                 <UpdatePreview 
                     id={report.entityId} 
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }
             {report.entityType === ReportType.VOTES &&
                 <VotePreview 
-                    id={report.entityId} 
+                    id={report.entityId}
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }
             {report.entityType === ReportType.DONATIONS &&
                 <DonationPreview 
-                    id={report.entityId} 
+                    id={report.entityId}
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }
             {report.entityType === ReportType.FUNDINGS &&
                 <FundingPreview 
-                    id={report.entityId} 
+                    id={report.entityId}
+                    partial={props.partial}
                     onEditUser={props.onEditUser}
                 />
             }

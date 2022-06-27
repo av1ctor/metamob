@@ -32,7 +32,7 @@ const results: Option[] = [
     {name: 'Ignored', value: ReportResult.IGNORED},
 ];
 
-const EditForm = (props: Props) => {
+const ModerateForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
@@ -159,7 +159,7 @@ const EditForm = (props: Props) => {
                         onClick={handleUpdate}
                         disabled={closeMut.isLoading}
                     >
-                        Update
+                        {Number(form.result) === ReportResult.VERIFYING? 'Update': 'Close'}
                     </Button>
                 </div>
                 <div className="control">
@@ -175,4 +175,4 @@ const EditForm = (props: Props) => {
     );
 };
 
-export default EditForm;
+export default ModerateForm;

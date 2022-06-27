@@ -7,6 +7,7 @@ import Avatar from "../../users/Avatar";
 
 interface Props {
     id: number;
+    partial?: boolean;
     onEditUser?: (user: Profile) => void;
 }
 

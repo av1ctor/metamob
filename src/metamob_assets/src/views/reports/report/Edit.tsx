@@ -1,17 +1,16 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { ReportRequest } from "../../../../../declarations/metamob/metamob.did";
+import { Report, ReportRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
-import { useCreateReport } from "../../../hooks/reports";
+import { useCreateReport, useUpdateReport } from "../../../hooks/reports";
 import { kinds, ReportKind, ReportType } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
-    entityId: number;
-    entityType: ReportType;
+    report: Report;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -25,17 +24,17 @@ const formSchema = yup.object().shape({
     description: yup.string().min(10).max(4096),
 });
 
-const CreateForm = (props: Props) => {
+const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportRequest>({
-        entityId: props.entityId,
-        entityType: props.entityType,
-        kind: ReportKind.FAKE,
-        description: '',
+        entityId: props.report.entityId,
+        entityType: props.report.entityType,
+        kind: props.report.kind,
+        description: props.report.description,
     });
 
-    const mutation = useCreateReport();
+    const mutation = useUpdateReport();
 
     const validate = (form: ReportRequest): string[] => {
         try {
@@ -47,7 +46,7 @@ const CreateForm = (props: Props) => {
         }
     };
 
-    const handleCreate = useCallback(async (e: any) => {
+    const handleUpdate = useCallback(async (e: any) => {
         e.preventDefault();
 
         const errors = validate(form);
@@ -61,6 +60,7 @@ const CreateForm = (props: Props) => {
 
             await mutation.mutateAsync({
                 main: actorState.main,
+                pubId: props.report.pubId,
                 req: {
                     entityId: form.entityId,
                     entityType: form.entityType,
@@ -69,7 +69,7 @@ const CreateForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!');
+            props.onSuccess('Report updated!');
             props.onClose();
         }
         catch(e) {
@@ -92,8 +92,17 @@ const CreateForm = (props: Props) => {
         }));
     }, []);
 
+    useEffect(() => {
+        setForm({
+            entityId: props.report.entityId,
+            entityType: props.report.entityType,
+            kind: props.report.kind,
+            description: props.report.description,
+        });
+    }, [props.report]);
+
     return (
-        <form onSubmit={handleCreate}>
+        <form onSubmit={handleUpdate}>
             <Container>
                 <SelectField
                     label="Kind"
@@ -114,8 +123,8 @@ const CreateForm = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
-                            onClick={handleCreate}>
-                            Create
+                            onClick={handleUpdate}>
+                            Update
                         </Button>
                     </div>
                     <div className="control">
@@ -131,4 +140,4 @@ const CreateForm = (props: Props) => {
     )
 };
 
-export default CreateForm;
+export default EditForm;

@@ -18,6 +18,8 @@ module {
         
         // default values
         config.set("REPORT_REWARD", #nat64(100000000)); // 1 MMT
+        config.set("MODERATOR_MIN_STAKE", #nat64(100000000000)); // 1000 MMT
+        config.set("MODERATOR_REWARD", #nat64(1000000000)); // 10 MMT
 
         public func configSet(
             key: Text,
@@ -33,6 +35,18 @@ module {
             invoker: Principal
         ): ?Variant.Variant {
             config.get(key);
+        };
+
+        public func configGetAsNat32(
+            key: Text
+        ): Nat32 {
+            config.getAsNat32(key);
+        };
+        
+        public func configGetAsNat64(
+            key: Text
+        ): Nat64 {
+            config.getAsNat64(key);
         };
 
         public func rewardUser(
@@ -57,6 +71,19 @@ module {
                 D.print("Error: daoService.rewardUser(" # caller.principal # "):" # Error.message(e));
                 #err(Error.message(e));
             };
+        };
+
+        public func balanceOf(
+            caller: UserTypes.Profile
+        ): async Nat {
+            await mmt.balanceOf(Principal.fromText(caller.principal));
+        };
+
+        public func stakedBalanceOf(
+            caller: UserTypes.Profile
+        ): async Nat {
+            //FIXME: mmt contract must support staking
+            await mmt.balanceOf(Principal.fromText(caller.principal));
         };
 
         public func backup(

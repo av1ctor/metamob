@@ -1,8 +1,11 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
 import Option "mo:base/Option";
 import Variant "mo:mo-table/variant";
+import Random "../common/random";
+import Utils "../common/utils";
 import Types "./types";
 import Repository "./repository";
 import UserTypes "../users/types";
@@ -38,6 +41,8 @@ module {
         let donationRepo = donationService.getRepository();
         let updateRepo = updateService.getRepository();
 
+        let random = Random.Xoshiro256ss(Utils.genRandomSeed("moderators"));
+
         public func create(
             req: Types.ReportRequest,
             invoker: Principal
@@ -56,10 +61,28 @@ module {
                                 #err(msg);
                             };
                             case _ {
-                                repo.create(req, caller._id);
+                                repo.create(req, caller._id, _chooseModerator());
                             };
                         };
                     };
+                };
+            };
+        };
+
+        private func _chooseModerator(
+        ): Nat32 {
+            switch(userRepo.findByRole(#moderator)) {
+                case (#err(_)) {
+                    1; // admin
+                };
+                case (#ok(moderators)) {
+                    if(moderators.size() == 0) {
+                        1;
+                    }
+                    else {
+                        let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
+                        moderators[index]._id;
+                    }
                 };
             };
         };
@@ -92,43 +115,14 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
-                                        if(e.state != Types.STATE_CREATED) {
+                                        if(e.state != Types.STATE_CREATED and
+                                            e.state != Types.STATE_ASSIGNED) {
                                             return #err("Invalid state");
                                         };
                                         repo.update(e, req, caller._id);
                                     };
                                 };
                             };
-                        };
-                    };
-                };
-            };
-        };
-
-        public func assign(
-            id: Text, 
-            toUserId: Nat32,
-            invoker: Principal
-        ): Result.Result<Types.Report, Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not UserUtils.isModerator(caller)) {
-                        return #err("Forbidden");
-                    };
-
-                    switch(repo.findByPubId(id)) {
-                        case (#err(msg)) {
-                            #err(msg);
-                        };
-                        case (#ok(e)) {
-                            if(e.state == Types.STATE_CLOSED) {
-                                return #err("Invalid state");
-                            };
-
-                            repo.assign(e, toUserId, caller._id);
                         };
                     };
                 };
@@ -156,6 +150,10 @@ module {
                         case (#ok(e)) {
                             if(e.state != Types.STATE_ASSIGNED) {
                                 return #err("Invalid state");
+                            };
+
+                            if(e.assignedTo != caller._id) {
+                                return #err("Forbidden");
                             };
 
                             let res = repo.close(e, req, caller._id);
@@ -189,10 +187,20 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not UserUtils.isModerator(caller)) {
-                        return #err("Forbidden");
+                    let res = repo.findByPubId(id);
+                    switch(res) {
+                        case (#ok(e)) {
+                            if(e.createdBy != caller._id) {
+                                if(not UserUtils.isModerator(caller)) {
+                                    return #err("Forbidden");
+                                };
+                            };
+                        };
+                        case _ {
+                        };
                     };
-                    repo.findByPubId(id);
+
+                    res;
                 };
             };
         };
@@ -212,6 +220,21 @@ module {
                         return #err("Forbidden");
                     };
                     repo.find(criterias, sortBy, limit);
+                };
+            };
+        };
+
+        public func findByUser(
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Report], Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    repo.findByUser(caller._id, sortBy, limit);
                 };
             };
         };
@@ -243,10 +266,6 @@ module {
                 return false;
             };
 
-            if(UserUtils.isAdmin(caller)) {
-                return true;
-            };
-            
             return true;
         };
 

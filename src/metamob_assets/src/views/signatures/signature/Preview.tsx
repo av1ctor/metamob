@@ -7,6 +7,7 @@ import Avatar from "../../users/Avatar";
 
 interface Props {
     id: number;
+    partial?: boolean;
     onEditUser?: (user: Profile) => void;
 }
 
@@ -23,42 +24,50 @@ export const Preview = (props: Props) => {
     
     return (
         <div className="mb-2">
-            {signature.data && 
-                <div className="field">
-                    <label className="label">
-                        Signature
-                    </label>
-                    <div className="control preview-box">
-                        <div>
-                            <label className="label">
-                                Id
-                            </label>
-                            {signature.data.pubId}
-                        </div>
-                        <div>
-                            <label className="label">
-                                Message
-                            </label>
-                            {limitText(signature.data.body, 60)}
-                        </div>
-                        <div>
-                            <label className="label mb-0 pb-0">
-                                Author
-                            </label>
-                            <Avatar 
-                                id={signature.data.createdBy} 
-                                size='lg'
-                                onClick={props.onEditUser}
-                            />
-                        </div>
-                        <div>
-                            <label className="label mb-0 pb-0">
-                                Campaign
-                            </label>
-                            <CampaignLink id={signature.data.campaignId} />
+            {signature.data?
+                props.partial?
+                    <div>
+                        <b>Signature at campaign</b>:&nbsp;
+                        <CampaignLink id={signature.data.campaignId} />
+                    </div>
+                :
+                    <div className="field">
+                        <label className="label">
+                            Signature
+                        </label>
+                        <div className="control preview-box">
+                            <div>
+                                <label className="label">
+                                    Id
+                                </label>
+                                {signature.data.pubId}
+                            </div>
+                            <div>
+                                <label className="label">
+                                    Message
+                                </label>
+                                {limitText(signature.data.body, 60)}
+                            </div>
+                            <div>
+                                <label className="label mb-0 pb-0">
+                                    Author
+                                </label>
+                                <Avatar 
+                                    id={signature.data.createdBy} 
+                                    size='lg'
+                                    onClick={props.onEditUser}
+                                />
+                            </div>
+                            <div>
+                                <label className="label mb-0 pb-0">
+                                    Campaign
+                                </label>
+                                <CampaignLink id={signature.data.campaignId} />
+                            </div>
                         </div>
                     </div>
-                </div>
+                :
+                    null
             }
         </div>
     );

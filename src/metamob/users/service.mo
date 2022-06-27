@@ -1,17 +1,22 @@
-import Principal "mo:base/Principal";
-import Array "mo:base/Array";
-import Text "mo:base/Text";
-import Option "mo:base/Option";
-import Result "mo:base/Result";
-import Variant "mo:mo-table/variant";
-import Types "./types";
-import Repository "./repository";
-import Utils "./utils";
 import AccountTypes "../accounts/types";
+import Array "mo:base/Array";
+import D "mo:base/Debug";
+import DaoService "../dao/service";
 import LedgerUtils "../common/ledger";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
+import Repository "./repository";
+import Result "mo:base/Result";
+import Text "mo:base/Text";
+import Types "./types";
+import Utils "./utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
+        daoService: DaoService.Service,
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
@@ -48,8 +53,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPrincipal(Principal.toText(invoker));
-            switch(caller) {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -80,8 +84,7 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPrincipal(Principal.toText(invoker));
-            switch(caller) {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -112,6 +115,45 @@ module {
                     else {
                         #err("Forbidden");
                     };
+                };
+            };
+        };
+
+        public func signupAsModerator(
+            invoker: Principal
+        ): async Result.Result<Types.Profile, Text> {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned) {
+                        return #err("Forbidden: not active");
+                    };
+                    
+                    if(Utils.isModerator(caller)) {
+                        return #err("Your are already a moderator");
+                    };
+
+                    let mmtStaked = await _getMmtStaked(caller);
+                    let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
+                    if(mmtStaked < minStaked) {
+                        return #err("Your staked MMT's are not enough to become a moderator");
+                    };
+                    
+                    repo.update(
+                        caller, 
+                        {
+                            active = ?caller.active;
+                            avatar = caller.avatar;
+                            banned = ?caller.banned;
+                            country = caller.country;
+                            email = caller.email;
+                            name = caller.name;
+                            roles = ?_addRole(caller.roles, #moderator);
+                        }, 
+                        caller._id
+                    );
                 };
             };
         };
@@ -208,6 +250,61 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        private func _getMmtStaked(
+            caller: Types.Profile
+        ): async Nat {
+            await daoService.stakedBalanceOf(caller);
+        };
+
+        private func _addRole(
+            roles: [Types.Role],
+            role: Types.Role
+        ): [Types.Role] {
+            Array.append(roles, [role]);
+        };
+        
+        private func _removeRole(
+            roles: [Types.Role],
+            role: Types.Role
+        ): [Types.Role] {
+            Array.filter(roles, func (r: Types.Role): Bool = r == role)
+        };
+
+        public func verify(
+            this: actor {}
+        ): async () {
+            let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
+            
+            switch(repo.findByRole(#moderator)) {
+                case (#ok(moderators)) {
+                    if(moderators.size() > 0) {
+                        for(e in moderators.vals()) {
+                            let staked = await daoService.stakedBalanceOf(e);
+                            if(staked < minStaked) {
+                                D.print("Info: UserService.verify: removing moderator: " # Nat32.toText(e._id));
+                                ignore repo.update(
+                                    e,
+                                    {
+                                        active = ?e.active;
+                                        avatar = e.avatar;
+                                        banned = ?e.banned;
+                                        country = e.country;
+                                        email = e.email;
+                                        name = e.name;
+                                        roles = ?_removeRole(e.roles, #moderator)
+                                    },
+                                    1
+                                );
+                            };
+                        };
+                    };
+                };
+                case (#err(msg)) {
+                    D.print("Error: UserService.verify: " # msg);
+                };
+            };
         };
 
         public func getRepository(
