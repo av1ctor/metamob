@@ -3,7 +3,7 @@ import {Campaign, ProfileResponse, Report} from "../../../../declarations/metamo
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { ReportState, reportStateToText } from "../../libs/reports";
+import { reportResultToColor, reportResultToText, ReportState, reportStateToColor, reportStateToText } from "../../libs/reports";
 import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
@@ -41,9 +41,19 @@ export const BaseItem = (props: BaseItemProps) => {
                         className="update-body" 
                         body={report.description || '\n&nbsp;\n'}
                     />
-                    <Badge color="warning">
+                    <Badge 
+                        color={reportStateToColor(report.state)}
+                    >
                         {reportStateToText(report.state)}
                     </Badge>
+                    
+                    <Badge 
+                        color={reportResultToColor(report.result)}
+                        title={report.resolution}
+                    >
+                        {reportResultToText(report.result)}
+                    </Badge>
+
                     <div>
                         <Entity
                             report={report}

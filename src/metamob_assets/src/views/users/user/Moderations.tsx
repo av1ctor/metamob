@@ -9,6 +9,7 @@ import {BaseItem} from "../../reports/Item";
 import EditForm from "./Edit";
 import ModerateForm from "../../reports/report/Moderate";
 import { Paginator } from "../../../components/Paginator";
+import { ReportState } from "../../../libs/reports";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -111,13 +112,17 @@ const Moderations = (props: Props) => {
                             >
                                 <p>
                                     <small>
-                                        <a
-                                            title="Moderate report"
-                                            onClick={() => toggleModerate(report)}
-                                        >
-                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Moderate</span>
-                                        </a>
-                                        &nbsp;·&nbsp;
+                                        {report.state !== ReportState.CLOSED &&
+                                            <span>
+                                                <a
+                                                    title="Moderate report"
+                                                    onClick={() => toggleModerate(report)}
+                                                >
+                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Moderate</span>
+                                                </a>
+                                                &nbsp;·&nbsp;
+                                            </span>
+                                        }
                                         <TimeFromNow 
                                             date={BigInt.asIntN(64, report.createdAt)}
                                         />

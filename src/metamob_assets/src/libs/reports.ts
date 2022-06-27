@@ -60,6 +60,55 @@ export const reportStateToText = (
     }
 };
 
+export const reportStateToColor = (
+    state: ReportState
+): string => {
+    switch(state) {
+        case ReportState.CREATED:
+            return 'danger';
+        case ReportState.ASSIGNED:
+            return 'warning';
+        case ReportState.CLOSED:
+            return 'success';
+        default:
+            return 'black';
+    }
+};
+
+export const reportResultToText = (
+    result: ReportResult
+): string => {
+    switch(result) {
+        case ReportResult.VERIFYING:
+            return 'Verifying';
+        case ReportResult.IGNORED:
+            return 'Ignored';
+        case ReportResult.DUPLICATED:
+            return 'Duplicated';
+        case ReportResult.SOLVED:
+            return 'Solved';
+        default:
+            return 'Unknown';
+    }
+};
+
+export const reportResultToColor = (
+    result: ReportResult
+): string => {
+    switch(result) {
+        case ReportResult.VERIFYING:
+            return 'warning';
+        case ReportResult.IGNORED:
+            return 'danger';
+        case ReportResult.DUPLICATED:
+            return 'danger';
+        case ReportResult.SOLVED:
+            return 'success';
+        default:
+            return 'black';
+    }
+};
+
 export const entityTypeToText = (
     type: ReportType
 ): string => {
