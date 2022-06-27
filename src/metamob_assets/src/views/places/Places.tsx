@@ -112,7 +112,7 @@ const Places = (props: Props) => {
     }, [places.data?.pages, altitude]);
 
     return (
-        <div className="container">
+        <div className="container places">
             <Bar
                 filters={filters}
                 orderBy={orderBy}

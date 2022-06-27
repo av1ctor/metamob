@@ -288,6 +288,14 @@
     }
 }
 
+.places {
+    .place-icon {
+        &:hover {
+            background-color: $danger-light;
+        }
+    }
+}
+
 .page-title {
     font-size: 2rem; 
     font-variant: small-caps;
