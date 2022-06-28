@@ -138,7 +138,7 @@ module {
 
         public func signupAsModerator(
             invoker: Principal
-        ): async Result.Result<Types.Profile, Text> {
+        ): Result.Result<Types.Profile, Text> {
             switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
@@ -156,7 +156,7 @@ module {
                         return #err("Your are already a moderator");
                     };
 
-                    let mmtStaked = await _getMmtStaked(caller);
+                    let mmtStaked = daoService.stakedBalanceOf(invoker);
                     let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
                     if(mmtStaked < minStaked) {
                         return #err("Your staked MMT's are not enough to become a moderator");
@@ -274,12 +274,6 @@ module {
             repo.restore(entities);
         };
 
-        private func _getMmtStaked(
-            caller: Types.Profile
-        ): async Nat {
-            await daoService.stakedBalanceOf(caller);
-        };
-
         private func _addRole(
             roles: [Types.Role],
             role: Types.Role
@@ -303,7 +297,7 @@ module {
                 case (#ok(moderators)) {
                     if(moderators.size() > 0) {
                         for(e in moderators.vals()) {
-                            let staked = await daoService.stakedBalanceOf(e);
+                            let staked = daoService.stakedBalanceOf(Principal.fromText(e.principal));
                             if(staked < minStaked) {
                                 D.print("Info: UserService.verify: removing moderator: " # Nat32.toText(e._id));
                                 ignore repo.update(

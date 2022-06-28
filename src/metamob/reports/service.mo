@@ -176,12 +176,12 @@ module {
                                     };
                                     case (#ok(reporter)) {
                                         ignore await daoService.rewardUser(
-                                            reporter, 
+                                            Principal.fromText(reporter.principal), 
                                             daoService.config.getAsNat64("REPORTER_REWARD")
                                         );
 
                                         ignore await daoService.rewardUser(
-                                            caller, 
+                                            invoker, 
                                             daoService.config.getAsNat64("MODERATOR_REWARD")
                                         );
                                     };

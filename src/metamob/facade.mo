@@ -1,10 +1,12 @@
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Nat64 "mo:base/Nat64";
 import Array "mo:base/Array";
 import Time "mo:base/Time";
 import Int "mo:base/Int";
 import Variant "mo:mo-table/variant";
 import UserTypes "./users/types";
+import DaoTypes "./dao/types";
 import CategoryTypes "./categories/types";
 import CampaignTypes "./campaigns/types";
 import SignatureTypes "./signatures/types";
@@ -57,17 +59,41 @@ shared({caller = owner}) actor class Metamob(
         signatureService, voteService, fundingService, donationService, updateService, placeService);
 
     // DAO facade
-    public shared query(msg) func daoConfigGetAsNat32(
+    public shared query(msg) func daoEntitiesGetAsNat32(
         key: Text
     ): async Nat32 {
         daoService.configGetAsNat32(key);
     };
 
-    public shared query(msg) func daoConfigGetAsNat64(
+    public shared query(msg) func daoEntitiesGetAsNat64(
         key: Text
     ): async Nat64 {
         daoService.configGetAsNat64(key);
     };
+
+    public shared(msg) func daoStake(
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.stake(Nat64.toNat(value), msg.caller, this);
+    };
+
+    public shared(msg) func daoWithdraw(
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.withdraw(Nat64.toNat(value), msg.caller, this);
+    };
+
+    public shared query(msg) func daoStakedBalance(
+    ): async Nat64 {
+        Nat64.fromNat(daoService.stakedBalanceOf(msg.caller));
+    };
+
+    /*public shared(msg) func daoReward(
+        principal: Principal,
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.rewardUser(principal, value);
+    };*/
     
     //
     // users facade
@@ -93,7 +119,7 @@ shared({caller = owner}) actor class Metamob(
 
     public shared(msg) func userSignupAsModerator(
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(await userService.signupAsModerator(msg.caller));
+        _transformUserReponse(userService.signupAsModerator(msg.caller));
     };
 
     public query func userFindById(
@@ -1111,7 +1137,10 @@ shared({caller = owner}) actor class Metamob(
     //
     // migration
     //
-    stable var daoConfig: [(Text, Variant.Variant)] = [];
+    stable var daoEntities: DaoTypes.BackupEntity = {
+        config = [];
+        staked = [];
+    };
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
@@ -1126,7 +1155,7 @@ shared({caller = owner}) actor class Metamob(
     stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
-        daoConfig := daoService.backup();
+        daoEntities := daoService.backup();
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
         campaignEntities := campaignService.backup();
@@ -1142,8 +1171,11 @@ shared({caller = owner}) actor class Metamob(
     };
 
     system func postupgrade() {
-        daoService.restore(daoConfig);
-        daoConfig := [];
+        daoService.restore(daoEntities);
+        daoEntities := {
+            config = [];
+            staked = [];
+        };
         
         userService.restore(userEntities);
         userEntities := [];

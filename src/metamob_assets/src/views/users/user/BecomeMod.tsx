@@ -3,10 +3,10 @@ import * as yup from 'yup';
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import TextField from "../../../components/TextField";
-import { useSignupAsModerator } from "../../../hooks/users";
-import { getConfigAsNat64 } from "../../../libs/dao";
+import { useSignupAsModerator, useStake } from "../../../hooks/users";
+import { getConfigAsNat64, getStakedBalance } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
-import { getMmtBalance, getStakedMmtBalance } from "../../../libs/mmt";
+import { getMmtBalance } from "../../../libs/mmt";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
@@ -27,13 +27,14 @@ const BecomeModForm = (props: Props) => {
     
     const [mmtBalance, setMmtBalance] = useState(BigInt(0));
     const [staked, setStaked] = useState(BigInt(0));
-    const [minStaked, setMinStaked] = useState(BigInt(0));
+    const [minToBeStaked, setMinStaked] = useState(BigInt(0));
 
     const [form, setForm] = useState({
         termsAccepted: false,
     });
 
     const signupMut = useSignupAsModerator();
+    const stakeMut = useStake();
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -82,6 +83,30 @@ const BecomeModForm = (props: Props) => {
         }
     }, [form, actorState.main, props.onClose]);
 
+    const handleStake = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        try {
+            props.toggleLoading(true);
+
+            const value = minToBeStaked - staked;
+
+            await stakeMut.mutateAsync({
+                main: actorState.main,
+                mmt: actorState.mmt,
+                value: value
+            });
+            updateBalances();
+            props.onSuccess('Value staked!');
+        }
+        catch(e) {
+            props.onError(e);
+        }
+        finally {
+            props.toggleLoading(false);
+        }
+    }, [staked, minToBeStaked]);
+
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
@@ -89,7 +114,7 @@ const BecomeModForm = (props: Props) => {
     
     const updateBalances = async () => {
         const mmt = await getMmtBalance(authState.identity, actorState.mmt);
-        const staked = await getStakedMmtBalance(authState.identity, actorState.mmt);
+        const staked = await getStakedBalance(actorState.main);
         const minStaked = await getConfigAsNat64('MODERATOR_MIN_STAKE');
         
         setMmtBalance(mmt);
@@ -101,7 +126,8 @@ const BecomeModForm = (props: Props) => {
         updateBalances();
     }, [authState.user?._id]);
     
-    const hasEnoughStaked = staked >= minStaked;
+    const hasEnoughStaked = staked >= minToBeStaked;
+    const hasEnoughMmt = mmtBalance >= minToBeStaked;
     
     return (
         <form onSubmit={handleSignup}>
@@ -110,21 +136,46 @@ const BecomeModForm = (props: Props) => {
                 <div className="mt-2" />
                 <p><span className="has-text-danger"><b>Warning</b></span>: If your moderation is challenged and get reverted, all your staked MMT's will be burned as punishment!</p>
             </div>
-            <TextField
-                label="MMT balance"
-                value={icpToDecimal(mmtBalance)}
-                disabled
-            />
-            <TextField
-                label="Staked MMT"
-                value={icpToDecimal(staked)}
-                disabled
-            />
-            <TextField
-                label="Min staked MMT needed"
-                value={icpToDecimal(minStaked)}
-                disabled
-            />
+            <div className="columns">
+                <div className="column is-6">
+                    <TextField
+                        label="MMT balance"
+                        value={icpToDecimal(mmtBalance)}
+                        disabled
+                    />
+                </div>
+                <div className="column is-6">
+                    <TextField
+                        label="Staked MMT"
+                        value={icpToDecimal(staked)}
+                        disabled
+                    />
+                </div>
+            </div>
+            <div className="columns">
+                <div className="column is-6">
+                    <TextField
+                        label="Min staked MMT needed"
+                        value={icpToDecimal(minToBeStaked)}
+                        disabled
+                    />
+                </div>
+                <div className="column is-6">
+                    <div className="field">
+                        <div className="control">
+                            <label className="label">Action</label>
+                            <Button
+                                color="danger"
+                                disabled={hasEnoughStaked || !hasEnoughMmt || stakeMut.isLoading}
+                                onClick={handleStake}
+                            >
+                                Stake
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <br/>
             <CheckboxField
                 label="I have read and agree to the terms and conditions"

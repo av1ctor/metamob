@@ -29,4 +29,13 @@ module {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.transferFrom(from, to, value);
     };
+
+    public func approve(
+        canisterId: Text,
+        spender: Principal, 
+        value: Nat
+    ): async Dip20.TxReceipt {
+        let dip20 = actor (canisterId) : Dip20.Interface;
+        await dip20.approve(spender, value);
+    };
 };

@@ -13,17 +13,3 @@ export const getMmtBalance = async (
     
     return await mmt.balanceOf(principal);
 };
-
-export const getStakedMmtBalance = async (
-    identity?: Identity,
-    mmt?: MMT
-): Promise<bigint> => {
-    if(!identity || !mmt) {
-        return BigInt(0);
-    }
-
-    const principal = identity.getPrincipal();
-    
-    //FIXME: should be the staked balance
-    return await mmt.balanceOf(principal);
-};

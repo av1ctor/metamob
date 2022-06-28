@@ -1,11 +1,13 @@
 import Nat64 "mo:base/Nat64";
 import Buffer "mo:base/Buffer";
+import HashMap "mo:base/HashMap";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Error "mo:base/Error";
 import D "mo:base/Debug";
 import Variant "mo:mo-table/variant";
 import DIP20 "../interfaces/dip20";
+import Types "./types";
 import UserTypes "../users/types";
 import Config "./config";
 
@@ -15,6 +17,7 @@ module {
     ) {
         public let config = Config.Config();
         public let mmt = actor (mmtCanisterId) : DIP20.Interface;
+        let staked = HashMap.HashMap<Principal, Nat>(100, Principal.equal, Principal.hash);
         
         // default values
         config.set("REPORTER_REWARD", #nat64(100000000)); // 1 MMT
@@ -50,16 +53,16 @@ module {
         };
 
         public func rewardUser(
-            caller: UserTypes.Profile,
+            principal: Principal,
             value: Nat64
         ): async Result.Result<(), Text> {
             try {
                 switch(await mmt.transfer(
-                    Principal.fromText(caller.principal),
+                    principal,
                     Nat64.toNat(value))
                 ) {
                     case (#Err(e)) {
-                        D.print("Error: daoService.rewardUser(" # caller.principal # "):" # debug_show(e));
+                        D.print("Error: daoService.rewardUser(" # debug_show(principal) # "):" # debug_show(e));
                         #err(debug_show(e));
                     };
                     case _ {
@@ -68,7 +71,7 @@ module {
                 };
             }
             catch(e) {
-                D.print("Error: daoService.rewardUser(" # caller.principal # "):" # Error.message(e));
+                D.print("Error: daoService.rewardUser(" # debug_show(principal) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -79,27 +82,120 @@ module {
             await mmt.balanceOf(Principal.fromText(caller.principal));
         };
 
+        public func stake(
+            value: Nat,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            try {
+                let fee = await mmt.getTokenFee();
+                if(value <= fee) {
+                    return #err("Value too low");
+                };
+            
+                let allowed = await mmt.allowance(invoker, Principal.fromActor(this));
+                
+                if(allowed < value + fee) {
+                    return #err("Insufficient allowance");
+                };
+
+                let cur = switch(staked.get(invoker)) {
+                    case null 0;
+                    case (?value) value;
+                };
+                
+                switch(await mmt.transferFrom(invoker, Principal.fromActor(this), value)) {
+                    case (#Err(msg)) {
+                        return #err(debug_show(msg));
+                    };
+                    case _ {
+                    };
+                };
+
+                staked.put(invoker, cur + value);
+
+                #ok();
+            }
+            catch(e) {
+                D.print("Error: daoService.stake(" # debug_show(invoker) # "):" # Error.message(e));
+                #err(Error.message(e));
+            };
+        };
+
+        public func withdraw(
+            value: Nat,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            try {
+                let fee = await mmt.getTokenFee();
+                if(value == 0) {
+                    return #err("Value too low");
+                };
+
+                let cur = switch(staked.get(invoker)) {
+                    case null 0;
+                    case (?value) value;
+                };
+
+                if(cur < value) {
+                    return #err("Insufficient staked balance");
+                };
+
+                staked.put(invoker, cur - value);
+
+                switch(await mmt.transfer(invoker, value)) {
+                    case (#Err(msg)) {
+                        staked.put(invoker, cur);
+                        return #err(debug_show(msg));
+                    };
+                    case _ {
+                    };
+                };
+
+                #ok();
+            }
+            catch(e) {
+                D.print("Error: daoService.withdraw(" # debug_show(invoker) # "):" # Error.message(e));
+                #err(Error.message(e));
+            };
+        };
+
         public func stakedBalanceOf(
-            caller: UserTypes.Profile
-        ): async Nat {
-            //FIXME: mmt contract must support staking
-            await mmt.balanceOf(Principal.fromText(caller.principal));
+            invoker: Principal
+        ): Nat {
+            switch(staked.get(invoker)) {
+                case null 0;
+                case (?value) value;
+            };
         };
 
         public func backup(
-        ): [(Text, Variant.Variant)] {
-            let buff = Buffer.Buffer<(Text, Variant.Variant)>(config.vars.size());
+        ): Types.BackupEntity {
+            let conf = Buffer.Buffer<(Text, Variant.Variant)>(config.vars.size());
             for(entry in config.vars.entries()) {
-                buff.add(entry);
+                conf.add(entry);
             };
-            buff.toArray();
+
+            let stkd = Buffer.Buffer<(Principal, Nat)>(staked.size());
+            for(entry in staked.entries()) {
+                stkd.add(entry);
+            };
+            
+            {
+                config = conf.toArray();
+                staked = stkd.toArray();
+            };
         };
 
         public func restore(
-            arr: [(Text, Variant.Variant)]
+            e: Types.BackupEntity
         ) {
-            for(entry in arr.vals()) {
+            for(entry in e.config.vals()) {
                 config.vars.put(entry.0, entry.1);
+            };
+            for(entry in e.staked.vals()) {
+                staked.put(entry.0, entry.1);
             };
         };
     };
