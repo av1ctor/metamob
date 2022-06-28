@@ -59,13 +59,13 @@ shared({caller = owner}) actor class Metamob(
         signatureService, voteService, fundingService, donationService, updateService, placeService);
 
     // DAO facade
-    public shared query(msg) func daoEntitiesGetAsNat32(
+    public shared query(msg) func daoConfigGetAsNat32(
         key: Text
     ): async Nat32 {
         daoService.configGetAsNat32(key);
     };
 
-    public shared query(msg) func daoEntitiesGetAsNat64(
+    public shared query(msg) func daoConfigGetAsNat64(
         key: Text
     ): async Nat64 {
         daoService.configGetAsNat64(key);
