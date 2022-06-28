@@ -11,7 +11,6 @@ import { Paginator } from "../../../components/Paginator";
 import { isModerator } from "../../../libs/users";
 import Moderations from "./Moderations";
 import Button from "../../../components/Button";
-import Container from "../../../components/Container";
 import BecomeModForm from "./BecomeMod";
 import { ReportState } from "../../../libs/reports";
 
@@ -40,7 +39,7 @@ const Reports = (props: Props) => {
     });
     const [report, setReport] = useState<Report>();
 
-    const reports = useFindUserReports(orderBy, limit, actorState.main);
+    const reports = useFindUserReports(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((report: Report | undefined = undefined) => {
         setModals(modals => ({
@@ -142,14 +141,11 @@ const Reports = (props: Props) => {
 
             <div className="mt-6">
                 {isModerator(authState.user)?
-                    <>
-                        <div className="divider dark"></div>
-                        <Moderations
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
-                        />
-                    </>
+                    <Moderations
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
                 :
                     <div className="container border p-4">
                         <div className="has-text-centered">

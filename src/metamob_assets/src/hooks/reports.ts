@@ -50,10 +50,11 @@ export const useFindReportsAssigned = (
 export const useFindUserReports = (
     orderBy: Order[], 
     limit: Limit, 
+    userId?: number,
     main?: Metamob
 ): UseQueryResult<Report[], Error> => {
     return useQuery<Report[], Error>(
-        ['reports', ...orderBy, limit.offset, limit.size], 
+        ['reports', userId, ...orderBy, limit.offset, limit.size], 
         () => findByUser(orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}
     );
