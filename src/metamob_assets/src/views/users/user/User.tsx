@@ -42,6 +42,7 @@ const User = (props: Props) => {
         roles: [],
         active: [],
         banned: [],
+        bannedAsMod: [],
         country: '',
     });
 
@@ -132,6 +133,7 @@ const User = (props: Props) => {
                     roles: [],
                     active: [],
                     banned: [],
+                    bannedAsMod: [],
                     country: full.country,
                 });
                 break;

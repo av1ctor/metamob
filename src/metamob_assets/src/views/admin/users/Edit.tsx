@@ -67,6 +67,7 @@ const EditForm = (props: Props) => {
         roles: [props.user.roles],
         active: [props.user.active],
         banned: [props.user.banned],
+        bannedAsMod: [props.user.bannedAsMod],
         country: props.user.country
     });
 
@@ -158,6 +159,7 @@ const EditForm = (props: Props) => {
             roles: [props.user.roles],
             active: [props.user.active],
             banned: [props.user.banned],
+            bannedAsMod: [props.user.bannedAsMod],
             country: props.user.country
         });
     }, [props.user]);
@@ -215,6 +217,12 @@ const EditForm = (props: Props) => {
                 label="Banned"
                 id="banned"
                 value={form.banned[0] || false}
+                onChange={changeFormOpt}
+            />
+            <CheckboxField
+                label="Banned as moderator"
+                id="bannedAsMod"
+                value={form.bannedAsMod[0] || false}
                 onChange={changeFormOpt}
             />
             <div className="field is-grouped mt-2">

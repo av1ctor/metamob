@@ -10,6 +10,7 @@ import UserUtils "../users/utils";
 import UserService "../users/service";
 import PlacesEmailsRepo "../places-emails/repository";
 import PlacesUsersRepo "../places-users/repository";
+import ReportRepository "../reports/repository";
 import DIP20 "../common/dip20";
 import DIP721 "../common/dip721";
 
@@ -20,6 +21,13 @@ module {
         let repo = Repository.Repository();
         var placesEmailsRepo: ?PlacesEmailsRepo.Repository = null;
         var placesUsersRepo: ?PlacesUsersRepo.Repository = null;
+        var reportRepo: ?ReportRepository.Repository = null;
+
+        public func setReportRepo(
+            repo: ReportRepository.Repository
+        ) {
+            reportRepo := ?repo;
+        };
 
         public func create(
             req: Types.PlaceRequest,
@@ -305,14 +313,22 @@ module {
             caller: UserTypes.Profile,
             e: Types.Place
         ): Bool {
-            if(caller._id == e.createdBy) {
-                return true;
-            }
-            else if(UserUtils.isAdmin(caller)) {
-                return true;
+            if(caller._id != e.createdBy) {
+                // not an admin?
+                if(not UserUtils.isAdmin(caller)) {
+                    // not a moderator?
+                    if(not UserUtils.isModerator(caller)) {
+                        return false;
+                    };
+                    
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(caller, e._id, reportRepo)) {
+                        return false;
+                    };
+                };
             };
                 
-            return false;
+            return true;
         };
     };
 };

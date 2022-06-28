@@ -17,7 +17,7 @@ module {
         public let mmt = actor (mmtCanisterId) : DIP20.Interface;
         
         // default values
-        config.set("REPORT_REWARD", #nat64(100000000)); // 1 MMT
+        config.set("REPORTER_REWARD", #nat64(100000000)); // 1 MMT
         config.set("MODERATOR_MIN_STAKE", #nat64(100000000000)); // 1000 MMT
         config.set("MODERATOR_REWARD", #nat64(1000000000)); // 10 MMT
 

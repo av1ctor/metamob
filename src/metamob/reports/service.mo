@@ -18,6 +18,7 @@ import VoteService "../votes/service";
 import FundingService "../fundings/service";
 import DonationService "../donations/service";
 import UpdateService "../updates/service";
+import PlaceService "../places/service";
 import DaoService "../dao/service";
 import D "mo:base/Debug";
 
@@ -30,7 +31,8 @@ module {
         voteService: VoteService.Service, 
         fundingService: FundingService.Service, 
         donationService: DonationService.Service, 
-        updateService: UpdateService.Service
+        updateService: UpdateService.Service,
+        placeService: PlaceService.Service
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
@@ -40,8 +42,18 @@ module {
         let fundingRepo = fundingService.getRepository();
         let donationRepo = donationService.getRepository();
         let updateRepo = updateService.getRepository();
+        let placeRepo = placeService.getRepository();
 
         let random = Random.Xoshiro256ss(Utils.genRandomSeed("moderators"));
+
+        campaignService.setReportRepo(repo);
+        userService.setReportRepo(repo);
+        signatureService.setReportRepo(repo);
+        voteService.setReportRepo(repo);
+        fundingService.setReportRepo(repo);
+        donationService.setReportRepo(repo);
+        updateService.setReportRepo(repo);
+        placeService.setReportRepo(repo);
 
         public func create(
             req: Types.ReportRequest,
@@ -77,7 +89,7 @@ module {
                 };
                 case (#ok(moderators)) {
                     if(moderators.size() == 0) {
-                        1;
+                        1 // admin;
                     }
                     else {
                         let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
@@ -165,7 +177,12 @@ module {
                                     case (#ok(reporter)) {
                                         ignore await daoService.rewardUser(
                                             reporter, 
-                                            daoService.config.getAsNat64("REPORT_REWARD")
+                                            daoService.config.getAsNat64("REPORTER_REWARD")
+                                        );
+
+                                        ignore await daoService.rewardUser(
+                                            caller, 
+                                            daoService.config.getAsNat64("MODERATOR_REWARD")
                                         );
                                     };
                                 };
@@ -345,8 +362,19 @@ module {
                         #ok();
                     };
                 };
-            }            else {
+            }            
+            else if(req.entityType == Types.TYPE_UPDATES) {
                 switch(updateRepo.findById(req.entityId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case _ {
+                        #ok();
+                    };
+                };
+            }
+            else {
+                switch(placeRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
                     };

@@ -10,9 +10,10 @@ import Principal "mo:base/Principal";
 import Repository "./repository";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
+import Variant "mo:mo-table/variant";
 import Types "./types";
 import Utils "./utils";
-import Variant "mo:mo-table/variant";
+import ReportRepository "../reports/repository";
 
 module {
     public class Service(
@@ -20,7 +21,14 @@ module {
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
+        var reportRepo: ?ReportRepository.Repository = null;
         var hasAdmin: Bool = false;
+
+        public func setReportRepo(
+            repo: ReportRepository.Repository
+        ) {
+            reportRepo := ?repo;
+        };
 
         public func create(
             req: Types.ProfileRequest,
@@ -33,7 +41,8 @@ module {
             
             if(Option.isSome(req.roles) or 
                 Option.isSome(req.active) or
-                Option.isSome(req.banned)) {
+                Option.isSome(req.banned) or 
+                Option.isSome(req.bannedAsMod)) {
                 if(invoker != owner) {
                     if(hasAdmin) {
                         return #err("Forbidden: invalid fields");
@@ -64,7 +73,8 @@ module {
                     
                     if(Option.isSome(req.roles) or 
                         Option.isSome(req.active) or
-                        Option.isSome(req.banned)) {
+                        Option.isSome(req.banned) or
+                        Option.isSome(req.bannedAsMod)) {
                         if(not Utils.isAdmin(caller)) {
                             return #err("Forbidden: invalid fields");
                         };
@@ -76,7 +86,7 @@ module {
         };
 
         public func update(
-            id: Text, 
+            pubId: Text, 
             req: Types.ProfileRequest,
             invoker: Principal
         ): Result.Result<Types.Profile, Text> {
@@ -93,22 +103,29 @@ module {
                         return #err("Forbidden: not active");
                     };
                     
-                    if(Text.equal(caller.pubId, id)) {
+                    if(Text.equal(caller.pubId, pubId)) {
                         if(Option.isSome(req.roles) or 
                             Option.isSome(req.active) or
-                            Option.isSome(req.banned)) {
+                            Option.isSome(req.banned) or
+                            Option.isSome(req.bannedAsMod)) {
                             return #err("Forbidden: invalid fields");
                         };
 
                         repo.update(caller, req, caller._id);
                     }
-                    else if(Utils.isAdmin(caller)) {
-                        switch(repo.findByPubId(id)) {
+                    else if(Utils.isModerator(caller)) {
+                        switch(repo.findByPubId(pubId)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
-                            case (#ok(prof)) {
-                                repo.update(prof, req, caller._id);
+                            case (#ok(entity)) {
+                                if(not Utils.isAdmin(caller)) {
+                                    // if it's a moderator, there must exist an open report
+                                    if(not Utils.isModeratingOnEntity(caller, entity._id, reportRepo)) {
+                                        return #err("Forbidden");
+                                    };
+                                };
+                                repo.update(entity, req, caller._id);
                             };
                         };
                     }
@@ -128,7 +145,11 @@ module {
                 };
                 case (#ok(caller)) {
                     if(not caller.active or caller.banned) {
-                        return #err("Forbidden: not active");
+                        return #err("Forbidden: not active or banned");
+                    };
+
+                    if(caller.bannedAsMod) {
+                        return #err("Forbidden: banned as moderator");
                     };
                     
                     if(Utils.isModerator(caller)) {
@@ -147,6 +168,7 @@ module {
                             active = ?caller.active;
                             avatar = caller.avatar;
                             banned = ?caller.banned;
+                            bannedAsMod = ?caller.bannedAsMod;
                             country = caller.country;
                             email = caller.email;
                             name = caller.name;
@@ -290,6 +312,7 @@ module {
                                         active = ?e.active;
                                         avatar = e.avatar;
                                         banned = ?e.banned;
+                                        bannedAsMod = ?e.bannedAsMod;
                                         country = e.country;
                                         email = e.email;
                                         name = e.name;

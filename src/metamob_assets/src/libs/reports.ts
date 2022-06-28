@@ -6,6 +6,7 @@ export enum ReportState {
     CREATED = 0,
     ASSIGNED = 1,
     CLOSED = 2,
+    CHALLENGED = 3,
 }
 
 export enum ReportResult {
@@ -23,6 +24,7 @@ export enum ReportType {
     VOTES = 4,
     DONATIONS = 5,
     FUNDINGS = 6,
+    PLACES = 7,
 }
 
 export enum ReportKind {
@@ -55,6 +57,8 @@ export const reportStateToText = (
             return 'Assigned';
         case ReportState.CLOSED:
             return 'Closed';
+        case ReportState.CHALLENGED:
+            return 'Challenged';
         default:
             return 'Unknown';
     }
@@ -65,11 +69,13 @@ export const reportStateToColor = (
 ): string => {
     switch(state) {
         case ReportState.CREATED:
-            return 'danger';
+            return 'dark';
         case ReportState.ASSIGNED:
             return 'warning';
         case ReportState.CLOSED:
             return 'success';
+        case ReportState.CHALLENGED:
+            return 'danger';
         default:
             return 'black';
     }
@@ -127,6 +133,8 @@ export const entityTypeToText = (
             return 'Update';
         case ReportType.USERS:
             return 'User';
+        case ReportType.PLACES:
+            return 'Place';
         default:
             return 'Unknown';
     }
@@ -150,6 +158,8 @@ export const entityTypeToColor = (
             return 'warning';
         case ReportType.USERS:
             return 'dark';
+        case ReportType.PLACES:
+            return 'primary';
         default:
             return 'black';
     }

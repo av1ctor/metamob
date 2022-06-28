@@ -54,7 +54,7 @@ shared({caller = owner}) actor class Metamob(
     let fundingService = FundingService.Service(userService, campaignService, placeService, ledgerUtils);
     let updateService = UpdateService.Service(userService, campaignService, placeService);
     let reportService = ReportService.Service(daoService, userService, campaignService, 
-        signatureService, voteService, fundingService, donationService, updateService);
+        signatureService, voteService, fundingService, donationService, updateService, placeService);
 
     // DAO facade
     public shared query(msg) func daoConfigGetAsNat32(

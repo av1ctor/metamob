@@ -17,6 +17,7 @@ import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
+import ReportRepository "../reports/repository";
 import LedgerUtils "../common/ledger";
 import Account "../accounts/account";
 
@@ -30,8 +31,15 @@ module {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
         let placeRepo = placeService.getRepository();
+        var reportRepo: ?ReportRepository.Repository = null;
 
         campaignService.setFundingRepo(repo);
+
+        public func setReportRepo(
+            repo: ReportRepository.Repository
+        ) {
+            reportRepo := ?repo;
+        };
 
         public func create(
             req: Types.FundingRequest,
@@ -415,8 +423,17 @@ module {
             entity: Types.Funding
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(not UserUtils.isModerator(caller)) {
-                    return false;
+                // not an admin?
+                if(not UserUtils.isAdmin(caller)) {
+                    // not a moderator?
+                    if(not UserUtils.isModerator(caller)) {
+                        return false;
+                    };
+                    
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(caller, entity._id, reportRepo)) {
+                        return false;
+                    };
                 };
             };
 

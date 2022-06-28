@@ -207,6 +207,7 @@ module {
                     case (?val) val;
                 };
                 banned = false;
+                bannedAsMod = false;
                 country = req.country;
                 createdAt = Time.now();
                 createdBy = _id;
@@ -239,6 +240,10 @@ module {
                     case null e.banned;
                     case (?val) val;
                 };
+                bannedAsMod = switch(req.bannedAsMod) {
+                    case null e.bannedAsMod;
+                    case (?val) val;
+                };
                 country = req.country;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -263,6 +268,7 @@ module {
         res.put("roles", #array(Array.map(e.roles, _roleToVariant)));
         res.put("active", #bool(e.active));
         res.put("banned", #bool(e.banned));
+        res.put("bannedAsMod", #bool(e.bannedAsMod));
         res.put("country", #text(e.country));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -285,6 +291,7 @@ module {
             roles = Array.map(Variant.getOptArray(map.get("roles")), _variantToRole);
             active = Variant.getOptBool(map.get("active"));
             banned = Variant.getOptBool(map.get("banned"));
+            bannedAsMod = Variant.getOptBool(map.get("bannedAsMod"));
             country = Variant.getOptText(map.get("country"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

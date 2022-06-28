@@ -3,6 +3,7 @@ module {
     public let STATE_CREATED: Nat32 = 0;
     public let STATE_ASSIGNED: Nat32 = 1;
     public let STATE_CLOSED: Nat32 = 2;
+    public let STATE_CHALLENGED: Nat32 = 3;
     
     public type ReportResult = Nat32;
     public let RESULT_VERIFYING: Nat32 = 0;
@@ -18,6 +19,7 @@ module {
     public let TYPE_VOTES: Nat32 = 4;
     public let TYPE_DONATIONS: Nat32 = 5;
     public let TYPE_FUNDINGS: Nat32 = 6;
+    public let TYPE_PLACES: Nat32 = 7;
 
     public type ReportKind = Nat32;
     public let KIND_FAKE: Nat32 = 0;

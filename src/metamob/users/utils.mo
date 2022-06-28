@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Types "./types";
+import ReportRepository "../reports/repository";
 
 module {
     public func isAdmin(
@@ -29,5 +30,28 @@ module {
                     }
             )
         );
+    };
+
+    public func isModeratingOnEntity(
+        user: Types.Profile,
+        entityId: Nat32,
+        reportRepo: ?ReportRepository.Repository
+    ): Bool {
+        switch(reportRepo) {
+            case (?reportRepo) {
+                switch(reportRepo.findAssignedByEntityAndModerator(entityId, user._id, null, null)) {
+                    case (#err(_)) {
+                        false;
+                    };
+                    case (#ok(reports)) {
+                        reports.size() > 0;
+                    };
+                };
+
+            };
+            case null {
+                false;
+            };
+        };
     };
 };

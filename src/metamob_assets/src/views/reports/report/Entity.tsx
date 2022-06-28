@@ -6,6 +6,7 @@ import { Preview as VotePreview } from "../../votes/vote/Preview";
 import { Preview as DonationPreview } from "../../donations/donation/Preview";
 import { Preview as FundingPreview } from "../../fundings/funding/Preview";
 import { Preview as UpdatePreview } from "../../updates/update/Preview";
+import { Preview as PlacePreview } from "../../places/place/Preview";
 import { ReportType } from "../../../libs/reports";
 
 interface Props {
@@ -58,6 +59,13 @@ const Entity = (props: Props) => {
             }
             {report.entityType === ReportType.FUNDINGS &&
                 <FundingPreview 
+                    id={report.entityId}
+                    partial={props.partial}
+                    onEditUser={props.onEditUser}
+                />
+            }
+            {report.entityType === ReportType.PLACES &&
+                <PlacePreview 
                     id={report.entityId}
                     partial={props.partial}
                     onEditUser={props.onEditUser}

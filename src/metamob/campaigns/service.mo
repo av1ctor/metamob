@@ -15,6 +15,7 @@ import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
+import ReportRepository "../reports/repository";
 import FundingRepository "../fundings/repository";
 import LedgerUtils "../common/ledger";
 import Account "../accounts/account";
@@ -30,6 +31,13 @@ module {
         let userRepo = userService.getRepository();
         let placeRepo = placeService.getRepository();
         var fundingRepo: ?FundingRepository.Repository = null;
+        var reportRepo: ?ReportRepository.Repository = null;
+
+        public func setReportRepo(
+            repo: ReportRepository.Repository
+        ) {
+            reportRepo := ?repo;
+        };
         
         public func create(
             req: Types.CampaignRequest,
@@ -45,9 +53,7 @@ module {
                     }
                     else {
                         if(Option.isSome(req.state)) {
-                            if(not UserUtils.isModerator(caller)) {
-                                return #err("Invalid field: state");
-                            };
+                            return #err("Invalid field: state");
                         };
                         
                         switch(await placeService.checkAccess(caller, req.placeId)) {
@@ -702,19 +708,11 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            campaign: Types.Campaign,
+            entity: Types.Campaign,
             states: [Types.CampaignState]
         ): Bool {
-            // not the same author?
-            if(caller._id != campaign.createdBy) {
-                // not an admin?
-                if(not UserUtils.isModerator(caller)) {
-                    return false;
-                };
-            };
-
             // deleted?
-            if(Option.isSome(campaign.deletedAt)) {
+            if(Option.isSome(entity.deletedAt)) {
                 return false;
             };
 
@@ -722,10 +720,26 @@ module {
             if(Option.isNull(
                 Array.find(
                     states, 
-                    func(s: Types.CampaignState): Bool = s == campaign.state
+                    func(s: Types.CampaignState): Bool = s == entity.state
                 )
             )) {
                 return false;
+            };
+
+            // not the same author?
+            if(caller._id != entity.createdBy) {
+                // not an admin?
+                if(not UserUtils.isAdmin(caller)) {
+                    // not a moderator?
+                    if(not UserUtils.isModerator(caller)) {
+                        return false;
+                    };
+
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(caller, entity._id, reportRepo)) {
+                        return false;
+                    };
+                };
             };
 
             return true;

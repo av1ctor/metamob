@@ -35,6 +35,7 @@ const Create = (props: Props) => {
         roles: [],
         active: [],
         banned: [],
+        bannedAsMod: [],
         country: ''
     });
     

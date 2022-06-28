@@ -207,6 +207,38 @@ module {
             );
         };
 
+        public func findAssignedByEntityAndModerator(
+            entityId: Nat32,
+            assignedToId: Nat32,
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Report], Text> {
+
+            let criterias = ?[
+                {       
+                    key = "entityId";
+                    op = #eq;
+                    value = #nat32(entityId);
+                },
+                {       
+                    key = "assignedTo";
+                    op = #eq;
+                    value = #nat32(assignedToId);
+                },
+                {       
+                    key = "state";
+                    op = #eq;
+                    value = #nat32(Types.STATE_ASSIGNED);
+                },
+            ];
+            
+            return reports.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Report>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             return reports.backup();

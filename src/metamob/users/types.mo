@@ -16,6 +16,7 @@ module {
         active: Bool;
         country: Text;
         banned: Bool;
+        bannedAsMod: Bool;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -29,6 +30,7 @@ module {
         roles: ?[Role];
         active: ?Bool;
         banned: ?Bool;
+        bannedAsMod: ?Bool;
         country: Text;
     };
 
