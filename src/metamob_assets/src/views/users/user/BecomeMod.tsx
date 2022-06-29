@@ -68,9 +68,15 @@ const BecomeModForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            await signupMut.mutateAsync({
+            const profile = await signupMut.mutateAsync({
                 main: actorState.main,
             });
+            
+            authDispatch({
+                type: AuthActionType.SET_USER,
+                payload: profile
+            });
+            
             props.onSuccess('Congratulations! You are now a moderator!');
             props.onClose();
         }
