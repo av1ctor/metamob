@@ -160,11 +160,6 @@ module {
                     key = "roles";
                     op = #eq;
                     value = #nat32(_roleToNumber(role));
-                },
-                {
-                    key = "active";
-                    op = #eq;
-                    value = #bool(true);
                 }
             ];
             

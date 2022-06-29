@@ -285,7 +285,7 @@ module {
             roles: [Types.Role],
             role: Types.Role
         ): [Types.Role] {
-            Array.filter(roles, func (r: Types.Role): Bool = r == role)
+            Array.filter(roles, func (r: Types.Role): Bool = r != role)
         };
 
         public func verify(

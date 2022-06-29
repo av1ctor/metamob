@@ -56,12 +56,12 @@ const Reports = (props: Props) => {
                         toggleLoading={props.toggleLoading}
                     />
                 :
-                    <div className="container border p-4">
+                    <div className="container border mt-6 p-4">
                         <div className="has-text-centered">
                             <b>Become a moderator and receive MMT's on every moderation done!</b>
                         </div>
-                        <div className="field is-grouped mt-2">
-                            <div className="control">
+                        <div className="field is-grouped mt-2 has-text-centered">
+                            <div className="control m-auto">
                                 <Button 
                                     onClick={toggleBecomeMod}
                                 >
