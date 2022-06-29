@@ -10,6 +10,7 @@ import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
 interface Props {
+    onUpdateBalances: () => Promise<void>;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -24,9 +25,6 @@ const WithdrawForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
     
-    const [mmtBalance, setMmtBalance] = useState(BigInt(0));
-    const [staked, setStaked] = useState(BigInt(0));
-
     const [form, setForm] = useState({
         value: "0.0",
     });
@@ -70,7 +68,7 @@ const WithdrawForm = (props: Props) => {
             if(value < 10000) {
                 throw Error("Value too low");
             }
-            else if(value >= mmtBalance) {
+            else if(value >= authState.balances.mmt) {
                 throw Error("Value too high");
             }
 
@@ -79,7 +77,7 @@ const WithdrawForm = (props: Props) => {
                 value: value
             });
 
-            updateBalances();
+            props.onUpdateBalances();
             props.onSuccess('Value withdrew!');
         }
         catch(e) {
@@ -88,35 +86,25 @@ const WithdrawForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, actorState.mmt]);
+    }, [form, actorState, authState]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
-    
-    const updateBalances = async () => {
-        const mmt = await getMmtBalance(authState.identity, actorState.mmt);
-        const staked = await getStakedBalance(actorState.main);
-        
-        setMmtBalance(mmt);
-        setStaked(staked);
-    };
 
-    useEffect(() => {
-        updateBalances();
-    }, [authState.user?._id]);
+    const {balances} = authState;
     
     return (
         <form onSubmit={handleWithdraw}>
             <TextField
                 label="MMT balance"
-                value={icpToDecimal(mmtBalance)}
+                value={icpToDecimal(balances.mmt)}
                 disabled
             />
             <TextField
                 label="Staked MMT"
-                value={icpToDecimal(staked)}
+                value={icpToDecimal(balances.staked)}
                 disabled
             />
             <TextField
@@ -140,7 +128,7 @@ const WithdrawForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Cancel
+                        Close
                     </Button>
                 </div>
             </div>

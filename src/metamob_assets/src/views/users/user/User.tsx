@@ -38,9 +38,6 @@ const User = (props: Props) => {
 
     const [principal, setPrincipal] = useState('');
     const [accountId, setAccountId] = useState('');
-    const [mmtBalance, setMmtBalance] = useState(BigInt(0));
-    const [icpBalance, setIcpBalance] = useState(BigInt(0));
-    const [mmtStaked, setMmtStaked] = useState(BigInt(0));
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
@@ -119,13 +116,22 @@ const User = (props: Props) => {
     }, [form]);
 
     const updateBalances = useCallback(async () => {
-        const mmt = await getMmtBalance(authState.identity, actorState.mmt);
-        const icp = await getIcpBalance(authState.identity, actorState.ledger);
-        const staked = await getStakedBalance(actorState.main);
-        
-        setMmtBalance(mmt);
-        setIcpBalance(icp);
-        setMmtStaked(staked);
+        Promise.all([
+            getIcpBalance(authState.identity, actorState.ledger),
+            getMmtBalance(authState.identity, actorState.mmt),
+            getStakedBalance(actorState.main)
+        ]).then(res => {
+            authDispatch({
+                type: AuthActionType.SET_BALANCES,
+                payload: {
+                    icp: res[0],
+                    mmt: res[1],
+                    staked: res[2],
+                }
+            });
+        }).catch(e => {
+            props.onError(e);
+        });
     }, [authState.identity, actorState]);
 
     const toggleStake = useCallback(() => {
@@ -164,11 +170,6 @@ const User = (props: Props) => {
         toggleTransfer();
     }, []);
 
-    const handleOnSuccess = useCallback((msg: string) => {
-        props.onSuccess(msg);
-        updateBalances();
-    }, [updateBalances]);
-
     useEffect(() => {
         switch(profile.status) {
             case 'success':
@@ -205,6 +206,8 @@ const User = (props: Props) => {
     if(!authState.user) {
         return null;
     }
+
+    const {balances} = authState;
 
     return (
         <>
@@ -278,7 +281,7 @@ const User = (props: Props) => {
                     <div className="column is-12">
                         <TextField 
                             label="ICP balance"
-                            value={icpToDecimal(icpBalance)}
+                            value={icpToDecimal(balances.icp)}
                             disabled
                         />
                     </div>
@@ -287,7 +290,7 @@ const User = (props: Props) => {
                     <div className="column is-6">
                         <TextField 
                             label="MMT balance"
-                            value={icpToDecimal(mmtBalance)}
+                            value={icpToDecimal(balances.mmt)}
                             disabled
                         />
                     </div>
@@ -297,7 +300,7 @@ const User = (props: Props) => {
                             <div className="control is-grouped">
                                 <Button
                                     color="success"
-                                    disabled={mmtBalance < 10000}
+                                    disabled={balances.mmt < 10000}
                                     onClick={handleStake}
                                 >
                                     Stake
@@ -305,7 +308,7 @@ const User = (props: Props) => {
                                 <Button
                                     className="ml-2"
                                     color="danger"
-                                    disabled={mmtBalance < 10000}
+                                    disabled={balances.mmt < 10000}
                                     onClick={handleTransfer}
                                 >
                                     Transfer
@@ -318,7 +321,7 @@ const User = (props: Props) => {
                     <div className="column is-6">
                         <TextField 
                             label="MMT staked"
-                            value={icpToDecimal(mmtStaked)}
+                            value={icpToDecimal(balances.staked)}
                             disabled
                         />
                     </div>
@@ -328,7 +331,7 @@ const User = (props: Props) => {
                             <div className="control is-grouped">
                                 <Button
                                     color="warning"
-                                    disabled={mmtStaked < 10000}
+                                    disabled={balances.staked < 10000}
                                     onClick={handleWithdraw}
                                 >
                                     Withdraw
@@ -357,8 +360,9 @@ const User = (props: Props) => {
                 onClose={toggleStake}
             >
                 <StakeForm
+                    onUpdateBalances={updateBalances}
                     onClose={toggleStake}
-                    onSuccess={handleOnSuccess}
+                    onSuccess={props.onSuccess}
                     onError={props.onError}
                     toggleLoading={props.toggleLoading}
                 />
@@ -370,8 +374,9 @@ const User = (props: Props) => {
                 onClose={toggleWithdraw}
             >
                 <WithdrawForm
+                    onUpdateBalances={updateBalances}
                     onClose={toggleWithdraw}
-                    onSuccess={handleOnSuccess}
+                    onSuccess={props.onSuccess}
                     onError={props.onError}
                     toggleLoading={props.toggleLoading}
                 />
@@ -383,8 +388,9 @@ const User = (props: Props) => {
                 onClose={toggleTransfer}
             >
                 <TransferForm
+                    onUpdateBalances={updateBalances}
                     onClose={toggleTransfer}
-                    onSuccess={handleOnSuccess}
+                    onSuccess={props.onSuccess}
                     onError={props.onError}
                     toggleLoading={props.toggleLoading}
                 />

@@ -3,16 +3,24 @@ import { AuthClient } from "@dfinity/auth-client";
 import { ProfileResponse } from "../../../declarations/metamob/metamob.did";
 import { Identity } from "@dfinity/agent";
 
+export interface UserBalances {
+    icp: bigint;
+    mmt: bigint;
+    staked: bigint;
+}
+
 export interface AuthState {
     client?: AuthClient;
     identity?: Identity;
     user?: ProfileResponse;
+    balances: UserBalances;
 };
 
 export enum AuthActionType {
     SET_CLIENT,
     SET_IDENTITY,
     SET_USER,
+    SET_BALANCES,
     LOGOUT
 };
 
@@ -25,6 +33,11 @@ const initialState: AuthState = {
     client: undefined,
     identity: undefined,
     user: undefined,
+    balances: {
+        icp: 0n,
+        mmt: 0n,
+        staked: 0n
+    },
 };
 
 export const AuthContext = createContext<[AuthState, (action: Action) => void]>(
@@ -48,6 +61,12 @@ const reducer = (state: AuthState, action: Action) => {
             return {
                 ...state,
                 user: action.payload
+            };
+
+        case AuthActionType.SET_BALANCES:
+            return {
+                ...state,
+                balances: action.payload
             };
 
         case AuthActionType.LOGOUT:

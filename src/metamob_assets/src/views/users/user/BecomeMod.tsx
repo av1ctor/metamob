@@ -7,8 +7,9 @@ import { useSignupAsModerator, useStake } from "../../../hooks/users";
 import { getConfigAsNat64, getStakedBalance } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
 import { getMmtBalance } from "../../../libs/mmt";
+import { getIcpBalance } from "../../../libs/users";
 import { ActorContext } from "../../../stores/actor";
-import { AuthContext } from "../../../stores/auth";
+import { AuthActionType, AuthContext } from "../../../stores/auth";
 
 interface Props {
     onClose: () => void;
@@ -23,10 +24,8 @@ const formSchema = yup.object().shape({
 
 const BecomeModForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [authState, authDispatch] = useContext(AuthContext);
     
-    const [mmtBalance, setMmtBalance] = useState(BigInt(0));
-    const [staked, setStaked] = useState(BigInt(0));
     const [minToBeStaked, setMinStaked] = useState(BigInt(0));
 
     const [form, setForm] = useState({
@@ -89,7 +88,7 @@ const BecomeModForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const value = minToBeStaked - staked;
+            const value = minToBeStaked - authState.balances.staked;
 
             await stakeMut.mutateAsync({
                 main: actorState.main,
@@ -105,7 +104,7 @@ const BecomeModForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [staked, minToBeStaked]);
+    }, [authState, minToBeStaked]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -113,21 +112,34 @@ const BecomeModForm = (props: Props) => {
     }, [props.onClose]);
     
     const updateBalances = async () => {
-        const mmt = await getMmtBalance(authState.identity, actorState.mmt);
-        const staked = await getStakedBalance(actorState.main);
-        const minStaked = await getConfigAsNat64('MODERATOR_MIN_STAKE');
-        
-        setMmtBalance(mmt);
-        setStaked(staked);
-        setMinStaked(minStaked);
+        Promise.all([
+            getIcpBalance(authState.identity, actorState.ledger),
+            getMmtBalance(authState.identity, actorState.mmt),
+            getStakedBalance(actorState.main),
+            getConfigAsNat64('MODERATOR_MIN_STAKE')
+        ]).then(res => {
+            authDispatch({
+                type: AuthActionType.SET_BALANCES,
+                payload: {
+                    icp: res[0],
+                    mmt: res[1],
+                    staked: res[2],
+                }
+            });
+            setMinStaked(res[3]);
+        }).catch(e => {
+            props.onError(e);
+        });
     };
 
     useEffect(() => {
         updateBalances();
     }, [authState.user?._id]);
+
+    const {balances} = authState;
     
-    const hasEnoughStaked = staked >= minToBeStaked;
-    const hasEnoughMmt = mmtBalance >= minToBeStaked;
+    const hasEnoughStaked = balances.staked >= minToBeStaked;
+    const hasEnoughMmt = balances.mmt >= minToBeStaked;
     
     return (
         <form onSubmit={handleSignup}>
@@ -140,14 +152,14 @@ const BecomeModForm = (props: Props) => {
                 <div className="column is-6">
                     <TextField
                         label="MMT balance"
-                        value={icpToDecimal(mmtBalance)}
+                        value={icpToDecimal(balances.mmt)}
                         disabled
                     />
                 </div>
                 <div className="column is-6">
                     <TextField
                         label="Staked MMT"
-                        value={icpToDecimal(staked)}
+                        value={icpToDecimal(balances.staked)}
                         disabled
                     />
                 </div>

@@ -1,15 +1,14 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { useTransfer } from "../../../hooks/users";
-import { getStakedBalance } from "../../../libs/dao";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { getMmtBalance } from "../../../libs/mmt";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
 interface Props {
+    onUpdateBalances: () => Promise<void>;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -25,8 +24,6 @@ const TransferForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
     
-    const [mmtBalance, setMmtBalance] = useState(BigInt(0));
-
     const [form, setForm] = useState({
         to: '',
         value: '0.0',
@@ -71,7 +68,7 @@ const TransferForm = (props: Props) => {
             if(value < 10000) {
                 throw Error("Value too low");
             }
-            else if(value >= mmtBalance) {
+            else if(value >= authState.balances.mmt) {
                 throw Error("Value too high");
             }
 
@@ -81,7 +78,7 @@ const TransferForm = (props: Props) => {
                 value: value
             });
 
-            updateBalances();
+            props.onUpdateBalances();
             props.onSuccess('Value transferred!');
         }
         catch(e) {
@@ -90,27 +87,20 @@ const TransferForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, actorState.mmt]);
+    }, [form, actorState, authState]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
-    
-    const updateBalances = async () => {
-        const mmt = await getMmtBalance(authState.identity, actorState.mmt);
-        setMmtBalance(mmt);
-    };
 
-    useEffect(() => {
-        updateBalances();
-    }, [authState.user?._id]);
+    const {balances} = authState;
     
     return (
         <form onSubmit={handleTransfer}>
             <TextField
                 label="MMT balance"
-                value={icpToDecimal(mmtBalance)}
+                value={icpToDecimal(balances.mmt)}
                 disabled
             />
             <TextField
@@ -140,7 +130,7 @@ const TransferForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Cancel
+                        Close
                     </Button>
                 </div>
             </div>
