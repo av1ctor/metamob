@@ -65,10 +65,11 @@ export const useFindVoteByCampaignAndUser = (
 export const useFindUserVotes = (
     orderBy: Order[], 
     limit: Limit,
+    userId?: number,
     main?: Metamob
 ): UseQueryResult<VoteResponse[], Error> => {
    return useQuery<VoteResponse[], Error>(
-        ['votes', ...orderBy, limit.offset, limit.size], 
+        ['votes', userId, ...orderBy, limit.offset, limit.size], 
         () => findByUser(orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}
     );

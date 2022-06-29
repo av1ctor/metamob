@@ -36,7 +36,7 @@ const Fundings = (props: Props) => {
     });
     const [funding, setFunding] = useState<FundingResponse>();
 
-    const fundings = useFindUserFundings(orderBy, limit, actorState.main);
+    const fundings = useFindUserFundings(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((funding: FundingResponse | undefined = undefined) => {
         setModals(modals => ({

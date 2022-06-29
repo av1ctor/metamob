@@ -36,7 +36,7 @@ const Votes = (props: Props) => {
     });
     const [vote, setVote] = useState<VoteResponse>();
 
-    const votes = useFindUserVotes(orderBy, limit, actorState.main);
+    const votes = useFindUserVotes(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((vote: VoteResponse | undefined = undefined) => {
         setModals(modals => ({

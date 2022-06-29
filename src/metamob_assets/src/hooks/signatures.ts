@@ -66,10 +66,11 @@ export const useFindSignatureByCampaignAndUser = (
 export const useFindUserSignatures = (
     orderBy: Order[], 
     limit: Limit,
+    userId?: number,
     main?: Metamob
 ): UseQueryResult<SignatureResponse[], Error> => {
    return useQuery<SignatureResponse[], Error>(
-        ['signatures', ...orderBy, limit.offset, limit.size], 
+        ['signatures', userId, ...orderBy, limit.offset, limit.size], 
         () => findByUser(orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}
     );

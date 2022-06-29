@@ -65,10 +65,11 @@ export const useFindFundingByCampaignAndUser = (
 export const useFindUserFundings = (
     orderBy: Order[], 
     limit: Limit,
+    userId?: number,
     main?: Metamob
 ): UseQueryResult<FundingResponse[], Error> => {
    return useQuery<FundingResponse[], Error>(
-        ['fundings', ...orderBy, limit.offset, limit.size], 
+        ['fundings', userId, ...orderBy, limit.offset, limit.size], 
         () => findByUser(orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}
     );

@@ -36,7 +36,7 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<SignatureResponse>();
 
-    const signatures = useFindUserSignatures(orderBy, limit, actorState.main);
+    const signatures = useFindUserSignatures(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals(modals => ({

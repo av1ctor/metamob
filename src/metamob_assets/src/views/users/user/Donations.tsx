@@ -36,7 +36,7 @@ const Donations = (props: Props) => {
     });
     const [donation, setDonation] = useState<DonationResponse>();
 
-    const donations = useFindUserDonations(orderBy, limit, actorState.main);
+    const donations = useFindUserDonations(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((donation: DonationResponse | undefined = undefined) => {
         setModals(modals => ({
