@@ -21,18 +21,20 @@ export const BaseItem = (props: BaseItemProps) => {
 
     return (
         <article className="media">
-            <div className="media-left">
-                <div className="flex-node w-12">
-                    {props.user &&
+            {props.user && 
+                <div className="media-left">
+                    <div className="flex-node w-12">
                         <Avatar id={props.user._id} size='lg' noName={true} />
-                    }
+                    </div>
                 </div>
-            </div>
+            }
             <div className="media-content">
                 <div className="content">
-                    <div>
-                        <strong>{props.user?.name}</strong>
-                    </div>
+                    {props.user && 
+                        <div>
+                            <strong>{props.user?.name}</strong>
+                        </div>
+                    }
                     <div>
                         Value:&nbsp;
                         <span 

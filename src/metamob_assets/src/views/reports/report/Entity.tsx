@@ -1,5 +1,5 @@
 import React from "react";
-import { Profile, Report } from "../../../../../declarations/metamob/metamob.did";
+import { Profile, ReportResponse } from "../../../../../declarations/metamob/metamob.did";
 import { Preview as CampaignPreview } from "../../campaigns/campaign/Preview";
 import { Preview as SignaturePreview } from "../../signatures/signature/Preview";
 import { Preview as VotePreview } from "../../votes/vote/Preview";
@@ -10,7 +10,7 @@ import { Preview as PlacePreview } from "../../places/place/Preview";
 import { ReportType } from "../../../libs/reports";
 
 interface Props {
-    report: Report;
+    report: ReportResponse;
     partial?: boolean;
     onEditUser?: (user: Profile) => void;
     onSuccess: (message: string) => void;

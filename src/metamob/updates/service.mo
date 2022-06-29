@@ -221,7 +221,6 @@ module {
         };
 
         public func findByUser(
-            userId: /* Text */ Nat32,
             sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
@@ -235,13 +234,7 @@ module {
                         return #err("Forbidden");
                     };
 
-                    if(caller._id != userId) {
-                        if(not UserUtils.isAdmin(caller)) {
-                            return #err("Forbidden");
-                        };
-                    };
-
-                    repo.findByUser(userId, sortBy, limit);
+                    repo.findByUser(caller._id, sortBy, limit);
                 };
             };
         };

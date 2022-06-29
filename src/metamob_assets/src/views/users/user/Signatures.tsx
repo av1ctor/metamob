@@ -36,7 +36,7 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<SignatureResponse>();
 
-    const signatures = useFindUserSignatures(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const signatures = useFindUserSignatures(orderBy, limit, actorState.main);
     
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -78,7 +78,7 @@ const Signatures = (props: Props) => {
     if(!authState.user) {
         return <div>Forbidden</div>;
     }
-    
+
     return (
         <>
             <div className="page-title has-text-info-dark">
@@ -94,8 +94,7 @@ const Signatures = (props: Props) => {
                             key={signature._id}
                             className="column is-6"
                         >
-                            <BaseItem                                     
-                                user={authState.user}
+                            <BaseItem
                                 signature={signature} 
                             >
                                 <p>

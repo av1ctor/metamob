@@ -1,4 +1,4 @@
-import {Metamob, Report, Variant} from "../../../declarations/metamob/metamob.did";
+import {Metamob, ReportResponse, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
@@ -170,7 +170,7 @@ export const findAll = async (
     orderBy?: Order[], 
     limit?: Limit,
     main?: Metamob
-): Promise<Report[]> => {
+): Promise<ReportResponse[]> => {
     if(!main) {
         return [];
     }
@@ -203,7 +203,7 @@ export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
     main?: Metamob
-): Promise<Report[]> => {
+): Promise<ReportResponse[]> => {
     if(!main) {
         return [];
     }
@@ -219,12 +219,32 @@ export const findByUser = async (
     return res.ok; 
 }
 
+export const findByReportedUser = async (
+    orderBy?: Order[], 
+    limit?: Limit,
+    main?: Metamob
+): Promise<ReportResponse[]> => {
+    if(!main) {
+        return [];
+    }
+
+    const res = await main.reportFindByReportedUser(
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}
+
 export const findById = async (
     pubId?: string,
     main?: Metamob
-): Promise<Report> => {
+): Promise<ReportResponse> => {
     if(!main || !pubId) {
-        return {} as Report;
+        return {} as ReportResponse;
     }
 
     const res = await main.reportFindById(pubId);

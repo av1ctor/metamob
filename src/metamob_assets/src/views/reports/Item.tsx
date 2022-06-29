@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import {Campaign, ProfileResponse, Report} from "../../../../declarations/metamob/metamob.did";
+import {Campaign, ProfileResponse, ReportResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
@@ -12,7 +12,7 @@ import Entity from "./report/Entity";
 import Badge from "../../components/Badge";
 
 interface BaseItemProps {
-    report: Report;
+    report: ReportResponse;
     partial?: boolean;
     user?: ProfileResponse;
     children?: any;
@@ -25,18 +25,20 @@ export const BaseItem = (props: BaseItemProps) => {
 
     return (
         <article className="media">
-            <div className="media-left">
-                <div className="flex-node w-12">
-                    {props.user &&
+            {props.user && 
+                <div className="media-left">
+                    <div className="flex-node w-12">
                         <Avatar id={props.user._id} size='lg' noName={true} />
-                    }
+                    </div>
                 </div>
-            </div>
+            }
             <div className="media-content">
                 <div className="content">
-                    <div>
-                        <strong>{props.user?.name}</strong>
-                    </div>
+                    {props.user && 
+                        <div>
+                            <strong>{props.user?.name}</strong>
+                        </div>
+                    }
                     <Markdown
                         className="update-body" 
                         body={report.description || '\n&nbsp;\n'}
@@ -71,10 +73,10 @@ export const BaseItem = (props: BaseItemProps) => {
 
 interface ItemProps {
     campaign: Campaign;
-    report: Report;
-    onEdit: (report: Report) => void;
-    onDelete: (report: Report) => void;
-    onReport: (report: Report) => void;
+    report: ReportResponse;
+    onEdit: (report: ReportResponse) => void;
+    onDelete: (report: ReportResponse) => void;
+    onReport: (report: ReportResponse) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -89,7 +91,7 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
+        auth.user && (author.length > 0 && auth.user._id === author[0])) ||
         (auth.user && isModerator(auth.user));
 
     return (

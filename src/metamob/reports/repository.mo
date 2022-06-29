@@ -29,10 +29,11 @@ module {
 
         public func create(
             req: Types.ReportRequest,
+            entityCreatedBy: Nat32,
             callerId: Nat32,
             assignedToId: Nat32
         ): Result.Result<Types.Report, Text> {
-            let e = _createEntity(req, callerId, assignedToId);
+            let e = _createEntity(req, entityCreatedBy, callerId, assignedToId);
             switch(reports.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -207,6 +208,27 @@ module {
             );
         };
 
+        public func findByReportedUser(
+            userId: Nat32,
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Report], Text> {
+
+            let criterias = ?[
+                {       
+                    key = "entityCreatedBy";
+                    op = #eq;
+                    value = #nat32(userId);
+                }
+            ];
+            
+            return reports.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Report>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
+        };
+
         public func findAssignedByEntityAndModerator(
             entityId: Nat32,
             assignedToId: Nat32,
@@ -252,6 +274,7 @@ module {
 
         func _createEntity(
             req: Types.ReportRequest,
+            entityCreatedBy: Nat32,
             callerId: Nat32,
             assignedToId: Nat32
         ): Types.Report {
@@ -265,6 +288,7 @@ module {
                 resolution = "";
                 entityType = req.entityType;
                 entityId = req.entityId;
+                entityCreatedBy = entityCreatedBy;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -289,6 +313,7 @@ module {
                 resolution = e.resolution;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityCreatedBy = e.entityCreatedBy;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -316,6 +341,7 @@ module {
                 resolution = req.resolution;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityCreatedBy = e.entityCreatedBy;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -341,6 +367,7 @@ module {
         res.put("resolution", #text(if ignoreCase Utils.toLower(e.resolution) else e.resolution));
         res.put("entityType", #nat32(e.entityType));
         res.put("entityId", #nat32(e.entityId));
+        res.put("entityCreatedBy", #nat32(e.entityCreatedBy));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -364,6 +391,7 @@ module {
             resolution = Variant.getOptText(map.get("resolution"));
             entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
+            entityCreatedBy = Variant.getOptNat32(map.get("entityCreatedBy"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

@@ -37,6 +37,7 @@ module {
         result: ReportResult;
         entityType: ReportType;
         entityId: Nat32;
+        entityCreatedBy: Nat32;
         kind: ReportKind;
         description: Text;
         resolution: Text;
@@ -58,5 +59,24 @@ module {
     public type ReportCloseRequest = {
         result: ReportResult;
         resolution: Text;
+    };
+
+    public type ReportResponse = {
+        _id: Nat32;
+        pubId: Text;
+        state: ReportState;
+        result: ReportResult;
+        entityType: ReportType;
+        entityId: Nat32;
+        entityCreatedBy: Nat32;
+        kind: ReportKind;
+        description: Text;
+        resolution: Text;
+        createdAt: Int;
+        createdBy: ?Nat32;
+        updatedAt: ?Int;
+        updatedBy: ?Nat32;
+        assignedAt: Int;
+        assignedTo: Nat32;
     };
 };

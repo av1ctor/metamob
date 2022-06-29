@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Report, ReportRequest } from "../../../../../declarations/metamob/metamob.did";
+import { ReportResponse, ReportRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import SelectField from "../../../components/SelectField";
@@ -10,7 +10,7 @@ import { kinds, ReportKind, ReportType } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
-    report: Report;
+    report: ReportResponse;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -69,7 +69,7 @@ const EditForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Report updated!');
+            props.onSuccess('ReportResponse updated!');
             props.onClose();
         }
         catch(e) {

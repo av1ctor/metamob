@@ -7,9 +7,16 @@ import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx } from '../libs/users';
 
 export const useFindUserById = (
-    _id?: number, 
+    id?: number | [] | [number], 
     main?: Metamob
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
+    const _id = Array.isArray(id)?
+        id.length > 0?
+            id[0]
+        :
+            undefined
+    :
+        id;
     return useQuery<ProfileResponse|Profile, Error>(
         ['users', main? 'full': 'redacted', _id],
         () => main? findByIdEx(main, _id): findById(_id)

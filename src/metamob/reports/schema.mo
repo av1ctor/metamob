@@ -41,6 +41,10 @@ module {
                 options = [];
             },
             {
+                name = "entityCreatedBy";
+                options = [#sortable];
+            },
+            {
                 name = "createdAt";
                 options = [#sortable];
             },

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Report, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
+import { Profile, ReportResponse, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
@@ -12,7 +12,7 @@ import Avatar from "../../users/Avatar";
 import Entity from "./Entity";
 
 interface Props {
-    report: Report;
+    report: ReportResponse;
     onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
@@ -79,7 +79,7 @@ const ModerateForm = (props: Props) => {
                     result: Number(form.result),
                 }
             });
-            props.onSuccess('Report updated!');
+            props.onSuccess('ReportResponse updated!');
             props.onClose();
         }
         catch(e) {
@@ -125,7 +125,7 @@ const ModerateForm = (props: Props) => {
                 </label>
                 <div className="control">
                     <Avatar 
-                        id={report.createdBy} 
+                        id={report.createdBy.length > 0? report.createdBy[0]: undefined} 
                         size='lg'
                         onClick={props.onEditUser}
                     />

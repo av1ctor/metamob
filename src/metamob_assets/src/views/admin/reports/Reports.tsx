@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
-import { Profile, Report } from "../../../../../declarations/metamob/metamob.did";
+import { Profile, ReportResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
@@ -33,7 +33,7 @@ const Reports = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [user, setUser] = useState<Profile>();
-    const [report, setReport] = useState<Report>();
+    const [report, setReport] = useState<ReportResponse>();
     const [limit, setLimit] = useState({
         offset: 0,
         size: 10
@@ -73,7 +73,7 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const handleReport = useCallback((item: Report) => {
+    const handleReport = useCallback((item: ReportResponse) => {
         setReport(item);
         switch(item.state) {
             case ReportState.ASSIGNED:

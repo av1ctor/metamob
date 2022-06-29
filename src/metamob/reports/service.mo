@@ -72,8 +72,8 @@ module {
                             case (#err(msg)) {
                                 #err(msg);
                             };
-                            case _ {
-                                repo.create(req, caller._id, _chooseModerator());
+                            case (#ok(entityCreatedBy)) {
+                                repo.create(req, entityCreatedBy, caller._id, _chooseModerator());
                             };
                         };
                     };
@@ -256,6 +256,21 @@ module {
             };
         };
 
+        public func findByReportedUser(
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Report], Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    repo.findByReportedUser(caller._id, sortBy, limit);
+                };
+            };
+        };
+
         public func backup(
         ): [[(Text, Variant.Variant)]] {
             repo.backup();
@@ -302,14 +317,14 @@ module {
 
         func _checkEntity(
             req: Types.ReportRequest
-        ): Result.Result<(), Text> {
+        ): Result.Result<Nat32, Text> {
             if(req.entityType == Types.TYPE_CAMPAIGNS) {
                 switch(campaignRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }
@@ -318,8 +333,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e._id);
                     };
                 };
             }
@@ -328,8 +343,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }
@@ -338,8 +353,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }
@@ -348,8 +363,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }
@@ -358,8 +373,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }            
@@ -368,8 +383,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             }
@@ -378,8 +393,8 @@ module {
                     case (#err(msg)) {
                         #err(msg);
                     };
-                    case _ {
-                        #ok();
+                    case (#ok(e)) {
+                        #ok(e.createdBy);
                     };
                 };
             };

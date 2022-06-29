@@ -36,7 +36,7 @@ const Donations = (props: Props) => {
     });
     const [donation, setDonation] = useState<DonationResponse>();
 
-    const donations = useFindUserDonations(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const donations = useFindUserDonations(orderBy, limit, actorState.main);
     
     const toggleEdit = useCallback((donation: DonationResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -95,7 +95,6 @@ const Donations = (props: Props) => {
                             className="column is-6"
                         >
                             <BaseItem 
-                                user={authState.user}
                                 donation={donation} 
                             >
                                 <p>
