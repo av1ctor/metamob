@@ -27,7 +27,7 @@ const MyReports = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 6
+        size: 4
     });
     const [modals, setModals] = useState({
         edit: false,

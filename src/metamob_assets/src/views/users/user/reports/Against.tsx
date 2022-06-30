@@ -27,7 +27,7 @@ const AgainstReports = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 6
+        size: 4
     });
     const [modals, setModals] = useState({
         challenge: false,
