@@ -6,7 +6,7 @@ import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCloseReport } from "../../../hooks/reports";
-import { ReportResult } from "../../../libs/reports";
+import { kinds, ReportResult } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 import Entity from "./Entity";
@@ -110,6 +110,13 @@ const ModerateForm = (props: Props) => {
                 label="Id"
                 name="id"
                 value={report.pubId}
+                disabled
+            />
+            <SelectField
+                label="Kind"
+                name="kind"
+                value={report.kind}
+                options={kinds}
                 disabled
             />
             <TextAreaField
