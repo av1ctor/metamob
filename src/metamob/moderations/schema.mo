@@ -1,7 +1,7 @@
 module {
     public let schema = 
     {
-        name = "reports";
+        name = "moderations";
         version = 1.0;
         columns = [
             {
@@ -17,20 +17,20 @@ module {
                 options = [#sortable];
             },
             {
-                name = "result";
-                options = [#sortable];
-            },
-            {
-                name = "kind";
+                name = "reason";
                 options = [];
             },
             {
-                name = "description";
+                name = "action";
+                options = [];
+            },
+            {
+                name = "body";
                 options = [#min(10), #max(4096)];
             },
             {
-                name = "resolution";
-                options = [#max(4096)];
+                name = "reportId";
+                options = [#sortable];
             },
             {
                 name = "entityType";
@@ -38,14 +38,10 @@ module {
             },
             {
                 name = "entityId";
-                options = [];
-            },
-            {
-                name = "entityCreatedBy";
                 options = [#sortable];
             },
             {
-                name = "moderationId";
+                name = "challengeId";
                 options = [#nullable];
             },
             {
@@ -63,14 +59,6 @@ module {
             {
                 name = "updatedBy";
                 options = [#nullable];
-            },
-            {
-                name = "assignedAt";
-                options = [#sortable];
-            },
-            {
-                name = "assignedTo";
-                options = [#sortable];
             }
         ];
     };

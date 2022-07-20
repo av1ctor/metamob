@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
-import {useParams} from "react-router-dom";
+import {useParams, useSearchParams} from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
@@ -28,6 +28,7 @@ import Fundings from "../../fundings/Fundings";
 import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
 import { ScrollToTop } from "../../../components/ScrollToTop";
+import ModerationBadge from "../../moderations/moderation/Badge";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -37,6 +38,7 @@ interface Props {
 
 const Campaign = (props: Props) => {
     const {id} = useParams();
+    const [params] = useSearchParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
     const [modals, setModals] = useState({
@@ -79,16 +81,19 @@ const Campaign = (props: Props) => {
         data.data:
         undefined;
 
-    const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaign?.createdBy) ||
-        (auth.user && isModerator(auth.user));
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && auth.user._id === campaign?.createdBy;
+
+    const reportId = params.get('reportId');
+
+    const canModerate = reportId && isModerator(auth.user);
 
     return (
         <>
             <ScrollToTop />
             <div className="container mb-2">
                 <div className="is-size-2 overflow-hidden">
-                    {campaign? campaign.title: <Skeleton />}
+                    {campaign? <span>{campaign.title}</span>: <Skeleton />}
                 </div>
                 <div className="overflow-hidden is-flex">
                     <Category id={campaign?.categoryId} />
@@ -113,10 +118,15 @@ const Campaign = (props: Props) => {
                             {campaign? <img src={campaign.cover} />: <Skeleton height={450} />}
                         </div>
                         {campaign? 
-                            <Markdown 
-                                className="campaign-body" 
-                                body={campaign.body}
-                            />:
+                            <>
+                                <div className="has-text-right">
+                                    <ModerationBadge reason={campaign.moderated} />
+                                </div>
+                                <Markdown 
+                                    className="campaign-body" 
+                                    body={campaign.body}
+                                />
+                            </>:
                             <>
                                 <Skeleton count={3} />
                                 <br/>
@@ -185,7 +195,7 @@ const Campaign = (props: Props) => {
                         </div>
                         <p>
                             <small>
-                                {canEdit &&
+                                {canEdit?
                                     <>
                                         <a
                                             title="Edit campaign"
@@ -202,6 +212,17 @@ const Campaign = (props: Props) => {
                                         </a>
                                         &nbsp;·&nbsp;
                                     </>
+                                :
+                                    canModerate &&
+                                        <>
+                                            <a
+                                                title="Moderate campaign"
+                                                onClick={toggleEdit}
+                                            >
+                                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Moderate</span>
+                                            </a>
+                                            &nbsp;·&nbsp;
+                                        </>
                                 }
                                 {auth.user && 
                                     <>
@@ -299,13 +320,14 @@ const Campaign = (props: Props) => {
                     </Tabs>
 
                     <Modal
-                        header={<span>Edit campaign</span>}
+                        header={<span>{canEdit? 'Edit': 'Moderate'} campaign</span>}
                         isOpen={modals.edit}
                         onClose={toggleEdit}
                     >
                         <EditForm 
                             campaign={campaign} 
                             categories={categories.categories} 
+                            reportId={reportId}
                             onClose={toggleEdit}
                             onSuccess={props.onSuccess}
                             onError={props.onError}

@@ -2,33 +2,32 @@ import AccountTypes "../accounts/types";
 import Array "mo:base/Array";
 import D "mo:base/Debug";
 import DaoService "../dao/service";
+import EntityTypes "../common/entities";
 import LedgerUtils "../common/ledger";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
 import Repository "./repository";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
-import Variant "mo:mo-table/variant";
 import Types "./types";
 import Utils "./utils";
-import ReportRepository "../reports/repository";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
+        repo: Repository.Repository,
         daoService: DaoService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository,
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
-        let repo = Repository.Repository();
-        var reportRepo: ?ReportRepository.Repository = null;
         var hasAdmin: Bool = false;
-
-        public func setReportRepo(
-            repo: ReportRepository.Repository
-        ) {
-            reportRepo := ?repo;
-        };
 
         public func create(
             req: Types.ProfileRequest,
@@ -41,8 +40,7 @@ module {
             
             if(Option.isSome(req.roles) or 
                 Option.isSome(req.active) or
-                Option.isSome(req.banned) or 
-                Option.isSome(req.bannedAsMod)) {
+                Option.isSome(req.banned)) {
                 if(invoker != owner) {
                     if(hasAdmin) {
                         return #err("Forbidden: invalid fields");
@@ -67,14 +65,13 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
                     
                     if(Option.isSome(req.roles) or 
                         Option.isSome(req.active) or
-                        Option.isSome(req.banned) or
-                        Option.isSome(req.bannedAsMod)) {
+                        Option.isSome(req.banned)) {
                         if(not Utils.isAdmin(caller)) {
                             return #err("Forbidden: invalid fields");
                         };
@@ -99,38 +96,70 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
                     
-                    if(Text.equal(caller.pubId, pubId)) {
-                        if(Option.isSome(req.roles) or 
-                            Option.isSome(req.active) or
-                            Option.isSome(req.banned) or
-                            Option.isSome(req.bannedAsMod)) {
-                            return #err("Forbidden: invalid fields");
-                        };
+                    if(not Text.equal(caller.pubId, pubId)) {
+                        return #err("Forbidden");
+                    };
 
-                        repo.update(caller, req, caller._id);
-                    }
-                    else if(Utils.isModerator(caller)) {
-                        switch(repo.findByPubId(pubId)) {
-                            case (#err(msg)) {
-                                #err(msg);
-                            };
-                            case (#ok(entity)) {
-                                if(not Utils.isAdmin(caller)) {
-                                    // if it's a moderator, there must exist an open report
-                                    if(not Utils.isModeratingOnEntity(caller, entity._id, reportRepo)) {
-                                        return #err("Forbidden");
+                    if(Option.isSome(req.roles) or 
+                        Option.isSome(req.active) or
+                        Option.isSome(req.banned)) {
+                        return #err("Forbidden: invalid fields");
+                    };
+
+                    repo.update(caller, req, caller._id);
+                };
+            };
+        };
+
+        public func moderate(
+            pubId: Text, 
+            req: Types.ProfileRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
+                        return #err("Forbidden: not active");
+                    };
+                    
+                    if(not Utils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    switch(repo.findByPubId(pubId)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(entity)) {
+                            // if it's a moderator, there must exist an open report
+                            switch(canModerate(caller, entity, mod)) {
+                                case null {
+                                    return #err("Forbidden");
+                                };
+                                case (?report) {
+                                    switch(moderationService.create(mod, report, caller)) {
+                                        case (#err(msg)) {
+                                            #err(msg);
+                                        };
+                                        case (#ok(moderation)) {
+                                            repo.moderate(entity, req, mod.reason, caller._id);
+                                        };
                                     };
                                 };
-                                repo.update(entity, req, caller._id);
                             };
                         };
-                    }
-                    else {
-                        #err("Forbidden");
                     };
                 };
             };
@@ -144,11 +173,11 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active or banned");
                     };
 
-                    if(caller.bannedAsMod) {
+                    if(caller.banned == Types.BANNED_AS_MODERATOR) {
                         return #err("Forbidden: banned as moderator");
                     };
                     
@@ -168,7 +197,6 @@ module {
                             active = ?caller.active;
                             avatar = caller.avatar;
                             banned = ?caller.banned;
-                            bannedAsMod = ?caller.bannedAsMod;
                             country = caller.country;
                             email = caller.email;
                             name = caller.name;
@@ -200,7 +228,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -243,7 +271,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -272,6 +300,27 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        func canModerate(
+            caller: Types.Profile,
+            entity: Types.Profile,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not Utils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_USERS, entity._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
         };
 
         private func _addRole(
@@ -306,7 +355,6 @@ module {
                                         active = ?e.active;
                                         avatar = e.avatar;
                                         banned = ?e.banned;
-                                        bannedAsMod = ?e.bannedAsMod;
                                         country = e.country;
                                         email = e.email;
                                         name = e.name;

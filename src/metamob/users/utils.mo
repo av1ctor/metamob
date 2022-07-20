@@ -1,7 +1,9 @@
 import Array "mo:base/Array";
+import EntityTypes "../common/entities";
 import Option "mo:base/Option";
-import Types "./types";
+import ReportTypes "../reports/types";
 import ReportRepository "../reports/repository";
+import Types "./types";
 
 module {
     public func isAdmin(
@@ -34,24 +36,14 @@ module {
 
     public func isModeratingOnEntity(
         user: Types.Profile,
+        entityType: EntityTypes.EntityType,
         entityId: Nat32,
-        reportRepo: ?ReportRepository.Repository
+        report: ReportTypes.Report
     ): Bool {
-        switch(reportRepo) {
-            case (?reportRepo) {
-                switch(reportRepo.findAssignedByEntityAndModerator(entityId, user._id, null, null)) {
-                    case (#err(_)) {
-                        false;
-                    };
-                    case (#ok(reports)) {
-                        reports.size() > 0;
-                    };
-                };
-
-            };
-            case null {
-                false;
-            };
-        };
+        report.entityId == entityId 
+            and report.entityType == entityType
+            and report.assignedTo == user._id
+            and (report.state == ReportTypes.STATE_ASSIGNED or report.state == ReportTypes.STATE_MODERATING)
+            and report.result == ReportTypes.RESULT_VERIFYING;
     };
 };

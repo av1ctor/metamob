@@ -1,33 +1,32 @@
-import Principal "mo:base/Principal";
-import Nat32 "mo:base/Nat32";
-import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Variant "mo:mo-table/variant";
-import Types "./types";
-import Repository "./repository";
-import UserTypes "../users/types";
-import UserUtils "../users/utils";
-import UserService "../users/service";
-import PlacesEmailsRepo "../places-emails/repository";
-import PlacesUsersRepo "../places-users/repository";
-import ReportRepository "../reports/repository";
 import DIP20 "../common/dip20";
 import DIP721 "../common/dip721";
+import Nat32 "mo:base/Nat32";
+import Option "mo:base/Option";
+import EntityTypes "../common/entities";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
+import PlacesEmailsRepo "../places-emails/repository";
+import PlacesUsersRepo "../places-users/repository";
+import Principal "mo:base/Principal";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
+import Repository "./repository";
+import Result "mo:base/Result";
+import Types "./types";
+import UserService "../users/service";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
-        userService: UserService.Service
+        userService: UserService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository
     ) {
         let repo = Repository.Repository();
         var placesEmailsRepo: ?PlacesEmailsRepo.Repository = null;
         var placesUsersRepo: ?PlacesUsersRepo.Repository = null;
-        var reportRepo: ?ReportRepository.Repository = null;
-
-        public func setReportRepo(
-            repo: ReportRepository.Repository
-        ) {
-            reportRepo := ?repo;
-        };
 
         public func create(
             req: Types.PlaceRequest,
@@ -77,6 +76,48 @@ module {
                                 };
 
                                 repo.update(e, req, caller._id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func moderate(
+            id: Text, 
+            req: Types.PlaceRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Place, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(e)) {
+                                switch(canModerate(caller, e, mod)) {
+                                    case null {
+                                        return #err("Forbidden");
+                                    };
+                                    case (?report) {
+                                        switch(moderationService.create(mod, report, caller)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(e, req, mod.reason, caller._id);
+                                            };
+                                        };
+                                    };
+                                };
                             };
                         };
                     };
@@ -298,7 +339,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned != UserTypes.BANNED_NONE) {
                 return false;
             };
 
@@ -314,21 +355,35 @@ module {
             e: Types.Place
         ): Bool {
             if(caller._id != e.createdBy) {
-                // not an admin?
-                if(not UserUtils.isAdmin(caller)) {
-                    // not a moderator?
-                    if(not UserUtils.isModerator(caller)) {
-                        return false;
-                    };
-                    
-                    // if it's a moderator, there must exist an open report
-                    if(not UserUtils.isModeratingOnEntity(caller, e._id, reportRepo)) {
-                        return false;
-                    };
-                };
+                return false;
             };
                 
             return true;
+        };
+
+        func canModerate(
+            caller: UserTypes.Profile,
+            e: Types.Place,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            if(not UserUtils.isModerator(caller)) {
+                return null;
+            };
+                    
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_PLACES, e._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
         };
     };
 };

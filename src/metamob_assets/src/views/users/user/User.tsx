@@ -45,7 +45,6 @@ const User = (props: Props) => {
         roles: [],
         active: [],
         banned: [],
-        bannedAsMod: [],
         country: '',
     });
     const [modals, setModals] = useState({
@@ -191,7 +190,6 @@ const User = (props: Props) => {
                     roles: [],
                     active: [],
                     banned: [],
-                    bannedAsMod: [],
                     country: full.country,
                 });
                 break;

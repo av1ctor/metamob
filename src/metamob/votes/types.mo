@@ -1,3 +1,5 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public type Vote = {
         _id: Nat32;
@@ -7,6 +9,7 @@ module {
         body: Text;
         pro: Bool;
         weight: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -28,6 +31,7 @@ module {
         body: Text;
         pro: Bool;
         weight: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: ?Nat32;
         updatedAt: ?Int;

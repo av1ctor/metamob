@@ -27,7 +27,7 @@ const formSchema = yup.object().shape({
 
 const results: Option[] = [
     {name: 'Verifying', value: ReportResult.VERIFYING},
-    {name: 'Solved', value: ReportResult.SOLVED},
+    {name: 'Moderated', value: ReportResult.MODERATED},
     {name: 'Duplicated', value: ReportResult.DUPLICATED},
     {name: 'Ignored', value: ReportResult.IGNORED},
 ];

@@ -457,3 +457,13 @@ a:not(:first-child) {
         background-color: $danger !important;
 }
 
+.moderation-badge {
+    border: 2px dashed #fff;
+    .tag-children {
+        animation: moderation-badge-blinker 1s linear infinite alternate;  
+    }
+}
+
+@keyframes moderation-badge-blinker {
+    to { opacity: 0.5; }
+}

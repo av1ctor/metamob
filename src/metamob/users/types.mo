@@ -1,9 +1,17 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public type Role = {
         #admin;
         #moderator;
         #user;
     };
+
+    public type Banned = Nat32;
+    public let BANNED_NONE: Nat32 = 0;
+    public let BANNED_AS_ADMIN: Nat32 = 1;
+    public let BANNED_AS_MODERATOR: Nat32 = 2;
+    public let BANNED_AS_USER: Nat32 = 4;
     
     public type Profile = {
         _id: Nat32;
@@ -15,8 +23,8 @@ module {
         roles: [Role];
         active: Bool;
         country: Text;
-        banned: Bool;
-        bannedAsMod: Bool;
+        banned: Banned;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -29,8 +37,7 @@ module {
         avatar: ?Text;
         roles: ?[Role];
         active: ?Bool;
-        banned: ?Bool;
-        bannedAsMod: ?Bool;
+        banned: ?Banned;
         country: Text;
     };
 

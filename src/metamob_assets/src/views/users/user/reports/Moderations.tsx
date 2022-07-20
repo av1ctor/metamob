@@ -110,10 +110,10 @@ const Moderations = (props: Props) => {
                                         {report.state !== ReportState.CLOSED &&
                                             <span>
                                                 <a
-                                                    title="Moderate report"
+                                                    title="Edit report"
                                                     onClick={() => toggleModerate(report)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-user-nurse" /> Moderate</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-pen" /> Edit</span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -142,7 +142,7 @@ const Moderations = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Moderate report</span>}
+                header={<span>Edit report</span>}
                 isOpen={modals.edit}
                 onClose={toggleModerate}
             >

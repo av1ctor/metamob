@@ -8,6 +8,7 @@ import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
 import { useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
+import { Banned } from "../../../libs/users";
 import { ActorContext } from "../../../stores/actor";
 
 function rolesToString(
@@ -47,7 +48,7 @@ const formSchema = yup.object().shape({
         user: yup.mixed(),
     }))).required(),
     active: yup.array(yup.boolean()).required(),
-    banned: yup.array(yup.boolean()).required(),
+    banned: yup.array(yup.number()).required(),
     country: yup.string().required(),
 });
 
@@ -67,7 +68,6 @@ const EditForm = (props: Props) => {
         roles: [props.user.roles],
         active: [props.user.active],
         banned: [props.user.banned],
-        bannedAsMod: [props.user.bannedAsMod],
         country: props.user.country
     });
 
@@ -92,6 +92,14 @@ const EditForm = (props: Props) => {
         setForm(form => ({
             ...form, 
             [field]: [value]
+        }));
+    }, []);
+
+    const changeBanned = useCallback((e: any, kind: Banned) => {
+        const checked = e.target.checked;
+        setForm(form => ({
+            ...form,
+            banned: [((form.banned[0] || 0) & ~kind) | (checked? kind: 0)]
         }));
     }, []);
 
@@ -159,10 +167,11 @@ const EditForm = (props: Props) => {
             roles: [props.user.roles],
             active: [props.user.active],
             banned: [props.user.banned],
-            bannedAsMod: [props.user.bannedAsMod],
             country: props.user.country
         });
     }, [props.user]);
+
+    const banned = form.banned[0] || Banned.None;
     
     return (
         <form onSubmit={handleUpdate}>
@@ -214,16 +223,22 @@ const EditForm = (props: Props) => {
                 onChange={changeFormOpt}
             />
             <CheckboxField
-                label="Banned"
-                id="banned"
-                value={form.banned[0] || false}
-                onChange={changeFormOpt}
+                label="Banned as user"
+                id="banned0"
+                value={(banned & Banned.AsUser) != 0}
+                onChange={(e) => changeBanned(e, Banned.AsUser)}
             />
             <CheckboxField
                 label="Banned as moderator"
-                id="bannedAsMod"
-                value={form.bannedAsMod[0] || false}
-                onChange={changeFormOpt}
+                id="banned1"
+                value={(banned & Banned.AsModerator) != 0}
+                onChange={(e) => changeBanned(e, Banned.AsModerator)}
+            />
+            <CheckboxField
+                label="Banned as admin"
+                id="banned2"
+                value={(banned & Banned.AsAdmin) != 0}
+                onChange={(e) => changeBanned(e, Banned.AsAdmin)}
             />
             <div className="field is-grouped mt-2">
                 <div className="control">

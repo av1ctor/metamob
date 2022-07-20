@@ -1,3 +1,5 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public type PlaceKind = Nat32; 
     public let KIND_PLANET: Nat32 = 0;
@@ -49,6 +51,7 @@ module {
         active: Bool;
         lat: Float;
         lng: Float;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;

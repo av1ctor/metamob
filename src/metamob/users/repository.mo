@@ -18,6 +18,7 @@ import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository() {
@@ -45,6 +46,24 @@ module {
             callerId: Nat32,
         ): Result.Result<Types.Profile, Text> {
             let e = _updateEntity(prof, req, callerId);
+            switch(users.replace(prof._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            prof: Types.Profile, 
+            req: Types.ProfileRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Profile, Text> {
+            let e = _updateEntityWhenModerated(prof, req, reason, callerId);
+
             switch(users.replace(prof._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -201,9 +220,9 @@ module {
                     case null true;
                     case (?val) val;
                 };
-                banned = false;
-                bannedAsMod = false;
+                banned = Types.BANNED_NONE;
                 country = req.country;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = _id;
                 updatedAt = null;
@@ -235,11 +254,42 @@ module {
                     case null e.banned;
                     case (?val) val;
                 };
-                bannedAsMod = switch(req.bannedAsMod) {
-                    case null e.bannedAsMod;
+                country = req.country;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Profile, 
+            req: Types.ProfileRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Profile {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                principal = e.principal;
+                name = req.name;
+                email = req.email;
+                avatar = req.avatar;
+                roles = switch(req.roles) {
+                    case null e.roles;
+                    case (?val) val;
+                };
+                active = switch(req.active) {
+                    case null e.active;
+                    case (?val) val;
+                };
+                banned = switch(req.banned) {
+                    case null e.banned;
                     case (?val) val;
                 };
                 country = req.country;
+                moderated = reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -262,9 +312,9 @@ module {
         res.put("avatar", switch(e.avatar) {case null #nil; case (?avatar) #text(avatar);});
         res.put("roles", #array(Array.map(e.roles, _roleToVariant)));
         res.put("active", #bool(e.active));
-        res.put("banned", #bool(e.banned));
-        res.put("bannedAsMod", #bool(e.bannedAsMod));
+        res.put("banned", #nat32(e.banned));
         res.put("country", #text(e.country));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -285,9 +335,9 @@ module {
             avatar = Variant.getOptTextOpt(map.get("avatar"));
             roles = Array.map(Variant.getOptArray(map.get("roles")), _variantToRole);
             active = Variant.getOptBool(map.get("active"));
-            banned = Variant.getOptBool(map.get("banned"));
-            bannedAsMod = Variant.getOptBool(map.get("bannedAsMod"));
+            banned = Variant.getOptNat32(map.get("banned"));
             country = Variant.getOptText(map.get("country"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

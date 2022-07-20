@@ -21,6 +21,7 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository(
@@ -56,6 +57,24 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Vote, Text> {
             let e = _updateEntity(vote, req, callerId);
+            switch(votes.replace(vote._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            vote: Types.Vote, 
+            req: Types.VoteRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Vote, Text> {
+            let e = _updateEntityWhenModerated(vote, req, reason, callerId);
+
             switch(votes.replace(vote._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -349,6 +368,7 @@ module {
                 body = req.body;
                 pro = req.pro;
                 weight = 1;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -368,7 +388,30 @@ module {
                 campaignId = e.campaignId;
                 body = req.body;
                 pro = req.pro;
-                weight = 1;
+                weight = e.weight;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Vote, 
+            req: Types.VoteRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Vote {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = req.anonymous;
+                campaignId = e.campaignId;
+                body = req.body;
+                pro = req.pro;
+                weight = e.weight;
+                moderated = reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -390,6 +433,7 @@ module {
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("pro", #bool(e.pro));
         res.put("weight", #nat(e.weight));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -409,6 +453,7 @@ module {
             body = Variant.getOptText(map.get("body"));
             pro = Variant.getOptBool(map.get("pro"));
             weight = Variant.getOptNat(map.get("weight"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

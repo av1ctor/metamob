@@ -18,11 +18,9 @@ import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
-import CampaignRepository "../campaigns/repository";
 
 module {
     public class Repository(
-        campaignRepository: CampaignRepository.Repository
     ) {
         let reports = Table.Table<Types.Report>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("reports")));
@@ -66,6 +64,22 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Report, Text> {
             let e = _updateEntityWhenClosed(report, req, callerId);
+            switch(reports.replace(report._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            report: Types.Report, 
+            moderationId: Nat32,
+            callerId: Nat32
+        ): Result.Result<Types.Report, Text> {
+            let e = _updateEntityWhenModerating(report, moderationId, callerId);
             switch(reports.replace(report._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -289,6 +303,7 @@ module {
                 entityType = req.entityType;
                 entityId = req.entityId;
                 entityCreatedBy = entityCreatedBy;
+                moderationId = null;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -316,6 +331,7 @@ module {
                 entityCreatedBy = e.entityCreatedBy;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
+                moderationId = e.moderationId;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
                 assignedAt = e.assignedAt;
@@ -342,6 +358,33 @@ module {
                 entityType = e.entityType;
                 entityId = e.entityId;
                 entityCreatedBy = e.entityCreatedBy;
+                moderationId = e.moderationId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+                assignedAt = e.assignedAt;
+                assignedTo = e.assignedTo;
+            }  
+        };
+
+        func _updateEntityWhenModerating(
+            e: Types.Report, 
+            moderationId: Nat32,
+            callerId: Nat32
+        ): Types.Report {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = Types.STATE_MODERATING;
+                result = e.result;
+                kind = e.kind;
+                description = e.description;
+                resolution = e.resolution;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityCreatedBy = e.entityCreatedBy;
+                moderationId = ?moderationId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -368,6 +411,7 @@ module {
         res.put("entityType", #nat32(e.entityType));
         res.put("entityId", #nat32(e.entityId));
         res.put("entityCreatedBy", #nat32(e.entityCreatedBy));
+        res.put("moderationId", switch(e.moderationId) {case null #nil; case (?moderationId) #nat32(moderationId);});
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -392,6 +436,7 @@ module {
             entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
             entityCreatedBy = Variant.getOptNat32(map.get("entityCreatedBy"));
+            moderationId = Variant.getOptNat32Opt(map.get("moderationId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

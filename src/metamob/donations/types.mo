@@ -1,4 +1,5 @@
 import AccountTypes "../accounts/types";
+import ModerationTypes "../moderations/types";
 
 module {
     public type DonationState = Nat32;
@@ -13,6 +14,7 @@ module {
         anonymous: Bool;
         body: Text;
         value: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -34,6 +36,7 @@ module {
         anonymous: Bool;
         body: Text;
         value: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: ?Nat32;
         updatedAt: ?Int;

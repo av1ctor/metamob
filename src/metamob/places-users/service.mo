@@ -139,7 +139,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned == UserTypes.BANNED_AS_USER) {
                 return false;
             };
 

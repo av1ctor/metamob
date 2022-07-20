@@ -26,6 +26,7 @@ const Entity = (props: Props) => {
                 <CampaignPreview 
                     id={report.entityId} 
                     partial={props.partial}
+                    params={[{key: 'reportId', value: report._id}]}
                     onEditUser={props.onEditUser}
                 />
             }

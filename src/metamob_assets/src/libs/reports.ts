@@ -6,12 +6,12 @@ export enum ReportState {
     CREATED = 0,
     ASSIGNED = 1,
     CLOSED = 2,
-    CHALLENGED = 3,
+    MODERATING = 3,
 }
 
 export enum ReportResult {
     VERIFYING = 0,
-    SOLVED = 1,
+    MODERATED = 1,
     DUPLICATED = 2,
     IGNORED = 3,
 }
@@ -57,8 +57,8 @@ export const reportStateToText = (
             return 'Assigned';
         case ReportState.CLOSED:
             return 'Closed';
-        case ReportState.CHALLENGED:
-            return 'Challenged';
+        case ReportState.MODERATING:
+            return 'Moderating';
         default:
             return 'Unknown';
     }
@@ -74,7 +74,7 @@ export const reportStateToColor = (
             return 'warning';
         case ReportState.CLOSED:
             return 'success';
-        case ReportState.CHALLENGED:
+        case ReportState.MODERATING:
             return 'danger';
         default:
             return 'black';
@@ -91,8 +91,8 @@ export const reportResultToText = (
             return 'Ignored';
         case ReportResult.DUPLICATED:
             return 'Duplicated';
-        case ReportResult.SOLVED:
-            return 'Solved';
+        case ReportResult.MODERATED:
+            return 'Moderated';
         default:
             return 'Unknown';
     }
@@ -108,7 +108,7 @@ export const reportResultToColor = (
             return 'danger';
         case ReportResult.DUPLICATED:
             return 'danger';
-        case ReportResult.SOLVED:
+        case ReportResult.MODERATED:
             return 'success';
         default:
             return 'black';

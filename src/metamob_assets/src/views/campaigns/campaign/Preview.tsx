@@ -7,6 +7,7 @@ import Avatar from "../../users/Avatar";
 interface Props {
     id: number;
     partial?: boolean;
+    params?: {key: string, value: any}[];
     onEditUser?: (user: Profile) => void;
 }
 
@@ -20,6 +21,10 @@ export const Preview = (props: Props) => {
     
     const campaign = useFindCampaignById(props.id);
 
+    const params = props.params?
+        '?' + props.params.map(p => `${p.key}=${p.value.toString()}`).join('&'):
+        '';
+
     return (
         <div className="mb-2">
             {campaign.data?
@@ -27,7 +32,7 @@ export const Preview = (props: Props) => {
                     <div>
                         <b>Campaign</b>:&nbsp;
                         <Link 
-                            to={`/c/${campaign.data.pubId}`}
+                            to={`/c/${campaign.data.pubId}${params}`}
                             target="_blank"
                         >
                             {campaign.data.pubId} <i className="la la-external-link-alt" />
@@ -44,7 +49,7 @@ export const Preview = (props: Props) => {
                                     Id
                                 </label>
                                 <Link 
-                                    to={`/c/${campaign.data.pubId}`}
+                                    to={`/c/${campaign.data.pubId}${params}`}
                                     target="_blank"
                                 >
                                     {campaign.data.pubId} <i className="la la-external-link-alt" />

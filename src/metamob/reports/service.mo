@@ -8,6 +8,7 @@ import Random "../common/random";
 import Utils "../common/utils";
 import Types "./types";
 import Repository "./repository";
+import EntityTypes "../common/entities";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
@@ -24,6 +25,7 @@ import D "mo:base/Debug";
 
 module {
     public class Service(
+        repo: Repository.Repository,
         daoService: DaoService.Service,
         userService: UserService.Service,
         campaignService: CampaignService.Service,
@@ -34,7 +36,6 @@ module {
         updateService: UpdateService.Service,
         placeService: PlaceService.Service
     ) {
-        let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
         let userRepo = userService.getRepository();
         let signatureRepo = signatureService.getRepository();
@@ -45,15 +46,6 @@ module {
         let placeRepo = placeService.getRepository();
 
         let random = Random.Xoshiro256ss(Utils.genRandomSeed("moderators"));
-
-        campaignService.setReportRepo(repo);
-        userService.setReportRepo(repo);
-        signatureService.setReportRepo(repo);
-        voteService.setReportRepo(repo);
-        fundingService.setReportRepo(repo);
-        donationService.setReportRepo(repo);
-        updateService.setReportRepo(repo);
-        placeService.setReportRepo(repo);
 
         public func create(
             req: Types.ReportRequest,
@@ -73,7 +65,12 @@ module {
                                 #err(msg);
                             };
                             case (#ok(entityCreatedBy)) {
-                                repo.create(req, entityCreatedBy, caller._id, _chooseModerator());
+                                repo.create(
+                                    req, 
+                                    entityCreatedBy, 
+                                    caller._id, 
+                                    _chooseModerator(caller._id, entityCreatedBy)
+                                );
                             };
                         };
                     };
@@ -82,21 +79,29 @@ module {
         };
 
         private func _chooseModerator(
+            reporterId: Nat32,
+            reportedId: Nat32
         ): Nat32 {
             switch(userRepo.findByRole(#moderator)) {
                 case (#err(_)) {
-                    1; // admin
+                    return 1; // admin
                 };
                 case (#ok(moderators)) {
-                    if(moderators.size() == 0) {
-                        1 // admin;
-                    }
-                    else {
+                    var attempts = 0;
+                    while(attempts < moderators.size()) {
                         let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
-                        moderators[index]._id;
-                    }
+                        let _id = moderators[index]._id;
+                        // moderator cannot be the reporter or the reported user
+                        if(_id != reporterId and _id != reportedId) {
+                            return _id;
+                        };
+
+                        attempts += 1;
+                    };
                 };
             };
+
+            1; // admin
         };
 
         public func update(
@@ -160,7 +165,7 @@ module {
                             #err(msg);
                         };
                         case (#ok(e)) {
-                            if(e.state != Types.STATE_ASSIGNED) {
+                            if(e.state != Types.STATE_ASSIGNED and e.state != Types.STATE_MODERATING) {
                                 return #err("Invalid state");
                             };
 
@@ -168,9 +173,23 @@ module {
                                 return #err("Forbidden");
                             };
 
+                            if(e.state == Types.STATE_MODERATING) {
+                                if(req.result != Types.RESULT_MODERATED) {
+                                    return #err("Reported entity must be moderated");
+                                };
+
+                                switch(e.moderationId) {
+                                    case null {
+                                        return #err("Reported entity was not moderated");
+                                    };
+                                    case _ {
+                                    };
+                                };
+                            };
+
                             let res = repo.close(e, req, caller._id);
 
-                            if(req.result == Types.RESULT_SOLVED) {
+                            if(req.result == Types.RESULT_MODERATED) {
                                 switch(userService.findById(e.createdBy)) {
                                     case (#err(_)) {
                                     };
@@ -294,7 +313,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned == UserTypes.BANNED_AS_USER) {
                 return false;
             };
 
@@ -318,7 +337,7 @@ module {
         func _checkEntity(
             req: Types.ReportRequest
         ): Result.Result<Nat32, Text> {
-            if(req.entityType == Types.TYPE_CAMPAIGNS) {
+            if(req.entityType == EntityTypes.TYPE_CAMPAIGNS) {
                 switch(campaignRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -328,7 +347,7 @@ module {
                     };
                 };
             }
-            else if(req.entityType == Types.TYPE_USERS) {
+            else if(req.entityType == EntityTypes.TYPE_USERS) {
                 switch(userRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -338,7 +357,7 @@ module {
                     };
                 };
             }
-            else if(req.entityType == Types.TYPE_SIGNATURES) {
+            else if(req.entityType == EntityTypes.TYPE_SIGNATURES) {
                 switch(signatureRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -348,7 +367,7 @@ module {
                     };
                 };
             }
-            else if(req.entityType == Types.TYPE_VOTES) {
+            else if(req.entityType == EntityTypes.TYPE_VOTES) {
                 switch(voteRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -358,7 +377,7 @@ module {
                     };
                 };
             }
-            else if(req.entityType == Types.TYPE_FUNDINGS) {
+            else if(req.entityType == EntityTypes.TYPE_FUNDINGS) {
                 switch(fundingRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -368,7 +387,7 @@ module {
                     };
                 };
             }
-            else if(req.entityType == Types.TYPE_DONATIONS) {
+            else if(req.entityType == EntityTypes.TYPE_DONATIONS) {
                 switch(donationRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
@@ -378,7 +397,7 @@ module {
                     };
                 };
             }            
-            else if(req.entityType == Types.TYPE_UPDATES) {
+            else if(req.entityType == EntityTypes.TYPE_UPDATES) {
                 switch(updateRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);

@@ -1,6 +1,6 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
-import {useUpdateCampaign} from "../../../hooks/campaigns";
+import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
 import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
@@ -19,15 +19,7 @@ import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
-
-interface Props {
-    campaign: Campaign;
-    categories: Category[];
-    onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
-};
+import CreateForm, { transformForm, useForm, validateForm } from "../../moderations/moderation/Create";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -133,6 +125,16 @@ const cloneInfo = (info: CampaignInfo): CampaignInfo => {
     }
 };
 
+interface Props {
+    campaign: Campaign;
+    categories: Category[];
+    reportId: string | null;
+    onClose: () => void;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
+};
+
 const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext)
     const [authState, ] = useContext(AuthContext);
@@ -142,8 +144,10 @@ const EditForm = (props: Props) => {
         state: [props.campaign.state],
         info: cloneInfo(props.campaign.info),
     });
+    const [modForm, setModForm] = useForm(props.reportId);
     
     const updateMut = useUpdateCampaign();
+    const moderateMut = useModerateCampaign();
     const place = useFindPlaceById(props.campaign.placeId);
     
     const changeForm = useCallback((e: any) => {
@@ -160,6 +164,14 @@ const EditForm = (props: Props) => {
             e.target.checked:
             e.target.value;
         setForm(form => setField(form, field, [value]));
+    }, []);
+
+    const changeModForm = useCallback((e: any) => {
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setModForm(form => setField(form, field, value));
     }, []);
 
     const changeTiersItem = useCallback((field: string, value: any, index: number) => {
@@ -216,37 +228,65 @@ const EditForm = (props: Props) => {
             return;
         }
 
+        const isModeration = props.reportId && isModerator(authState.user);
+
+        if(isModeration) {
+            const errors = validateForm(modForm);
+            if(errors.length > 0) {
+                props.onError(errors);
+                return;
+            }
+        }
+
+        const transformReq = (): CampaignRequest => {
+            const kind = Number(formt.kind);
+
+            return {
+                kind: kind,
+                goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
+                    typeof formt.goal === 'string'? 
+                        decimalToIcp(formt.goal):
+                        formt.goal:    
+                    BigInt(formt.goal),
+                state: isModerator(authState.user) && formt.state.length > 0? 
+                    [Number(formt.state[0])]: 
+                    [],
+                categoryId: Number(formt.categoryId),
+                placeId: Number(formt.placeId),
+                title: formt.title,
+                target: formt.target,
+                body: formt.body,
+                cover: formt.cover,
+                duration: Number(formt.duration),
+                tags: formt.tags,
+                info: formt.info,
+                action: formt.action,
+            };
+        };
+
         try {
             props.toggleLoading(true);
 
-            const kind = Number(formt.kind);
-
-            await updateMut.mutateAsync({
-                main: actorState.main,
-                pubId: props.campaign.pubId, 
-                req: {
-                    kind: kind,
-                    goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
-                        typeof formt.goal === 'string'? 
-                            decimalToIcp(formt.goal):
-                            formt.goal:    
-                        BigInt(formt.goal),
-                    state: isModerator(authState.user) && formt.state.length > 0? 
-                        [Number(formt.state[0])]: 
-                        [],
-                    categoryId: Number(formt.categoryId),
-                    placeId: Number(formt.placeId),
-                    title: formt.title,
-                    target: formt.target,
-                    body: formt.body,
-                    cover: formt.cover,
-                    duration: Number(formt.duration),
-                    tags: formt.tags,
-                    info: formt.info,
-                    action: formt.action,
-                }
-            });
-            props.onSuccess('Campaign updated!');
+            if(isModeration) {
+                await moderateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.campaign.pubId, 
+                    req: transformReq(),
+                    mod: transformForm(modForm)
+                });
+    
+                props.onSuccess('Campaign moderated!');
+            }
+            else {
+                await updateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.campaign.pubId, 
+                    req: transformReq()
+                });
+    
+                props.onSuccess('Campaign updated!');
+            }
+            
             props.onClose();
         }
         catch(e) {
@@ -255,7 +295,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, modForm, actorState.main, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -428,6 +468,12 @@ const EditForm = (props: Props) => {
                         options={stateOptions}
                         onChange={changeFormOpt}
                     />                    
+                }
+                {props.reportId && isModerator(authState.user) &&
+                    <CreateForm
+                        form={modForm}
+                        onChange={changeModForm}
+                    />
                 }
                 <div className="field is-grouped mt-2">
                     <div className="control">
