@@ -47,7 +47,7 @@ const Item = (props: Props) => {
                 </div>
                 <div className="control">
                     <Button
-                        color="danger"
+                        color="success"
                         disabled={mod.state !== ModerationState.Created}
                     >
                         Challenge

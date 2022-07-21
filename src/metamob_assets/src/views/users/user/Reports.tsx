@@ -2,11 +2,11 @@ import React, { useCallback, useContext, useState } from "react";
 import Modal from "../../../components/Modal";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
-import Moderations from "./reports/Moderations";
+import ToModerate from "./reports/ToModerate";
 import Button from "../../../components/Button";
 import BecomeModForm from "./BecomeMod";
 import MyReports from "./reports/MyReports";
-import AgainstReports from "./reports/Against";
+import AgainstMe from "./reports/AgainstMe";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -41,7 +41,7 @@ const Reports = (props: Props) => {
             />
 
             <div className="mt-4">
-                <AgainstReports
+                <AgainstMe
                     onSuccess={props.onSuccess}
                     onError={props.onError}
                     toggleLoading={props.toggleLoading}
@@ -50,7 +50,7 @@ const Reports = (props: Props) => {
 
             <div className="mt-4">
                 {isModerator(authState.user)?
-                    <Moderations
+                    <ToModerate
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}

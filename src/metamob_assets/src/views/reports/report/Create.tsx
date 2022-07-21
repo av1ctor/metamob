@@ -96,7 +96,7 @@ const CreateForm = (props: Props) => {
         <form onSubmit={handleCreate}>
             <Container>
                 <SelectField
-                    label="Kind"
+                    label="Reason"
                     name="kind"
                     options={kinds}
                     value={form.kind}

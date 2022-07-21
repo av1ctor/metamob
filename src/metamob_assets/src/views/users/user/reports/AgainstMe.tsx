@@ -1,13 +1,12 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Profile, ReportResponse } from "../../../../../../declarations/metamob/metamob.did";
+import { ReportResponse } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
-import { useFindReportsAssigned } from "../../../../hooks/reports";
+import { useFindAgainstUserReports } from "../../../../hooks/reports";
 import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
-import EditForm from "../Edit";
-import ModerateForm from "../../../reports/report/Moderate";
+import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
 
@@ -22,7 +21,7 @@ const orderBy = [{
     dir: 'desc'
 }];
 
-const Moderations = (props: Props) => {
+const AgainstMe = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
 
@@ -31,37 +30,18 @@ const Moderations = (props: Props) => {
         size: 4
     });
     const [modals, setModals] = useState({
-        edit: false,
-        editUser: false,
+        challenge: false,
     });
     const [report, setReport] = useState<ReportResponse>();
-    const [user, setUser] = useState<Profile>();
 
-    const reports = useFindReportsAssigned(
-        authState.user?._id || 0, 
-        orderBy, 
-        limit, 
-        actorState.main
-    );
+    const reports = useFindAgainstUserReports(orderBy, limit, authState.user?._id, actorState.main);
     
-    const toggleModerate = useCallback((report: ReportResponse | undefined = undefined) => {
+    const toggleChallenge = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({
             ...modals,
-            edit: !modals.edit
+            challenge: !modals.challenge,
         }));
         setReport(report);
-    }, []);
-
-    const toggleEditUser = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            editUser: !modals.editUser
-        }));
-    }, []);
-
-    const handleEditUser = useCallback((item: Profile) => {
-        setUser(item);
-        toggleEditUser();
     }, []);
 
     const handlePrevPage = useCallback(() => {
@@ -88,7 +68,7 @@ const Moderations = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                To moderate
+                Against me
             </div>
 
             <div>
@@ -102,18 +82,19 @@ const Moderations = (props: Props) => {
                         >
                             <BaseItem 
                                 report={report} 
+                                partial
                                 onSuccess={props.onSuccess}
                                 onError={props.onError}
                             >
                                 <p>
                                     <small>
-                                        {report.state !== ReportState.CLOSED &&
+                                        {report.state === ReportState.CLOSED &&
                                             <span>
                                                 <a
-                                                    title="Edit report"
-                                                    onClick={() => toggleModerate(report)}
+                                                    title="Challenge report"
+                                                    onClick={() => toggleChallenge(report)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-pen" /> Edit</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-bullhorn" /> Challenge</span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -142,31 +123,14 @@ const Moderations = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit report</span>}
-                isOpen={modals.edit}
-                onClose={toggleModerate}
+                header={<span>Challenge report</span>}
+                isOpen={modals.challenge}
+                onClose={toggleChallenge}
             >
                 {report && 
-                    <ModerateForm
-                        report={report} 
-                        onEditUser={handleEditUser}
-                        onClose={toggleModerate}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
-                    />
-                }
-            </Modal>
-
-            <Modal
-                header={<span>Edit user</span>}
-                isOpen={modals.editUser}
-                onClose={toggleEditUser}
-            >
-                {user &&
                     <EditForm
-                        user={user}
-                        onClose={toggleEditUser}
+                        report={report} 
+                        onClose={toggleChallenge}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}
@@ -177,4 +141,4 @@ const Moderations = (props: Props) => {
     );
 };
 
-export default Moderations;
+export default AgainstMe;
