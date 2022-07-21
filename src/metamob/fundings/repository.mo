@@ -477,7 +477,7 @@ module {
                 tier = req.tier;
                 amount = req.amount;
                 value = req.value;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = e.updatedAt;

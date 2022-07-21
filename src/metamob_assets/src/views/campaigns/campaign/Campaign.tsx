@@ -29,6 +29,9 @@ import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
 import { ScrollToTop } from "../../../components/ScrollToTop";
 import ModerationBadge from "../../moderations/moderation/Badge";
+import Moderations from "../../moderations/Moderations";
+import { EntityType } from "../../../libs/common";
+import { ModerationReason } from "../../../libs/moderations";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -44,7 +47,8 @@ const Campaign = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
-        report: false
+        report: false,
+        moderations: false
     });
     
     const data = useFindCampaignByPubId(id);
@@ -67,6 +71,13 @@ const Campaign = (props: Props) => {
         setModals(modals => ({
             ...modals,
             report: !modals.report
+        }));
+    }, []);
+
+    const toggleModerations = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
         }));
     }, []);
 
@@ -120,7 +131,10 @@ const Campaign = (props: Props) => {
                         {campaign? 
                             <>
                                 <div className="has-text-right">
-                                    <ModerationBadge reason={campaign.moderated} />
+                                    <ModerationBadge 
+                                        reason={campaign.moderated}
+                                        onShowModerations={toggleModerations} 
+                                    />
                                 </div>
                                 <Markdown 
                                     className="campaign-body" 
@@ -362,6 +376,19 @@ const Campaign = (props: Props) => {
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}
                         />
+                    </Modal>
+
+                    <Modal
+                        header={<span>Moderations</span>}
+                        isOpen={modals.moderations}
+                        onClose={toggleModerations}
+                    >
+                        {campaign.moderated !== ModerationReason.NONE &&
+                            <Moderations
+                                entityType={EntityType.CAMPAIGNS}
+                                entityId={campaign._id}
+                            />
+                        }
                     </Modal>
                 </>
             }

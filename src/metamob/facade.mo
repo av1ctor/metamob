@@ -1,42 +1,43 @@
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Nat64 "mo:base/Nat64";
 import Array "mo:base/Array";
-import Time "mo:base/Time";
-import Int "mo:base/Int";
-import Variant "mo:mo-table/variant";
-import UserTypes "./users/types";
-import DaoTypes "./dao/types";
-import CategoryTypes "./categories/types";
-import CampaignTypes "./campaigns/types";
-import SignatureTypes "./signatures/types";
-import VoteTypes "./votes/types";
-import DonationTypes "./donations/types";
-import FundingTypes "./fundings/types";
-import UpdateTypes "./updates/types";
-import ReportTypes "./reports/types";
-import ModerationTypes "./moderations/types";
-import PlaceTypes "./places/types";
-import PlaceEmailTypes "./places-emails/types";
-import PlaceUserTypes "./places-users/types";
-import UserService "./users/service";
-import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
-import SignatureService "./signatures/service";
-import VoteService "./votes/service";
-import DonationService "./donations/service";
-import FundingService "./fundings/service";
-import UpdateService "./updates/service";
-import ReportService "./reports/service";
-import ModerationService "./moderations/service";
-import PlaceService "./places/service";
-import PlaceEmailService "./places-emails/service";
-import PlaceUserService "./places-users/service";
-import DaoService "./dao/service";
-import ReportRepository "./reports/repository";
-import UserRepository "./users/repository";
-import LedgerUtils "./common/ledger";
+import CampaignTypes "./campaigns/types";
+import CategoryService "./categories/service";
+import CategoryTypes "./categories/types";
 import D "mo:base/Debug";
+import DaoService "./dao/service";
+import DaoTypes "./dao/types";
+import DonationService "./donations/service";
+import DonationTypes "./donations/types";
+import EntityTypes "common/entities";
+import FundingService "./fundings/service";
+import FundingTypes "./fundings/types";
+import Int "mo:base/Int";
+import LedgerUtils "./common/ledger";
+import ModerationService "./moderations/service";
+import ModerationTypes "./moderations/types";
+import Nat64 "mo:base/Nat64";
+import PlaceEmailService "./places-emails/service";
+import PlaceEmailTypes "./places-emails/types";
+import PlaceService "./places/service";
+import PlaceTypes "./places/types";
+import PlaceUserService "./places-users/service";
+import PlaceUserTypes "./places-users/types";
+import Principal "mo:base/Principal";
+import ReportRepository "./reports/repository";
+import ReportService "./reports/service";
+import ReportTypes "./reports/types";
+import Result "mo:base/Result";
+import SignatureService "./signatures/service";
+import SignatureTypes "./signatures/types";
+import Time "mo:base/Time";
+import UpdateService "./updates/service";
+import UpdateTypes "./updates/types";
+import UserRepository "./users/repository";
+import UserService "./users/service";
+import UserTypes "./users/types";
+import Variant "mo:mo-table/variant";
+import VoteService "./votes/service";
+import VoteTypes "./votes/types";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
@@ -1149,6 +1150,18 @@ shared({caller = owner}) actor class Metamob(
                 ));
             };
         };
+    };
+
+    //
+    // moderations facade
+    //
+    public shared query(msg) func moderationFindByEntity(
+        entityType: EntityTypes.EntityType,
+        entityId: Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ModerationTypes.Moderation], Text> {
+        moderationService.findByEntity(entityType, entityId, sortBy, limit, msg.caller);
     };
 
     //

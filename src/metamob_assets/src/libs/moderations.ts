@@ -1,3 +1,5 @@
+import { Metamob, Moderation } from "../../../declarations/metamob/metamob.did";
+import { EntityType, Limit, Order } from "./common";
 
 export enum ModerationState {
     Created = 0,
@@ -14,7 +16,7 @@ export enum ModerationReason {
     SPAM = 8,
     CONFIDENTIAL = 16,
     COPYRIGHT = 32,
-    offensive = 64,
+    OFFENSIVE = 64,
     OTHER = 65536
 }
 
@@ -30,6 +32,7 @@ export const reasons: {name: string, value: any}[] = [
     {name: 'Spam, malware or "phishing" (fake login)', value: ModerationReason.SPAM},
     {name: 'Private or confidential information', value: ModerationReason.CONFIDENTIAL},
     {name: 'Copyright infringement', value: ModerationReason.COPYRIGHT},
+    {name: 'Offensive', value: ModerationReason.OFFENSIVE},
     {name: 'Other', value: ModerationReason.OTHER},
 ];
 
@@ -56,6 +59,33 @@ export const moderationReasonToText = (
             return 'Confidential';
         case ModerationReason.COPYRIGHT:
             return 'Copyright';
+        case ModerationReason.OFFENSIVE:
+            return 'Offensive';
+        default:
+            return 'Other';
+    }
+};
+
+export const moderationReasonToTitle = (
+    reason: ModerationReason
+): string => {
+    switch(reason) {
+        case ModerationReason.NONE:
+            return '';
+        case ModerationReason.FAKE:
+            return 'Fake or fraudulent';
+        case ModerationReason.NUDITY:
+            return 'Contains nudity';
+        case ModerationReason.HATE:
+            return 'Promotes hate, violence or illegal/offensive activities';
+        case ModerationReason.SPAM:
+            return 'Spam, malware or "phishing" (fake login)';
+        case ModerationReason.CONFIDENTIAL:
+            return 'Private or confidential information';
+        case ModerationReason.COPYRIGHT:
+            return 'Copyright infringement';
+        case ModerationReason.OFFENSIVE:
+            return 'Offensive';
         default:
             return 'Other';
     }
@@ -66,13 +96,51 @@ export const moderationReasonToColor = (
 ): string => {
     switch(reason) {
         case ModerationReason.NONE:
-        case ModerationReason.FAKE:
-        case ModerationReason.NUDITY:
-        case ModerationReason.HATE:
         case ModerationReason.SPAM:
         case ModerationReason.CONFIDENTIAL:
         case ModerationReason.COPYRIGHT:
+        case ModerationReason.OFFENSIVE:
+            return "warning";
+
+        case ModerationReason.FAKE:
+        case ModerationReason.NUDITY:
+        case ModerationReason.HATE:
         default:
             return 'danger';
     }
 };
+
+export const moderationActionToText = (
+    action: ModerationAction
+): string => {
+    switch(action) {
+        case ModerationAction.Flagged:
+            return 'Flagged';
+        case ModerationAction.Redacted:
+            return 'Redacted';
+    }
+};
+
+export const findByEntity = async (
+    entityType: EntityType,
+    entityId: number,
+    orderBy?: Order[], 
+    limit?: Limit,
+    main?: Metamob
+): Promise<Moderation[]> => {
+    if(!main) {
+        return [];
+    }
+
+    const res = await main.moderationFindByEntity(
+        entityType,
+        entityId,
+        orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
+        limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
+    
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+
+    return res.ok; 
+}

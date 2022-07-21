@@ -463,7 +463,7 @@ module {
                 campaignId = e.campaignId;
                 body = req.body;
                 value = req.value;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = e.updatedAt;

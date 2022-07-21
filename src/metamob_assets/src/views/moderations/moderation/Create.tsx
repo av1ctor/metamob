@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import * as yup from 'yup';
 import { ModerationRequest } from "../../../../../declarations/metamob/metamob.did";
 import SelectField from "../../../components/SelectField";

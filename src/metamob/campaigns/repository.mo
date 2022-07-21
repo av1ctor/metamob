@@ -1383,7 +1383,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = req.action;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;

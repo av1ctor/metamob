@@ -289,7 +289,7 @@ module {
                     case (?val) val;
                 };
                 country = req.country;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();

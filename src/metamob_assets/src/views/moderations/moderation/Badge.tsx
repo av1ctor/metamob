@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Badge from "../../../components/Badge";
-import { ModerationReason, moderationReasonToColor, moderationReasonToText } from "../../../libs/moderations";
+import { ModerationReason, moderationReasonToColor, moderationReasonToText, moderationReasonToTitle } from "../../../libs/moderations";
 
 interface Props {
     reason: ModerationReason;
+    onShowModerations: () => void;
 }
 
 const ModBadge = (props: Props) => {
+
+    const desc = useMemo((): {texts: string[], titles: string[]} => {
+        const res: {texts: string[], titles: string[]} = {texts: [], titles: []};
+        for(let mask = 1; mask <= 65536; ) {
+            if((props.reason & mask) !== 0) {
+                res.texts.push(moderationReasonToText(mask));
+                res.titles.push(moderationReasonToTitle(mask));
+            }
+            mask <<= 1;
+        }
+        return res;
+    }, [props.reason]);
+
     if(props.reason === ModerationReason.NONE) {
         return null;
     }
@@ -14,11 +28,17 @@ const ModBadge = (props: Props) => {
     return (
         <Badge 
             className="moderation-badge"
-            color={moderationReasonToColor(props.reason)}
+            color={moderationReasonToColor(desc.texts.length > 1? ModerationReason.FAKE: props.reason)}
             isRect
             isLarge
         >
-            {moderationReasonToText(props.reason)}
+            <span 
+                className="has-tooltip-arrow" 
+                data-tooltip={desc.titles.join('/')}
+                onClick={props.onShowModerations}
+            >
+                {desc.texts.join('/')}
+            </span>
         </Badge>
     );
 };

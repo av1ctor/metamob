@@ -293,7 +293,7 @@ module {
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();

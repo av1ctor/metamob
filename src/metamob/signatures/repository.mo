@@ -398,7 +398,7 @@ module {
                 body = req.body;
                 anonymous = req.anonymous;
                 campaignId = e.campaignId;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();

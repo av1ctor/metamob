@@ -42,14 +42,9 @@ module {
                 return #err("Caller is not the report's moderator");
             };
 
-            if(req.reason < Types.REASON_FAKE or 
-                req.reason > Types.REASON_FAKE | 
-                    Types.REASON_NUDITY | 
-                    Types.REASON_HATE | 
-                    Types.REASON_SPAM | 
-                    Types.REASON_CONFIDENTIAL | 
-                    Types.REASON_COPYRIGHT | 
-                    Types.REASON_OFFENSIVE) {
+            if((req.reason < Types.REASON_FAKE or 
+                req.reason > Types.REASON_OFFENSIVE) and
+                req.reason != Types.REASON_OTHER) {
                 return #err("Invalid reason");
             };
 
@@ -180,6 +175,20 @@ module {
                     repo.find(criterias, sortBy, limit);
                 };
             };
+        };
+
+        public func findByEntity(
+            entityType: EntityTypes.EntityType,
+            entityId: Nat32,
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Moderation], Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+            
+            repo.findByEntity(entityType, entityId, sortBy, limit);
         };
 
         public func backup(

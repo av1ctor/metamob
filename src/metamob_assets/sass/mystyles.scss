@@ -80,7 +80,7 @@
 }
 
 .overflow-hidden {
-    div {
+    &div {
         overflow: hidden;
     }
 }
@@ -454,16 +454,15 @@ a:not(:first-child) {
 }
 
 .voting progress::-webkit-progress-bar {
-        background-color: $danger !important;
+    background-color: $danger !important;
 }
 
 .moderation-badge {
-    border: 2px dashed #fff;
-    .tag-children {
-        animation: moderation-badge-blinker 1s linear infinite alternate;  
-    }
+    border: 2px dotted #fff;
 }
 
-@keyframes moderation-badge-blinker {
-    to { opacity: 0.5; }
+.moderation-item {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px;
 }

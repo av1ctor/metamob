@@ -411,7 +411,7 @@ module {
                 body = req.body;
                 pro = req.pro;
                 weight = e.weight;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();

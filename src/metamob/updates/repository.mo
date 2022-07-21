@@ -301,7 +301,7 @@ module {
                 pubId = e.pubId;
                 body = req.body;
                 campaignId = req.campaignId;
-                moderated = reason;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
