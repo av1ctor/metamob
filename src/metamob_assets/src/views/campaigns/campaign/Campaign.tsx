@@ -387,6 +387,7 @@ const Campaign = (props: Props) => {
                             <Moderations
                                 entityType={EntityType.CAMPAIGNS}
                                 entityId={campaign._id}
+                                onClose={toggleModerations}
                             />
                         }
                     </Modal>

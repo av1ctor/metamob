@@ -121,6 +121,21 @@ export const moderationActionToText = (
     }
 };
 
+export const moderationStateToText = (
+    state: ModerationState
+): string => {
+    switch(state) {
+        case ModerationState.Created:
+            return 'Created';
+        case ModerationState.Challenged:
+            return 'Challenged';
+        case ModerationState.Reverted:
+            return 'Reverted';
+        case ModerationState.Confirmed:
+            return 'Confirmed';
+    }
+};
+
 export const findByEntity = async (
     entityType: EntityType,
     entityId: number,

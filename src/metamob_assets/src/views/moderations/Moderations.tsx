@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { EntityType } from "../../../../declarations/metamob/metamob.did";
+import Button from "../../components/Button";
 import { useFindModerationsByEntity } from "../../hooks/moderations";
 import { ActorContext } from "../../stores/actor";
 import Item from "./Item";
@@ -7,6 +8,7 @@ import Item from "./Item";
 interface Props {
     entityType: EntityType;
     entityId: number;
+    onClose: () => void;
 }
 
 const orderBy = [{key: '_id', dir: 'desc'}];
@@ -26,15 +28,25 @@ const Moderations = (props: Props) => {
 
     return (
         <>
-            {moderations.status === "success" && 
-                moderations.data &&
-                moderations.data.map(mod => 
-                    <Item
-                        key={mod._id}
-                        moderation={mod}
-                    />
-                )
-            }
+            <div>
+                {moderations.status === "success" && 
+                    moderations.data &&
+                    moderations.data.map(mod => 
+                        <Item
+                            key={mod._id}
+                            moderation={mod}
+                        />
+                    )
+                }
+            </div>
+            <div className="control">
+                <Button
+                    color="danger"
+                    onClick={props.onClose}
+                >
+                    Cancel
+                </Button>
+            </div>
         </>
     )
 };
