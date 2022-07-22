@@ -14,7 +14,7 @@ import Tag from "../../../components/Tag";
 import { CampaignKind, campaignKindToIcon, campaignKindToTitle, CampaignState } from "../../../libs/campaigns";
 import ReportForm from "../../reports/report/Create";
 import Tabs from "../../../components/Tabs";
-import { ReportType } from "../../../libs/reports";
+import { EntityType } from "../../../libs/common";
 import PlaceTree from "../../places/place/PlaceTree";
 import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
@@ -29,9 +29,7 @@ import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
 import { ScrollToTop } from "../../../components/ScrollToTop";
 import ModerationBadge from "../../moderations/moderation/Badge";
-import Moderations from "../../moderations/Moderations";
-import { EntityType } from "../../../libs/common";
-import { ModerationReason } from "../../../libs/moderations";
+import ModerationModal from "../../moderations/Modal";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -133,6 +131,7 @@ const Campaign = (props: Props) => {
                                 <div className="has-text-right">
                                     <ModerationBadge 
                                         reason={campaign.moderated}
+                                        isLarge
                                         onShowModerations={toggleModerations} 
                                     />
                                 </div>
@@ -370,7 +369,8 @@ const Campaign = (props: Props) => {
                     >
                         <ReportForm
                             entityId={campaign._id}
-                            entityType={ReportType.CAMPAIGNS}
+                            entityPubId={campaign.pubId}
+                            entityType={EntityType.CAMPAIGNS}
                             onClose={toggleReport}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
@@ -378,19 +378,13 @@ const Campaign = (props: Props) => {
                         />
                     </Modal>
 
-                    <Modal
-                        header={<span>Moderations</span>}
+                    <ModerationModal
                         isOpen={modals.moderations}
+                        entityType={EntityType.CAMPAIGNS}
+                        entityId={campaign._id}
+                        moderated={campaign.moderated}
                         onClose={toggleModerations}
-                    >
-                        {campaign.moderated !== ModerationReason.NONE &&
-                            <Moderations
-                                entityType={EntityType.CAMPAIGNS}
-                                entityId={campaign._id}
-                                onClose={toggleModerations}
-                            />
-                        }
-                    </Modal>
+                    />
                 </>
             }
         </>

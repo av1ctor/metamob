@@ -19,7 +19,7 @@ import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
-import CreateForm, { transformForm, useForm, validateForm } from "../../moderations/moderation/Create";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -144,7 +144,7 @@ const EditForm = (props: Props) => {
         state: [props.campaign.state],
         info: cloneInfo(props.campaign.info),
     });
-    const [modForm, setModForm] = useForm(props.reportId);
+    const [modForm, setModForm] = useModerationForm(props.reportId);
     
     const updateMut = useUpdateCampaign();
     const moderateMut = useModerateCampaign();
@@ -166,13 +166,7 @@ const EditForm = (props: Props) => {
         setForm(form => setField(form, field, [value]));
     }, []);
 
-    const changeModForm = useCallback((e: any) => {
-        const field = (e.target.id || e.target.name);
-        const value = e.target.type === 'checkbox'?
-            e.target.checked:
-            e.target.value;
-        setModForm(form => setField(form, field, value));
-    }, []);
+    const changeModForm = useSetModerationFormField(setModForm);
 
     const changeTiersItem = useCallback((field: string, value: any, index: number) => {
         setForm(form => {
@@ -231,7 +225,7 @@ const EditForm = (props: Props) => {
         const isModeration = props.reportId && isModerator(authState.user);
 
         if(isModeration) {
-            const errors = validateForm(modForm);
+            const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
                 props.onError(errors);
                 return;
@@ -272,7 +266,7 @@ const EditForm = (props: Props) => {
                     main: actorState.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq(),
-                    mod: transformForm(modForm)
+                    mod: transformModerationForm(modForm)
                 });
     
                 props.onSuccess('Campaign moderated!');
@@ -470,7 +464,7 @@ const EditForm = (props: Props) => {
                     />                    
                 }
                 {props.reportId && isModerator(authState.user) &&
-                    <CreateForm
+                    <CreateModerationForm
                         form={modForm}
                         onChange={changeModForm}
                     />

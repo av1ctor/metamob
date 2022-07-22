@@ -9,11 +9,12 @@ import { useCloseReport } from "../../../hooks/reports";
 import { kinds, ReportResult } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
-import Entity from "./Entity";
+import EntityPreview from "./EntityPreview";
 
 interface Props {
     report: ReportResponse;
     onEditUser: (user: Profile) => void;
+    onModerate: (report: ReportResponse) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -32,7 +33,7 @@ const results: Option[] = [
     {name: 'Ignored', value: ReportResult.IGNORED},
 ];
 
-const ModerateForm = (props: Props) => {
+const ViewForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
@@ -79,7 +80,7 @@ const ModerateForm = (props: Props) => {
                     result: Number(form.result),
                 }
             });
-            props.onSuccess('ReportResponse updated!');
+            props.onSuccess('Report updated!');
             props.onClose();
         }
         catch(e) {
@@ -139,9 +140,10 @@ const ModerateForm = (props: Props) => {
                 </div>
             </div>
             
-            <Entity 
+            <EntityPreview 
                 report={report} 
                 onEditUser={props.onEditUser}
+                onModerate={props.onModerate}
                 onSuccess={props.onSuccess}
                 onError={props.onError}
             />
@@ -182,4 +184,4 @@ const ModerateForm = (props: Props) => {
     );
 };
 
-export default ModerateForm;
+export default ViewForm;

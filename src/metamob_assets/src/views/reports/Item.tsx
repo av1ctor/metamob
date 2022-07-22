@@ -8,7 +8,7 @@ import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
-import Entity from "./report/Entity";
+import EntityPreview from "./report/EntityPreview";
 import Badge from "../../components/Badge";
 
 interface BaseItemProps {
@@ -16,6 +16,7 @@ interface BaseItemProps {
     partial?: boolean;
     user?: ProfileResponse;
     children?: any;
+    onModerate?: (report: ReportResponse) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 };
@@ -57,9 +58,9 @@ export const BaseItem = (props: BaseItemProps) => {
                     </Badge>
 
                     <div>
-                        <Entity
+                        <EntityPreview
                             report={report}
-                            partial={props.partial}
+                            partial
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                         />
@@ -75,6 +76,7 @@ interface ItemProps {
     campaign: Campaign;
     report: ReportResponse;
     onEdit: (report: ReportResponse) => void;
+    onModerate?: (report: ReportResponse) => void;
     onDelete: (report: ReportResponse) => void;
     onReport: (report: ReportResponse) => void;
     onSuccess: (message: string) => void;
@@ -98,6 +100,7 @@ export const Item = (props: ItemProps) => {
         <BaseItem
             user={user.data}
             report={report}
+            onModerate={props.onModerate}
             onSuccess={props.onSuccess}
             onError={props.onError}
         >

@@ -41,6 +41,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "entityPubId";
+                options = [];
+            },
+            {
                 name = "challengeId";
                 options = [#nullable];
             },

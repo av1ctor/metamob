@@ -16,17 +16,6 @@ export enum ReportResult {
     IGNORED = 3,
 }
 
-export enum ReportType {
-    CAMPAIGNS = 0,
-    USERS = 1,
-    SIGNATURES = 2,
-    UPDATES = 3,
-    VOTES = 4,
-    DONATIONS = 5,
-    FUNDINGS = 6,
-    PLACES = 7,
-}
-
 export enum ReportKind {
     FAKE = 0,
     NUDITY = 1,
@@ -110,56 +99,6 @@ export const reportResultToColor = (
             return 'danger';
         case ReportResult.MODERATED:
             return 'success';
-        default:
-            return 'black';
-    }
-};
-
-export const entityTypeToText = (
-    type: ReportType
-): string => {
-    switch(type) {
-        case ReportType.CAMPAIGNS:
-            return 'Campaign';
-        case ReportType.SIGNATURES:
-            return 'Signature';
-        case ReportType.VOTES:
-            return 'Vote';
-        case ReportType.DONATIONS:
-            return 'Donation';
-        case ReportType.FUNDINGS:
-            return 'Fundraising';
-        case ReportType.UPDATES:
-            return 'Update';
-        case ReportType.USERS:
-            return 'User';
-        case ReportType.PLACES:
-            return 'Place';
-        default:
-            return 'Unknown';
-    }
-};
-
-export const entityTypeToColor = (
-    type: ReportType
-): string => {
-    switch(type) {
-        case ReportType.CAMPAIGNS:
-            return 'success';
-        case ReportType.SIGNATURES:
-            return 'danger';
-        case ReportType.VOTES:
-            return 'danger';
-        case ReportType.DONATIONS:
-            return 'danger';
-        case ReportType.FUNDINGS:
-            return 'danger';
-        case ReportType.UPDATES:
-            return 'warning';
-        case ReportType.USERS:
-            return 'dark';
-        case ReportType.PLACES:
-            return 'primary';
         default:
             return 'black';
     }

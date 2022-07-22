@@ -4,17 +4,18 @@ import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState, findById } from "../../libs/campaigns";
 import { FundingState } from "../../libs/fundings";
-import { isModerator } from "../../libs/users";
 import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface BaseItemProps {
     user?: ProfileResponse;
     campaign?: Campaign;
     funding: FundingResponse;
     children?: any;
+    onShowModerations?: (funding: FundingResponse) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -73,6 +74,12 @@ export const BaseItem = (props: BaseItemProps) => {
                             }
                         </span>
                     </div>
+                    <div>
+                        <ModerationBadge
+                            reason={funding.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(funding)} 
+                        />
+                    </div>
                     <Markdown
                         className="update-body" 
                         body={funding.body || '\n&nbsp;\n'}
@@ -90,6 +97,7 @@ interface ItemProps {
     onEdit: (funding: FundingResponse) => void;
     onDelete: (funding: FundingResponse) => void;
     onReport: (funding: FundingResponse) => void;
+    onShowModerations?: (funding: FundingResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -104,14 +112,14 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && (auth.user._id === author && author !== 0));
 
     return (
         <BaseItem
             user={user.data}
             campaign={props.campaign}
             funding={funding}
+            onShowModerations={props.onShowModerations}
         >
             <p>
                 <small>

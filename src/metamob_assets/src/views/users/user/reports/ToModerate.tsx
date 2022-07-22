@@ -7,9 +7,11 @@ import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import EditForm from "../Edit";
-import ModerateForm from "../../../reports/report/Moderate";
+import ViewForm from "../../../reports/report/View";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
+import EntityModerate from "../../../reports/report/EntityModerate";
+import { entityTypeToText } from "../../../../libs/common";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -33,6 +35,7 @@ const ToModerate = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         editUser: false,
+        moderate: false,
     });
     const [report, setReport] = useState<ReportResponse>();
     const [user, setUser] = useState<Profile>();
@@ -44,12 +47,24 @@ const ToModerate = (props: Props) => {
         actorState.main
     );
     
-    const toggleModerate = useCallback((report: ReportResponse | undefined = undefined) => {
+    const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({
             ...modals,
             edit: !modals.edit
         }));
         setReport(report);
+    }, []);
+
+    const toggleModerate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderate: !modals.moderate
+        }));
+    }, []);
+
+    const handleModerate = useCallback((report: ReportResponse) => {
+        setReport(report);
+        toggleModerate();
     }, []);
 
     const toggleEditUser = useCallback(() => {
@@ -111,7 +126,7 @@ const ToModerate = (props: Props) => {
                                             <span>
                                                 <a
                                                     title="Edit report"
-                                                    onClick={() => toggleModerate(report)}
+                                                    onClick={() => toggleEdit(report)}
                                                 >
                                                     <span className="whitespace-nowrap"><i className="la la-pen" /> Edit</span>
                                                 </a>
@@ -144,12 +159,29 @@ const ToModerate = (props: Props) => {
             <Modal
                 header={<span>Edit report</span>}
                 isOpen={modals.edit}
+                onClose={toggleEdit}
+            >
+                {report && 
+                    <ViewForm
+                        report={report} 
+                        onEditUser={handleEditUser}
+                        onModerate={handleModerate}
+                        onClose={toggleEdit}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
+
+            <Modal
+                header={<span>Moderate {report? entityTypeToText(report?.entityType): ''}</span>}
+                isOpen={modals.moderate}
                 onClose={toggleModerate}
             >
                 {report && 
-                    <ModerateForm
-                        report={report} 
-                        onEditUser={handleEditUser}
+                    <EntityModerate
+                        report={report}
                         onClose={toggleModerate}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

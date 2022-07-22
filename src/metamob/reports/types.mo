@@ -29,6 +29,7 @@ module {
         result: ReportResult;
         entityType: EntityTypes.EntityType;
         entityId: Nat32;
+        entityPubId: Text;
         entityCreatedBy: Nat32;
         kind: ReportKind;
         description: Text;
@@ -45,6 +46,7 @@ module {
     public type ReportRequest = {
         entityType: EntityTypes.EntityType;
         entityId: Nat32;
+        entityPubId: Text;
         kind: ReportKind;
         description: Text;
     };
@@ -61,6 +63,7 @@ module {
         result: ReportResult;
         entityType: EntityTypes.EntityType;
         entityId: Nat32;
+        entityPubId: Text;
         entityCreatedBy: Nat32;
         kind: ReportKind;
         description: Text;

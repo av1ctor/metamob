@@ -1,6 +1,7 @@
 import Principal "mo:base/Principal";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
+import Text "mo:base/Text";
 import Result "mo:base/Result";
 import Option "mo:base/Option";
 import Variant "mo:mo-table/variant";
@@ -343,7 +344,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }
@@ -353,7 +359,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e._id);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e._id);
+                        };
                     };
                 };
             }
@@ -363,7 +374,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }
@@ -373,7 +389,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }
@@ -383,7 +404,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }
@@ -393,7 +419,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }            
@@ -403,7 +434,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             }
@@ -413,7 +449,12 @@ module {
                         #err(msg);
                     };
                     case (#ok(e)) {
-                        #ok(e.createdBy);
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
                     };
                 };
             };

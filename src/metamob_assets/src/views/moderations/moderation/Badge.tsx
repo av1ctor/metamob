@@ -4,6 +4,7 @@ import { ModerationReason, moderationReasonToColor, moderationReasonToText, mode
 
 interface Props {
     reason: ModerationReason;
+    isLarge?: boolean;
     onShowModerations: () => void;
 }
 
@@ -30,7 +31,7 @@ const ModBadge = (props: Props) => {
             className="moderation-badge"
             color={moderationReasonToColor(desc.texts.length > 1? ModerationReason.FAKE: props.reason)}
             isRect
-            isLarge
+            isLarge={props.isLarge}
         >
             <span 
                 className="has-tooltip-arrow" 

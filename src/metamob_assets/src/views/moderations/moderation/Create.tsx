@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import * as yup from 'yup';
 import { ModerationRequest } from "../../../../../declarations/metamob/metamob.did";
 import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
-import { actions, ModerationAction, ModerationReason, reasons } from "../../../libs/moderations";
+import { actions, ModerationReason, reasons } from "../../../libs/moderations";
+import { setField } from "../../../libs/utils";
 
 interface Props {
     form: ModerationRequest;
@@ -12,12 +13,14 @@ interface Props {
 
 const formSchema = yup.object().shape({
     reportId: yup.number().required(),
-    reason: yup.number().required(),
-    action: yup.number().required(),
+    reason: yup.number().required().min(1),
+    action: yup.number().required().min(1),
     body: yup.string().min(10).max(4096),
 });
 
-export const validateForm = (form: ModerationRequest): string[] => {
+export const validateModerationForm = (
+    form: ModerationRequest
+): string[] => {
     try {
         formSchema.validateSync(form, {abortEarly: false});
         return [];
@@ -27,16 +30,32 @@ export const validateForm = (form: ModerationRequest): string[] => {
     }
 };
 
-export const useForm = (reportId: number | string | null) => {
+export const useModerationForm = (
+    reportId?: number | string | null
+) => {
     return useState<ModerationRequest>({
-        reportId: reportId !== null? Number(reportId): 0,
+        reportId: reportId? Number(reportId): 0,
         reason: ModerationReason.NONE,
-        action: ModerationAction.Flagged,
+        action: 0,
         body: '',
     });
 }
 
-export const transformForm = (form: ModerationRequest): ModerationRequest => {
+export const useSetModerationFormField = (
+    setModForm: (value: React.SetStateAction<ModerationRequest>) => void
+) => {
+    return useCallback((e: any) => {
+        const field = (e.target.id || e.target.name);
+        const value = e.target.type === 'checkbox'?
+            e.target.checked:
+            e.target.value;
+        setModForm(form => setField(form, field, value));
+    }, []);
+};
+
+export const transformModerationForm = (
+    form: ModerationRequest
+): ModerationRequest => {
     return {
         reportId: Number(form.reportId),
         action: Number(form.action),
@@ -45,7 +64,7 @@ export const transformForm = (form: ModerationRequest): ModerationRequest => {
     }
 };
 
-const CreateForm = (props: Props) => {
+const CreateModerationForm = (props: Props) => {
 
     const {form, onChange} = props;
 
@@ -84,4 +103,4 @@ const CreateForm = (props: Props) => {
     )
 };
 
-export default CreateForm;
+export default CreateModerationForm;

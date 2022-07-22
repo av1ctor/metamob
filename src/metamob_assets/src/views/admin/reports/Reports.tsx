@@ -4,13 +4,15 @@ import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
 import { Filter, Order } from "../../../libs/common";
-import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
+import { ReportState, reportStateToText } from "../../../libs/reports";
+import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
 import { ActorContext } from "../../../stores/actor";
-import ModerateForm from "../../../views/reports/report/Moderate";
+import ViewForm from "../../reports/report/View";
 import EditUserForm from "../../../views/users/user/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";
+import EntityModerate from "../../reports/report/EntityModerate";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -41,6 +43,7 @@ const Reports = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         editUser: false,
+        moderate: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -66,6 +69,13 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
+    const toggleModerate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderate: !modals.moderate
+        }));
+    }, []);
+
     const toggleEditUser = useCallback(() => {
         setModals(modals => ({
             ...modals,
@@ -80,6 +90,11 @@ const Reports = (props: Props) => {
                 toggleEdit();
                 break;
         }
+    }, []);
+
+    const handleModerate = useCallback((item: ReportResponse) => {
+        setReport(item);
+        toggleModerate();
     }, []);
 
     const handleEditUser = useCallback((item: Profile) => {
@@ -188,9 +203,10 @@ const Reports = (props: Props) => {
                 onClose={toggleEdit}
             >
                 {report &&
-                    <ModerateForm
+                    <ViewForm
                         report={report}
                         onEditUser={handleEditUser}
+                        onModerate={handleModerate}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -198,6 +214,22 @@ const Reports = (props: Props) => {
                     />
                 }
             </Modal>            
+
+            <Modal
+                header={<span>Moderate entity</span>}
+                isOpen={modals.moderate}
+                onClose={toggleModerate}
+            >
+                {report && 
+                    <EntityModerate
+                        report={report}
+                        onClose={toggleModerate}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
 
             <Modal
                 header={<span>Edit user</span>}

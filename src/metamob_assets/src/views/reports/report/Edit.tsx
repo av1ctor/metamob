@@ -5,8 +5,8 @@ import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
-import { useCreateReport, useUpdateReport } from "../../../hooks/reports";
-import { kinds, ReportKind, ReportType } from "../../../libs/reports";
+import { useUpdateReport } from "../../../hooks/reports";
+import { kinds } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
@@ -26,12 +26,15 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
+
+    const {report} = props;
     
     const [form, setForm] = useState<ReportRequest>({
-        entityId: props.report.entityId,
-        entityType: props.report.entityType,
-        kind: props.report.kind,
-        description: props.report.description,
+        entityId: report.entityId,
+        entityPubId: report.entityPubId,
+        entityType: report.entityType,
+        kind: report.kind,
+        description: report.description,
     });
 
     const mutation = useUpdateReport();
@@ -63,13 +66,14 @@ const EditForm = (props: Props) => {
                 pubId: props.report.pubId,
                 req: {
                     entityId: form.entityId,
+                    entityPubId: form.entityPubId,
                     entityType: form.entityType,
                     kind: Number(form.kind),
                     description: form.description,
                 }
             });
 
-            props.onSuccess('ReportResponse updated!');
+            props.onSuccess('Report updated!');
             props.onClose();
         }
         catch(e) {
@@ -93,11 +97,13 @@ const EditForm = (props: Props) => {
     }, []);
 
     useEffect(() => {
+        const {report} = props;
         setForm({
-            entityId: props.report.entityId,
-            entityType: props.report.entityType,
-            kind: props.report.kind,
-            description: props.report.description,
+            entityId: report.entityId,
+            entityType: report.entityType,
+            entityPubId: report.pubId,
+            kind: report.kind,
+            description: report.description,
         });
     }, [props.report]);
 

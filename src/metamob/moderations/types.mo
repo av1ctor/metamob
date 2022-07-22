@@ -32,6 +32,7 @@ module {
         reportId: Nat32;
         entityType: EntityTypes.EntityType;
         entityId: Nat32;
+        entityPubId: Text;
         challengeId: ?Nat32;
         createdAt: Int;
         createdBy: Nat32;

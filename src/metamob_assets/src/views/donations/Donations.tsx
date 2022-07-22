@@ -5,10 +5,11 @@ import {useFindDonationsByCampaign} from "../../hooks/donations";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
 import ReportForm from "../reports/report/Create";
-import { ReportType } from "../../libs/reports";
+import { EntityType } from "../../libs/common";
 import DeleteForm from "./donation/Delete";
 import EditForm from "./donation/Edit";
 import Button from "../../components/Button";
+import ModerationModal from "../moderations/Modal";
 
 interface Props {
     campaign: Campaign;
@@ -27,6 +28,7 @@ const Donations = (props: Props) => {
         edit: false,
         delete: false,
         report: false,
+        moderations: false,
     });
     const [donation, setDonation] = useState<DonationResponse | undefined>(undefined);
 
@@ -54,6 +56,14 @@ const Donations = (props: Props) => {
         setDonation(donation);
     }, []);
 
+    const toggleModerations = useCallback((donation: DonationResponse | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+        setDonation(donation);
+    }, []);
+
     const campaign = props.campaign;
 
     const donations = useFindDonationsByCampaign(campaign._id, orderBy, 10);
@@ -73,6 +83,7 @@ const Donations = (props: Props) => {
                                 onEdit={toggleEdit}
                                 onDelete={toggleDelete}
                                 onReport={toggleReport}
+                                onShowModerations={toggleModerations}
                             />                        
                         )}
                     </Fragment>
@@ -129,7 +140,8 @@ const Donations = (props: Props) => {
                 {donation &&
                     <ReportForm
                         entityId={donation._id}
-                        entityType={ReportType.DONATIONS}
+                        entityPubId={donation.pubId}
+                        entityType={EntityType.DONATIONS}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -137,6 +149,16 @@ const Donations = (props: Props) => {
                     />
                 }
             </Modal>        
+        
+            {donation &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.DONATIONS}
+                    entityId={donation._id}
+                    moderated={donation.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     )
 };

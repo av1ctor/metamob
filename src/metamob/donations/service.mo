@@ -216,23 +216,16 @@ module {
                                         return #err("Forbidden");
                                     };
                                     case (?report) {
-                                        switch(canChangeCampaign(entity.campaignId)) {
+                                        if(req.value != entity.value) {
+                                            return #err("Invalid field: value");
+                                        };
+                                        
+                                        switch(moderationService.create(mod, report, caller)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
-                                            case (#ok(campaign)) {
-                                                if(req.value != entity.value) {
-                                                    return #err("Invalid field: value");
-                                                };
-                                                
-                                                switch(moderationService.create(mod, report, caller)) {
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                    case (#ok(moderation)) {
-                                                        repo.moderate(entity, req, mod.reason, caller._id);
-                                                    };
-                                                };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(entity, req, mod.reason, caller._id);
                                             };
                                         };
                                     };

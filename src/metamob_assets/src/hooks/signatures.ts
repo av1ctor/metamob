@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {SignatureRequest, Metamob, SignatureResponse, Signature} from "../../../declarations/metamob/metamob.did";
+import {SignatureRequest, Metamob, SignatureResponse, Signature, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/signatures';
 
@@ -109,6 +109,28 @@ export const useUpdateSignature = () => {
             }
             
             const res = await options.main.signatureUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['signatures']);
+            }   
+        }
+    );
+};
+
+export const useModerateSignature = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: SignatureRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.signatureModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

@@ -1,15 +1,19 @@
-import React, {useState, ChangeEvent, useCallback, useContext, useEffect} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
-import {useUpdateVote} from "../../../hooks/votes";
+import {useModerateVote, useUpdateVote} from "../../../hooks/votes";
 import {VoteResponse, VoteRequest} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import CheckboxField from "../../../components/CheckboxField";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
+import { AuthContext } from "../../../stores/auth";
+import { isModerator } from "../../../libs/users";
 
 interface Props {
     vote: VoteResponse;
+    reportId?: number | null;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -24,6 +28,7 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
+    const [authState, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<VoteRequest>({
         campaignId: props.vote.campaignId,
@@ -32,7 +37,10 @@ const EditForm = (props: Props) => {
         anonymous: props.vote.anonymous,
     });
     
+    const [modForm, setModForm] = useModerationForm(props.reportId);
+
     const updateMut = useUpdateVote();
+    const moderateMut = useModerateVote();
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -44,6 +52,8 @@ const EditForm = (props: Props) => {
             [field.replace('__edit__', '')]: value
         }));
     }, []);
+
+    const changeModForm = useSetModerationFormField(setModForm);
 
     const validate = (form: VoteRequest): string[] => {
         try {
@@ -63,21 +73,47 @@ const EditForm = (props: Props) => {
             props.onError(errors);
             return;
         }
-        
+
+        const isModeration = props.reportId && isModerator(authState.user);
+
+        if(isModeration) {
+            const errors = validateModerationForm(modForm);
+            if(errors.length > 0) {
+                props.onError(errors);
+                return;
+            }
+        }
+
+        const transformReq = (): VoteRequest => {
+            return {
+                campaignId: Number(props.vote.campaignId),
+                body: form.body,
+                pro: Boolean(form.pro),
+                anonymous: form.anonymous,
+            };
+        };
+       
         try {
             props.toggleLoading(true);
 
-            await updateMut.mutateAsync({
-                main: actorState.main,
-                pubId: props.vote.pubId, 
-                req: {
-                    campaignId: Number(props.vote.campaignId),
-                    body: form.body,
-                    pro: Boolean(form.pro),
-                    anonymous: form.anonymous,
-                }
-        });
-            props.onSuccess('Vote updated!');
+            if(isModeration) {
+                await moderateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.vote.pubId, 
+                    req: transformReq(),
+                    mod: transformModerationForm(modForm)
+                });
+                props.onSuccess('Vote moderated!');
+            }
+            else {
+                await updateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.vote.pubId, 
+                    req: transformReq()
+                });
+                props.onSuccess('Vote updated!');
+            }
+
             props.onClose();
         }
         catch(e) {
@@ -86,7 +122,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, props.onClose]);
+    }, [form, modForm, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -129,6 +165,12 @@ const EditForm = (props: Props) => {
                     value={form.anonymous}
                     onChange={changeForm}
                 />
+                {props.reportId && isModerator(authState.user) &&
+                    <CreateModerationForm
+                        form={modForm}
+                        onChange={changeModForm}
+                    />
+                }
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button

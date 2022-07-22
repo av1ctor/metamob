@@ -204,6 +204,7 @@ module {
                 reportId = report._id;
                 entityType = report.entityType;
                 entityId = report.entityId;
+                entityPubId = report.entityPubId;
                 challengeId = null;
                 createdAt = Time.now();
                 createdBy = callerId;
@@ -227,6 +228,7 @@ module {
                 reportId = e._id;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityPubId = e.entityPubId;
                 challengeId = e.challengeId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -250,6 +252,7 @@ module {
                 reportId = e._id;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityPubId = e.entityPubId;
                 challengeId = ?challenge._id;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -274,6 +277,7 @@ module {
         res.put("reportId", #nat32(e.reportId));
         res.put("entityType", #nat32(e.entityType));
         res.put("entityId", #nat32(e.entityId));
+        res.put("entityPubId", #text(e.entityPubId));
         res.put("challengeId", switch(e.challengeId) {case null #nil; case (?challengeId) #nat32(challengeId);});
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -296,6 +300,7 @@ module {
             reportId = Variant.getOptNat32(map.get("reportId"));
             entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
+            entityPubId = Variant.getOptText(map.get("entityPubId"));
             challengeId = Variant.getOptNat32Opt(map.get("challengeId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

@@ -4,14 +4,15 @@ import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface BaseItemProps {
     signature: SignatureResponse;
     user?: ProfileResponse;
     children?: any;
+    onShowModerations?: (signature: SignatureResponse) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -33,6 +34,12 @@ export const BaseItem = (props: BaseItemProps) => {
                             <strong>{props.user?.name}</strong>
                         </div>
                     }
+                    <div>
+                        <ModerationBadge
+                            reason={signature.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(signature)} 
+                        />
+                    </div>
                     <Markdown 
                         className="update-body" 
                         body={signature.body || '\n&nbsp;\n'}
@@ -50,6 +57,7 @@ interface ItemProps {
     onEdit: (signature: SignatureResponse) => void;
     onDelete: (signature: SignatureResponse) => void;
     onReport: (signature: SignatureResponse) => void;
+    onShowModerations: (signature: SignatureResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -64,13 +72,13 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && (auth.user._id === author && author !== 0));
 
     return (
         <BaseItem
             user={user.data}
             signature={signature}
+            onShowModerations={props.onShowModerations}
         >
             <p>
                 <small>

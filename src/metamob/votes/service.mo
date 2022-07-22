@@ -152,23 +152,16 @@ module {
                                         return #err("Forbidden");
                                     };
                                     case (?report) {
-                                        switch(canChangeCampaign(entity.campaignId)) {
+                                        if(req.pro != entity.pro) {
+                                            return #err("Type can't be changed");
+                                        };
+
+                                        switch(moderationService.create(mod, report, caller)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
-                                            case (#ok(campaign)) {
-                                                if(req.pro != entity.pro) {
-                                                    return #err("Type can't be changed");
-                                                };
-
-                                                switch(moderationService.create(mod, report, caller)) {
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                    case (#ok(moderation)) {
-                                                        repo.moderate(entity, req, mod.reason, caller._id);
-                                                    };
-                                                };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(entity, req, mod.reason, caller._id);
                                             };
                                         };
                                     };

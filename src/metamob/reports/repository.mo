@@ -302,6 +302,7 @@ module {
                 resolution = "";
                 entityType = req.entityType;
                 entityId = req.entityId;
+                entityPubId = req.entityPubId;
                 entityCreatedBy = entityCreatedBy;
                 moderationId = null;
                 createdAt = Time.now();
@@ -328,6 +329,7 @@ module {
                 resolution = e.resolution;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityPubId = e.entityPubId;
                 entityCreatedBy = e.entityCreatedBy;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -357,6 +359,7 @@ module {
                 resolution = req.resolution;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityPubId = e.entityPubId;
                 entityCreatedBy = e.entityCreatedBy;
                 moderationId = e.moderationId;
                 createdAt = e.createdAt;
@@ -383,6 +386,7 @@ module {
                 resolution = e.resolution;
                 entityType = e.entityType;
                 entityId = e.entityId;
+                entityPubId = e.entityPubId;
                 entityCreatedBy = e.entityCreatedBy;
                 moderationId = ?moderationId;
                 createdAt = e.createdAt;
@@ -410,6 +414,7 @@ module {
         res.put("resolution", #text(if ignoreCase Utils.toLower(e.resolution) else e.resolution));
         res.put("entityType", #nat32(e.entityType));
         res.put("entityId", #nat32(e.entityId));
+        res.put("entityPubId", #text(e.entityPubId));
         res.put("entityCreatedBy", #nat32(e.entityCreatedBy));
         res.put("moderationId", switch(e.moderationId) {case null #nil; case (?moderationId) #nat32(moderationId);});
         res.put("createdAt", #int(e.createdAt));
@@ -435,6 +440,7 @@ module {
             resolution = Variant.getOptText(map.get("resolution"));
             entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
+            entityPubId = Variant.getOptText(map.get("entityPubId"));
             entityCreatedBy = Variant.getOptNat32(map.get("entityCreatedBy"));
             moderationId = Variant.getOptNat32Opt(map.get("moderationId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

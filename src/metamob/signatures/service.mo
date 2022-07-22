@@ -159,19 +159,12 @@ module {
                                         return #err("Forbidden");
                                     };
                                     case (?report) {
-                                        switch(canChangeCampaign(entity.campaignId)) {
+                                        switch(moderationService.create(mod, report, caller)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
-                                            case (#ok(campaign)) {
-                                                switch(moderationService.create(mod, report, caller)) {
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                    case (#ok(moderation)) {
-                                                        repo.moderate(entity, req, mod.reason, caller._id);
-                                                    };
-                                                };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(entity, req, mod.reason, caller._id);
                                             };
                                         };
                                     };

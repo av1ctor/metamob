@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {FundingRequest, Metamob, FundingResponse, Funding} from "../../../declarations/metamob/metamob.did";
+import {FundingRequest, Metamob, FundingResponse, Funding, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/fundings';
 
@@ -128,6 +128,28 @@ export const useUpdateFunding = () => {
             }
             
             const res = await options.main.fundingUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['fundings']);
+            }   
+        }
+    );
+};
+
+export const useModerateFunding = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: FundingRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.fundingModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

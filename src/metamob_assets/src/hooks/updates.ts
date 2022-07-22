@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {UpdateRequest, Update, Metamob} from "../../../declarations/metamob/metamob.did";
+import {UpdateRequest, Update, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findById, findByPubId } from '../libs/updates';
@@ -88,6 +88,28 @@ export const useUpdateUpdate = () => {
             }
             
             const res = await options.main.updateUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['updates']);
+            }   
+        }
+    );
+};
+
+export const useModerateUpdate = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: UpdateRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.updateModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

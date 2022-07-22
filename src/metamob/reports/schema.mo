@@ -41,6 +41,10 @@ module {
                 options = [];
             },
             {
+                name = "entityPubId";
+                options = [];
+            },
+            {
                 name = "entityCreatedBy";
                 options = [#sortable];
             },

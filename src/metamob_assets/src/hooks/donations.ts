@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {DonationRequest, Metamob, DonationResponse, Donation} from "../../../declarations/metamob/metamob.did";
+import {DonationRequest, Metamob, DonationResponse, Donation, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/donations';
 
@@ -128,6 +128,28 @@ export const useUpdateDonation = () => {
             }
             
             const res = await options.main.donationUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['donations']);
+            }   
+        }
+    );
+};
+
+export const useModerateDonation = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: DonationRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.donationModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

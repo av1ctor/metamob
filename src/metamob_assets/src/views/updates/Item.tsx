@@ -1,10 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import {Update} from "../../../../declarations/metamob/metamob.did";
 import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface ItemProps {
     update: Update;
@@ -12,6 +13,7 @@ interface ItemProps {
     onEdit: (update: Update) => void;
     onDelete: (update: Update) => void;
     onReport: (update: Update) => void;
+    onShowModerations?: (update: Update) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -32,6 +34,12 @@ export const Item = (props: ItemProps) => {
                 <div className="content">
                     <strong>{profile?.isSuccess && profile?.data.name}</strong>
                     <br />
+                    <div>
+                        <ModerationBadge
+                            reason={update.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(update)} 
+                        />
+                    </div>
                     <Markdown 
                         className="update-body" 
                         body={update.body}
