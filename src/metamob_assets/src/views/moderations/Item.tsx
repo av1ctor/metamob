@@ -45,7 +45,7 @@ const Item = (props: Props) => {
                         />
                     </div>
                 </div>
-                <div className="control">
+                <div className="control has-text-centered">
                     <Button
                         color="success"
                         disabled={mod.state !== ModerationState.Created}

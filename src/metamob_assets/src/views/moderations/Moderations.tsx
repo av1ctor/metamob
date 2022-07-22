@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import { EntityType } from "../../../../declarations/metamob/metamob.did";
 import Button from "../../components/Button";
 import { useFindModerationsByEntity } from "../../hooks/moderations";
@@ -26,6 +26,11 @@ const Moderations = (props: Props) => {
         actorState.main
     );
 
+    const handleClose = useCallback((e: any) => {
+        e.preventDefault();
+        props.onClose();
+    }, [props.onClose]);
+
     return (
         <>
             <div>
@@ -42,7 +47,7 @@ const Moderations = (props: Props) => {
             <div className="control">
                 <Button
                     color="danger"
-                    onClick={props.onClose}
+                    onClick={handleClose}
                 >
                     Cancel
                 </Button>

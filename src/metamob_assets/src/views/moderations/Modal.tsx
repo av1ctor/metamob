@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import Modal from "../../components/Modal";
 import { EntityType } from "../../libs/common";
 import { ModerationReason } from "../../libs/moderations";
