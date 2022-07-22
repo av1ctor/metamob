@@ -19,6 +19,7 @@ import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
 import CampaignRepository "../campaigns/repository";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository(
@@ -49,6 +50,24 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Update, Text> {
             let e = _updateEntity(update, req, callerId);
+            switch(updates.replace(update._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            update: Types.Update, 
+            req: Types.UpdateRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Update, Text> {
+            let e = _updateEntityWhenModerated(update, req, reason, callerId);
+
             switch(updates.replace(update._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -245,6 +264,7 @@ module {
                 pubId = ulid.next();
                 body = req.body;
                 campaignId = req.campaignId;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -262,6 +282,26 @@ module {
                 pubId = e.pubId;
                 body = req.body;
                 campaignId = req.campaignId;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Update, 
+            req: Types.UpdateRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Update {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                body = req.body;
+                campaignId = req.campaignId;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -280,6 +320,7 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("campaignId", #nat32(e.campaignId));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -296,6 +337,7 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             body = Variant.getOptText(map.get("body"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

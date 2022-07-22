@@ -14,7 +14,8 @@ export enum PlaceKind {
     BUILDING = 7,
     FLOOR = 8,
     ROOM = 9,
-    OTHER = 10,
+    DAO = 10,
+    OTHER = 99,
 }
 
 export enum PlaceAuthNum {
@@ -35,6 +36,7 @@ export const kinds: {name: string, value: any}[] = [
     {name: 'Building', value: PlaceKind.BUILDING},
     {name: 'Floor', value: PlaceKind.FLOOR},
     {name: 'Room', value: PlaceKind.ROOM},
+    {name: 'DAO', value: PlaceKind.DAO},
     {name: 'Other', value: PlaceKind.OTHER},
 ];
 

@@ -68,6 +68,9 @@ const Place = (props: Props) => {
             <ScrollToTop />
             <PlaceBar
                 place={place.data}
+                onSuccess={props.onSuccess}
+                onError={props.onError}
+                toggleLoading={props.toggleLoading}
             />
             <Bar
                 place={place.data}

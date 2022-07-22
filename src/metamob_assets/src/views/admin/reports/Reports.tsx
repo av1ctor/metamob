@@ -1,17 +1,18 @@
 import React, { useCallback, useContext, useState } from "react";
-import { Profile, Report } from "../../../../../declarations/metamob/metamob.did";
+import { Profile, ReportResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
 import { Filter, Order } from "../../../libs/common";
-import { entityTypeToColor, entityTypeToText, ReportState, reportStateToText } from "../../../libs/reports";
+import { ReportState, reportStateToText } from "../../../libs/reports";
+import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
 import { ActorContext } from "../../../stores/actor";
-import AssignForm from "./Assign";
-import EditForm from "./Edit";
-import EditUserForm from "../users/Edit";
+import ViewForm from "../../reports/report/View";
+import EditUserForm from "../../../views/users/user/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";
+import EntityModerate from "../../reports/report/EntityModerate";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -34,15 +35,15 @@ const Reports = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [user, setUser] = useState<Profile>();
-    const [report, setReport] = useState<Report>();
+    const [report, setReport] = useState<ReportResponse>();
     const [limit, setLimit] = useState({
         offset: 0,
         size: 10
     });
     const [modals, setModals] = useState({
-        assign: false,
         edit: false,
         editUser: false,
+        moderate: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -61,17 +62,17 @@ const Reports = (props: Props) => {
         );
     }, []);
     
-    const toggleAssign = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            assign: !modals.assign
-        }));
-    }, []);
-
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
             ...modals,
             edit: !modals.edit
+        }));
+    }, []);
+
+    const toggleModerate = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderate: !modals.moderate
         }));
     }, []);
 
@@ -82,16 +83,18 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const handleReport = useCallback((item: Report) => {
+    const handleReport = useCallback((item: ReportResponse) => {
         setReport(item);
         switch(item.state) {
-            case ReportState.CREATED:
-                toggleAssign();
-                break;
             case ReportState.ASSIGNED:
                 toggleEdit();
                 break;
         }
+    }, []);
+
+    const handleModerate = useCallback((item: ReportResponse) => {
+        setReport(item);
+        toggleModerate();
     }, []);
 
     const handleEditUser = useCallback((item: Profile) => {
@@ -195,30 +198,15 @@ const Reports = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Assign report</span>}
-                isOpen={modals.assign}
-                onClose={toggleAssign}
-            >
-                {report &&
-                    <AssignForm
-                        report={report}
-                        onClose={toggleAssign}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
-                    />
-                }
-            </Modal>
-
-            <Modal
                 header={<span>Edit report</span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
                 {report &&
-                    <EditForm
+                    <ViewForm
                         report={report}
                         onEditUser={handleEditUser}
+                        onModerate={handleModerate}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -226,6 +214,22 @@ const Reports = (props: Props) => {
                     />
                 }
             </Modal>            
+
+            <Modal
+                header={<span>Moderate entity</span>}
+                isOpen={modals.moderate}
+                onClose={toggleModerate}
+            >
+                {report && 
+                    <EntityModerate
+                        report={report}
+                        onClose={toggleModerate}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
 
             <Modal
                 header={<span>Edit user</span>}

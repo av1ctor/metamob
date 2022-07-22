@@ -21,6 +21,7 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository(
@@ -51,6 +52,24 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Signature, Text> {
             let e = _updateEntity(signature, req, callerId);
+            switch(signatures.replace(signature._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            signature: Types.Signature, 
+            req: Types.SignatureRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Signature, Text> {
+            let e = _updateEntityWhenModerated(signature, req, reason, callerId);
+
             switch(signatures.replace(signature._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -340,6 +359,7 @@ module {
                 body = req.body;
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -358,6 +378,27 @@ module {
                 body = req.body;
                 anonymous = req.anonymous;
                 campaignId = e.campaignId;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Signature, 
+            req: Types.SignatureRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Signature {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                body = req.body;
+                anonymous = req.anonymous;
+                campaignId = e.campaignId;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -377,6 +418,7 @@ module {
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -394,6 +436,7 @@ module {
             body = Variant.getOptText(map.get("body"));
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

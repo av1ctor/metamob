@@ -1,9 +1,6 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { Campaign, Profile } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
-import { usePublishCampaign } from "../../../hooks/campaigns";
-import { CampaignState } from "../../../libs/campaigns";
-import { ActorContext } from "../../../stores/actor";
 import { Preview } from "../../campaigns/campaign/Preview";
 
 interface Props {
@@ -16,29 +13,6 @@ interface Props {
 }
 
 const View = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    
-    const mutation = usePublishCampaign();
-    
-    const handlePublish = useCallback(async (e: any) => {
-        e.preventDefault();
-        
-        try {
-            props.toggleLoading(true);
-
-            await mutation.mutateAsync({
-                main: actorState.main,
-                pubId: props.campaign.pubId
-            });
-            props.onSuccess('Campaign published!');
-        }
-        catch(e) {
-            props.onError(e);
-        }
-        finally {
-            props.toggleLoading(false);
-        }
-    }, [props.campaign.pubId]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -55,13 +29,6 @@ const View = (props: Props) => {
             />
             <div className="field is-grouped mt-2">
                 <div className="control">
-                    <Button
-                        color="success"
-                        disabled={campaign.state !== CampaignState.CREATED}
-                        onClick={handlePublish}
-                    >
-                        Publish
-                    </Button>
                 </div>
                 <div className="control">
                     <Button

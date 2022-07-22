@@ -9,6 +9,7 @@ import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Badge from "../../../components/Badge";
 import { Paginator } from "../../../components/Paginator";
+import { Banned } from "../../../libs/users";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -155,7 +156,7 @@ const Users = (props: Props) => {
                                         </Badge>
                                     </div>
                                     <div className="column is-1">
-                                        {item.banned? 
+                                        {item.banned === Banned.AsUser? 
                                             <Badge color="danger">true</Badge>
                                         :
                                             <span></span>

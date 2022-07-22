@@ -18,6 +18,7 @@ import Item from "../Item";
 import { AuthContext } from "../../../stores/auth";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
+import { ModerationReason } from "../../../libs/moderations";
 
 interface Props {
     mutation: any;
@@ -53,6 +54,7 @@ const toCampaign = (
         interactions: 0,
         updates: 0,
         action: {nop: null},
+        moderated: ModerationReason.NONE,
         createdAt: now,
         createdBy: user?._id || 0,
         updatedAt: [],

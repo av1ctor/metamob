@@ -8,6 +8,13 @@ import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
 import { principalToAccountDefaultIdentifier, transferErrorToText } from "./icp";
 
+export enum Banned {
+    None = 0,
+    AsAdmin = 2,
+    AsModerator = 4,
+    AsUser = 8,
+} 
+
 const anonymous: ProfileResponse = {
     _id: 0,
     pubId: '',

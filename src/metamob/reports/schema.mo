@@ -21,6 +21,10 @@ module {
                 options = [#sortable];
             },
             {
+                name = "kind";
+                options = [];
+            },
+            {
                 name = "description";
                 options = [#min(10), #max(4096)];
             },
@@ -35,6 +39,18 @@ module {
             {
                 name = "entityId";
                 options = [];
+            },
+            {
+                name = "entityPubId";
+                options = [];
+            },
+            {
+                name = "entityCreatedBy";
+                options = [#sortable];
+            },
+            {
+                name = "moderationId";
+                options = [#nullable];
             },
             {
                 name = "createdAt";
@@ -54,11 +70,11 @@ module {
             },
             {
                 name = "assignedAt";
-                options = [#nullable, #sortable];
+                options = [#sortable];
             },
             {
                 name = "assignedTo";
-                options = [#nullable, #sortable];
+                options = [#sortable];
             }
         ];
     };

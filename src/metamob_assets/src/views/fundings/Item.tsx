@@ -4,17 +4,18 @@ import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState, findById } from "../../libs/campaigns";
 import { FundingState } from "../../libs/fundings";
-import { isModerator } from "../../libs/users";
 import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface BaseItemProps {
     user?: ProfileResponse;
     campaign?: Campaign;
     funding: FundingResponse;
     children?: any;
+    onShowModerations?: (funding: FundingResponse) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -39,22 +40,24 @@ export const BaseItem = (props: BaseItemProps) => {
 
     return (
         <article className="media">
-            <div className="media-left">
-                <div className="flex-node w-12">
-                    {props.user &&
+            {props.user &&
+                <div className="media-left">
+                    <div className="flex-node w-12">
                         <Avatar 
                             id={props.user._id} 
                             size='lg' 
                             noName={true} 
                         />
-                    }
+                    </div>
                 </div>
-            </div>
+            }
             <div className="media-content">
                 <div className="content">
-                    <div>
-                        <strong>{props.user?.name}</strong>
-                    </div>
+                    {props.user &&
+                        <div>
+                            <strong>{props.user?.name}</strong>
+                        </div>
+                    }
                     <div>
                         Tier:&nbsp;<strong>{props.funding.tier} - "{tiers.length > 0? tiers[props.funding.tier].title: ''}"</strong>
                     </div>
@@ -70,6 +73,12 @@ export const BaseItem = (props: BaseItemProps) => {
                                 <i className="la la-times-circle" title="Ongoing..." />
                             }
                         </span>
+                    </div>
+                    <div>
+                        <ModerationBadge
+                            reason={funding.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(funding)} 
+                        />
                     </div>
                     <Markdown
                         className="update-body" 
@@ -88,6 +97,7 @@ interface ItemProps {
     onEdit: (funding: FundingResponse) => void;
     onDelete: (funding: FundingResponse) => void;
     onReport: (funding: FundingResponse) => void;
+    onShowModerations?: (funding: FundingResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -102,14 +112,14 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && (auth.user._id === author && author !== 0));
 
     return (
         <BaseItem
             user={user.data}
             campaign={props.campaign}
             funding={funding}
+            onShowModerations={props.onShowModerations}
         >
             <p>
                 <small>

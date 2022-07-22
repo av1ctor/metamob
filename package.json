@@ -12,8 +12,8 @@
     "build": "NODE_ENV=production webpack",
     "prebuild": "npm run copy:types",
     "dev:front": "npm run serve",
-    "dev:back": "./deploy-backend.sh",
-    "prod:back": "./deploy-backend-prod.sh",
+    "dev:back": "./scripts/deploy-backend.sh",
+    "prod:back": "./scripts/deploy-backend-prod.sh",
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
     "prestart": "npm run copy:types",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --delete src/declarations"

@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, useInfiniteQuery, UseInfiniteQueryResult} from 'react-query'
-import {CampaignRequest, Campaign, Metamob} from "../../../declarations/metamob/metamob.did";
+import {CampaignRequest, Campaign, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 
@@ -126,15 +126,15 @@ export const useUpdateCampaign = () => {
     );
 };
 
-export const usePublishCampaign = () => {
+export const useModerateCampaign = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
+        async (options: {main?: Metamob, pubId: string, req: CampaignRequest, mod: ModerationRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.campaignPublish(options.pubId);
+            const res = await options.main.campaignModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

@@ -1,4 +1,7 @@
 {
+  "ledger": {
+    "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+  },
   "metamob": {
     "ic": "kagj6-zyaaa-aaaah-ablhq-cai"
   },
@@ -6,9 +9,6 @@
     "ic": "wbpm2-ciaaa-aaaan-qajta-cai"
   },
   "mmt": {
-    "ic": "tbqmo-6aaaa-aaaan-qajoq-cai"
-  },
-  "ledger": {
-    "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+    "ic": "o7r25-giaaa-aaaah-abl6q-cai"
   }
 }

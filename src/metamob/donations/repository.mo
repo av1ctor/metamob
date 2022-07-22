@@ -21,6 +21,7 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository(
@@ -69,6 +70,24 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Donation, Text> {
             let e = _updateEntity(donation, req, donation.state, callerId);
+            switch(donations.replace(donation._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            donation: Types.Donation, 
+            req: Types.DonationRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Donation, Text> {
+            let e = _updateEntityWhenModerated(donation, req, reason, callerId);
+
             switch(donations.replace(donation._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -379,6 +398,7 @@ module {
                 campaignId = req.campaignId;
                 body = req.body;
                 value = req.value;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -399,7 +419,8 @@ module {
                 anonymous = req.anonymous;
                 campaignId = e.campaignId;
                 body = req.body;
-                value = req.value;                
+                value = req.value;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -419,7 +440,30 @@ module {
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = e.body;
-                value = value;                
+                value = value;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Donation, 
+            req: Types.DonationRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Donation {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                anonymous = req.anonymous;
+                campaignId = e.campaignId;
+                body = req.body;
+                value = req.value;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = e.updatedAt;
@@ -441,6 +485,7 @@ module {
         res.put("campaignId", #nat32(e.campaignId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("value", #nat(e.value));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -460,6 +505,7 @@ module {
             campaignId = Variant.getOptNat32(map.get("campaignId"));
             body = Variant.getOptText(map.get("body"));
             value = Variant.getOptNat(map.get("value"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

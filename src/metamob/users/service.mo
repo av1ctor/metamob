@@ -1,20 +1,32 @@
-import Principal "mo:base/Principal";
-import Array "mo:base/Array";
-import Text "mo:base/Text";
-import Option "mo:base/Option";
-import Result "mo:base/Result";
-import Variant "mo:mo-table/variant";
-import Types "./types";
-import Repository "./repository";
-import Utils "./utils";
 import AccountTypes "../accounts/types";
+import Array "mo:base/Array";
+import D "mo:base/Debug";
+import DaoService "../dao/service";
+import EntityTypes "../common/entities";
 import LedgerUtils "../common/ledger";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
+import Repository "./repository";
+import Result "mo:base/Result";
+import Text "mo:base/Text";
+import Types "./types";
+import Utils "./utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
+        repo: Repository.Repository,
+        daoService: DaoService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository,
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
-        let repo = Repository.Repository();
         var hasAdmin: Bool = false;
 
         public func create(
@@ -48,13 +60,12 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPrincipal(Principal.toText(invoker));
-            switch(caller) {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
                     
@@ -72,7 +83,7 @@ module {
         };
 
         public func update(
-            id: Text, 
+            pubId: Text, 
             req: Types.ProfileRequest,
             invoker: Principal
         ): Result.Result<Types.Profile, Text> {
@@ -80,38 +91,119 @@ module {
                 return #err("Forbidden: anonymous user");
             };
 
-            let caller = repo.findByPrincipal(Principal.toText(invoker));
-            switch(caller) {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
                     
-                    if(Text.equal(caller.pubId, id)) {
-                        if(Option.isSome(req.roles) or 
-                            Option.isSome(req.active) or
-                            Option.isSome(req.banned)) {
-                            return #err("Forbidden: invalid fields");
-                        };
-
-                        repo.update(caller, req, caller._id);
-                    }
-                    else if(Utils.isAdmin(caller)) {
-                        switch(repo.findByPubId(id)) {
-                            case (#err(msg)) {
-                                #err(msg);
-                            };
-                            case (#ok(prof)) {
-                                repo.update(prof, req, caller._id);
-                            };
-                        };
-                    }
-                    else {
-                        #err("Forbidden");
+                    if(not Text.equal(caller.pubId, pubId)) {
+                        return #err("Forbidden");
                     };
+
+                    if(Option.isSome(req.roles) or 
+                        Option.isSome(req.active) or
+                        Option.isSome(req.banned)) {
+                        return #err("Forbidden: invalid fields");
+                    };
+
+                    repo.update(caller, req, caller._id);
+                };
+            };
+        };
+
+        public func moderate(
+            pubId: Text, 
+            req: Types.ProfileRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Profile, Text> {
+            if(Principal.isAnonymous(invoker)) {
+                return #err("Forbidden: anonymous user");
+            };
+
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
+                        return #err("Forbidden: not active");
+                    };
+                    
+                    if(not Utils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    switch(repo.findByPubId(pubId)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(entity)) {
+                            // if it's a moderator, there must exist an open report
+                            switch(canModerate(caller, entity, mod)) {
+                                case null {
+                                    return #err("Forbidden");
+                                };
+                                case (?report) {
+                                    switch(moderationService.create(mod, report, caller)) {
+                                        case (#err(msg)) {
+                                            #err(msg);
+                                        };
+                                        case (#ok(moderation)) {
+                                            repo.moderate(entity, req, mod.reason, caller._id);
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func signupAsModerator(
+            invoker: Principal
+        ): Result.Result<Types.Profile, Text> {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
+                        return #err("Forbidden: not active or banned");
+                    };
+
+                    if(caller.banned == Types.BANNED_AS_MODERATOR) {
+                        return #err("Forbidden: banned as moderator");
+                    };
+                    
+                    if(Utils.isModerator(caller)) {
+                        return #err("Your are already a moderator");
+                    };
+
+                    let mmtStaked = daoService.stakedBalanceOf(invoker);
+                    let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
+                    if(mmtStaked < minStaked) {
+                        return #err("Your staked MMT's are not enough to become a moderator");
+                    };
+                    
+                    repo.update(
+                        caller, 
+                        {
+                            active = ?caller.active;
+                            avatar = caller.avatar;
+                            banned = ?caller.banned;
+                            country = caller.country;
+                            email = caller.email;
+                            name = caller.name;
+                            roles = ?_addRole(caller.roles, #moderator);
+                        }, 
+                        caller._id
+                    );
                 };
             };
         };
@@ -136,7 +228,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -179,7 +271,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == Types.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -208,6 +300,76 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        func canModerate(
+            caller: Types.Profile,
+            entity: Types.Profile,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not Utils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_USERS, entity._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
+        };
+
+        private func _addRole(
+            roles: [Types.Role],
+            role: Types.Role
+        ): [Types.Role] {
+            Array.append(roles, [role]);
+        };
+        
+        private func _removeRole(
+            roles: [Types.Role],
+            role: Types.Role
+        ): [Types.Role] {
+            Array.filter(roles, func (r: Types.Role): Bool = r != role)
+        };
+
+        public func verify(
+            this: actor {}
+        ): async () {
+            let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
+            
+            switch(repo.findByRole(#moderator)) {
+                case (#ok(moderators)) {
+                    if(moderators.size() > 0) {
+                        for(e in moderators.vals()) {
+                            let staked = daoService.stakedBalanceOf(Principal.fromText(e.principal));
+                            if(staked < minStaked) {
+                                D.print("Info: UserService.verify: removing moderator: " # Nat32.toText(e._id));
+                                ignore repo.update(
+                                    e,
+                                    {
+                                        active = ?e.active;
+                                        avatar = e.avatar;
+                                        banned = ?e.banned;
+                                        country = e.country;
+                                        email = e.email;
+                                        name = e.name;
+                                        roles = ?_removeRole(e.roles, #moderator)
+                                    },
+                                    1
+                                );
+                            };
+                        };
+                    };
+                };
+                case (#err(msg)) {
+                    D.print("Error: UserService.verify: " # msg);
+                };
+            };
         };
 
         public func getRepository(

@@ -1,34 +1,43 @@
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
 import Array "mo:base/Array";
-import Time "mo:base/Time";
-import Int "mo:base/Int";
-import Variant "mo:mo-table/variant";
-import UserTypes "./users/types";
-import CategoryTypes "./categories/types";
-import CampaignTypes "./campaigns/types";
-import SignatureTypes "./signatures/types";
-import VoteTypes "./votes/types";
-import DonationTypes "./donations/types";
-import FundingTypes "./fundings/types";
-import UpdateTypes "./updates/types";
-import ReportTypes "./reports/types";
-import PlaceTypes "./places/types";
-import PlaceEmailTypes "./places-emails/types";
-import UserService "./users/service";
-import CategoryService "./categories/service";
 import CampaignService "./campaigns/service";
-import SignatureService "./signatures/service";
-import VoteService "./votes/service";
-import DonationService "./donations/service";
-import FundingService "./fundings/service";
-import UpdateService "./updates/service";
-import ReportService "./reports/service";
-import PlaceService "./places/service";
-import PlaceEmailService "./places-emails/service";
-import DaoService "./dao/service";
-import LedgerUtils "./common/ledger";
+import CampaignTypes "./campaigns/types";
+import CategoryService "./categories/service";
+import CategoryTypes "./categories/types";
 import D "mo:base/Debug";
+import DaoService "./dao/service";
+import DaoTypes "./dao/types";
+import DonationService "./donations/service";
+import DonationTypes "./donations/types";
+import EntityTypes "common/entities";
+import FundingService "./fundings/service";
+import FundingTypes "./fundings/types";
+import Int "mo:base/Int";
+import LedgerUtils "./common/ledger";
+import ModerationService "./moderations/service";
+import ModerationTypes "./moderations/types";
+import Nat64 "mo:base/Nat64";
+import PlaceEmailService "./places-emails/service";
+import PlaceEmailTypes "./places-emails/types";
+import PlaceService "./places/service";
+import PlaceTypes "./places/types";
+import PlaceUserService "./places-users/service";
+import PlaceUserTypes "./places-users/types";
+import Principal "mo:base/Principal";
+import ReportRepository "./reports/repository";
+import ReportService "./reports/service";
+import ReportTypes "./reports/types";
+import Result "mo:base/Result";
+import SignatureService "./signatures/service";
+import SignatureTypes "./signatures/types";
+import Time "mo:base/Time";
+import UpdateService "./updates/service";
+import UpdateTypes "./updates/types";
+import UserRepository "./users/repository";
+import UserService "./users/service";
+import UserTypes "./users/types";
+import Variant "mo:mo-table/variant";
+import VoteService "./votes/service";
+import VoteTypes "./votes/types";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
@@ -39,20 +48,62 @@ shared({caller = owner}) actor class Metamob(
     let ledgerUtils = LedgerUtils.LedgerUtils(ledgerCanisterId);
 
     // services
-    let daoService = DaoService.Service(mmtCanisterId);
-    let userService = UserService.Service(ledgerUtils);
-    let placeService = PlaceService.Service(userService);
-    let placeEmailService = PlaceEmailService.Service(userService, placeService);
-    let categoryService = CategoryService.Service(userService);
-    let campaignService = CampaignService.Service(userService, placeService, ledgerUtils);
-    let signatureService = SignatureService.Service(userService, campaignService, placeService);
-    let voteService = VoteService.Service(userService, campaignService, placeService);
-    let donationService = DonationService.Service(userService, campaignService, placeService, ledgerUtils);
-    let fundingService = FundingService.Service(userService, campaignService, placeService, ledgerUtils);
-    let updateService = UpdateService.Service(userService, campaignService, placeService);
-    let reportService = ReportService.Service(daoService, userService, campaignService, 
-        signatureService, voteService, fundingService, donationService, updateService);
+    let userRepo = UserRepository.Repository();
+    let reportRepo = ReportRepository.Repository();
 
+    let daoService = DaoService.Service(mmtCanisterId);
+    let moderationService = ModerationService.Service(daoService, userRepo, reportRepo);
+    let userService = UserService.Service(userRepo, daoService, moderationService, reportRepo, ledgerUtils);
+    let placeService = PlaceService.Service(userService, moderationService, reportRepo);
+    let placeEmailService = PlaceEmailService.Service(userService, placeService);
+    let placeUserService = PlaceUserService.Service(userService, placeService);
+    let categoryService = CategoryService.Service(userService);
+    let campaignService = CampaignService.Service(userService, placeService, moderationService, reportRepo, ledgerUtils);
+    let signatureService = SignatureService.Service(userService, campaignService, placeService, moderationService, reportRepo);
+    let voteService = VoteService.Service(userService, campaignService, placeService, moderationService, reportRepo);
+    let donationService = DonationService.Service(userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils);
+    let fundingService = FundingService.Service(userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils);
+    let updateService = UpdateService.Service(userService, campaignService, placeService, moderationService, reportRepo);
+    let reportService = ReportService.Service(reportRepo, daoService, userService, campaignService, signatureService, 
+        voteService, fundingService, donationService, updateService, placeService);
+
+    // DAO facade
+    public shared query(msg) func daoConfigGetAsNat32(
+        key: Text
+    ): async Nat32 {
+        daoService.configGetAsNat32(key);
+    };
+
+    public shared query(msg) func daoConfigGetAsNat64(
+        key: Text
+    ): async Nat64 {
+        daoService.configGetAsNat64(key);
+    };
+
+    public shared(msg) func daoStake(
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.stake(Nat64.toNat(value), msg.caller, this);
+    };
+
+    public shared(msg) func daoWithdraw(
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.withdraw(Nat64.toNat(value), msg.caller, this);
+    };
+
+    public shared query(msg) func daoStakedBalance(
+    ): async Nat64 {
+        Nat64.fromNat(daoService.stakedBalanceOf(msg.caller));
+    };
+
+    /*public shared(msg) func daoReward(
+        principal: Principal,
+        value: Nat64
+    ): async Result.Result<(), Text> {
+        await daoService.rewardUser(principal, value);
+    };*/
+    
     //
     // users facade
     //
@@ -73,6 +124,19 @@ shared({caller = owner}) actor class Metamob(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
         _transformUserReponse(userService.update(id, req, msg.caller));
+    };
+
+    public shared(msg) func userModerate(
+        id: Text, 
+        req: UserTypes.ProfileRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
+        _transformUserReponse(userService.moderate(id, req, mod, msg.caller));
+    };
+
+    public shared(msg) func userSignupAsModerator(
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
+        _transformUserReponse(userService.signupAsModerator(msg.caller));
     };
 
     public query func userFindById(
@@ -212,10 +276,12 @@ shared({caller = owner}) actor class Metamob(
         await campaignService.update(pubId, req, msg.caller, this);
     };
 
-    public shared(msg) func campaignPublish(
-        pubId: Text
+    public shared(msg) func campaignModerate(
+        pubId: Text, 
+        req: CampaignTypes.CampaignRequest,
+        mod: ModerationTypes.ModerationRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.publish(pubId, msg.caller);
+        campaignService.moderate(pubId, req, mod, msg.caller);
     };
 
     public shared(msg) func campaignBoost(
@@ -281,14 +347,22 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func signatureCreate(
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(await signatureService.create(req, msg.caller, this), false);
+        _transformSignatureResponse(await signatureService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func signatureUpdate(
         id: Text, 
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(await signatureService.update(id, req, msg.caller), false);
+        _transformSignatureResponse(await signatureService.update(id, req, msg.caller), false);
+    };
+
+    public shared(msg) func signatureModerate(
+        id: Text, 
+        req: SignatureTypes.SignatureRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
+        _transformSignatureResponse(signatureService.moderate(id, req, mod, msg.caller), false);
     };
 
     public shared query(msg) func signatureFindById(
@@ -300,7 +374,7 @@ shared({caller = owner}) actor class Metamob(
     public query func signatureFindByPubId(
         pubId: Text
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponse(signatureService.findByPubId(pubId));
+        _transformSignatureResponse(signatureService.findByPubId(pubId), true);
     };
 
     public shared query(msg) func signatureFind(
@@ -308,7 +382,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
-        _transformSignatureResponses(signatureService.find(criterias, sortBy, limit));
+        _transformSignatureResponses(signatureService.find(criterias, sortBy, limit), true);
     };
 
     public query func signatureFindByCampaign(
@@ -316,7 +390,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
-        _transformSignatureResponses(signatureService.findByCampaign(campaignId, sortBy, limit));
+        _transformSignatureResponses(signatureService.findByCampaign(campaignId, sortBy, limit), true);
     };
 
     public query func signatureCountByCampaign(
@@ -326,18 +400,17 @@ shared({caller = owner}) actor class Metamob(
     };
 
     public shared query(msg) func signatureFindByUser(
-        userId: /* Text */ Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[SignatureTypes.SignatureResponse], Text> {
-        _transformSignatureResponses(signatureService.findByUser(userId, sortBy, limit, msg.caller));
+        _transformSignatureResponses(signatureService.findByUser(sortBy, limit, msg.caller), false);
     };
 
     public query func signatureFindByCampaignAndUser(
         campaignId: Nat32,
         userId: Nat32
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponse(signatureService.findByCampaignAndUser(campaignId, userId));
+        _transformSignatureResponse(signatureService.findByCampaignAndUser(campaignId, userId), true);
     };
 
     public shared(msg) func signatureDelete(
@@ -346,7 +419,7 @@ shared({caller = owner}) actor class Metamob(
         await signatureService.delete(id, msg.caller);
     };
 
-    func _redactSignatureEx(
+    func _redactSignature(
         e: SignatureTypes.Signature,
         checkAnonymous: Bool
     ): SignatureTypes.SignatureResponse {
@@ -357,6 +430,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
                 updatedAt = e.updatedAt;
@@ -370,6 +444,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = null;
                 updatedAt = e.updatedAt;
@@ -378,13 +453,7 @@ shared({caller = owner}) actor class Metamob(
         };
     };
 
-    func _redactSignature(
-        e: SignatureTypes.Signature
-    ): SignatureTypes.SignatureResponse {
-        _redactSignatureEx(e, true);
-    };
-
-    func _transformSignatureResponseEx(
+    func _transformSignatureResponse(
         res: Result.Result<SignatureTypes.Signature, Text>,
         checkAnonymous: Bool
     ): Result.Result<SignatureTypes.SignatureResponse, Text> {
@@ -393,26 +462,25 @@ shared({caller = owner}) actor class Metamob(
                 #err(msg);
             };
             case (#ok(e)) {
-                #ok(_redactSignatureEx(e, checkAnonymous));
+                #ok(_redactSignature(e, checkAnonymous));
             };
         };
     };
 
-    func _transformSignatureResponse(
-        res: Result.Result<SignatureTypes.Signature, Text>
-    ): Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponseEx(res, true);
-    };    
-
     func _transformSignatureResponses(
-        res: Result.Result<[SignatureTypes.Signature], Text>
+        res: Result.Result<[SignatureTypes.Signature], Text>,
+        checkAnonymous: Bool
     ): Result.Result<[SignatureTypes.SignatureResponse], Text> {
         switch(res) {
             case (#err(msg)) {
                 #err(msg);
             };
             case (#ok(entities)) {
-                #ok(Array.map(entities, _redactSignature));
+                #ok(Array.map(
+                    entities, 
+                    func (e: SignatureTypes.Signature): SignatureTypes.SignatureResponse = 
+                        _redactSignature(e, checkAnonymous)
+                ));
             };
         };
     };    
@@ -423,14 +491,22 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func voteCreate(
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(await voteService.create(req, msg.caller, this), false);
+        _transformVoteResponse(await voteService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func voteUpdate(
         id: Text, 
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(await voteService.update(id, req, msg.caller), false);
+        _transformVoteResponse(await voteService.update(id, req, msg.caller), false);
+    };
+
+    public shared(msg) func voteModerate(
+        id: Text, 
+        req: VoteTypes.VoteRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<VoteTypes.VoteResponse, Text> {
+        _transformVoteResponse(voteService.moderate(id, req, mod, msg.caller), false);
     };
 
     public shared query(msg) func voteFindById(
@@ -442,7 +518,7 @@ shared({caller = owner}) actor class Metamob(
     public query func voteFindByPubId(
         pubId: Text
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponse(voteService.findByPubId(pubId));
+        _transformVoteResponse(voteService.findByPubId(pubId), true);
     };
 
     public shared query(msg) func voteFind(
@@ -450,7 +526,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
-        _transformVoteResponses(voteService.find(criterias, sortBy, limit));
+        _transformVoteResponses(voteService.find(criterias, sortBy, limit), true);
     };
 
     public query func voteFindByCampaign(
@@ -458,7 +534,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
-        _transformVoteResponses(voteService.findByCampaign(campaignId, sortBy, limit));
+        _transformVoteResponses(voteService.findByCampaign(campaignId, sortBy, limit), true);
     };
 
     public query func voteCountByCampaign(
@@ -468,18 +544,17 @@ shared({caller = owner}) actor class Metamob(
     };
 
     public shared query(msg) func voteFindByUser(
-        userId: /* Text */ Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[VoteTypes.VoteResponse], Text> {
-        _transformVoteResponses(voteService.findByUser(userId, sortBy, limit, msg.caller));
+        _transformVoteResponses(voteService.findByUser(sortBy, limit, msg.caller), false);
     };
 
     public query func voteFindByCampaignAndUser(
         campaignId: Nat32,
         userId: Nat32
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponse(voteService.findByCampaignAndUser(campaignId, userId));
+        _transformVoteResponse(voteService.findByCampaignAndUser(campaignId, userId), true);
     };
 
     public shared(msg) func voteDelete(
@@ -488,7 +563,7 @@ shared({caller = owner}) actor class Metamob(
         await voteService.delete(id, msg.caller);
     };
 
-    func _redactVoteEx(
+    func _redactVote(
         e: VoteTypes.Vote,
         checkAnonymous: Bool
     ): VoteTypes.VoteResponse {
@@ -501,6 +576,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 pro = e.pro;
                 weight = e.weight;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
                 updatedAt = e.updatedAt;
@@ -516,6 +592,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 pro = e.pro;
                 weight = e.weight;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = null;
                 updatedAt = e.updatedAt;
@@ -524,13 +601,7 @@ shared({caller = owner}) actor class Metamob(
         };
     };
 
-    func _redactVote(
-        e: VoteTypes.Vote
-    ): VoteTypes.VoteResponse {
-        _redactVoteEx(e, true);
-    };
-
-    func _transformVoteResponseEx(
+    func _transformVoteResponse(
         res: Result.Result<VoteTypes.Vote, Text>,
         checkAnonymous: Bool
     ): Result.Result<VoteTypes.VoteResponse, Text> {
@@ -539,26 +610,25 @@ shared({caller = owner}) actor class Metamob(
                 #err(msg);
             };
             case (#ok(e)) {
-                #ok(_redactVoteEx(e, checkAnonymous));
+                #ok(_redactVote(e, checkAnonymous));
             };
         };
     };
 
-    func _transformVoteResponse(
-        res: Result.Result<VoteTypes.Vote, Text>
-    ): Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponseEx(res, true);
-    };    
-
     func _transformVoteResponses(
-        res: Result.Result<[VoteTypes.Vote], Text>
+        res: Result.Result<[VoteTypes.Vote], Text>,
+        checkAnonymous: Bool
     ): Result.Result<[VoteTypes.VoteResponse], Text> {
         switch(res) {
             case (#err(msg)) {
                 #err(msg);
             };
             case (#ok(entities)) {
-                #ok(Array.map(entities, _redactVote));
+                #ok(Array.map(
+                    entities, 
+                    func (e: VoteTypes.Vote): VoteTypes.VoteResponse = 
+                    _redactVote(e, checkAnonymous)
+                ));
             };
         };
     };
@@ -569,20 +639,28 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func donationCreate(
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(await donationService.create(req, msg.caller), false);
+        _transformDonationResponse(await donationService.create(req, msg.caller), false);
     };
 
     public shared(msg) func donationComplete(
         pubId: Text
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(await donationService.complete(pubId, msg.caller, this), false);
+        _transformDonationResponse(await donationService.complete(pubId, msg.caller, this), false);
     };
 
     public shared(msg) func donationUpdate(
         id: Text, 
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(await donationService.update(id, req, msg.caller), false);
+        _transformDonationResponse(await donationService.update(id, req, msg.caller), false);
+    };
+
+    public shared(msg) func donationModerate(
+        id: Text, 
+        req: DonationTypes.DonationRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<DonationTypes.DonationResponse, Text> {
+        _transformDonationResponse(donationService.moderate(id, req, mod, msg.caller), false);
     };
 
     public shared query(msg) func donationFindById(
@@ -594,7 +672,7 @@ shared({caller = owner}) actor class Metamob(
     public query func donationFindByPubId(
         pubId: Text
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponse(donationService.findByPubId(pubId));
+        _transformDonationResponse(donationService.findByPubId(pubId), true);
     };
 
     public shared query(msg) func donationFind(
@@ -602,7 +680,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
-        _transformDonationResponses(donationService.find(criterias, sortBy, limit));
+        _transformDonationResponses(donationService.find(criterias, sortBy, limit), true);
     };
 
     public query func donationFindByCampaign(
@@ -610,7 +688,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
-        _transformDonationResponses(donationService.findByCampaign(campaignId, sortBy, limit));
+        _transformDonationResponses(donationService.findByCampaign(campaignId, sortBy, limit), true);
     };
 
     public query func donationCountByCampaign(
@@ -620,18 +698,17 @@ shared({caller = owner}) actor class Metamob(
     };
 
     public shared query(msg) func donationFindByUser(
-        userId: /* Text */ Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[DonationTypes.DonationResponse], Text> {
-        _transformDonationResponses(donationService.findByUser(userId, sortBy, limit, msg.caller));
+        _transformDonationResponses(donationService.findByUser(sortBy, limit, msg.caller), false);
     };
 
     public query func donationFindByCampaignAndUser(
         campaignId: Nat32,
         userId: Nat32
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponse(donationService.findByCampaignAndUser(campaignId, userId));
+        _transformDonationResponse(donationService.findByCampaignAndUser(campaignId, userId), true);
     };
 
     public shared(msg) func donationDelete(
@@ -640,7 +717,7 @@ shared({caller = owner}) actor class Metamob(
         await donationService.delete(id, msg.caller, this);
     };
 
-    func _redactDonationEx(
+    func _redactDonation(
         e: DonationTypes.Donation,
         checkAnonymous: Bool
     ): DonationTypes.DonationResponse {
@@ -652,6 +729,7 @@ shared({caller = owner}) actor class Metamob(
                 anonymous = e.anonymous;
                 body = e.body;
                 value = e.value;
+                moderated = e.moderated;
                 campaignId = e.campaignId;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
@@ -668,6 +746,7 @@ shared({caller = owner}) actor class Metamob(
                 campaignId = e.campaignId;
                 body = e.body;
                 value = e.value;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = null;
                 updatedAt = e.updatedAt;
@@ -676,13 +755,7 @@ shared({caller = owner}) actor class Metamob(
         };
     };
 
-    func _redactDonation(
-        e: DonationTypes.Donation
-    ): DonationTypes.DonationResponse {
-        _redactDonationEx(e, true);
-    };
-
-    func _transformDonationResponseEx(
+    func _transformDonationResponse(
         res: Result.Result<DonationTypes.Donation, Text>,
         checkAnonymous: Bool
     ): Result.Result<DonationTypes.DonationResponse, Text> {
@@ -691,26 +764,25 @@ shared({caller = owner}) actor class Metamob(
                 #err(msg);
             };
             case (#ok(e)) {
-                #ok(_redactDonationEx(e, checkAnonymous));
+                #ok(_redactDonation(e, checkAnonymous));
             };
         };
     };
 
-    func _transformDonationResponse(
-        res: Result.Result<DonationTypes.Donation, Text>
-    ): Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponseEx(res, true);
-    };    
-
     func _transformDonationResponses(
-        res: Result.Result<[DonationTypes.Donation], Text>
+        res: Result.Result<[DonationTypes.Donation], Text>,
+        checkAnonymous: Bool
     ): Result.Result<[DonationTypes.DonationResponse], Text> {
         switch(res) {
             case (#err(msg)) {
                 #err(msg);
             };
             case (#ok(entities)) {
-                #ok(Array.map(entities, _redactDonation));
+                #ok(Array.map(
+                    entities, 
+                    func (e: DonationTypes.Donation): DonationTypes.DonationResponse = 
+                        _redactDonation(e, checkAnonymous)
+                ));
             };
         };
     };
@@ -721,20 +793,28 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func fundingCreate(
         req: FundingTypes.FundingRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponseEx(await fundingService.create(req, msg.caller), false);
+        _transformFundingResponse(await fundingService.create(req, msg.caller), false);
     };
 
     public shared(msg) func fundingComplete(
         pubId: Text
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponseEx(await fundingService.complete(pubId, msg.caller, this), false);
+        _transformFundingResponse(await fundingService.complete(pubId, msg.caller, this), false);
     };
 
     public shared(msg) func fundingUpdate(
         id: Text, 
         req: FundingTypes.FundingRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponseEx(await fundingService.update(id, req, msg.caller), false);
+        _transformFundingResponse(await fundingService.update(id, req, msg.caller), false);
+    };
+
+    public shared(msg) func fundingModerate(
+        id: Text, 
+        req: FundingTypes.FundingRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<FundingTypes.FundingResponse, Text> {
+        _transformFundingResponse(fundingService.moderate(id, req, mod, msg.caller), false);
     };
 
     public shared query(msg) func fundingFindById(
@@ -746,7 +826,7 @@ shared({caller = owner}) actor class Metamob(
     public query func fundingFindByPubId(
         pubId: Text
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponse(fundingService.findByPubId(pubId));
+        _transformFundingResponse(fundingService.findByPubId(pubId), true);
     };
 
     public shared query(msg) func fundingFind(
@@ -754,7 +834,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[FundingTypes.FundingResponse], Text> {
-        _transformFundingResponses(fundingService.find(criterias, sortBy, limit));
+        _transformFundingResponses(fundingService.find(criterias, sortBy, limit), true);
     };
 
     public query func fundingFindByCampaign(
@@ -762,7 +842,7 @@ shared({caller = owner}) actor class Metamob(
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[FundingTypes.FundingResponse], Text> {
-        _transformFundingResponses(fundingService.findByCampaign(campaignId, sortBy, limit));
+        _transformFundingResponses(fundingService.findByCampaign(campaignId, sortBy, limit), true);
     };
 
     public query func fundingCountByCampaign(
@@ -772,18 +852,17 @@ shared({caller = owner}) actor class Metamob(
     };
 
     public shared query(msg) func fundingFindByUser(
-        userId: /* Text */ Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[FundingTypes.FundingResponse], Text> {
-        _transformFundingResponses(fundingService.findByUser(userId, sortBy, limit, msg.caller));
+        _transformFundingResponses(fundingService.findByUser(sortBy, limit, msg.caller), false);
     };
 
     public query func fundingFindByCampaignAndUser(
         campaignId: Nat32,
         userId: Nat32
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponse(fundingService.findByCampaignAndUser(campaignId, userId));
+        _transformFundingResponse(fundingService.findByCampaignAndUser(campaignId, userId), true);
     };
 
     public shared(msg) func fundingDelete(
@@ -792,7 +871,7 @@ shared({caller = owner}) actor class Metamob(
         await fundingService.delete(id, msg.caller, this);
     };
 
-    func _redactFundingEx(
+    func _redactFunding(
         e: FundingTypes.Funding,
         checkAnonymous: Bool
     ): FundingTypes.FundingResponse {
@@ -806,6 +885,7 @@ shared({caller = owner}) actor class Metamob(
                 tier = e.tier;
                 amount = e.amount;
                 value = e.value;
+                moderated = e.moderated;
                 campaignId = e.campaignId;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
@@ -824,6 +904,7 @@ shared({caller = owner}) actor class Metamob(
                 tier = e.tier;
                 amount = e.amount;
                 value = e.value;
+                moderated = e.moderated;
                 createdAt = e.createdAt;
                 createdBy = null;
                 updatedAt = e.updatedAt;
@@ -832,13 +913,7 @@ shared({caller = owner}) actor class Metamob(
         };
     };
 
-    func _redactFunding(
-        e: FundingTypes.Funding
-    ): FundingTypes.FundingResponse {
-        _redactFundingEx(e, true);
-    };
-
-    func _transformFundingResponseEx(
+    func _transformFundingResponse(
         res: Result.Result<FundingTypes.Funding, Text>,
         checkAnonymous: Bool
     ): Result.Result<FundingTypes.FundingResponse, Text> {
@@ -847,26 +922,25 @@ shared({caller = owner}) actor class Metamob(
                 #err(msg);
             };
             case (#ok(e)) {
-                #ok(_redactFundingEx(e, checkAnonymous));
+                #ok(_redactFunding(e, checkAnonymous));
             };
         };
     };
 
-    func _transformFundingResponse(
-        res: Result.Result<FundingTypes.Funding, Text>
-    ): Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponseEx(res, true);
-    };    
-
     func _transformFundingResponses(
-        res: Result.Result<[FundingTypes.Funding], Text>
+        res: Result.Result<[FundingTypes.Funding], Text>,
+        checkAnonymous: Bool
     ): Result.Result<[FundingTypes.FundingResponse], Text> {
         switch(res) {
             case (#err(msg)) {
                 #err(msg);
             };
             case (#ok(entities)) {
-                #ok(Array.map(entities, _redactFunding));
+                #ok(Array.map(
+                    entities, 
+                    func (e: FundingTypes.Funding): FundingTypes.FundingResponse = 
+                        _redactFunding(e, checkAnonymous)
+                ));
             };
         };
     };
@@ -892,6 +966,14 @@ shared({caller = owner}) actor class Metamob(
         req: UpdateTypes.UpdateRequest
     ): async Result.Result<UpdateTypes.Update, Text> {
         await updateService.update(id, req, msg.caller);
+    };
+
+    public shared(msg) func updateModerate(
+        id: Text, 
+        req: UpdateTypes.UpdateRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<UpdateTypes.Update, Text> {
+        updateService.moderate(id, req, mod, msg.caller);
     };
 
     public shared query(msg) func updateFindById(
@@ -929,11 +1011,10 @@ shared({caller = owner}) actor class Metamob(
     };
 
     public shared query(msg) func updateFindByUser(
-        userId: /* Text */ Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
     ): async Result.Result<[UpdateTypes.Update], Text> {
-        updateService.findByUser(userId, sortBy, limit, msg.caller);
+        updateService.findByUser(sortBy, limit, msg.caller);
     };
 
     public shared(msg) func updateDelete(
@@ -947,43 +1028,142 @@ shared({caller = owner}) actor class Metamob(
     //
     public shared(msg) func reportCreate(
         req: ReportTypes.ReportRequest
-    ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.create(req, msg.caller);
+    ): async Result.Result<ReportTypes.ReportResponse, Text> {
+        _transformReportResponse(reportService.create(req, msg.caller), false);
     };
 
     public shared(msg) func reportUpdate(
         id: Text, 
         req: ReportTypes.ReportRequest
-    ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.update(id, req, msg.caller);
+    ): async Result.Result<ReportTypes.ReportResponse, Text> {
+        _transformReportResponse(reportService.update(id, req, msg.caller), false);
     };
-
-    public shared(msg) func reportAssign(
-        id: Text, 
-        toUserId: Nat32
-    ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.assign(id, toUserId, msg.caller);
-    };    
 
     public shared(msg) func reportClose(
         id: Text, 
         req: ReportTypes.ReportCloseRequest
-    ): async Result.Result<ReportTypes.Report, Text> {
-        await reportService.close(id, req, msg.caller);
+    ): async Result.Result<ReportTypes.ReportResponse, Text> {
+        _transformReportResponse(await reportService.close(id, req, msg.caller), false);
     };
 
     public shared query(msg) func reportFindById(
         id: Text
-    ): async Result.Result<ReportTypes.Report, Text> {
-        reportService.findById(id, msg.caller);
+    ): async Result.Result<ReportTypes.ReportResponse, Text> {
+        _transformReportResponse(reportService.findById(id, msg.caller), true);
     };
 
     public shared query(msg) func reportFind(
         criterias: ?[(Text, Text, Variant.Variant)],
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
-    ): async Result.Result<[ReportTypes.Report], Text> {
-        reportService.find(criterias, sortBy, limit, msg.caller);
+    ): async Result.Result<[ReportTypes.ReportResponse], Text> {
+        _transformReportResponses(reportService.find(criterias, sortBy, limit, msg.caller), true);
+    };
+
+    public shared query(msg) func reportFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ReportTypes.ReportResponse], Text> {
+        _transformReportResponses(reportService.findByUser(sortBy, limit, msg.caller), false);
+    };
+
+    public shared query(msg) func reportFindByReportedUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ReportTypes.ReportResponse], Text> {
+        _transformReportResponses(reportService.findByReportedUser(sortBy, limit, msg.caller), true);
+    };
+
+    func _redactReport(
+        e: ReportTypes.Report,
+        doRedact: Bool
+    ): ReportTypes.ReportResponse {
+        if(doRedact) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                result = e.result;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                entityCreatedBy = e.entityCreatedBy;
+                kind = e.kind;
+                description = e.description;
+                resolution = e.resolution;
+                createdAt = e.createdAt;
+                createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
+                assignedAt = e.assignedAt;
+                assignedTo = e.assignedTo;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                result = e.result;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                entityCreatedBy = e.entityCreatedBy;
+                kind = e.kind;
+                description = e.description;
+                resolution = e.resolution;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                assignedAt = e.assignedAt;
+                assignedTo = e.assignedTo;
+            };
+        };
+    };
+
+    func _transformReportResponse(
+        res: Result.Result<ReportTypes.Report, Text>,
+        doRedact: Bool
+    ): Result.Result<ReportTypes.ReportResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactReport(e, doRedact));
+            };
+        };
+    };
+
+    func _transformReportResponses(
+        res: Result.Result<[ReportTypes.Report], Text>,
+        doRedact: Bool
+    ): Result.Result<[ReportTypes.ReportResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(
+                    entities, 
+                    func(e: ReportTypes.Report): ReportTypes.ReportResponse = 
+                        _redactReport(e, doRedact)
+                ));
+            };
+        };
+    };
+
+    //
+    // moderations facade
+    //
+    public shared query(msg) func moderationFindByEntity(
+        entityType: EntityTypes.EntityType,
+        entityId: Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ModerationTypes.Moderation], Text> {
+        moderationService.findByEntity(entityType, entityId, sortBy, limit, msg.caller);
     };
 
     //
@@ -1000,6 +1180,14 @@ shared({caller = owner}) actor class Metamob(
         req: PlaceTypes.PlaceRequest
     ): async Result.Result<PlaceTypes.Place, Text> {
         placeService.update(id, req, msg.caller);
+    };
+
+    public shared(msg) func placeModerate(
+        id: Text, 
+        req: PlaceTypes.PlaceRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<PlaceTypes.Place, Text> {
+        placeService.moderate(id, req, mod, msg.caller);
     };
 
     public query func placeFindById(
@@ -1060,9 +1248,40 @@ shared({caller = owner}) actor class Metamob(
     };   
 
     //
+    // places-users facade
+    //
+    public shared(msg) func placeUserCreate(
+        req: PlaceUserTypes.PlaceUserRequest
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.create(req, msg.caller);
+    };
+
+    public shared(msg) func placeUserUpdate(
+        req: PlaceUserTypes.PlaceUserRequest
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.update(req, msg.caller);
+    };
+
+    public shared query(msg) func placeUserFindByPlaceAndUser(
+        placeId: Nat32,
+        userId: Nat32
+    ): async Result.Result<PlaceUserTypes.PlaceUser, Text> {
+        placeUserService.findByPlaceIdAndUserId(placeId, userId);
+    };
+
+    public shared(msg) func placeUserDelete(
+        _id: Nat32
+    ): async Result.Result<(), Text> {
+        placeUserService.delete(_id, msg.caller);
+    };
+
+    //
     // migration
     //
-    stable var daoConfig: [(Text, Variant.Variant)] = [];
+    stable var daoEntities: DaoTypes.BackupEntity = {
+        config = [];
+        staked = [];
+    };
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
     stable var campaignEntities: [[(Text, Variant.Variant)]] = [];
@@ -1072,11 +1291,13 @@ shared({caller = owner}) actor class Metamob(
     stable var fundingEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
+    stable var moderationEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
+    stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
-        daoConfig := daoService.backup();
+        daoEntities := daoService.backup();
         userEntities := userService.backup();
         categoryEntities := categoryService.backup();
         campaignEntities := campaignService.backup();
@@ -1086,13 +1307,18 @@ shared({caller = owner}) actor class Metamob(
         fundingEntities := fundingService.backup();
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
+        moderationEntities := moderationService.backup();
         placeEntities := placeService.backup();
         placeEmailEntities := placeEmailService.backup();
+        placeUserEntities := placeUserService.backup();
     };
 
     system func postupgrade() {
-        daoService.restore(daoConfig);
-        daoConfig := [];
+        daoService.restore(daoEntities);
+        daoEntities := {
+            config = [];
+            staked = [];
+        };
         
         userService.restore(userEntities);
         userEntities := [];
@@ -1120,12 +1346,18 @@ shared({caller = owner}) actor class Metamob(
         
         reportService.restore(reportEntities);
         reportEntities := [];
+
+        moderationService.restore(moderationEntities);
+        moderationEntities := [];
         
         placeService.restore(placeEntities);
         placeEntities := [];
         
         placeEmailService.restore(placeEmailEntities);
         placeEmailEntities := [];
+
+        placeUserService.restore(placeUserEntities);
+        placeUserEntities := [];
     };
 
     let interval: Nat = 60 * 1000_000_000; // 1 minute
@@ -1140,6 +1372,7 @@ shared({caller = owner}) actor class Metamob(
             lastExec := now;
             D.print("Info: heartbeat: Verifying...");
             try {
+                await userService.verify(this);
                 await campaignService.verify(this);
             }
             catch(e) {

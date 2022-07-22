@@ -1,22 +1,29 @@
-import Principal "mo:base/Principal";
-import Nat32 "mo:base/Nat32";
-import Result "mo:base/Result";
-import Variant "mo:mo-table/variant";
-import Types "./types";
-import Repository "./repository";
-import UserTypes "../users/types";
-import UserUtils "../users/utils";
-import UserService "../users/service";
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
+import EntityTypes "../common/entities";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
+import Nat32 "mo:base/Nat32";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
+import Principal "mo:base/Principal";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
+import Repository "./repository";
+import Result "mo:base/Result";
+import Types "./types";
+import UserService "../users/service";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
         userService: UserService.Service,
         campaignService: CampaignService.Service,
-        placeService: PlaceService.Service
+        placeService: PlaceService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
@@ -120,6 +127,52 @@ module {
             };
         };
 
+        public func moderate(
+            id: Text, 
+            req: Types.VoteRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Vote, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(entity)) {
+                                switch(canModerate(caller, entity, mod)) {
+                                    case null {
+                                        return #err("Forbidden");
+                                    };
+                                    case (?report) {
+                                        if(req.pro != entity.pro) {
+                                            return #err("Type can't be changed");
+                                        };
+
+                                        switch(moderationService.create(mod, report, caller)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(entity, req, mod.reason, caller._id);
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         func _checkIfFinished(
             campaign: CampaignTypes.Campaign,
             req: Types.VoteRequest,
@@ -177,7 +230,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == UserTypes.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -219,7 +272,6 @@ module {
         };
 
         public func findByUser(
-            userId: /* Text */ Nat32,
             sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
@@ -233,13 +285,7 @@ module {
                         return #err("Forbidden");
                     };
 
-                    if(caller._id != userId) {
-                        if(not UserUtils.isAdmin(caller)) {
-                            return #err("Forbidden");
-                        };
-                    };            
-                    
-                    repo.findByUser(userId, sortBy, limit);
+                    repo.findByUserEx(caller._id, sortBy, limit, false);
                 };
             };
         };
@@ -318,7 +364,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned == UserTypes.BANNED_AS_USER) {
                 return false;
             };
 
@@ -330,12 +376,35 @@ module {
             entity: Types.Vote
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(not UserUtils.isModerator(caller)) {
-                    return false;
-                };
+                return false;
             };
 
             return true;
+        };
+
+        func canModerate(
+            caller: UserTypes.Profile,
+            entity: Types.Vote,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            if(not UserUtils.isModerator(caller)) {
+                return null;
+            };
+
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_VOTES, entity._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
         };
 
         func canChangeCampaign(

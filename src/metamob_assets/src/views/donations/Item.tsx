@@ -9,11 +9,13 @@ import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface BaseItemProps {
     donation: DonationResponse;
     user?: ProfileResponse;
     children?: any;
+    onShowModerations?: (donation: DonationResponse) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -21,18 +23,20 @@ export const BaseItem = (props: BaseItemProps) => {
 
     return (
         <article className="media">
-            <div className="media-left">
-                <div className="flex-node w-12">
-                    {props.user &&
+            {props.user && 
+                <div className="media-left">
+                    <div className="flex-node w-12">
                         <Avatar id={props.user._id} size='lg' noName={true} />
-                    }
+                    </div>
                 </div>
-            </div>
+            }
             <div className="media-content">
                 <div className="content">
-                    <div>
-                        <strong>{props.user?.name}</strong>
-                    </div>
+                    {props.user && 
+                        <div>
+                            <strong>{props.user?.name}</strong>
+                        </div>
+                    }
                     <div>
                         Value:&nbsp;
                         <span 
@@ -45,6 +49,12 @@ export const BaseItem = (props: BaseItemProps) => {
                                 <i className="la la-times-circle" title="Ongoing..." />
                             }
                         </span>
+                    </div>
+                    <div>
+                        <ModerationBadge
+                            reason={donation.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(donation)} 
+                        />
                     </div>
                     <Markdown
                         className="update-body" 
@@ -63,6 +73,7 @@ interface ItemProps {
     onEdit: (donation: DonationResponse) => void;
     onDelete: (donation: DonationResponse) => void;
     onReport: (donation: DonationResponse) => void;
+    onShowModerations?: (donation: DonationResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -77,13 +88,13 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && (auth.user._id === author && author !== 0));
 
     return (
         <BaseItem
             user={user.data}
             donation={donation}
+            onShowModerations={props.onShowModerations}
         >
             <p>
                 <small>

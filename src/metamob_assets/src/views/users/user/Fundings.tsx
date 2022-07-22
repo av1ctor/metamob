@@ -36,7 +36,7 @@ const Fundings = (props: Props) => {
     });
     const [funding, setFunding] = useState<FundingResponse>();
 
-    const fundings = useFindUserFundings(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const fundings = useFindUserFundings(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((funding: FundingResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -95,7 +95,6 @@ const Fundings = (props: Props) => {
                             className="column is-6"
                         >
                             <BaseItem 
-                                user={authState.user}
                                 funding={funding} 
                             >
                                 <p>

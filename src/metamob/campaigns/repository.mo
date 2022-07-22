@@ -28,6 +28,7 @@ import ULID "../common/ulid";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
 import Variant "mo:mo-table/variant";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository() {
@@ -118,6 +119,24 @@ module {
             value: Nat
         ): Result.Result<Types.Campaign, Text> {
             let e = _updateEntityWhenBoosted(campaign, value);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            campaign: Types.Campaign,
+            req: Types.CampaignRequest, 
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWhenModerated(campaign, req, reason, callerId);
+
             switch(campaigns.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -652,6 +671,7 @@ module {
                 boosting = 0;
                 updates = 0;
                 action = req.action;
+                moderated = ModerationTypes.REASON_NONE;
                 publishedAt = if(state == Types.STATE_PUBLISHED) ?now else null;
                 expiredAt = if(state == Types.STATE_PUBLISHED) ?limit else null;
                 createdAt = now;
@@ -692,6 +712,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = req.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -728,6 +749,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -764,6 +786,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -800,6 +823,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -846,6 +870,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -892,6 +917,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -928,6 +954,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -964,6 +991,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1025,6 +1053,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1086,6 +1115,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1122,6 +1152,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates + 1;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1158,6 +1189,7 @@ module {
                 boosting = e.boosting;
                 updates = if(e.updates > 0) e.updates - 1 else 0;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1197,6 +1229,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = ?now;
                 expiredAt = ?limit;
                 createdAt = e.createdAt;
@@ -1233,6 +1266,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1270,6 +1304,7 @@ module {
                 boosting = e.boosting;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1306,6 +1341,7 @@ module {
                 boosting = e.boosting + value;
                 updates = e.updates;
                 action = e.action;
+                moderated = e.moderated;
                 publishedAt = e.publishedAt;
                 expiredAt = e.expiredAt;
                 createdAt = e.createdAt;
@@ -1316,6 +1352,48 @@ module {
                 deletedBy = e.deletedBy;
             }  
         };  
+
+        func _updateEntityWhenModerated(
+            e: Types.Campaign, 
+            req: Types.CampaignRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                kind = req.kind;
+                title = req.title;
+                target = req.target;
+                cover = req.cover;
+                body = req.body;
+                categoryId = req.categoryId;
+                placeId = req.placeId;
+                state = switch(req.state) { 
+                    case null e.state;
+                    case (?state) state;
+                };
+                result = e.result;
+                duration = e.duration;
+                tags = req.tags;
+                info = _updateInfoEntity(e.info, req);
+                goal = req.goal;
+                total = e.total;
+                interactions = e.interactions;
+                boosting = e.boosting;
+                updates = e.updates;
+                action = req.action;
+                moderated = e.moderated | reason;
+                publishedAt = e.publishedAt;
+                expiredAt = e.expiredAt;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+                deletedAt = e.deletedAt;
+                deletedBy = e.deletedBy;
+            }  
+        };
     };
 
     func serialize(
@@ -1342,6 +1420,7 @@ module {
         res.put("interactions", #nat32(e.interactions));
         res.put("boosting", #nat(e.boosting));
         res.put("updates", #nat32(e.updates));
+        res.put("moderated", #nat32(e.moderated));
         
         switch(e.info) {
             case (#signatures(info)) {
@@ -1414,6 +1493,7 @@ module {
             interactions = Variant.getOptNat32(map.get("interactions"));
             boosting = Variant.getOptNat(map.get("boosting"));
             updates = Variant.getOptNat32(map.get("updates"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             info = if(kind == Types.KIND_SIGNATURES) {
                 #signatures({
                 });

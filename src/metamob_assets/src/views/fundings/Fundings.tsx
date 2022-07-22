@@ -1,14 +1,14 @@
 import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, FundingResponse} from '../../../../declarations/metamob/metamob.did';
-import {Order} from "../../libs/common";
+import {EntityType, Order} from "../../libs/common";
 import {useFindFundingsByCampaign} from "../../hooks/fundings";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
 import ReportForm from "../reports/report/Create";
-import { ReportType } from "../../libs/reports";
 import DeleteForm from "./funding/Delete";
 import EditForm from "./funding/Edit";
 import Button from "../../components/Button";
+import ModerationModal from "../moderations/Modal";
 
 interface Props {
     campaign: Campaign;
@@ -27,6 +27,7 @@ const Fundings = (props: Props) => {
         edit: false,
         delete: false,
         report: false,
+        moderations: false,
     });
     const [funding, setFunding] = useState<FundingResponse | undefined>(undefined);
 
@@ -54,6 +55,14 @@ const Fundings = (props: Props) => {
         setFunding(funding);
     }, []);
 
+    const toggleModerations = useCallback((funding: FundingResponse | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+        setFunding(funding);
+    }, []);
+
     const campaign = props.campaign;
 
     const fundings = useFindFundingsByCampaign(campaign._id, orderBy, 10);
@@ -73,6 +82,7 @@ const Fundings = (props: Props) => {
                                 onEdit={toggleEdit}
                                 onDelete={toggleDelete}
                                 onReport={toggleReport}
+                                onShowModerations={toggleModerations}
                             />                        
                         )}
                     </Fragment>
@@ -129,7 +139,8 @@ const Fundings = (props: Props) => {
                 {funding &&
                     <ReportForm
                         entityId={funding._id}
-                        entityType={ReportType.DONATIONS}
+                        entityPubId={funding.pubId}
+                        entityType={EntityType.FUNDINGS}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -137,6 +148,16 @@ const Fundings = (props: Props) => {
                     />
                 }
             </Modal>        
+
+            {funding &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.FUNDINGS}
+                    entityId={funding._id}
+                    moderated={funding.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     )
 };

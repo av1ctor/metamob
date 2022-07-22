@@ -122,10 +122,18 @@ const Header = (props: Props) => {
                                     href="/user/votes"
                                     redirect
                                 />
+                                <hr className="navbar-divider"/>
                                 <NavItem
                                     title="Places"
                                     icon="globe"
                                     href="/user/places"
+                                    redirect
+                                />
+                                <hr className="navbar-divider"/>
+                                <NavItem
+                                    title="Reports"
+                                    icon="flag"
+                                    href="/user/reports"
                                     redirect
                                 />
                                 <hr className="navbar-divider"/>

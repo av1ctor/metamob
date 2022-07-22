@@ -20,6 +20,7 @@ import FilterUtils "../common/filters";
 import Types "./types";
 import Schema "./schema";
 import CampaignRepository "../campaigns/repository";
+import ModerationTypes "../moderations/types";
 
 module {
     public class Repository(
@@ -48,6 +49,24 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Place, Text> {
             let e = _updateEntity(place, req, callerId);
+            switch(places.replace(place._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderate(
+            place: Types.Place, 
+            req: Types.PlaceRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Result.Result<Types.Place, Text> {
+            let e = _updateEntityWhenModerated(place, req, reason, callerId);
+
             switch(places.replace(place._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -214,9 +233,12 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
+                banner = req.banner;
+                terms = req.terms;
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
+                moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
                 updatedAt = null;
@@ -238,9 +260,40 @@ module {
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
+                banner = req.banner;
+                terms = req.terms;
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
+                moderated = e.moderated;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = ?Time.now();
+                updatedBy = ?callerId;
+            }  
+        };
+
+        func _updateEntityWhenModerated(
+            e: Types.Place, 
+            req: Types.PlaceRequest,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Place {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                parentId = e.parentId;
+                kind = req.kind;
+                auth = req.auth;
+                name = req.name;
+                description = req.description;
+                icon = req.icon;
+                banner = req.banner;
+                terms = req.terms;
+                active = req.active;
+                lat = req.lat;
+                lng = req.lng;
+                moderated = e.moderated | reason;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = ?Time.now();
@@ -280,9 +333,12 @@ module {
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("icon", #text(e.icon));
+        res.put("banner", switch(e.banner) {case null #nil; case (?banner) #text(banner);});
+        res.put("terms", switch(e.terms) {case null #nil; case (?terms) #text(terms);});
         res.put("active", #bool(e.active));
         res.put("lat", #float(e.lat));
         res.put("lng", #float(e.lng));
+        res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -323,9 +379,12 @@ module {
             name = Variant.getOptText(map.get("name"));
             description = Variant.getOptText(map.get("description"));
             icon = Variant.getOptText(map.get("icon"));
+            banner = Variant.getOptTextOpt(map.get("banner"));
+            terms = Variant.getOptTextOpt(map.get("terms"));
             active = Variant.getOptBool(map.get("active"));
             lat = Variant.getOptFloat(map.get("lat"));
             lng = Variant.getOptFloat(map.get("lng"));
+            moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));

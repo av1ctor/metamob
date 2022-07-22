@@ -1,14 +1,14 @@
 import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, SignatureResponse} from '../../../../declarations/metamob/metamob.did';
-import {Order} from "../../libs/common";
+import {EntityType, Order} from "../../libs/common";
 import {useFindSignaturesByCampaign} from "../../hooks/signatures";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
 import EditForm from "./signature/Edit";
 import ReportForm from "../reports/report/Create";
-import { ReportType } from "../../libs/reports";
 import DeleteForm from "./signature/Delete";
 import Button from "../../components/Button";
+import ModerationModal from "../moderations/Modal";
 
 interface Props {
     campaign: Campaign;
@@ -27,6 +27,7 @@ const Signatures = (props: Props) => {
         edit: false,
         delete: false,
         report: false,
+        moderations: false,
     });
     const [signature, setSignature] = useState<SignatureResponse | undefined>(undefined);
 
@@ -54,6 +55,14 @@ const Signatures = (props: Props) => {
         setSignature(signature);
     }, []);
 
+    const toggleModerations = useCallback((signature: SignatureResponse | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+        setSignature(signature);
+    }, []);
+
     const campaign = props.campaign;
 
     const signatures = useFindSignaturesByCampaign(campaign._id, orderBy, 10);
@@ -73,6 +82,7 @@ const Signatures = (props: Props) => {
                                 onEdit={toggleEdit}
                                 onDelete={toggleDelete}
                                 onReport={toggleReport}
+                                onShowModerations={toggleModerations}
                             />
                         )}
                     </Fragment>
@@ -129,14 +139,25 @@ const Signatures = (props: Props) => {
                 {signature &&
                     <ReportForm
                         entityId={signature._id}
-                        entityType={ReportType.SIGNATURES}
+                        entityPubId={signature.pubId}
+                        entityType={EntityType.SIGNATURES}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}
                     />
                 }
-            </Modal>            
+            </Modal>
+
+            {signature &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.SIGNATURES}
+                    entityId={signature._id}
+                    moderated={signature.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     )
 };

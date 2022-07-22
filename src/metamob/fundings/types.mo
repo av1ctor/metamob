@@ -1,4 +1,5 @@
 import AccountTypes "../accounts/types";
+import ModerationTypes "../moderations/types";
 
 module {
     public type FundingState = Nat32;
@@ -15,6 +16,7 @@ module {
         tier: Nat32;
         amount: Nat32;
         value: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -40,6 +42,7 @@ module {
         tier: Nat32;
         amount: Nat32;
         value: Nat;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: ?Nat32;
         updatedAt: ?Int;

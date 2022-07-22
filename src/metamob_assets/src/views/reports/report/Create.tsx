@@ -3,14 +3,17 @@ import * as yup from 'yup';
 import { ReportRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
+import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateReport } from "../../../hooks/reports";
-import { ReportType } from "../../../libs/reports";
+import { EntityType } from "../../../libs/common";
+import { kinds, ReportKind } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     entityId: number;
-    entityType: ReportType;
+    entityType: EntityType;
+    entityPubId: string;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -20,15 +23,19 @@ interface Props {
 const formSchema = yup.object().shape({
     entityId: yup.number().required(),
     entityType: yup.number().required(),
+    entityPubId: yup.string().required(),
+    kind: yup.number().required().min(0),
     description: yup.string().min(10).max(4096),
 });
 
-const Report = (props: Props) => {
+const CreateForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportRequest>({
         entityId: props.entityId,
         entityType: props.entityType,
+        entityPubId: props.entityPubId,
+        kind: -1,
         description: '',
     });
 
@@ -61,6 +68,8 @@ const Report = (props: Props) => {
                 req: {
                     entityId: form.entityId,
                     entityType: form.entityType,
+                    entityPubId: form.entityPubId,
+                    kind: Number(form.kind),
                     description: form.description,
                 }
             });
@@ -91,6 +100,14 @@ const Report = (props: Props) => {
     return (
         <form onSubmit={handleCreate}>
             <Container>
+                <SelectField
+                    label="Reason"
+                    name="kind"
+                    options={kinds}
+                    value={form.kind}
+                    required
+                    onChange={changeForm}
+                />
                 <TextAreaField
                     label="Description"
                     name="description"
@@ -119,4 +136,4 @@ const Report = (props: Props) => {
     )
 };
 
-export default Report;
+export default CreateForm;

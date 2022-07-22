@@ -14,9 +14,8 @@ import Tag from "../../../components/Tag";
 import { CampaignKind, campaignKindToIcon, campaignKindToTitle, CampaignState } from "../../../libs/campaigns";
 import ReportForm from "../../reports/report/Create";
 import Tabs from "../../../components/Tabs";
-import { ReportType } from "../../../libs/reports";
+import { EntityType } from "../../../libs/common";
 import PlaceTree from "../../places/place/PlaceTree";
-import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
 import Signatures from "../../signatures/Signatures";
 import {SignFrame} from "./kinds/signatures/Frame";
@@ -28,6 +27,8 @@ import Fundings from "../../fundings/Fundings";
 import { FundingFrame } from "./kinds/fundings/Frame";
 import { Markdown } from "../../../components/Markdown";
 import { ScrollToTop } from "../../../components/ScrollToTop";
+import ModerationBadge from "../../moderations/moderation/Badge";
+import ModerationModal from "../../moderations/Modal";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -42,7 +43,8 @@ const Campaign = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
-        report: false
+        report: false,
+        moderations: false
     });
     
     const data = useFindCampaignByPubId(id);
@@ -68,6 +70,13 @@ const Campaign = (props: Props) => {
         }));
     }, []);
 
+    const toggleModerations = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+    }, []);
+
     useEffect(() => {
         props.toggleLoading(data.status === "loading");
         if(data.status === "error") {
@@ -79,16 +88,15 @@ const Campaign = (props: Props) => {
         data.data:
         undefined;
 
-    const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaign?.createdBy) ||
-        (auth.user && isModerator(auth.user));
+    const canEdit = campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && auth.user._id === campaign?.createdBy;
 
     return (
         <>
             <ScrollToTop />
             <div className="container mb-2">
                 <div className="is-size-2 overflow-hidden">
-                    {campaign? campaign.title: <Skeleton />}
+                    {campaign? <span>{campaign.title}</span>: <Skeleton />}
                 </div>
                 <div className="overflow-hidden is-flex">
                     <Category id={campaign?.categoryId} />
@@ -113,10 +121,19 @@ const Campaign = (props: Props) => {
                             {campaign? <img src={campaign.cover} />: <Skeleton height={450} />}
                         </div>
                         {campaign? 
-                            <Markdown 
-                                className="campaign-body" 
-                                body={campaign.body}
-                            />:
+                            <>
+                                <div className="has-text-right">
+                                    <ModerationBadge 
+                                        reason={campaign.moderated}
+                                        isLarge
+                                        onShowModerations={toggleModerations} 
+                                    />
+                                </div>
+                                <Markdown 
+                                    className="campaign-body" 
+                                    body={campaign.body}
+                                />
+                            </>:
                             <>
                                 <Skeleton count={3} />
                                 <br/>
@@ -185,7 +202,7 @@ const Campaign = (props: Props) => {
                         </div>
                         <p>
                             <small>
-                                {canEdit &&
+                                {canEdit?
                                     <>
                                         <a
                                             title="Edit campaign"
@@ -202,6 +219,8 @@ const Campaign = (props: Props) => {
                                         </a>
                                         &nbsp;·&nbsp;
                                     </>
+                                :
+                                    null
                                 }
                                 {auth.user && 
                                     <>
@@ -334,13 +353,22 @@ const Campaign = (props: Props) => {
                     >
                         <ReportForm
                             entityId={campaign._id}
-                            entityType={ReportType.CAMPAIGNS}
+                            entityPubId={campaign.pubId}
+                            entityType={EntityType.CAMPAIGNS}
                             onClose={toggleReport}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
                             toggleLoading={props.toggleLoading}
                         />
                     </Modal>
+
+                    <ModerationModal
+                        isOpen={modals.moderations}
+                        entityType={EntityType.CAMPAIGNS}
+                        entityId={campaign._id}
+                        moderated={campaign.moderated}
+                        onClose={toggleModerations}
+                    />
                 </>
             }
         </>

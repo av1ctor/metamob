@@ -13,10 +13,22 @@ export const PlaceIcon = (props: Props) => {
     const {place} = props;
 
     return (
-        <div className={`place-icon ${props.size || 'sm'} ${props.className}`}>
-            {place?.kind == PlaceKind.COUNTRY?
-                <span className={`fi fi-${place.icon} fis`} />:
-                <i className={`pl-${place?.icon || 'map'}`} />
+        <div 
+            className={`place-icon ${props.size || 'sm'} ${props.className}`}
+        >
+            {place?.kind === PlaceKind.PLANET || place?.kind === PlaceKind.CONTINENT?
+                <i 
+                    className={`pl-${place?.icon || 'map'}`} 
+                />:
+                place?.kind == PlaceKind.COUNTRY?
+                    <span 
+                        className={`fi fi-${place.icon} fis`} 
+                    />:
+                    place?.icon?
+                        <img 
+                            src={place.icon}
+                        />:
+                        <i className="pl-map" />
             }
         </div>
     );

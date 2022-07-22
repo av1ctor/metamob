@@ -4,14 +4,15 @@ import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface BaseItemProps {
     signature: SignatureResponse;
     user?: ProfileResponse;
     children?: any;
+    onShowModerations?: (signature: SignatureResponse) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -19,17 +20,25 @@ export const BaseItem = (props: BaseItemProps) => {
 
     return (
         <article className="media">
-            <div className="media-left">
-                <div className="flex-node w-12">
-                    {props.user &&
+            {props.user &&
+                <div className="media-left">
+                    <div className="flex-node w-12">
                         <Avatar id={props.user._id} size='lg' noName={true} />
-                    }
+                    </div>
                 </div>
-            </div>
+            }
             <div className="media-content">
                 <div className="content">
+                    {props.user &&
+                        <div>
+                            <strong>{props.user?.name}</strong>
+                        </div>
+                    }
                     <div>
-                        <strong>{props.user?.name}</strong>
+                        <ModerationBadge
+                            reason={signature.moderated}
+                            onShowModerations={() => props.onShowModerations && props.onShowModerations(signature)} 
+                        />
                     </div>
                     <Markdown 
                         className="update-body" 
@@ -48,6 +57,7 @@ interface ItemProps {
     onEdit: (signature: SignatureResponse) => void;
     onDelete: (signature: SignatureResponse) => void;
     onReport: (signature: SignatureResponse) => void;
+    onShowModerations: (signature: SignatureResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -62,13 +72,13 @@ export const Item = (props: ItemProps) => {
     const user = useFindUserById(author);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0)) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && (auth.user._id === author && author !== 0));
 
     return (
         <BaseItem
             user={user.data}
             signature={signature}
+            onShowModerations={props.onShowModerations}
         >
             <p>
                 <small>

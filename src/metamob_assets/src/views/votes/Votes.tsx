@@ -1,14 +1,14 @@
 import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, VoteResponse} from '../../../../declarations/metamob/metamob.did';
-import {Order} from "../../libs/common";
+import {EntityType, Order} from "../../libs/common";
 import {useFindVotesByCampaign} from "../../hooks/votes";
 import { Item } from "./Item";
 import Modal from "../../components/Modal";
 import ReportForm from "../reports/report/Create";
-import { ReportType } from "../../libs/reports";
 import DeleteForm from "./vote/Delete";
 import EditForm from "./vote/Edit";
 import Button from "../../components/Button";
+import ModerationModal from "../moderations/Modal";
 
 interface Props {
     campaign: Campaign;
@@ -27,6 +27,7 @@ const Votes = (props: Props) => {
         edit: false,
         delete: false,
         report: false,
+        moderations: false,
     });
     const [vote, setVote] = useState<VoteResponse | undefined>(undefined);
 
@@ -54,6 +55,14 @@ const Votes = (props: Props) => {
         setVote(vote);
     }, []);
 
+    const toggleModerations = useCallback((vote: VoteResponse | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+        setVote(vote);
+    }, []);
+
     const campaign = props.campaign;
 
     const votes = useFindVotesByCampaign(campaign._id, orderBy, 10);
@@ -73,6 +82,7 @@ const Votes = (props: Props) => {
                                 onEdit={toggleEdit}
                                 onDelete={toggleDelete}
                                 onReport={toggleReport}
+                                onShowModerations={toggleModerations}
                             />
                         )}
                     </Fragment>
@@ -129,14 +139,25 @@ const Votes = (props: Props) => {
                 {vote &&
                     <ReportForm
                         entityId={vote._id}
-                        entityType={ReportType.VOTES}
+                        entityPubId={vote.pubId}
+                        entityType={EntityType.VOTES}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}
                     />
                 }
-            </Modal>            
+            </Modal>
+
+            {vote &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.VOTES}
+                    entityId={vote._id}
+                    moderated={vote.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     )
 };

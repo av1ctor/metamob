@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {VoteRequest, Metamob, VoteResponse, Vote} from "../../../declarations/metamob/metamob.did";
+import {VoteRequest, Metamob, VoteResponse, Vote, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/votes';
 
@@ -63,14 +63,14 @@ export const useFindVoteByCampaignAndUser = (
 };
 
 export const useFindUserVotes = (
-    userId: number, 
     orderBy: Order[], 
     limit: Limit,
+    userId?: number,
     main?: Metamob
 ): UseQueryResult<VoteResponse[], Error> => {
    return useQuery<VoteResponse[], Error>(
         ['votes', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        () => findByUser(orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}
     );
 
@@ -108,6 +108,28 @@ export const useUpdateVote = () => {
             }
             
             const res = await options.main.voteUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['votes']);
+            }   
+        }
+    );
+};
+
+export const useModerateVote = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: VoteRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.voteModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

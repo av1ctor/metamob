@@ -1,3 +1,5 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public type Signature = {
         _id: Nat32;
@@ -5,6 +7,7 @@ module {
         body: Text;
         campaignId: Nat32;
         anonymous: Bool;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -23,6 +26,7 @@ module {
         body: Text;
         campaignId: Nat32;
         anonymous: Bool;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: ?Nat32;
         updatedAt: ?Int;

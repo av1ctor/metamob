@@ -1,19 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Report, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
+import { Profile, ReportResponse, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCloseReport } from "../../../hooks/reports";
-import { ReportResult } from "../../../libs/reports";
+import { kinds, ReportResult } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
-import Entity from "./Entity";
+import EntityPreview from "./EntityPreview";
 
 interface Props {
-    report: Report;
+    report: ReportResponse;
     onEditUser: (user: Profile) => void;
+    onModerate: (report: ReportResponse) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -27,12 +28,12 @@ const formSchema = yup.object().shape({
 
 const results: Option[] = [
     {name: 'Verifying', value: ReportResult.VERIFYING},
-    {name: 'Solved', value: ReportResult.SOLVED},
+    {name: 'Moderated', value: ReportResult.MODERATED},
     {name: 'Duplicated', value: ReportResult.DUPLICATED},
     {name: 'Ignored', value: ReportResult.IGNORED},
 ];
 
-const EditForm = (props: Props) => {
+const ViewForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
@@ -112,6 +113,13 @@ const EditForm = (props: Props) => {
                 value={report.pubId}
                 disabled
             />
+            <SelectField
+                label="Kind"
+                name="kind"
+                value={report.kind}
+                options={kinds}
+                disabled
+            />
             <TextAreaField
                 label="Description"
                 name="description"
@@ -125,16 +133,17 @@ const EditForm = (props: Props) => {
                 </label>
                 <div className="control">
                     <Avatar 
-                        id={report.createdBy} 
+                        id={report.createdBy.length > 0? report.createdBy[0]: undefined} 
                         size='lg'
                         onClick={props.onEditUser}
                     />
                 </div>
             </div>
             
-            <Entity 
+            <EntityPreview 
                 report={report} 
                 onEditUser={props.onEditUser}
+                onModerate={props.onModerate}
                 onSuccess={props.onSuccess}
                 onError={props.onError}
             />
@@ -159,7 +168,7 @@ const EditForm = (props: Props) => {
                         onClick={handleUpdate}
                         disabled={closeMut.isLoading}
                     >
-                        Update
+                        {Number(form.result) === ReportResult.VERIFYING? 'Update': 'Close'}
                     </Button>
                 </div>
                 <div className="control">
@@ -175,4 +184,4 @@ const EditForm = (props: Props) => {
     );
 };
 
-export default EditForm;
+export default ViewForm;

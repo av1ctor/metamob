@@ -22,7 +22,7 @@ const Campaigns = (props: Props) => {
 
     const [limit, setLimit] = useState({
         offset: 0,
-        size: 4
+        size: 3
     });
 
     const campaigns = useFindCampaignsByUserId(authState.user?._id || 0, orderBy, limit, actorState.main);
@@ -62,7 +62,7 @@ const Campaigns = (props: Props) => {
                 <div className="columns is-desktop is-multiline is-align-items-center">
                     {campaigns.status === 'success' && campaigns.data && campaigns.data.map((campaign) => 
                         <div 
-                            className="column is-one-quarter"
+                            className="column is-4"
                             key={campaign._id}
                         >
                             <Item 

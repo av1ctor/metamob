@@ -76,17 +76,15 @@ export const findByCampaignAndUser = async (
 }
 
 export const findByUser = async (
-    userId?: number, 
     orderBy?: Order[], 
     limit?: Limit,
     main?: Metamob
 ): Promise<VoteResponse[]> => {
-    if(!main || !userId) {
+    if(!main) {
         return [];
     }   
 
     const res = await main.voteFindByUser(
-        userId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     

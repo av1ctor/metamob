@@ -36,7 +36,7 @@ const Votes = (props: Props) => {
     });
     const [vote, setVote] = useState<VoteResponse>();
 
-    const votes = useFindUserVotes(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const votes = useFindUserVotes(orderBy, limit, authState.user?._id, actorState.main);
     
     const toggleEdit = useCallback((vote: VoteResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -95,7 +95,6 @@ const Votes = (props: Props) => {
                             className="column is-6"
                         >
                             <BaseItem 
-                                user={authState.user}
                                 vote={vote} 
                             >
                                 <p>

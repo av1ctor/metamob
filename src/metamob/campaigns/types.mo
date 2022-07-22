@@ -1,3 +1,5 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public let REFUND_TAX: Nat64 = 10; // 10%
     public let DONATIONS_TAX: Nat64 = 10; // 10%
@@ -95,6 +97,7 @@ module {
         boosting: Nat;
         updates: Nat32;
         action: CampaignAction;
+        moderated: ModerationTypes.ModerationReason;
         publishedAt: ?Int;
         expiredAt: ?Int;
         createdAt: Int;

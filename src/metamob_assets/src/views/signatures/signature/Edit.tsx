@@ -1,15 +1,19 @@
-import React, {useState, ChangeEvent, useCallback, useContext, useEffect} from "react";
+import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
-import {useUpdateSignature} from "../../../hooks/signatures";
+import {useModerateSignature, useUpdateSignature} from "../../../hooks/signatures";
 import {SignatureResponse, SignatureRequest} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import CheckboxField from "../../../components/CheckboxField";
+import { isModerator } from "../../../libs/users";
+import { AuthContext } from "../../../stores/auth";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
 interface Props {
     signature: SignatureResponse;
+    reportId?: number | null;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -23,14 +27,18 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
+    const [authState, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<SignatureRequest>({
         campaignId: props.signature.campaignId,
         body: props.signature.body,
         anonymous: props.signature.anonymous,
     });
+
+    const [modForm, setModForm] = useModerationForm(props.reportId);
     
     const updateMut = useUpdateSignature();
+    const moderateMut = useModerateSignature();
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -42,6 +50,8 @@ const EditForm = (props: Props) => {
             [field.replace('__edit__', '')]: value
         }));
     }, []);
+
+    const changeModForm = useSetModerationFormField(setModForm);
 
     const validate = (form: SignatureRequest): string[] => {
         try {
@@ -61,20 +71,46 @@ const EditForm = (props: Props) => {
             props.onError(errors);
             return;
         }
+
+        const isModeration = props.reportId && isModerator(authState.user);
+
+        if(isModeration) {
+            const errors = validateModerationForm(modForm);
+            if(errors.length > 0) {
+                props.onError(errors);
+                return;
+            }
+        }
+
+        const transformReq = (): SignatureRequest => {
+            return {
+                campaignId: Number(props.signature.campaignId),
+                body: form.body,
+                anonymous: form.anonymous,
+            };
+        };
         
         try {
             props.toggleLoading(true);
 
-            await updateMut.mutateAsync({
-                main: actorState.main,
-                pubId: props.signature.pubId, 
-                req: {
-                    campaignId: Number(props.signature.campaignId),
-                    body: form.body,
-                    anonymous: form.anonymous,
-                }
-        });
-            props.onSuccess('Signature updated!');
+            if(isModeration) {
+                await moderateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.signature.pubId, 
+                    req: transformReq(),
+                    mod: transformModerationForm(modForm)
+                });
+                props.onSuccess('Signature moderated!');
+            }
+            else {
+                await updateMut.mutateAsync({
+                    main: actorState.main,
+                    pubId: props.signature.pubId, 
+                    req: transformReq()
+                });
+                props.onSuccess('Signature updated!');
+            }
+            
             props.onClose();
         }
         catch(e) {
@@ -83,7 +119,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, props.onClose]);
+    }, [form, modForm, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -115,6 +151,12 @@ const EditForm = (props: Props) => {
                     value={form.anonymous}
                     onChange={changeForm}
                 />
+                {props.reportId && isModerator(authState.user) &&
+                    <CreateModerationForm
+                        form={modForm}
+                        onChange={changeModForm}
+                    />
+                }
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button

@@ -1,36 +1,43 @@
+import Account "../accounts/account";
 import Array "mo:base/Array";
+import D "mo:base/Debug";
+import EntityTypes "../common/entities";
+import Error "mo:base/Error";
+import ExpICP "mo:base/ExperimentalInternetComputer";
+import FundingRepository "../fundings/repository";
+import LedgerUtils "../common/ledger";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
+import PlaceService "../places/service";
+import PlaceTypes "../places/types";
 import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
-import ExpICP "mo:base/ExperimentalInternetComputer";
-import Variant "mo:mo-table/variant";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
 import Repository "./repository";
+import Result "mo:base/Result";
 import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
-import PlaceService "../places/service";
-import PlaceTypes "../places/types";
-import FundingRepository "../fundings/repository";
-import LedgerUtils "../common/ledger";
-import Account "../accounts/account";
-import D "mo:base/Debug";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
         userService: UserService.Service,
         placeService: PlaceService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository, 
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
         let userRepo = userService.getRepository();
         let placeRepo = placeService.getRepository();
         var fundingRepo: ?FundingRepository.Repository = null;
-        
+
         public func create(
             req: Types.CampaignRequest,
             invoker: Principal
@@ -45,9 +52,7 @@ module {
                     }
                     else {
                         if(Option.isSome(req.state)) {
-                            if(not UserUtils.isModerator(caller)) {
-                                return #err("Invalid field: state");
-                            };
+                            return #err("Invalid field: state");
                         };
                         
                         switch(await placeService.checkAccess(caller, req.placeId)) {
@@ -130,9 +135,7 @@ module {
                                 };
 
                                 if(Option.isSome(req.state)) {
-                                    if(not UserUtils.isModerator(caller)) {
-                                        return #err("Invalid field: state");
-                                    };
+                                    return #err("Invalid field: state");
                                 };
 
                                 if(req.kind != campaign.kind) {
@@ -201,6 +204,65 @@ module {
             };
         };
 
+        public func moderate(
+            id: Text, 
+            req: Types.CampaignRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Campaign, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(campaign)) {
+                                switch(canModerate(caller, campaign, mod)) {
+                                    case null {
+                                        return #err("Forbidden");
+                                    };
+
+                                    case (?report) {
+                                        if(req.kind != campaign.kind) {
+                                            return #err("Kind can't be changed");
+                                        };
+
+                                        if(campaign.goal != req.goal) {
+                                            return #err("Goal can't be changed");
+                                        };
+
+                                        switch(_validateInfo(req.kind, req.info)) {
+                                            case (#err(msg)) {
+                                                return #err(msg);
+                                            };
+                                            case _ {
+                                            };
+                                        };
+
+                                        switch(moderationService.create(mod, report, caller)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(campaign, req, mod.reason, caller._id);
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         func _validateInfo(
             kind: Types.CampaignKind,
             info: Types.CampaignInfo
@@ -250,40 +312,6 @@ module {
             };
 
             return #ok();
-        };
-
-        public func publish(
-            pubId: Text, 
-            invoker: Principal
-        ): Result.Result<Types.Campaign, Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not hasAuth(caller)) {
-                        #err("Forbidden");
-                    }
-                    else {
-                        if(not UserUtils.isAdmin(caller)) {
-                            return #err("Forbidden");
-                        };
-                        
-                        switch(repo.findByPubId(pubId)) {
-                            case (#err(msg)) {
-                                #err(msg);
-                            };
-                            case (#ok(campaign)) {
-                                if(not canChange(caller, campaign, [Types.STATE_CREATED])) {
-                                    return #err("Forbidden");
-                                };
-
-                                repo.publish(campaign, caller._id);
-                            };
-                        };
-                    };
-                };
-            };
         };
 
         func _transferFunds(
@@ -661,8 +689,7 @@ module {
         public func verify(
             this: actor {}
         ): async () {
-            let res = repo.findExpired(100);
-            switch(res) {
+            switch(repo.findExpired(100)) {
                 case (#ok(campaigns)) {
                     if(campaigns.size() > 0) {
                         D.print("Info: CampaignService.verify: Finishing " # Nat.toText(campaigns.size()) # " expired campaigns");
@@ -694,7 +721,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned == UserTypes.BANNED_AS_USER) {
                 return false;
             };
 
@@ -703,19 +730,11 @@ module {
 
         func canChange(
             caller: UserTypes.Profile,
-            campaign: Types.Campaign,
+            entity: Types.Campaign,
             states: [Types.CampaignState]
         ): Bool {
-            // not the same author?
-            if(caller._id != campaign.createdBy) {
-                // not an admin?
-                if(not UserUtils.isModerator(caller)) {
-                    return false;
-                };
-            };
-
             // deleted?
-            if(Option.isSome(campaign.deletedAt)) {
+            if(Option.isSome(entity.deletedAt)) {
                 return false;
             };
 
@@ -723,13 +742,49 @@ module {
             if(Option.isNull(
                 Array.find(
                     states, 
-                    func(s: Types.CampaignState): Bool = s == campaign.state
+                    func(s: Types.CampaignState): Bool = s == entity.state
                 )
             )) {
                 return false;
             };
 
+            // not the same author?
+            if(caller._id != entity.createdBy) {
+                return false;
+            };
+
             return true;
+        };
+
+        func canModerate(
+            caller: UserTypes.Profile,
+            entity: Types.Campaign,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            // deleted?
+            if(Option.isSome(entity.deletedAt)) {
+                return null;
+            };
+
+            // not a moderator?
+            if(not UserUtils.isModerator(caller)) {
+                return null;
+            };
+
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_CAMPAIGNS, entity._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
         };
     };
 };

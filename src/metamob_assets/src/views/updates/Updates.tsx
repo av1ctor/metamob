@@ -1,6 +1,6 @@
 import React, {useState, useCallback, useContext, Fragment} from "react";
 import {Update, Campaign} from '../../../../declarations/metamob/metamob.did';
-import {Order} from "../../libs/common";
+import {EntityType, Order} from "../../libs/common";
 import {CampaignState} from "../../libs/campaigns";
 import {useFindUpdatesByCampaign} from "../../hooks/updates";
 import { Item } from "./Item";
@@ -9,10 +9,9 @@ import Modal from "../../components/Modal";
 import CreateForm from "./update/Create";
 import EditForm from "./update/Edit";
 import ReportForm from "../reports/report/Create";
-import { ReportType } from "../../libs/reports";
 import Button from "../../components/Button";
-import { isModerator } from "../../libs/users";
 import DeleteForm from "./update/Delete";
+import ModerationModal from "../moderations/Modal";
 
 interface Props {
     campaign: Campaign;
@@ -34,6 +33,7 @@ const Updates = (props: Props) => {
         edit: false,
         delete: false,
         report: false,
+        moderations: false,
     });
     const [update, setUpdate] = useState<Update | undefined>(undefined);
 
@@ -42,40 +42,47 @@ const Updates = (props: Props) => {
     const updates = useFindUpdatesByCampaign(campaign._id, orderBy, 10);
 
     const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaign?.createdBy) ||
-        (auth.user && isModerator(auth.user));
+        auth.user && auth.user._id === campaign?.createdBy);
 
     const toggleCreate = useCallback(() => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             create: !modals.create
-        });
+        }));
         setUpdate(undefined);
-    }, [modals]);
+    }, []);
 
     const toggleEdit = useCallback((update: Update | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             edit: !modals.edit
-        });
+        }));
         setUpdate(update);
-    }, [modals]);
+    }, []);
 
     const toggleDelete = useCallback((update: Update | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             delete: !modals.delete
-        });
+        }));
         setUpdate(update);
-    }, [modals]);
+    }, []);
 
     const toggleReport = useCallback((update: Update | undefined = undefined) => {
-        setModals({
+        setModals(modals => ({
             ...modals,
             report: !modals.report
-        });
+        }));
         setUpdate(update);
-    }, [modals]);
+    }, []);
+
+    const toggleModerations = useCallback((update: Update | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
+        }));
+        setUpdate(update);
+    }, []);
 
     return (
         <>
@@ -95,6 +102,7 @@ const Updates = (props: Props) => {
                                             onEdit={toggleEdit}
                                             onDelete={toggleDelete}
                                             onReport={toggleReport}
+                                            onShowModerations={toggleModerations}
                                         />
                                     )}
                                 </Fragment>
@@ -177,7 +185,8 @@ const Updates = (props: Props) => {
                 {update &&
                     <ReportForm
                         entityId={update._id}
-                        entityType={ReportType.UPDATES}
+                        entityPubId={update.pubId}
+                        entityType={EntityType.UPDATES}
                         onClose={toggleReport}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
@@ -185,6 +194,16 @@ const Updates = (props: Props) => {
                     />
                 }
             </Modal>            
+        
+            {update &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.UPDATES}
+                    entityId={update._id}
+                    moderated={update.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     )
 };

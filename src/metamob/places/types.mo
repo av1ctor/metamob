@@ -1,3 +1,5 @@
+import ModerationTypes "../moderations/types";
+
 module {
     public type PlaceKind = Nat32; 
     public let KIND_PLANET: Nat32 = 0;
@@ -10,7 +12,8 @@ module {
     public let KIND_BUILDING: Nat32 = 7;
     public let KIND_FLOOR: Nat32 = 8;
     public let KIND_ROOM: Nat32 = 9;
-    public let KIND_OTHER: Nat32 = 10;
+    public let KIND_DAO: Nat32 = 10;
+    public let KIND_OTHER: Nat32 = 99;
 
     public let RESTRICTION_NONE: Nat32 = 0;
     public let RESTRICTION_EMAIL: Nat32 = 1;
@@ -43,9 +46,12 @@ module {
         name: Text;
         description: Text;
         icon: Text;
+        banner: ?Text;
+        terms: ?Text;
         active: Bool;
         lat: Float;
         lng: Float;
+        moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;
         updatedAt: ?Int;
@@ -59,6 +65,8 @@ module {
         name: Text;
         description: Text;
         icon: Text;
+        banner: ?Text;
+        terms: ?Text;
         active: Bool;
         lat: Float;
         lng: Float;

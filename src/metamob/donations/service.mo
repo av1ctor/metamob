@@ -1,33 +1,42 @@
-import Principal "mo:base/Principal";
+import Account "../accounts/account";
 import Blob "mo:base/Blob";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Int "mo:base/Int";
-import Time "mo:base/Time";
-import Result "mo:base/Result";
-import Variant "mo:mo-table/variant";
-import Types "./types";
-import Repository "./repository";
-import UserTypes "../users/types";
-import UserUtils "../users/utils";
-import UserService "../users/service";
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
+import EntityTypes "../common/entities";
+import Int "mo:base/Int";
+import LedgerUtils "../common/ledger";
+import ModerationRepository "../moderations/repository";
+import ModerationService "../moderations/service";
+import ModerationTypes "../moderations/types";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
 import PlaceService "../places/service";
 import PlaceTypes "../places/types";
-import LedgerUtils "../common/ledger";
-import Account "../accounts/account";
+import Principal "mo:base/Principal";
+import ReportRepository "../reports/repository";
+import ReportTypes "../reports/types";
+import Repository "./repository";
+import Result "mo:base/Result";
+import Time "mo:base/Time";
+import Types "./types";
+import UserService "../users/service";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Service(
         userService: UserService.Service,
         campaignService: CampaignService.Service,
         placeService: PlaceService.Service,
+        moderationService: ModerationService.Service,
+        reportRepo: ReportRepository.Repository,         
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
         let placeRepo = placeService.getRepository();
+        let moderationRepo = moderationService.getRepository();
 
         public func create(
             req: Types.DonationRequest,
@@ -182,6 +191,52 @@ module {
             };
         };
 
+        public func moderate(
+            id: Text, 
+            req: Types.DonationRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal
+        ): Result.Result<Types.Donation, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(entity)) {
+                                switch(canModerate(caller, entity, mod)) {
+                                    case null {
+                                        return #err("Forbidden");
+                                    };
+                                    case (?report) {
+                                        if(req.value != entity.value) {
+                                            return #err("Invalid field: value");
+                                        };
+                                        
+                                        switch(moderationService.create(mod, report, caller)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case (#ok(moderation)) {
+                                                repo.moderate(entity, req, mod.reason, caller._id);
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
         public func findById(
             _id: Nat32, 
             invoker: Principal
@@ -195,7 +250,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned) {
+                    if(not caller.active or caller.banned == UserTypes.BANNED_AS_USER) {
                         return #err("Forbidden: not active");
                     };
 
@@ -237,7 +292,6 @@ module {
         };
 
         public func findByUser(
-            userId: /* Text */ Nat32,
             sortBy: ?[(Text, Text)],
             limit: ?(Nat, Nat),
             invoker: Principal
@@ -251,13 +305,7 @@ module {
                         return #err("Forbidden");
                     };
 
-                    if(caller._id != userId) {
-                        if(not UserUtils.isAdmin(caller)) {
-                            return #err("Forbidden");
-                        };
-                    };            
-                    
-                    repo.findByUser(userId, sortBy, limit);
+                    repo.findByUserEx(caller._id, sortBy, limit, false);
                 };
             };
         };
@@ -371,7 +419,7 @@ module {
                 return false;
             };
 
-            if(caller.banned) {
+            if(caller.banned == UserTypes.BANNED_AS_USER) {
                 return false;
             };
 
@@ -383,12 +431,35 @@ module {
             entity: Types.Donation
         ): Bool {
             if(caller._id != entity.createdBy) {
-                if(not UserUtils.isModerator(caller)) {
-                    return false;
-                };
+                return false;
             };
 
             return true;
+        };
+
+        func canModerate(
+            caller: UserTypes.Profile,
+            entity: Types.Donation,
+            mod: ModerationTypes.ModerationRequest
+        ): ?ReportTypes.Report {
+            if(not UserUtils.isModerator(caller)) {
+                return null;
+            };
+
+            switch(reportRepo.findById(mod.reportId)) {
+                case (#err(_)) {
+                    return null;
+                };
+                case (#ok(report)) {
+                    // if it's a moderator, there must exist an open report
+                    if(not UserUtils.isModeratingOnEntity(
+                        caller, EntityTypes.TYPE_DONATIONS, entity._id, report)) {
+                        return null;
+                    };
+
+                    return ?report;
+                };
+            };
         };
 
         func canChangeCampaign(
