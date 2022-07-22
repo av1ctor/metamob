@@ -5,9 +5,13 @@ import { Place } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import { useFindByPlaceAndUser } from "../../../hooks/places-users";
+import { EntityType } from "../../../libs/common";
 import { AuthContext } from "../../../stores/auth";
 import { PlaceIcon } from "./PlaceIcon";
 import TermsForm from "./TermsForm";
+import ReportForm from "../../reports/report/Create";
+import ModerationBadge from "../../moderations/moderation/Badge";
+import ModerationModal from "../../moderations/Modal";
 
 interface Props {
     place?: Place;
@@ -21,6 +25,8 @@ export const PlaceBar = (props: Props) => {
 
     const [modals, setModals] = useState({
         terms: false,
+        report: false,
+        moderations: false,
     });
 
     const navigate = useNavigate();
@@ -29,7 +35,21 @@ export const PlaceBar = (props: Props) => {
     const toggleTerms = useCallback(() => {
         setModals(modals => ({
             ...modals,
-            terms: !modals.terms
+            terms: !modals.terms,
+        }));
+    }, []);
+
+    const toggleReport = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            report: !modals.report
+        }));
+    }, []);
+
+    const toggleModerations = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            moderations: !modals.moderations
         }));
     }, []);
 
@@ -76,6 +96,27 @@ export const PlaceBar = (props: Props) => {
                         </div>
                     }
                 </div>
+
+                <div className="level place-info">
+                    <div className="level-left">
+                        {place &&
+                            <ModerationBadge
+                                reason={place.moderated}
+                                onShowModerations={toggleModerations} 
+                            />
+                        }
+                    </div>
+                    <div className="level-right">
+                        {isLoggedIn && place &&
+                            <a
+                                title="Report place"
+                                onClick={toggleReport}
+                            >
+                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                            </a>
+                        }
+                    </div>
+                </div>
             </div>
 
             <Modal
@@ -93,7 +134,35 @@ export const PlaceBar = (props: Props) => {
                         toggleLoading={props.toggleLoading}
                     />
                 }
-            </Modal>            
+            </Modal>
+
+            <Modal
+                header={<span>Report place</span>}
+                isOpen={modals.report}
+                onClose={toggleReport}
+            >
+                {place &&
+                    <ReportForm
+                        entityId={place._id}
+                        entityPubId={place.pubId}
+                        entityType={EntityType.PLACES}
+                        onClose={toggleReport}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
+
+            {place &&
+                <ModerationModal
+                    isOpen={modals.moderations}
+                    entityType={EntityType.PLACES}
+                    entityId={place._id}
+                    moderated={place.moderated}
+                    onClose={toggleModerations}
+                />
+            }
         </>
     );
 };

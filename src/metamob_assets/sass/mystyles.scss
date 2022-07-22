@@ -257,8 +257,9 @@
 }
 
 .place-bar {
+    position: relative;
     width: 100%;
-    padding: 16px;
+    padding: 48px 16px 4px 16px;
     margin-bottom: 8px;
     font-weight: bold;
     background-size: cover;
@@ -288,6 +289,12 @@
             border: 2px solid #fff8;
             border-radius: 8px;
         }
+    }
+
+    .place-info {
+        padding: 0;
+        margin: 0;
+        font-size: smaller;
     }
 }
 

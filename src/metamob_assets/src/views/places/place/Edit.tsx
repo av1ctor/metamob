@@ -10,16 +10,21 @@ import { PlacePicker } from "../../../components/PlacePicker";
 import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
-import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
+import { useFindPlaceById, useModeratePlace, useUpdatePlace } from "../../../hooks/places";
 import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 import { transformAuth, validateAuth } from "./utils";
+import { AuthContext } from "../../../stores/auth";
+import { isModerator } from "../../../libs/users";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
+
 
 interface Props {
     place: Place;
-    onEditEmails: () => void;
+    reportId?: number | null;
+    onEditEmails?: () => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -43,6 +48,7 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
+    const [authState, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.place.name,
@@ -58,7 +64,11 @@ const EditForm = (props: Props) => {
         lng: props.place.lng,
     });
 
+    const [modForm, setModForm] = useModerationForm(props.reportId);
+
     const updateMut = useUpdatePlace();
+    const moderateMut = useModeratePlace();
+
     const parent = useFindPlaceById(props.place.parentId && props.place.parentId.length > 0? props.place.parentId[0] || 0: 0);
 
     const changeForm = useCallback((e: any) => {
@@ -79,6 +89,8 @@ const EditForm = (props: Props) => {
             [field]: [value]
         }));
     }, []);
+
+    const changeModForm = useSetModerationFormField(setModForm);
 
     const changeAuth = useCallback((e: any) => {
         let value: PlaceAuth = {none: null};
@@ -125,31 +137,57 @@ const EditForm = (props: Props) => {
             return;
         }
 
+        const isModeration = props.reportId && isModerator(authState.user);
+
+        if(isModeration) {
+            const errors = validateModerationForm(modForm);
+            if(errors.length > 0) {
+                props.onError(errors);
+                return;
+            }
+        }
+
+        const transformReq = (): PlaceRequest => {
+            return {
+                name: form.name,
+                description: form.description,
+                icon: form.icon,
+                banner: form.banner[0]?
+                    form.banner:
+                    [],
+                terms: form.terms[0]?
+                    form.terms:
+                    [],
+                kind: Number(form.kind),
+                auth: transformAuth(form.auth),
+                parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
+                active: form.active,
+                lat: Number(form.lat),
+                lng: Number(form.lng),
+            };
+        };
+
         try {
             props.toggleLoading(true);
 
-            await updateMut.mutateAsync({
-                main: actorContext.main,
-                pubId: props.place.pubId,
-                req: {
-                    name: form.name,
-                    description: form.description,
-                    icon: form.icon,
-                    banner: form.banner[0]?
-                        form.banner:
-                        [],
-                    terms: form.terms[0]?
-                        form.terms:
-                        [],
-                    kind: Number(form.kind),
-                    auth: transformAuth(form.auth),
-                    parentId: form.parentId.length > 0? [Number(form.parentId[0])]: [],
-                    active: form.active,
-                    lat: Number(form.lat),
-                    lng: Number(form.lng),
-                }
-            });
-            props.onSuccess('Place updated!');
+            if(isModeration) {
+                await moderateMut.mutateAsync({
+                    main: actorContext.main,
+                    pubId: props.place.pubId,
+                    req: transformReq(),
+                    mod: transformModerationForm(modForm)
+                });
+                props.onSuccess('Place moderated!');
+            }
+            else {
+                await updateMut.mutateAsync({
+                    main: actorContext.main,
+                    pubId: props.place.pubId,
+                    req: transformReq(),
+                });
+                props.onSuccess('Place updated!');
+            }
+
             props.onClose();
         }
         catch(e) {
@@ -158,7 +196,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, modForm, actorContext.main, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -174,7 +212,9 @@ const EditForm = (props: Props) => {
 
     const handleEditEmails = useCallback((e: any) => {
         e.preventDefault();
-        props.onEditEmails();
+        if(props.onEditEmails) {
+            props.onEditEmails();
+        }
     }, [props.onEditEmails]);
 
     const handleClose = useCallback((e: any) => {
@@ -289,6 +329,7 @@ const EditForm = (props: Props) => {
             {'email' in form.auth &&
                 <div className="p-2 border has-text-centered">
                     <Button
+                        disabled={!props.onEditEmails}
                         onClick={handleEditEmails}
                     >
                         Edit list
@@ -355,7 +396,12 @@ const EditForm = (props: Props) => {
                     />
                 </div>
             </div>
-            
+            {props.reportId && isModerator(authState.user) &&
+                <CreateModerationForm
+                    form={modForm}
+                    onChange={changeModForm}
+                />
+            }
             <div className="field is-grouped mt-2">
                 <div className="control">
                     <Button

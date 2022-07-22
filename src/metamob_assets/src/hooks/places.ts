@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {Place, PlaceRequest, Metamob} from "../../../declarations/metamob/metamob.did";
+import {Place, PlaceRequest, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findByPubId, findByUser, findTreeById } from '../libs/places';
 
@@ -117,3 +117,27 @@ export const useUpdatePlace = (
         }
     );
 };
+
+export const useModeratePlace = (
+    ) => {
+        const queryClient = useQueryClient();
+        return useMutation(
+            async (options: {main?: Metamob, pubId: string, req: PlaceRequest, mod: ModerationRequest}) => {
+                if(!options.main) {
+                    throw Error('Main actor undefined');
+                }
+    
+                const res = await options.main.placeModerate(options.pubId, options.req, options.mod);
+                if('err' in res) {
+                    throw new Error(res.err);
+                }
+                return res.ok;
+            },
+            {
+                onSuccess: () => {
+                    queryClient.invalidateQueries(['places']);
+                }   
+            }
+        );
+    };
+    

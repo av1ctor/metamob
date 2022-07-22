@@ -6,7 +6,7 @@ import VoteEdit from "../../votes/vote/EditWrapper";
 import DonationEdit from "../../donations/donation/EditWrapper";
 import FundingEdit from "../../fundings/funding/EditWrapper";
 import UpdateEdit from "../../updates/update/EditWrapper";
-import { Preview as PlacePreview } from "../../places/place/Preview";
+import PlaceEdit from "../../places/place/EditWrapper";
 import { EntityType } from "../../../libs/common";
 
 interface Props {
@@ -95,7 +95,14 @@ const EntityModerate = (props: Props) => {
 
         case EntityType.PLACES:
             return (
-                <div></div>
+                <PlaceEdit
+                    pubId={report.entityPubId}
+                    reportId={report._id}
+                    onClose={props.onClose}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
+                />
             );
 
         default:

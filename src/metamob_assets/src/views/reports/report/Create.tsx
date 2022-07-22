@@ -24,7 +24,7 @@ const formSchema = yup.object().shape({
     entityId: yup.number().required(),
     entityType: yup.number().required(),
     entityPubId: yup.string().required(),
-    kind: yup.number().required(),
+    kind: yup.number().required().min(0),
     description: yup.string().min(10).max(4096),
 });
 
@@ -35,7 +35,7 @@ const CreateForm = (props: Props) => {
         entityId: props.entityId,
         entityType: props.entityType,
         entityPubId: props.entityPubId,
-        kind: ReportKind.FAKE,
+        kind: -1,
         description: '',
     });
 

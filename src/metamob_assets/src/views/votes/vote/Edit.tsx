@@ -7,9 +7,9 @@ import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import CheckboxField from "../../../components/CheckboxField";
-import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
 interface Props {
     vote: VoteResponse;
@@ -130,11 +130,12 @@ const EditForm = (props: Props) => {
     }, [props.onClose]);
 
     useEffect(() => {
+        const {vote} = props;
         setForm({
-            campaignId: props.vote.campaignId,
-            body: props.vote.body,
-            pro: props.vote.pro,
-            anonymous: props.vote.anonymous,
+            campaignId: vote.campaignId,
+            body: vote.body,
+            pro: vote.pro,
+            anonymous: vote.anonymous,
         });
     }, [props.vote]);
 

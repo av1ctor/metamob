@@ -8,7 +8,7 @@ import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
-import { ReportState } from "../../../../libs/reports";
+import { ReportResult, ReportState } from "../../../../libs/reports";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -88,7 +88,7 @@ const AgainstMe = (props: Props) => {
                             >
                                 <p>
                                     <small>
-                                        {report.state === ReportState.CLOSED &&
+                                        {report.state === ReportState.CLOSED && report.result == ReportResult.MODERATED &&
                                             <span>
                                                 <a
                                                     title="Challenge report"
