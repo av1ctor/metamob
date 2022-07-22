@@ -1,15 +1,12 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Profile } from "../../../../../declarations/metamob/metamob.did";
-import Button from "../../../components/Button";
 import { useFindCampaignById } from "../../../hooks/campaigns";
 import Avatar from "../../users/Avatar";
 
 interface Props {
     id: number;
     partial?: boolean;
-    reportId?: number | null;
-    onModerate?: () => void;
     onEditUser?: (user: Profile) => void;
 }
 
@@ -22,13 +19,6 @@ const limitText = (text: string, chars: number): string => {
 export const Preview = (props: Props) => {
     
     const campaign = useFindCampaignById(props.id);
-
-    const handleModerate = useCallback((e: any) => {
-        e.preventDefault();
-        if(props.onModerate) {
-            props.onModerate();
-        }
-    }, [props.onModerate]);
 
     return (
         <div className="mb-2">

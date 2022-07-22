@@ -8,6 +8,7 @@ import { Preview as FundingPreview } from "../../fundings/funding/Preview";
 import { Preview as UpdatePreview } from "../../updates/update/Preview";
 import { Preview as PlacePreview } from "../../places/place/Preview";
 import { EntityType } from "../../../libs/common";
+import Button from "../../../components/Button";
 
 interface Props {
     report: ReportResponse;
@@ -21,20 +22,12 @@ interface Props {
 const EntityPreview = (props: Props) => {
     const {report} = props; 
 
-    const handleModerate = useCallback(() => {
-        if(props.onModerate) {
-            props.onModerate(props.report);
-        }
-    }, [props.report, props.onModerate]);
-
     switch(report.entityType) {
         case EntityType.CAMPAIGNS:
             return (
                 <CampaignPreview 
                     id={report.entityId} 
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -43,9 +36,7 @@ const EntityPreview = (props: Props) => {
             return (
                 <SignaturePreview 
                     id={report.entityId}   
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -54,9 +45,7 @@ const EntityPreview = (props: Props) => {
             return (
                 <UpdatePreview 
                     id={report.entityId} 
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -65,9 +54,7 @@ const EntityPreview = (props: Props) => {
             return (
                 <VotePreview 
                     id={report.entityId}
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -76,9 +63,7 @@ const EntityPreview = (props: Props) => {
             return (
                 <DonationPreview 
                     id={report.entityId}
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -87,9 +72,7 @@ const EntityPreview = (props: Props) => {
             return (
                 <FundingPreview 
                     id={report.entityId}
-                    reportId={report._id}
                     partial={props.partial}
-                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );
@@ -110,4 +93,33 @@ const EntityPreview = (props: Props) => {
     }
 };
 
-export default EntityPreview;
+const EntityPreviewContainer = (props: Props) => {
+
+    const handleModerate = useCallback((e: any) => {
+        e.preventDefault();
+
+        if(props.onModerate) {
+            props.onModerate(props.report);
+        }
+    }, [props.report, props.onModerate]);
+
+    return (
+        <>
+            <EntityPreview
+                {...props}
+            />
+            {!props.partial && props.onModerate &&
+                <div className="mt-2 has-text-centered">
+                    <Button
+                        color="danger"
+                        onClick={handleModerate}
+                    >
+                        Moderate
+                    </Button>
+                </div>
+            }
+        </>
+    );   
+};
+
+export default EntityPreviewContainer;
