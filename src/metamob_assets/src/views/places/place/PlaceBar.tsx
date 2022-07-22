@@ -126,7 +126,7 @@ export const PlaceBar = (props: Props) => {
                                     title="Edit place"
                                     onClick={toggleEdit}
                                 >
-                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                    <span className="whitespace-nowrap has-text-info"><i className="la la-pencil" /> Edit</span>
                                 </a>
                                 &nbsp;·&nbsp;
                             </>
