@@ -12,6 +12,7 @@ import TermsForm from "./TermsForm";
 import ReportForm from "../../reports/report/Create";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import ModerationModal from "../../moderations/Modal";
+import EditForm from "./Edit";
 
 interface Props {
     place?: Place;
@@ -24,6 +25,7 @@ export const PlaceBar = (props: Props) => {
     const [authState, ] = useContext(AuthContext);
 
     const [modals, setModals] = useState({
+        edit: false,
         terms: false,
         report: false,
         moderations: false,
@@ -32,6 +34,13 @@ export const PlaceBar = (props: Props) => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const toggleEdit = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            edit: !modals.edit,
+        }));
+    }, []);
+    
     const toggleTerms = useCallback(() => {
         setModals(modals => ({
             ...modals,
@@ -65,12 +74,16 @@ export const PlaceBar = (props: Props) => {
     const termsAccepted = hasTerms && placeUser && placeUser.data && placeUser.data.termsAccepted;
 
     const isLoggedIn = !!authState.user;
+    const canEdit = authState.user && 
+        (authState.user._id === place?.createdBy);
+
+    const banner = place?.banner[0] || '';
 
     return (
         <>
             <div 
                 className="place-bar has-text-primary-dark"
-                style={{backgroundImage: `url(${place?.banner[0]})`}}
+                style={banner? {backgroundImage: `url(${banner})`}: undefined}
             >
                 <div className="level">
                     <div className="level-left">
@@ -107,7 +120,18 @@ export const PlaceBar = (props: Props) => {
                         }
                     </div>
                     <div className="level-right">
-                        {isLoggedIn && place &&
+                        {canEdit && 
+                            <>
+                                <a
+                                    title="Edit place"
+                                    onClick={toggleEdit}
+                                >
+                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                </a>
+                                &nbsp;·&nbsp;
+                            </>
+                        }
+                        {isLoggedIn &&
                             <a
                                 title="Report place"
                                 onClick={toggleReport}
@@ -118,6 +142,22 @@ export const PlaceBar = (props: Props) => {
                     </div>
                 </div>
             </div>
+
+            <Modal
+                header={<span>Edit place</span>}
+                isOpen={modals.edit}
+                onClose={toggleEdit}
+            >
+                {place &&
+                    <EditForm
+                        place={place}
+                        onClose={toggleEdit}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
 
             <Modal
                 header={<span>Terms & Conditions</span>}
