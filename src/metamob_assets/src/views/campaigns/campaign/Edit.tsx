@@ -128,7 +128,7 @@ const cloneInfo = (info: CampaignInfo): CampaignInfo => {
 interface Props {
     campaign: Campaign;
     categories: Category[];
-    reportId: string | null;
+    reportId?: number | null;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -148,6 +148,7 @@ const EditForm = (props: Props) => {
     
     const updateMut = useUpdateCampaign();
     const moderateMut = useModerateCampaign();
+    
     const place = useFindPlaceById(props.campaign.placeId);
     
     const changeForm = useCallback((e: any) => {

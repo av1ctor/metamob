@@ -32,8 +32,9 @@ const EntityPreview = (props: Props) => {
             return (
                 <CampaignPreview 
                     id={report.entityId} 
+                    reportId={report._id}
                     partial={props.partial}
-                    params={[{key: 'reportId', value: report._id}]}
+                    onModerate={props.onModerate? handleModerate: undefined}
                     onEditUser={props.onEditUser}
                 />
             );

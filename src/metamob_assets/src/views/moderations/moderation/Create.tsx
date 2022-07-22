@@ -31,10 +31,10 @@ export const validateModerationForm = (
 };
 
 export const useModerationForm = (
-    reportId?: number | string | null
+    reportId?: number | null
 ) => {
     return useState<ModerationRequest>({
-        reportId: reportId? Number(reportId): 0,
+        reportId: reportId || 0,
         reason: ModerationReason.NONE,
         action: 0,
         body: '',

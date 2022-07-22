@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
-import {useParams, useSearchParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
 import {AuthContext} from "../../../stores/auth";
@@ -16,7 +16,6 @@ import ReportForm from "../../reports/report/Create";
 import Tabs from "../../../components/Tabs";
 import { EntityType } from "../../../libs/common";
 import PlaceTree from "../../places/place/PlaceTree";
-import { isModerator } from "../../../libs/users";
 import DeleteForm from "./Delete";
 import Signatures from "../../signatures/Signatures";
 import {SignFrame} from "./kinds/signatures/Frame";
@@ -39,7 +38,6 @@ interface Props {
 
 const Campaign = (props: Props) => {
     const {id} = useParams();
-    const [params] = useSearchParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
     const [modals, setModals] = useState({
@@ -92,10 +90,6 @@ const Campaign = (props: Props) => {
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
         auth.user && auth.user._id === campaign?.createdBy;
-
-    const reportId = params.get('reportId');
-
-    const canModerate = reportId && isModerator(auth.user);
 
     return (
         <>
@@ -226,16 +220,7 @@ const Campaign = (props: Props) => {
                                         &nbsp;·&nbsp;
                                     </>
                                 :
-                                    canModerate &&
-                                        <>
-                                            <a
-                                                title="Moderate campaign"
-                                                onClick={toggleEdit}
-                                            >
-                                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Moderate</span>
-                                            </a>
-                                            &nbsp;·&nbsp;
-                                        </>
+                                    null
                                 }
                                 {auth.user && 
                                     <>
@@ -333,14 +318,13 @@ const Campaign = (props: Props) => {
                     </Tabs>
 
                     <Modal
-                        header={<span>{canEdit? 'Edit': 'Moderate'} campaign</span>}
+                        header={<span>Edit campaign</span>}
                         isOpen={modals.edit}
                         onClose={toggleEdit}
                     >
                         <EditForm 
                             campaign={campaign} 
                             categories={categories.categories} 
-                            reportId={reportId}
                             onClose={toggleEdit}
                             onSuccess={props.onSuccess}
                             onError={props.onError}
