@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
+import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
 import AutocompleteField from "../../../components/AutocompleteField";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
@@ -19,7 +19,6 @@ import Avatar from "../../users/Avatar";
 
 interface Props {
     place: Place;
-    onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -344,7 +343,6 @@ const EditForm = (props: Props) => {
                     <Avatar 
                         id={place.createdBy} 
                         size='lg'
-                        onClick={props.onEditUser}
                     />
                 </div>
             </div>

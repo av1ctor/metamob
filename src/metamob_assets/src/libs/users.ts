@@ -23,6 +23,7 @@ const anonymous: ProfileResponse = {
     avatar: ['rapper2'],
     roles: [],
     country: 'US',
+    moderated: 0,
 };
 
 export const findById = async (
@@ -54,6 +55,19 @@ export const findByIdEx = async (
     return res.ok; 
 };
 
+export const findByPubId = async (
+    pubId?: string
+): Promise<ProfileResponse> => {
+    if(!pubId) {
+        return anonymous;
+    }
+
+    const res = await metamob.userFindByPubId(pubId);
+    if('err' in res) {
+        throw new Error(res.err);
+    }
+    return res.ok; 
+};
 
 export const findAll = async (
     filters?: Filter[], 

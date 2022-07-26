@@ -1,27 +1,30 @@
-import React, { useCallback, useContext } from 'react';
-import { Profile } from '../../../../declarations/metamob/metamob.did';
+import React, { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFindUserById } from '../../hooks/users';
-import { ActorContext } from '../../stores/actor';
 
 interface Props {
     id?: number;
     size?: string;
     noName?: boolean;
-    onClick?: (profile: Profile) => void;
 };
 
 const Avatar = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const profile = useFindUserById(props.id);
     
-    const profile = useFindUserById(props.id, props.onClick? actorState.main: undefined);
+    const navigate = useNavigate();
 
-    const handleClick = useCallback(() => {
-        props.onClick && profile.data && props.onClick(profile.data as Profile);
+    const handleShowProfile = useCallback(() => {
+        if(profile.data && profile.data.pubId) {
+            navigate(`/u/${profile.data.pubId}`);
+        }
     }, [profile.data]);
     
     return (
         <div className="is-flex is-align-items-center">
-            <div className={`avatar ${props.size || 'sm'}`}>
+            <div 
+                className={`avatar ${props.size || 'sm'} is-clickable`}
+                onClick={handleShowProfile}
+            >
                 {profile.data && 
                     <div title={`User: ${profile.data.name}`}>
                         <b>{profile.data.avatar?
@@ -34,16 +37,7 @@ const Avatar = (props: Props) => {
             {!props.noName && profile?.isSuccess && props.size === 'lg' &&
                 <div className="ml-2">
                     <b>
-                        {!props.onClick?
-                            profile.data.name
-                        :
-                            profile.data && 
-                                <span 
-                                    className="is-clickable"
-                                    onClick={handleClick}>
-                                    {profile.data.name} <i className="la la-pen" />
-                                </span>
-                        }
+                        {profile.data.name}
                     </b>
                 </div>                    
             }

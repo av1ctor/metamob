@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindVoteById } from "../../../hooks/votes";
 import { ActorContext } from "../../../stores/actor";
 import { CampaignLink } from "../../campaigns/campaign/Link";
@@ -9,7 +8,6 @@ import { Badge } from "./Badge";
 interface Props {
     id: number;
     partial?: boolean;
-    onEditUser?: (user: Profile) => void;
 }
 
 const limitText = (text: string, chars: number): string => {
@@ -62,7 +60,6 @@ export const Preview = (props: Props) => {
                                 <Avatar 
                                     id={vote.data.createdBy} 
                                     size='lg'
-                                    onClick={props.onEditUser}
                                 />
                             </div>
                             <div>

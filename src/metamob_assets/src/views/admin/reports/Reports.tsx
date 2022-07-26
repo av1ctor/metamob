@@ -205,7 +205,6 @@ const Reports = (props: Props) => {
                 {report &&
                     <ViewForm
                         report={report}
-                        onEditUser={handleEditUser}
                         onModerate={handleModerate}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}

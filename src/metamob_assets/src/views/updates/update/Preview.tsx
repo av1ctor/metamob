@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindUpdateById } from "../../../hooks/updates";
 import { ActorContext } from "../../../stores/actor";
 import { CampaignLink } from "../../campaigns/campaign/Link";
@@ -8,7 +7,6 @@ import Avatar from "../../users/Avatar";
 interface Props {
     id: number;
     partial?: boolean;
-    onEditUser?: (user: Profile) => void;
 }
 
 const limitText = (text: string, chars: number): string => {
@@ -55,7 +53,6 @@ export const Preview = (props: Props) => {
                                 <Avatar 
                                     id={update.data.createdBy} 
                                     size='lg'
-                                    onClick={props.onEditUser}
                                 />
                             </div>
                             <div>

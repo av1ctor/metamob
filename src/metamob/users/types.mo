@@ -49,5 +49,6 @@ module {
         avatar: ?Text;
         roles: [Role];
         country: Text;
+        moderated: ModerationTypes.ModerationReason;
     };
 };

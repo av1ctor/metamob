@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, Category, CategoryRequest } from "../../../../../declarations/metamob/metamob.did";
+import { Category, CategoryRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import ColorField from "../../../components/ColorField";
 import TextAreaField from "../../../components/TextAreaField";
@@ -11,7 +11,6 @@ import Avatar from "../../users/Avatar";
 
 interface Props {
     category: Category;
-    onEditUser: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -137,7 +136,6 @@ const EditForm = (props: Props) => {
                     <Avatar 
                         id={category.createdBy} 
                         size='lg'
-                        onClick={props.onEditUser}
                     />
                 </div>
             </div>

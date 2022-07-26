@@ -1,10 +1,9 @@
 import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
 import { Filter, Order } from "../../../libs/common";
-import { Place, Profile } from "../../../../../declarations/metamob/metamob.did";
+import { Place } from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
-import EditUserForm from "../users/Edit";
 import { useFindPlaces } from "../../../hooks/places";
 import { kindToText } from "../../../libs/places";
 import Button from "../../../components/Button";
@@ -24,7 +23,6 @@ interface Props {
 }
 
 const Places = (props: Props) => {
-    const [user, setUser] = useState<Profile>();
     const [place, setPlace] = useState<Place>();
     const [limit, setLimit] = useState({
         offset: 0,
@@ -33,7 +31,6 @@ const Places = (props: Props) => {
     const [modals, setModals] = useState({
         create: false,
         edit: false,
-        editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -76,21 +73,9 @@ const Places = (props: Props) => {
         }));
     }, []);
 
-    const toggleEditUser = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            editUser: !modals.editUser
-        }));
-    }, []);
-
     const handleEdit = useCallback((item: Place) => {
         setPlace(item);
         toggleEdit();
-    }, []);
-
-    const handleEditUser = useCallback((user: Profile) => {
-        setUser(user);
-        toggleEditUser();
     }, []);
 
     const handlePrevPage = useCallback(() => {
@@ -218,24 +203,7 @@ const Places = (props: Props) => {
                 {place &&
                     <EditForm
                         place={place}
-                        onEditUser={handleEditUser}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
-                    />
-                }
-            </Modal>
-
-            <Modal
-                header={<span>Edit user</span>}
-                isOpen={modals.editUser}
-                onClose={toggleEditUser}
-            >
-                {user &&
-                    <EditUserForm
-                        user={user}
-                        onClose={toggleEditUser}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}

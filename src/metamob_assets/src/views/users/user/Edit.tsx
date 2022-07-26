@@ -6,10 +6,12 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
-import { useUpdateUser } from "../../../hooks/users";
+import { useModerateUser, useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
-import { Banned } from "../../../libs/users";
+import { Banned, isModerator } from "../../../libs/users";
 import { ActorContext } from "../../../stores/actor";
+import { AuthContext } from "../../../stores/auth";
+import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
 function rolesToString(
     roles: Role[] | undefined
@@ -28,14 +30,6 @@ function rolesToString(
     else {
         return 'user';
     }
-}
-
-interface Props {
-    user: Profile;
-    onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -58,8 +52,18 @@ const roles: Option[] = [
     {name: 'user', value: 'user'},
 ];
 
+interface Props {
+    user: Profile;
+    reportId?: number | null;
+    onClose: () => void;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
+}
+
 const EditForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
+    const [authState, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<ProfileRequest>({
         name: props.user.name,
@@ -71,7 +75,10 @@ const EditForm = (props: Props) => {
         country: props.user.country
     });
 
+    const [modForm, setModForm] = useModerationForm(props.reportId);
+
     const updateMut = useUpdateUser();
+    const moderateMut = useModerateUser();
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -94,6 +101,8 @@ const EditForm = (props: Props) => {
             [field]: [value]
         }));
     }, []);
+
+    const changeModForm = useSetModerationFormField(setModForm);
 
     const changeBanned = useCallback((e: any, kind: Banned) => {
         const checked = e.target.checked;
@@ -135,15 +144,41 @@ const EditForm = (props: Props) => {
             return;
         }
 
+        const isModeration = props.reportId && isModerator(authState.user);
+
+        if(isModeration) {
+            const errors = validateModerationForm(modForm);
+            if(errors.length > 0) {
+                props.onError(errors);
+                return;
+            }
+        }
+
+        const transformReq = (): ProfileRequest => {
+            return form;
+        };
+
         try {
             props.toggleLoading(true);
 
-            await updateMut.mutateAsync({
-                main: actorContext.main,
-                pubId: props.user.pubId, 
-                req: form
-            });
-            props.onSuccess('User updated!');
+            if(isModeration) {
+                await moderateMut.mutateAsync({
+                    main: actorContext.main,
+                    pubId: props.user.pubId, 
+                    req: transformReq(),
+                    mod: transformModerationForm(modForm)
+                });
+                props.onSuccess('User moderated!');
+            }
+            else {
+                await updateMut.mutateAsync({
+                    main: actorContext.main,
+                    pubId: props.user.pubId, 
+                    req: transformReq()
+                });
+                props.onSuccess('User updated!');
+            }
+
             props.onClose();
         }
         catch(e) {
@@ -152,7 +187,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, modForm, actorContext.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -160,14 +195,15 @@ const EditForm = (props: Props) => {
     }, [props.onClose]);
 
     useEffect(() => {
+        const {user} = props;
         setForm({
-            name: props.user.name,
-            email: props.user.email,
-            avatar: props.user.avatar,
-            roles: [props.user.roles],
-            active: [props.user.active],
-            banned: [props.user.banned],
-            country: props.user.country
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar,
+            roles: [user.roles],
+            active: [user.active],
+            banned: [user.banned],
+            country: user.country
         });
     }, [props.user]);
 
@@ -240,6 +276,12 @@ const EditForm = (props: Props) => {
                 value={(banned & Banned.AsAdmin) != 0}
                 onChange={(e) => changeBanned(e, Banned.AsAdmin)}
             />
+            {props.reportId && isModerator(authState.user) &&
+                <CreateModerationForm
+                    form={modForm}
+                    onChange={changeModForm}
+                />
+            }
             <div className="field is-grouped mt-2">
                 <div className="control">
                     <Button

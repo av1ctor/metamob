@@ -186,6 +186,7 @@ shared({caller = owner}) actor class Metamob(
             avatar = prof.avatar;
             roles = prof.roles;
             country = prof.country;
+            moderated = prof.moderated;
         }
     };
 

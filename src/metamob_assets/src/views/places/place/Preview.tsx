@@ -1,5 +1,4 @@
 import React from "react";
-import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindPlaceById } from "../../../hooks/places";
 import Avatar from "../../users/Avatar";
 import { PlaceIcon } from "./PlaceIcon";
@@ -7,7 +6,6 @@ import { PlaceIcon } from "./PlaceIcon";
 interface Props {
     id: number;
     partial?: boolean;
-    onEditUser?: (user: Profile) => void;
 }
 
 const limitText = (text: string, chars: number): string => {
@@ -49,7 +47,6 @@ export const Preview = (props: Props) => {
                                 <Avatar 
                                     id={place.data.createdBy} 
                                     size='lg'
-                                    onClick={props.onEditUser}
                                 />
                             </div>
                         </div>

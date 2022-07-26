@@ -1,10 +1,10 @@
 import { Principal } from '@dfinity/principal';
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from 'react-query'
-import {Metamob, ProfileResponse, Profile, ProfileRequest} from "../../../declarations/metamob/metamob.did";
+import {Metamob, ProfileResponse, Profile, ProfileRequest, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {canisterId as metamobCanisterId} from "../../../declarations/metamob";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 import { Filter, Limit, Order } from '../libs/common';
-import { findById, findAll, findByIdEx } from '../libs/users';
+import { findById, findAll, findByIdEx, findByPubId } from '../libs/users';
 
 export const useFindUserById = (
     id?: number | [] | [number], 
@@ -20,6 +20,15 @@ export const useFindUserById = (
     return useQuery<ProfileResponse|Profile, Error>(
         ['users', main? 'full': 'redacted', _id],
         () => main? findByIdEx(main, _id): findById(_id)
+    );
+};
+
+export const useFindUserByPubId = (
+    pubId?: string,
+): UseQueryResult<ProfileResponse, Error> => {
+    return useQuery<ProfileResponse|Profile, Error>(
+        ['users', 'redacted', pubId],
+        () => findByPubId(pubId)
     );
 };
 
@@ -45,6 +54,28 @@ export const useUpdateUser = () => {
             }
             
             const res = await options.main.userUpdate(options.pubId, options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['users']);
+            }   
+        }
+    );
+};
+
+export const useModerateUser = () => {
+    const queryClient = useQueryClient();
+    return useMutation(
+        async (options: {main?: Metamob, pubId: string, req: ProfileRequest, mod: ModerationRequest}) => {
+            if(!options.main) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await options.main.userModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }

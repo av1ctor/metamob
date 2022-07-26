@@ -5,7 +5,7 @@ interface Props {
     id?: string;
     value?: string;
     label?: string;
-    onChange: (e: any) => void;
+    onChange?: (e: any) => void;
 };
 
 const icons = [
@@ -21,7 +21,9 @@ export const AvatarPicker = (props: Props) => {
     
     const handleSelect = useCallback((e: any) => {
         const elm = e.target;
-        props.onChange({target: {id: props.id, name: props.name, value: elm.dataset.icon}})
+        if(props.onChange) {
+            props.onChange({target: {id: props.id, name: props.name, value: elm.dataset.icon}})
+        }
     }, [props.onChange]);
 
     useEffect(() => {

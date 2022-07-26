@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindSignatureById } from "../../../hooks/signatures";
 import { ActorContext } from "../../../stores/actor";
 import { CampaignLink } from "../../campaigns/campaign/Link";
@@ -10,7 +9,6 @@ interface Props {
     partial?: boolean;
     reportId?: number | null;
     onModerate?: () => void;
-    onEditUser?: (user: Profile) => void;
 }
 
 const limitText = (text: string, chars: number): string => {
@@ -57,7 +55,6 @@ export const Preview = (props: Props) => {
                                 <Avatar 
                                     id={signature.data.createdBy} 
                                     size='lg'
-                                    onClick={props.onEditUser}
                                 />
                             </div>
                             <div>

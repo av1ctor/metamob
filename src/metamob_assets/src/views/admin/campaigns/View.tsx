@@ -5,7 +5,6 @@ import { Preview } from "../../campaigns/campaign/Preview";
 
 interface Props {
     campaign: Campaign;
-    onEditUser?: (user: Profile) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
@@ -25,7 +24,6 @@ const View = (props: Props) => {
         <>
             <Preview
                 id={campaign._id}
-                onEditUser={props.onEditUser}
             />
             <div className="field is-grouped mt-2">
                 <div className="control">

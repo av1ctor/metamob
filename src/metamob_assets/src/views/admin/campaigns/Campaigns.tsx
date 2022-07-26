@@ -207,7 +207,6 @@ const Campaigns = (props: Props) => {
                 {campaign &&
                     <View
                         campaign={campaign}
-                        onEditUser={handleEditUser}
                         onClose={toggleEdit}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

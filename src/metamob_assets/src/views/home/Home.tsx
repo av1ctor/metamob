@@ -28,6 +28,7 @@ import Front from "./Front";
 import { Limit, Order } from "../../libs/common";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import PublicProfile from "../users/user/PublicProfile";
 
 const showError = (e: any) => {
     if(e) {
@@ -187,6 +188,7 @@ export const Home = () => {
                         <Route path="/user/reports" element={<UserReports {...props} />} />
                         <Route path="/c/:id" element={<Campaign {...props} />} />
                         <Route path="/p/:id" element={<Place {...props} />} />
+                        <Route path="/u/:id" element={<PublicProfile {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />
                         <Route path="/campaigns" element={<Campaigns {...props} />} />
                         <Route path="/places" element={<Places {...props} />} />

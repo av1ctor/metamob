@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Profile, ReportResponse } from "../../../../../declarations/metamob/metamob.did";
+import { ReportResponse } from "../../../../../declarations/metamob/metamob.did";
 import { Preview as CampaignPreview } from "../../campaigns/campaign/Preview";
 import { Preview as SignaturePreview } from "../../signatures/signature/Preview";
 import { Preview as VotePreview } from "../../votes/vote/Preview";
@@ -9,12 +9,12 @@ import { Preview as UpdatePreview } from "../../updates/update/Preview";
 import { Preview as PlacePreview } from "../../places/place/Preview";
 import { EntityType } from "../../../libs/common";
 import Button from "../../../components/Button";
+import Avatar from "../../users/Avatar";
 
 interface Props {
     report: ReportResponse;
     partial?: boolean;
     onModerate?: (report: ReportResponse) => void;
-    onEditUser?: (user: Profile) => void;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
 }
@@ -28,7 +28,6 @@ const EntityPreview = (props: Props) => {
                 <CampaignPreview 
                     id={report.entityId} 
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
 
@@ -37,7 +36,6 @@ const EntityPreview = (props: Props) => {
                 <SignaturePreview 
                     id={report.entityId}   
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
         
@@ -46,7 +44,6 @@ const EntityPreview = (props: Props) => {
                 <UpdatePreview 
                     id={report.entityId} 
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
 
@@ -55,7 +52,6 @@ const EntityPreview = (props: Props) => {
                 <VotePreview 
                     id={report.entityId}
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
 
@@ -64,7 +60,6 @@ const EntityPreview = (props: Props) => {
                 <DonationPreview 
                     id={report.entityId}
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
 
@@ -73,7 +68,6 @@ const EntityPreview = (props: Props) => {
                 <FundingPreview 
                     id={report.entityId}
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
 
@@ -82,9 +76,21 @@ const EntityPreview = (props: Props) => {
                 <PlacePreview 
                     id={report.entityId}
                     partial={props.partial}
-                    onEditUser={props.onEditUser}
                 />
             );
+
+        case EntityType.USERS:
+            return (
+                <div>
+                    <label className="label">
+                        User:
+                    </label>
+                    <Avatar
+                        id={report.entityId}
+                        size="xl"
+                    />
+                </div>
+            )
 
         default:
             return (

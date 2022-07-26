@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
-import { Profile, ReportResponse, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
+import { ReportResponse, ReportCloseRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
@@ -13,7 +13,6 @@ import EntityPreview from "./EntityPreview";
 
 interface Props {
     report: ReportResponse;
-    onEditUser: (user: Profile) => void;
     onModerate: (report: ReportResponse) => void;
     onClose: () => void;
     onSuccess: (message: string) => void;
@@ -135,14 +134,12 @@ const ViewForm = (props: Props) => {
                     <Avatar 
                         id={report.createdBy.length > 0? report.createdBy[0]: undefined} 
                         size='lg'
-                        onClick={props.onEditUser}
                     />
                 </div>
             </div>
             
             <EntityPreview 
                 report={report} 
-                onEditUser={props.onEditUser}
                 onModerate={props.onModerate}
                 onSuccess={props.onSuccess}
                 onError={props.onError}
