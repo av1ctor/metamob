@@ -53,23 +53,53 @@ shared({caller = owner}) actor class Metamob(
     let userRepo = UserRepository.Repository();
     let reportRepo = ReportRepository.Repository();
 
-    let daoService = DaoService.Service(mmtCanisterId);
-    let moderationService = ModerationService.Service(daoService, userRepo, reportRepo);
-    let userService = UserService.Service(userRepo, daoService, moderationService, reportRepo, ledgerUtils);
-    let placeService = PlaceService.Service(userService, moderationService, reportRepo);
-    let placeEmailService = PlaceEmailService.Service(userService, placeService);
-    let placeUserService = PlaceUserService.Service(userService, placeService);
-    let categoryService = CategoryService.Service(userService);
-    let campaignService = CampaignService.Service(userService, placeService, moderationService, reportRepo, ledgerUtils);
-    let signatureService = SignatureService.Service(userService, campaignService, placeService, moderationService, reportRepo);
-    let voteService = VoteService.Service(userService, campaignService, placeService, moderationService, reportRepo);
-    let donationService = DonationService.Service(userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils);
-    let fundingService = FundingService.Service(userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils);
-    let updateService = UpdateService.Service(userService, campaignService, placeService, moderationService, reportRepo);
-    let reportService = ReportService.Service(reportRepo, daoService, userService, campaignService, signatureService, 
-        voteService, fundingService, donationService, updateService, placeService);
-    let challengeService = ChallengeService.Service(daoService, userService, campaignService, signatureService, 
-        voteService, fundingService, donationService, updateService, placeService, reportService, moderationService);
+    let daoService = DaoService.Service(
+        mmtCanisterId
+    );
+    let moderationService = ModerationService.Service(
+        daoService, userRepo, reportRepo
+    );
+    let userService = UserService.Service(
+        userRepo, daoService, moderationService, reportRepo, ledgerUtils
+    );
+    let placeService = PlaceService.Service(
+        userService, moderationService, reportRepo
+    );
+    let placeEmailService = PlaceEmailService.Service(
+        userService, placeService
+    );
+    let placeUserService = PlaceUserService.Service(
+        userService, placeService
+    );
+    let categoryService = CategoryService.Service(
+        userService
+    );
+    let campaignService = CampaignService.Service(
+        userService, placeService, moderationService, reportRepo, ledgerUtils
+    );
+    let signatureService = SignatureService.Service(
+        userService, campaignService, placeService, moderationService, reportRepo
+    );
+    let voteService = VoteService.Service(
+        userService, campaignService, placeService, moderationService, reportRepo
+    );
+    let donationService = DonationService.Service(
+        userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils
+    );
+    let fundingService = FundingService.Service(
+        userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils
+    );
+    let updateService = UpdateService.Service(
+        userService, campaignService, placeService, moderationService, reportRepo
+    );
+    let reportService = ReportService.Service(
+        reportRepo, daoService, userService, campaignService, signatureService, 
+        voteService, fundingService, donationService, updateService, placeService
+    );
+    let challengeService = ChallengeService.Service(
+        daoService, userService, campaignService, signatureService, voteService, fundingService, 
+        donationService, updateService, placeService, reportService, moderationService
+    );
 
     // DAO facade
     public shared query(msg) func daoConfigGetAsNat32(
