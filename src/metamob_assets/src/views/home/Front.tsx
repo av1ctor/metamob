@@ -15,7 +15,7 @@ interface Props {
 }
 
 const Front = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
 
     const [modals, setModals] = useState({
@@ -41,7 +41,7 @@ const Front = (props: Props) => {
 
     const createCampaignMut = useCreateCampaign();
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
 
     return (
         <>

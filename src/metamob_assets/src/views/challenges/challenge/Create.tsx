@@ -27,8 +27,8 @@ const formSchema = yup.object().shape({
 });
 
 const CreateForm = (props: Props) => {
-    const [authState, authDispatch] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, authDispatch] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ChallengeRequest>({
         moderationId: props.moderationId,
@@ -62,13 +62,13 @@ const CreateForm = (props: Props) => {
             props.toggleLoading(true);
 
             await approveMut.mutateAsync({
-                main: actorState.main,
-                mmt: actorState.mmt,
+                main: actors.main,
+                mmt: actors.mmt,
                 value: minDeposit
             })
 
             await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     moderationId: form.moderationId,
                     description: form.description,
@@ -84,7 +84,7 @@ const CreateForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState, minDeposit, props.onClose]);
+    }, [form, actors, minDeposit, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -100,10 +100,10 @@ const CreateForm = (props: Props) => {
 
     const updateBalances = async () => {
         Promise.all([
-            getIcpBalance(authState.identity, actorState.ledger),
-            getMmtBalance(authState.identity, actorState.mmt),
-            getStakedBalance(actorState.main),
-            getDepositedBalance(actorState.main),
+            getIcpBalance(auth.identity, actors.ledger),
+            getMmtBalance(auth.identity, actors.mmt),
+            getStakedBalance(actors.main),
+            getDepositedBalance(actors.main),
             getConfigAsNat64('CHALLENGER_DEPOSIT')
         ]).then(res => {
             authDispatch({
@@ -123,7 +123,7 @@ const CreateForm = (props: Props) => {
 
     useEffect(() => {
         updateBalances();
-    }, [authState.user?._id]);
+    }, [auth.user?._id]);
 
     return (
         <form onSubmit={handleCreate}>
@@ -131,9 +131,9 @@ const CreateForm = (props: Props) => {
                 <div className="mb-4">
                     <p>To challenge a moderation, your wallet will be billed <b>{icpToDecimal(minDeposit)} MMT</b>.</p>
                     <p className="mt-2">If the challenge is accepted and the moderation get reverted, the deposited value will be reimbursed to your wallet. Otherwise, <b><span className="has-text-danger">the value deposited will be lost</span></b>!</p>
-                    {authState.balances.mmt <= minDeposit &&
+                    {auth.balances.mmt <= minDeposit &&
                         <p className="mt-2">
-                            Sorry, your balance (<b>{icpToDecimal(authState.balances.mmt)} MMT</b>) is <span className="has-text-danger">too low</span>.
+                            Sorry, your balance (<b>{icpToDecimal(auth.balances.mmt)} MMT</b>) is <span className="has-text-danger">too low</span>.
                         </p>
                     }
                 </div>
@@ -148,7 +148,7 @@ const CreateForm = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
-                            disabled={authState.balances.mmt <= minDeposit}
+                            disabled={auth.balances.mmt <= minDeposit}
                             onClick={handleCreate}>
                             Create
                         </Button>

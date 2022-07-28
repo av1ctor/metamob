@@ -32,7 +32,7 @@ interface Props {
 }
 
 const Reports = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [user, setUser] = useState<Profile>();
     const [report, setReport] = useState<ReportResponse>();
@@ -116,7 +116,7 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const reports = useFindReports(filters, orderBy, limit, actorState.main);
+    const reports = useFindReports(filters, orderBy, limit, actors.main);
 
     return (
         <>

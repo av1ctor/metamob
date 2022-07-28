@@ -25,8 +25,8 @@ const orderBy = [{
 }];
 
 const Places = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -40,7 +40,7 @@ const Places = (props: Props) => {
     });
     const [place, setPlace] = useState<Place>();
 
-    const places = useFindUserPlaces(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const places = useFindUserPlaces(auth.user?._id || 0, orderBy, limit, actors.main);
 
     const navigate = useNavigate();
 
@@ -99,7 +99,7 @@ const Places = (props: Props) => {
         }
     }, [places.status]);
     
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
     

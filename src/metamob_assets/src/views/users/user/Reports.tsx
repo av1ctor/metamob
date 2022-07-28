@@ -15,7 +15,7 @@ interface Props {
 };
 
 const Reports = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [modals, setModals] = useState({
         becomeMod: false,
@@ -28,7 +28,7 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
 
@@ -49,7 +49,7 @@ const Reports = (props: Props) => {
             </div>
 
             <div className="mt-4">
-                {isModerator(authState.user)?
+                {isModerator(auth.user)?
                     <ToModerate
                         onSuccess={props.onSuccess}
                         onError={props.onError}

@@ -26,8 +26,8 @@ const formSchema = yup.object().shape({
 });
 
 const Boost = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, actorDispatch] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, actorDispatch] = useContext(ActorContext);
 
     const [form, setForm] = useState({
         value: BigInt(1),
@@ -40,15 +40,15 @@ const Boost = (props: Props) => {
 
     const getLedgerCanister = async (
     ): Promise<Ledger | undefined> => {
-        if(actorState.ledger) {
-            return actorState.ledger;
+        if(actors.ledger) {
+            return actors.ledger;
         }
         
-        if(!authState.identity) {
+        if(!auth.identity) {
             return undefined;
         }
 
-        const ledger = createLedgerActor(authState.identity);
+        const ledger = createLedgerActor(auth.identity);
         actorDispatch({
             type: ActorActionType.SET_LEDGER,
             payload: ledger
@@ -91,11 +91,11 @@ const Boost = (props: Props) => {
             setIsLoading(true);
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 throw Error("Main actor undefined");
             }
 
-            if(!authState.user || !authState.identity) {
+            if(!auth.user || !auth.identity) {
                 throw Error("Not logged in");
             }
 
@@ -106,16 +106,16 @@ const Boost = (props: Props) => {
 
             const ledger = await getLedgerCanister();
 
-            const balance = await getIcpBalance(authState.identity, ledger);
+            const balance = await getIcpBalance(auth.identity, ledger);
 
             if(value + LEDGER_TRANSFER_FEE >= balance) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
             }
 
-            await depositIcp(authState.user, value, actorState.main, ledger);
+            await depositIcp(auth.user, value, actors.main, ledger);
 
             await boostMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: props.campaign.pubId, 
                 value
             });
@@ -129,13 +129,13 @@ const Boost = (props: Props) => {
             setIsLoading(false);
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.campaign]);
+    }, [form, actors.main, props.campaign]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
 
     return (
         <>

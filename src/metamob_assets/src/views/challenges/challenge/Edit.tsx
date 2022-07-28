@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
 
     const {challenge} = props;
     
@@ -55,7 +55,7 @@ const EditForm = (props: Props) => {
             props.toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: props.challenge.pubId,
                 req: {
                     moderationId: form.moderationId,
@@ -72,7 +72,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

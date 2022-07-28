@@ -34,8 +34,8 @@ const formSchema = yup.object().shape({
 });
 
 const FundingForm = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, actorDispatch] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, actorDispatch] = useContext(ActorContext);
 
     const [balance, setBalance] = useState(BigInt(0));
 
@@ -57,15 +57,15 @@ const FundingForm = (props: Props) => {
 
     const getLedgerCanister = async (
     ): Promise<Ledger | undefined> => {
-        if(actorState.ledger) {
-            return actorState.ledger;
+        if(actors.ledger) {
+            return actors.ledger;
         }
         
-        if(!authState.identity) {
+        if(!auth.identity) {
             return undefined;
         }
 
-        const ledger = createLedgerActor(authState.identity);
+        const ledger = createLedgerActor(auth.identity);
         actorDispatch({
             type: ActorActionType.SET_LEDGER,
             payload: ledger
@@ -89,13 +89,13 @@ const FundingForm = (props: Props) => {
             return;
         }
 
-        const identity = authState.identity;
+        const identity = auth.identity;
         if(!identity) {
             return;
         }
 
         checkUserBalance(identity, ledger);
-    }, [authState.identity]);
+    }, [auth.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -131,11 +131,11 @@ const FundingForm = (props: Props) => {
             setIsLoading(true);
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 throw Error("Main canister undefined");
             }
 
-            if(!authState.user) {
+            if(!auth.user) {
                 throw Error("Not logged in");
             }
 
@@ -151,7 +151,7 @@ const FundingForm = (props: Props) => {
             }
 
             const funding = await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -163,11 +163,11 @@ const FundingForm = (props: Props) => {
             });
 
             try {
-                await depositIcp(authState.user, value, actorState.main, actorState.ledger);
+                await depositIcp(auth.user, value, actors.main, actors.ledger);
             }
             catch(e) {
                 await deleteMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: funding.pubId,
                     campaignPubId: props.campaign.pubId,
                 });
@@ -175,7 +175,7 @@ const FundingForm = (props: Props) => {
             }
 
             await completeMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: funding.pubId,
                 campaignPubId: props.campaign.pubId,
             });
@@ -200,7 +200,7 @@ const FundingForm = (props: Props) => {
         updateState();
     }, [updateState]);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
 
     const tiersAsOptions = useMemo(() => {
         return 'funding' in props.campaign.info?
@@ -249,8 +249,8 @@ const FundingForm = (props: Props) => {
                         />
                         <TextField
                             label="From account id"
-                            value={authState.identity? 
-                                authState.identity.getPrincipal().toString(): 
+                            value={auth.identity? 
+                                auth.identity.getPrincipal().toString(): 
                                 ''
                             }
                             disabled={true}

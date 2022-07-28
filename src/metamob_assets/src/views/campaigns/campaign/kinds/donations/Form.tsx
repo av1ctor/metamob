@@ -29,8 +29,8 @@ const formSchema = yup.object().shape({
 });
 
 const DonationForm = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, actorDispatch] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, actorDispatch] = useContext(ActorContext);
 
     const [balance, setBalance] = useState(BigInt(0));
 
@@ -50,15 +50,15 @@ const DonationForm = (props: Props) => {
 
     const getLedgerCanister = async (
     ): Promise<Ledger | undefined> => {
-        if(actorState.ledger) {
-            return actorState.ledger;
+        if(actors.ledger) {
+            return actors.ledger;
         }
         
-        if(!authState.identity) {
+        if(!auth.identity) {
             return undefined;
         }
 
-        const ledger = createLedgerActor(authState.identity);
+        const ledger = createLedgerActor(auth.identity);
         actorDispatch({
             type: ActorActionType.SET_LEDGER,
             payload: ledger
@@ -82,13 +82,13 @@ const DonationForm = (props: Props) => {
             return;
         }
 
-        const identity = authState.identity;
+        const identity = auth.identity;
         if(!identity) {
             return;
         }
 
         checkUserBalance(identity, ledger);
-    }, [authState.identity]);
+    }, [auth.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -124,11 +124,11 @@ const DonationForm = (props: Props) => {
             setIsLoading(true);
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 throw Error("Main canister undefined");
             }
 
-            if(!authState.user) {
+            if(!auth.user) {
                 throw Error("Not logged in");
             }
             
@@ -139,7 +139,7 @@ const DonationForm = (props: Props) => {
             }
 
             const donation = await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -149,11 +149,11 @@ const DonationForm = (props: Props) => {
             });
 
             try {
-                await depositIcp(authState.user, value, actorState.main, actorState.ledger);
+                await depositIcp(auth.user, value, actors.main, actors.ledger);
             }
             catch(e) {
                 await deleteMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: donation.pubId,
                     campaignPubId: props.campaign.pubId,
                 });
@@ -161,7 +161,7 @@ const DonationForm = (props: Props) => {
             }
 
             await completeMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: donation.pubId,
                 campaignPubId: props.campaign.pubId,
             });
@@ -186,7 +186,7 @@ const DonationForm = (props: Props) => {
         updateState();
     }, [updateState]);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
 
     return (
         <form onSubmit={handleDonation}>
@@ -201,8 +201,8 @@ const DonationForm = (props: Props) => {
                         />
                         <TextField
                             label="From account id"
-                            value={authState.identity? 
-                                authState.identity.getPrincipal().toString(): 
+                            value={auth.identity? 
+                                auth.identity.getPrincipal().toString(): 
                                 ''
                             }
                             disabled={true}

@@ -32,8 +32,8 @@ const formSchema = yup.object().shape({
 });
 
 const User = (props: Props) => {
-    const [authState, authDispatch] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, authDispatch] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [principal, setPrincipal] = useState('');
     const [accountId, setAccountId] = useState('');
@@ -52,7 +52,7 @@ const User = (props: Props) => {
         transfer: false,
     });
 
-    const profile = useFindUserById(authState.user?._id || 0, actorState.main);
+    const profile = useFindUserById(auth.user?._id || 0, actors.main);
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -90,11 +90,11 @@ const User = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 return;
             }
             
-            const res = await actorState.main.userUpdateMe(form);
+            const res = await actors.main.userUpdateMe(form);
             
             if('ok' in res) {
                 const user = res.ok;
@@ -115,10 +115,10 @@ const User = (props: Props) => {
 
     const updateBalances = useCallback(async () => {
         Promise.all([
-            getIcpBalance(authState.identity, actorState.ledger),
-            getMmtBalance(authState.identity, actorState.mmt),
-            getStakedBalance(actorState.main),
-            getDepositedBalance(actorState.main),
+            getIcpBalance(auth.identity, actors.ledger),
+            getMmtBalance(auth.identity, actors.mmt),
+            getStakedBalance(actors.main),
+            getDepositedBalance(actors.main),
         ]).then(res => {
             authDispatch({
                 type: AuthActionType.SET_BALANCES,
@@ -132,7 +132,7 @@ const User = (props: Props) => {
         }).catch(e => {
             props.onError(e);
         });
-    }, [authState.identity, actorState]);
+    }, [auth.identity, actors]);
 
     const toggleStake = useCallback(() => {
         setModals(modals => ({
@@ -173,7 +173,7 @@ const User = (props: Props) => {
     useEffect(() => {
         switch(profile.status) {
             case 'success':
-                if(!authState.identity) {
+                if(!auth.identity) {
                     props.onError("Identity undefined");
                     return
                 }
@@ -183,7 +183,7 @@ const User = (props: Props) => {
                 setAccountId(
                     accountIdentifierFromBytes(
                         principalToAccountDefaultIdentifier(
-                            authState.identity?.getPrincipal())));
+                            auth.identity?.getPrincipal())));
                 setForm({
                     name: full.name,
                     email: full.email,
@@ -202,11 +202,11 @@ const User = (props: Props) => {
         props.toggleLoading(profile.status === 'loading');
     }, [profile.status]);
 
-    if(!authState.user) {
+    if(!auth.user) {
         return null;
     }
 
-    const {balances} = authState;
+    const {balances} = auth;
 
     return (
         <>

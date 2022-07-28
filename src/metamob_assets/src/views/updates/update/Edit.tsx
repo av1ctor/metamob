@@ -24,8 +24,8 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<UpdateRequest>({
         campaignId: props.update.campaignId,
@@ -65,7 +65,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(authState.user);
+        const isModeration = props.reportId && isModerator(auth.user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -87,7 +87,7 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: props.update.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -97,7 +97,7 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: props.update.pubId, 
                     req: transformReq()
                 });
@@ -137,7 +137,7 @@ const EditForm = (props: Props) => {
                     rows={6}
                     onChange={changeForm}
                 />
-                {props.reportId && isModerator(authState.user) &&
+                {props.reportId && isModerator(auth.user) &&
                     <CreateModerationForm
                         form={modForm}
                         onChange={changeModForm}

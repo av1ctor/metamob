@@ -10,7 +10,7 @@ interface Props {
 };
 
 const Header = (props: Props) => {
-    const [authState, authDispatch] = useContext(AuthContext);
+    const [auth, authDispatch] = useContext(AuthContext);
     
     const menuRef = useRef<HTMLDivElement>(null);
     const burgerRef = useRef<HTMLAnchorElement>(null);
@@ -22,7 +22,7 @@ const Header = (props: Props) => {
     }, []);
 
     const handleLogout = useCallback(async () => {
-        await authState.client?.logout();
+        await auth.client?.logout();
         authDispatch({
             type: AuthActionType.LOGOUT,
             payload: undefined
@@ -35,7 +35,7 @@ const Header = (props: Props) => {
         menuRef.current?.classList.toggle('is-active');
     }, [burgerRef.current, menuRef.current]);
 
-    const isLogged = !!authState.user;
+    const isLogged = !!auth.user;
 
     return (
         <nav 
@@ -88,7 +88,7 @@ const Header = (props: Props) => {
                     {isLogged &&
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
-                                <Avatar id={authState.user?._id || 0} />
+                                <Avatar id={auth.user?._id || 0} />
                             </a>
 
                             <div className="navbar-dropdown is-right">

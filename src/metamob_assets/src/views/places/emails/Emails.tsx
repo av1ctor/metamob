@@ -25,14 +25,14 @@ interface Props {
 }
 
 const PlaceEmails = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [modals, setModals] = useState({
         create: false,
         delete: false,
     });
 
-    const emails = useFindPlacesEmails(props.place._id, orderBy, limit, actorState.main);
+    const emails = useFindPlacesEmails(props.place._id, orderBy, limit, actors.main);
     const deleteMut = useDeletePlaceEmail();
 
     const toggleCreate = useCallback(() => {
@@ -61,7 +61,7 @@ const PlaceEmails = (props: Props) => {
             props.toggleLoading(true);
 
             await deleteMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 _id: _id
             });
             props.onSuccess("E-mail deleted!")

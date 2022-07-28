@@ -14,7 +14,7 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const deleteMut = useDeleteUpdate();
 
@@ -25,7 +25,7 @@ const DeleteForm = (props: Props) => {
             props.toggleLoading(true);
 
             await deleteMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: props.update.pubId, 
             });
             

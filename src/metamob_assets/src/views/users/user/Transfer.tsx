@@ -21,8 +21,8 @@ const formSchema = yup.object().shape({
 });
 
 const TransferForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState({
         to: '',
@@ -68,12 +68,12 @@ const TransferForm = (props: Props) => {
             if(value < 10000) {
                 throw Error("Value too low");
             }
-            else if(value >= authState.balances.mmt) {
+            else if(value >= auth.balances.mmt) {
                 throw Error("Value too high");
             }
 
             await transferMut.mutateAsync({
-                mmt: actorState.mmt,
+                mmt: actors.mmt,
                 to: form.to,
                 value: value
             });
@@ -87,14 +87,14 @@ const TransferForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState, authState]);
+    }, [form, actors, auth]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
 
-    const {balances} = authState;
+    const {balances} = auth;
     
     return (
         <form onSubmit={handleTransfer}>

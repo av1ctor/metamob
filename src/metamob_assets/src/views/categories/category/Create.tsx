@@ -20,7 +20,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<CategoryRequest>({
         name: '',
@@ -58,7 +58,7 @@ const Create = (props: Props) => {
 
         try {
             await mutation.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     name: form.name,
                     description: form.description,
@@ -72,7 +72,7 @@ const Create = (props: Props) => {
         catch(e: any) {
             props.onError(e);
         }
-    }, [actorState.main, form]);
+    }, [actors.main, form]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

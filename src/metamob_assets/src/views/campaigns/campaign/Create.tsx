@@ -205,8 +205,8 @@ export const transformInfo = (
 };
 
 const CreateForm = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<CampaignRequest>({
         kind: CampaignKind.SIGNATURES,
@@ -247,7 +247,7 @@ const CreateForm = (props: Props) => {
             const kind = Number(form.kind);
 
             await props.mutation.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
@@ -278,7 +278,7 @@ const CreateForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -323,8 +323,8 @@ const CreateForm = (props: Props) => {
 
         let action: CampaignAction = {nop: null};
         let info: CampaignInfo = {signatures: {}};
-        const receiver = authState.identity? 
-            authState.identity.getPrincipal().toString(): 
+        const receiver = auth.identity? 
+            auth.identity.getPrincipal().toString(): 
             ''
         switch(Number(value)) {
             case CampaignKind.DONATIONS:
@@ -350,7 +350,7 @@ const CreateForm = (props: Props) => {
             action: action,
             info: info,
         }));
-    }, [authState.identity]);
+    }, [auth.identity]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -584,7 +584,7 @@ const CreateForm = (props: Props) => {
                 {step === 5 &&
                     <div>
                         <Item
-                            campaign={toCampaign(form, authState.user)}
+                            campaign={toCampaign(form, auth.user)}
                             isPreview
                         />
                         <div className="field is-grouped mt-5">

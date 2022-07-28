@@ -23,7 +23,7 @@ interface Props {
 }
 
 const Users = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [user, setUser] = useState<Profile>();
     const [limit, setLimit] = useState({
@@ -86,7 +86,7 @@ const Users = (props: Props) => {
         }));
     }, []);
 
-    const users = useFindUsers(filters, orderBy, limit, actorState.main);
+    const users = useFindUsers(filters, orderBy, limit, actors.main);
 
     return (
         <>

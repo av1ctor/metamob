@@ -9,9 +9,9 @@ interface Props {
 }
 
 export const PreviewWrapper = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
-    const req = useFindFundingById(props.id, actorState.main);
+    const req = useFindFundingById(props.id, actors.main);
 
     if(req.status === 'loading' || !req.data) {
         return <div>Loading...</div>;

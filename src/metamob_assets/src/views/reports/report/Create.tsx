@@ -29,7 +29,7 @@ const formSchema = yup.object().shape({
 });
 
 const CreateForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportRequest>({
         entityId: props.entityId,
@@ -64,7 +64,7 @@ const CreateForm = (props: Props) => {
             props.toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     entityId: form.entityId,
                     entityType: form.entityType,
@@ -83,7 +83,7 @@ const CreateForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

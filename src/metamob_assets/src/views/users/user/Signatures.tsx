@@ -23,8 +23,8 @@ const orderBy = [{
 }];
 
 const Signatures = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -36,7 +36,7 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<SignatureResponse>();
 
-    const signatures = useFindUserSignatures(orderBy, limit, authState.user?._id, actorState.main);
+    const signatures = useFindUserSignatures(orderBy, limit, auth.user?._id, actors.main);
     
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -75,7 +75,7 @@ const Signatures = (props: Props) => {
         }
     }, [signatures.status]);
 
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
 

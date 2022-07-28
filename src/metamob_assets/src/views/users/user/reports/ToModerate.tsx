@@ -24,8 +24,8 @@ const orderBy = [{
 }];
 
 const ToModerate = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -38,10 +38,10 @@ const ToModerate = (props: Props) => {
     const [report, setReport] = useState<ReportResponse>();
 
     const reports = useFindReportsAssigned(
-        authState.user?._id || 0, 
+        auth.user?._id || 0, 
         orderBy, 
         limit, 
-        actorState.main
+        actors.main
     );
     
     const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {

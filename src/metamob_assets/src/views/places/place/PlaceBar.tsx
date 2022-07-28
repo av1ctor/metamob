@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const PlaceBar = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [modals, setModals] = useState({
         edit: false,
@@ -68,14 +68,14 @@ export const PlaceBar = (props: Props) => {
     
     const {place} = props;
 
-    const placeUser = useFindByPlaceAndUser(place?._id, authState.user?._id);
+    const placeUser = useFindByPlaceAndUser(place?._id, auth.user?._id);
 
     const hasTerms = place && place.terms.length > 0;
     const termsAccepted = hasTerms && placeUser && placeUser.data && placeUser.data.termsAccepted;
 
-    const isLoggedIn = !!authState.user;
-    const canEdit = authState.user && 
-        (authState.user._id === place?.createdBy);
+    const isLoggedIn = !!auth.user;
+    const canEdit = auth.user && 
+        (auth.user._id === place?.createdBy);
 
     const banner = place?.banner[0] || '';
 

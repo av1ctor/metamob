@@ -22,8 +22,8 @@ const orderBy = [{
 }];
 
 const MyReports = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -34,7 +34,7 @@ const MyReports = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindUserReports(orderBy, limit, authState.user?._id, actorState.main);
+    const reports = useFindUserReports(orderBy, limit, auth.user?._id, actors.main);
     
     const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({

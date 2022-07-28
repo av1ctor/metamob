@@ -136,8 +136,8 @@ interface Props {
 };
 
 const EditForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext)
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext)
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
@@ -223,7 +223,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(authState.user);
+        const isModeration = props.reportId && isModerator(auth.user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -243,7 +243,7 @@ const EditForm = (props: Props) => {
                         decimalToIcp(formt.goal):
                         formt.goal:    
                     BigInt(formt.goal),
-                state: isModerator(authState.user) && formt.state.length > 0? 
+                state: isModerator(auth.user) && formt.state.length > 0? 
                     [Number(formt.state[0])]: 
                     [],
                 categoryId: Number(formt.categoryId),
@@ -264,7 +264,7 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -274,7 +274,7 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actorState.main,
+                    main: actors.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq()
                 });
@@ -290,7 +290,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, actorState.main, props.onClose]);
+    }, [form, modForm, actors.main, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -455,7 +455,7 @@ const EditForm = (props: Props) => {
                         </div>
                     </>
                 }
-                {authState.user && isModerator(authState.user) &&
+                {auth.user && isModerator(auth.user) &&
                     <SelectField
                         label="State"
                         name="state"
@@ -464,7 +464,7 @@ const EditForm = (props: Props) => {
                         onChange={changeFormOpt}
                     />                    
                 }
-                {props.reportId && isModerator(authState.user) &&
+                {props.reportId && isModerator(auth.user) &&
                     <CreateModerationForm
                         form={modForm}
                         onChange={changeModForm}

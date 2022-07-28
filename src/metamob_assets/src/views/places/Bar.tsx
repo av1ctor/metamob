@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const Bar = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [modals, setModals] = useState({
         create: false,
@@ -42,7 +42,7 @@ export const Bar = (props: Props) => {
         navigate(`/user/login?return=${location.pathname}`);
     }, []);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
 
     return (
         <>

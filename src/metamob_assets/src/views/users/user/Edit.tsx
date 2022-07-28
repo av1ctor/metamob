@@ -62,8 +62,8 @@ interface Props {
 }
 
 const EditForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<ProfileRequest>({
         name: props.user.name,
@@ -144,7 +144,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(authState.user);
+        const isModeration = props.reportId && isModerator(auth.user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -163,7 +163,7 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actorContext.main,
+                    main: actors.main,
                     pubId: props.user.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -172,7 +172,7 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actorContext.main,
+                    main: actors.main,
                     pubId: props.user.pubId, 
                     req: transformReq()
                 });
@@ -187,7 +187,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, actorContext.main, props.onClose]);
+    }, [form, modForm, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -276,7 +276,7 @@ const EditForm = (props: Props) => {
                 value={(banned & Banned.AsAdmin) != 0}
                 onChange={(e) => changeBanned(e, Banned.AsAdmin)}
             />
-            {props.reportId && isModerator(authState.user) &&
+            {props.reportId && isModerator(auth.user) &&
                 <CreateModerationForm
                     form={modForm}
                     onChange={changeModForm}

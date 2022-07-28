@@ -32,7 +32,7 @@ const steps: Step[] = [
 ];
 
 const Logon = (props: Props) => {
-    const [authState, authDispatch] = useContext(AuthContext);
+    const [auth, authDispatch] = useContext(AuthContext);
     const [, actorDispatch] = useContext(ActorContext);
 
     const [step, setStep] = useState(0);
@@ -70,7 +70,7 @@ const Logon = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const identity = authState.client?.getIdentity();
+            const identity = auth.client?.getIdentity();
             if(!identity) {
                 props.onError('IC Identity should not be null');
                 return;
@@ -118,7 +118,7 @@ const Logon = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [authState.client]);
+    }, [auth.client]);
 
     const handleRegistered = useCallback(async (msg: string) => {
         props.onSuccess(msg);
@@ -126,16 +126,16 @@ const Logon = (props: Props) => {
     }, []);
 
     const handleAuthenticate = useCallback(async () => {
-        if(authState.client) {
-            loginUser(authState.client, handleAuthenticated, props.onError);
+        if(auth.client) {
+            loginUser(auth.client, handleAuthenticated, props.onError);
         }
-    }, [authState.client, handleAuthenticated]);
+    }, [auth.client, handleAuthenticated]);
 
     const handleReturn = useCallback(() => {
         navigate(getReturnUrl());
     }, [navigate]);
 
-    if(!authState.client) {
+    if(!auth.client) {
         props.onError('No IC client found');
         navigate(getReturnUrl());
         return null;

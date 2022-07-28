@@ -59,7 +59,7 @@ const roles: Option[] = [
 ];
 
 const EditForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ProfileRequest>({
         name: props.user.name,
@@ -139,7 +139,7 @@ const EditForm = (props: Props) => {
             props.toggleLoading(true);
 
             await updateMut.mutateAsync({
-                main: actorContext.main,
+                main: actors.main,
                 pubId: props.user.pubId, 
                 req: form
             });
@@ -152,7 +152,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

@@ -47,8 +47,8 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.place.name,
@@ -137,7 +137,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(authState.user);
+        const isModeration = props.reportId && isModerator(auth.user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -172,7 +172,7 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actorContext.main,
+                    main: actors.main,
                     pubId: props.place.pubId,
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -181,7 +181,7 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actorContext.main,
+                    main: actors.main,
                     pubId: props.place.pubId,
                     req: transformReq(),
                 });
@@ -196,7 +196,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, actorContext.main, props.onClose]);
+    }, [form, modForm, actors.main, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -396,7 +396,7 @@ const EditForm = (props: Props) => {
                     />
                 </div>
             </div>
-            {props.reportId && isModerator(authState.user) &&
+            {props.reportId && isModerator(auth.user) &&
                 <CreateModerationForm
                     form={modForm}
                     onChange={changeModForm}

@@ -17,15 +17,15 @@ const orderBy = [{
 }];
 
 const Campaigns = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
         size: 3
     });
 
-    const campaigns = useFindCampaignsByUserId(authState.user?._id || 0, orderBy, limit, actorState.main);
+    const campaigns = useFindCampaignsByUserId(auth.user?._id || 0, orderBy, limit, actors.main);
 
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({
@@ -48,7 +48,7 @@ const Campaigns = (props: Props) => {
         }
     }, [campaigns.status]);
     
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
     

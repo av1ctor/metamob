@@ -24,8 +24,8 @@ const formSchema = yup.object().shape({
 });
 
 const VoteForm = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<VoteRequest>({
         campaignId: props.campaign._id,
@@ -72,7 +72,7 @@ const VoteForm = (props: Props) => {
             props.toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -103,7 +103,7 @@ const VoteForm = (props: Props) => {
         }));
     }, [props.vote]);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
     const hasVoted = !!props.vote?._id;
 
     return (

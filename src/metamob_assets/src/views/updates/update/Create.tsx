@@ -24,8 +24,8 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
     const [result, setResult] = useState(CampaignResult.NONE);
 
     const [form, setForm] = useState<UpdateRequest>({
@@ -65,7 +65,7 @@ const Create = (props: Props) => {
             props.toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -111,7 +111,7 @@ const Create = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
 
-    if(!authState.user) {
+    if(!auth.user) {
         return null;
     }
 

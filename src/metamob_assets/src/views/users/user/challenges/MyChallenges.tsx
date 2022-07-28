@@ -22,8 +22,8 @@ const orderBy = [{
 }];
 
 const MyChallenges = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -35,7 +35,7 @@ const MyChallenges = (props: Props) => {
     const [challenge, setChallenge] = useState<Challenge>();
 
     const challenges = useFindUserChallenges(
-        orderBy, limit, authState.user?._id, actorState.main);
+        orderBy, limit, auth.user?._id, actors.main);
     
     const toggleEdit = useCallback((challenge: Challenge | undefined = undefined) => {
         setModals(modals => ({

@@ -33,7 +33,7 @@ const results: Option[] = [
 ];
 
 const ModerateForm = (props: Props) => {
-    const [actorContext, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
         resolution: props.report.resolution,
@@ -72,7 +72,7 @@ const ModerateForm = (props: Props) => {
             props.toggleLoading(true);
 
             await closeMut.mutateAsync({
-                main: actorContext.main,
+                main: actors.main,
                 pubId: props.report.pubId, 
                 req: {
                     resolution: form.resolution,
@@ -88,7 +88,7 @@ const ModerateForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorContext.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

@@ -20,7 +20,7 @@ const orderBy = [{key: '_id', dir: 'desc'}];
 const limit = {offset: 0, size: 5};
 
 const Moderations = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [modals, setModals] = useState({
         challenge: false,
@@ -32,7 +32,7 @@ const Moderations = (props: Props) => {
         props.entityId, 
         orderBy, 
         limit,
-        actorState.main
+        actors.main
     );
 
     const toggleChallenge = useCallback(() => {

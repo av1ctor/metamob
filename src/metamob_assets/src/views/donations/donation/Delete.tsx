@@ -16,7 +16,7 @@ interface Props {
 
 
 const DeleteForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const deleteMut = useDeleteDonation();
     const campaign = useFindCampaignById(props.donation.campaignId);
@@ -32,7 +32,7 @@ const DeleteForm = (props: Props) => {
             }
 
             await deleteMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: props.donation.pubId, 
                 campaignPubId: campaign.data.pubId,
             });

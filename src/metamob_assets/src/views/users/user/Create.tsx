@@ -25,8 +25,8 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [state, dispatch] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, authDispatch] = useContext(AuthContext);
 
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
@@ -74,15 +74,15 @@ const Create = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await actorState.main.userCreate(form);
+            const res = await actors.main.userCreate(form);
 
             if('ok' in res) {
                 const user = res.ok;
-                dispatch({type: AuthActionType.SET_USER, payload: user});
+                authDispatch({type: AuthActionType.SET_USER, payload: user});
                 props.onSuccess('User created!');
             }
             else {
@@ -97,7 +97,7 @@ const Create = (props: Props) => {
         }
     }, [form]);
 
-    if(!state.client || !state.identity) {
+    if(!auth.client || !auth.identity) {
         return null;
     }
 

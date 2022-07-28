@@ -39,7 +39,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<PlaceRequest>({
         name: '',
@@ -122,7 +122,7 @@ const Create = (props: Props) => {
             props.toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     name: form.name,
                     description: form.description,

@@ -23,8 +23,8 @@ const formSchema = yup.object().shape({
 });
 
 const SignForm = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
-    const [actorState, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<SignatureRequest>({
         campaignId: props.campaign._id,
@@ -70,7 +70,7 @@ const SignForm = (props: Props) => {
             props.toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -99,7 +99,7 @@ const SignForm = (props: Props) => {
         }));
     }, [props.signature]);
 
-    const isLoggedIn = !!authState.user;
+    const isLoggedIn = !!auth.user;
     const hasSigned = !!props.signature?._id;
 
     return (

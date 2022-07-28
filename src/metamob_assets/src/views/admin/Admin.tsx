@@ -15,9 +15,9 @@ interface Props {
 };
 
 const Admin = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
 
-    if(!authState.user || !isModerator(authState.user)) {
+    if(!auth.user || !isModerator(auth.user)) {
         return <span>Forbidden</span>;
     }
 

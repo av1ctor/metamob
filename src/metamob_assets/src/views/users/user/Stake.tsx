@@ -20,8 +20,8 @@ const formSchema = yup.object().shape({
 });
 
 const StakeForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [form, setForm] = useState({
         value: "0.0",
@@ -66,13 +66,13 @@ const StakeForm = (props: Props) => {
             if(value < 10000) {
                 throw Error("Value too low");
             }
-            else if(value >= authState.balances.mmt) {
+            else if(value >= auth.balances.mmt) {
                 throw Error("Value too high");
             }
 
             await stakeMut.mutateAsync({
-                main: actorState.main,
-                mmt: actorState.mmt,
+                main: actors.main,
+                mmt: actors.mmt,
                 value: value
             });
 
@@ -85,14 +85,14 @@ const StakeForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState, authState]);
+    }, [form, actors, auth]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
     
-    const {balances} = authState;
+    const {balances} = auth;
     
     return (
         <form onSubmit={handleStake}>

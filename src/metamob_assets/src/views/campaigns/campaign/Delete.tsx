@@ -14,7 +14,7 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext)
+    const [actors, ] = useContext(ActorContext)
     
     const deleteMut = useDeleteCampaign();
 
@@ -25,7 +25,7 @@ const DeleteForm = (props: Props) => {
             props.toggleLoading(true);
 
             await deleteMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 pubId: props.campaign.pubId, 
             });
 
@@ -38,7 +38,7 @@ const DeleteForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [actorState.main, props.onClose]);
+    }, [actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

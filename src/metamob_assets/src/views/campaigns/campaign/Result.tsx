@@ -18,7 +18,7 @@ enum Action {
 }
 
 const Result = (props: Props) => {
-    const [authState, ] = useContext(AuthContext);
+    const [auth, ] = useContext(AuthContext);
     
     const [action, setAction] = useState(Action.GEN_EMAIL);
     const [modals, setModals] = useState({
@@ -39,7 +39,7 @@ const Result = (props: Props) => {
 
     const {campaign} = props;
 
-    const isOwner = campaign.createdBy === authState.user?._id;
+    const isOwner = campaign.createdBy === auth.user?._id;
     
     return (
         <>

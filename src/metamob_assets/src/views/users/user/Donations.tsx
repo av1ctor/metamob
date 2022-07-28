@@ -23,8 +23,8 @@ const orderBy = [{
 }];
 
 const Donations = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -36,7 +36,7 @@ const Donations = (props: Props) => {
     });
     const [donation, setDonation] = useState<DonationResponse>();
 
-    const donations = useFindUserDonations(orderBy, limit, authState.user?._id, actorState.main);
+    const donations = useFindUserDonations(orderBy, limit, auth.user?._id, actors.main);
     
     const toggleEdit = useCallback((donation: DonationResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -75,7 +75,7 @@ const Donations = (props: Props) => {
         }
     }, [donations.status]);
 
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
     

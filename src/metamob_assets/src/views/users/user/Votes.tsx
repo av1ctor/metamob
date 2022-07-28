@@ -23,8 +23,8 @@ const orderBy = [{
 }];
 
 const Votes = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -36,7 +36,7 @@ const Votes = (props: Props) => {
     });
     const [vote, setVote] = useState<VoteResponse>();
 
-    const votes = useFindUserVotes(orderBy, limit, authState.user?._id, actorState.main);
+    const votes = useFindUserVotes(orderBy, limit, auth.user?._id, actors.main);
     
     const toggleEdit = useCallback((vote: VoteResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -75,7 +75,7 @@ const Votes = (props: Props) => {
         }
     }, [votes.status]);
     
-    if(!authState.user) {
+    if(!auth.user) {
         return <div>Forbidden</div>;
     }
     

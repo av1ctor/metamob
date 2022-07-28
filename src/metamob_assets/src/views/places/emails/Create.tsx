@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<PlaceEmailRequest>({
         placeId: props.place._id,
@@ -57,7 +57,7 @@ const Create = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            if(!actorState.main) {
+            if(!actors.main) {
                 throw Error('Main actor undefined');
             }
 
@@ -66,7 +66,7 @@ const Create = (props: Props) => {
                 email: form.email, 
             };
             
-            const res = await actorState.main.placeEmailCreate(req);
+            const res = await actors.main.placeEmailCreate(req);
             
             if('ok' in res) {
                 props.onSuccess('E-mail created!');

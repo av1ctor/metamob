@@ -23,8 +23,8 @@ const formSchema = yup.object().shape({
 });
 
 const BecomeModForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, authDispatch] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, authDispatch] = useContext(AuthContext);
     
     const [minToBeStaked, setMinStaked] = useState(BigInt(0));
 
@@ -69,7 +69,7 @@ const BecomeModForm = (props: Props) => {
             props.toggleLoading(true);
 
             const profile = await signupMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
             });
             
             authDispatch({
@@ -86,7 +86,7 @@ const BecomeModForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleStake = useCallback(async (e: any) => {
         e.preventDefault();
@@ -94,11 +94,11 @@ const BecomeModForm = (props: Props) => {
         try {
             props.toggleLoading(true);
 
-            const value = minToBeStaked - authState.balances.staked;
+            const value = minToBeStaked - auth.balances.staked;
 
             await stakeMut.mutateAsync({
-                main: actorState.main,
-                mmt: actorState.mmt,
+                main: actors.main,
+                mmt: actors.mmt,
                 value: value
             });
             updateBalances();
@@ -110,7 +110,7 @@ const BecomeModForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [authState, minToBeStaked]);
+    }, [auth, minToBeStaked]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -119,10 +119,10 @@ const BecomeModForm = (props: Props) => {
     
     const updateBalances = async () => {
         Promise.all([
-            getIcpBalance(authState.identity, actorState.ledger),
-            getMmtBalance(authState.identity, actorState.mmt),
-            getStakedBalance(actorState.main),
-            getDepositedBalance(actorState.main),
+            getIcpBalance(auth.identity, actors.ledger),
+            getMmtBalance(auth.identity, actors.mmt),
+            getStakedBalance(actors.main),
+            getDepositedBalance(actors.main),
             getConfigAsNat64('MODERATOR_MIN_STAKE')
         ]).then(res => {
             authDispatch({
@@ -142,9 +142,9 @@ const BecomeModForm = (props: Props) => {
 
     useEffect(() => {
         updateBalances();
-    }, [authState.user?._id]);
+    }, [auth.user?._id]);
 
-    const {balances} = authState;
+    const {balances} = auth;
     
     const hasEnoughStaked = balances.staked >= minToBeStaked;
     const hasEnoughMmt = balances.mmt >= minToBeStaked;

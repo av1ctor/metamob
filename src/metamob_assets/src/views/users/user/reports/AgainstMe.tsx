@@ -23,8 +23,8 @@ const orderBy = [{
 }];
 
 const AgainstMe = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    const [authState, ] = useContext(AuthContext);
+    const [actors, ] = useContext(ActorContext);
+    const [auth, ] = useContext(AuthContext);
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -35,7 +35,7 @@ const AgainstMe = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindAgainstUserReports(orderBy, limit, authState.user?._id, actorState.main);
+    const reports = useFindAgainstUserReports(orderBy, limit, auth.user?._id, actors.main);
     
     const toggleChallenge = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({

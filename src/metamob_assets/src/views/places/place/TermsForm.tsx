@@ -22,7 +22,7 @@ const formSchema = yup.object().shape({
 });
 
 const TermsForm = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
+    const [actors, ] = useContext(ActorContext);
 
     const [form, setForm] = useState<PlaceUserRequest>({
         placeId: props.place._id,
@@ -65,7 +65,7 @@ const TermsForm = (props: Props) => {
             props.toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actorState.main,
+                main: actors.main,
                 req: {
                     placeId: form.placeId,
                     termsAccepted: form.termsAccepted
@@ -80,7 +80,7 @@ const TermsForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actorState.main, props.onClose]);
+    }, [form, actors.main, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
