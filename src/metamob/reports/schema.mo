@@ -75,6 +75,10 @@ module {
             {
                 name = "assignedTo";
                 options = [#sortable];
+            },
+            {
+                name = "dueAt";
+                options = [#sortable];
             }
         ];
     };

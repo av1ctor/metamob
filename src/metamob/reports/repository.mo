@@ -29,9 +29,10 @@ module {
             req: Types.ReportRequest,
             entityCreatedBy: Nat32,
             callerId: Nat32,
-            assignedToId: Nat32
+            assignedToId: Nat32, 
+            dueAt: Int
         ): Result.Result<Types.Report, Text> {
-            let e = _createEntity(req, entityCreatedBy, callerId, assignedToId);
+            let e = _createEntity(req, entityCreatedBy, callerId, assignedToId, dueAt);
             switch(reports.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -48,6 +49,22 @@ module {
             callerId: Nat32
         ): Result.Result<Types.Report, Text> {
             let e = _updateEntity(report, req, callerId);
+            switch(reports.replace(report._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func updateModerator(
+            report: Types.Report, 
+            moderatorId: Nat32,
+            dueAt: Int
+        ): Result.Result<Types.Report, Text> {
+            let e = _updateEntityWhenModeratorChanged(report, moderatorId, dueAt);
             switch(reports.replace(report._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -132,6 +149,30 @@ module {
                     };
                 };
             };
+        };
+
+        public func findDue(
+            size: Nat
+        ): Result.Result<[Types.Report], Text> {
+
+            let criterias = ?[
+                {
+                    key = "state";
+                    op = #eq;
+                    value = #nat32(Types.STATE_ASSIGNED);
+                },
+                {       
+                    key = "dueAt";
+                    op = #lte;
+                    value = #int(Time.now());
+                }                    
+            ];
+            
+            return reports.find(
+                criterias, 
+                null, 
+                ?{offset = 0; size = size;}
+            );
         };
 
         func _comparer(
@@ -254,7 +295,8 @@ module {
             req: Types.ReportRequest,
             entityCreatedBy: Nat32,
             callerId: Nat32,
-            assignedToId: Nat32
+            assignedToId: Nat32,
+            dueAt: Int
         ): Types.Report {
             {
                 _id = reports.nextId();
@@ -275,6 +317,7 @@ module {
                 updatedBy = null;
                 assignedAt = Time.now();
                 assignedTo = assignedToId;
+                dueAt = dueAt;
             }
         };
 
@@ -302,6 +345,7 @@ module {
                 updatedBy = ?callerId;
                 assignedAt = e.assignedAt;
                 assignedTo = e.assignedTo;
+                dueAt = e.dueAt;
             }  
         };
 
@@ -332,6 +376,7 @@ module {
                 updatedBy = ?callerId;
                 assignedAt = e.assignedAt;
                 assignedTo = e.assignedTo;
+                dueAt = e.dueAt;
             }  
         };
 
@@ -359,6 +404,35 @@ module {
                 updatedBy = ?callerId;
                 assignedAt = e.assignedAt;
                 assignedTo = e.assignedTo;
+                dueAt = e.dueAt;
+            }  
+        };
+
+        func _updateEntityWhenModeratorChanged(
+            e: Types.Report, 
+            moderatorId: Nat32,
+            dueAt: Int
+        ): Types.Report {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = Types.STATE_MODERATING;
+                result = e.result;
+                kind = e.kind;
+                description = e.description;
+                resolution = e.resolution;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                entityCreatedBy = e.entityCreatedBy;
+                moderationId = e.moderationId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+                assignedAt = Time.now();
+                assignedTo = moderatorId;
+                dueAt = dueAt;
             }  
         };
     };
@@ -387,6 +461,7 @@ module {
         res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
         res.put("assignedAt", #int(e.assignedAt));
         res.put("assignedTo", #nat32(e.assignedTo));
+        res.put("dueAt", #int(e.dueAt));
 
         res;
     };
@@ -413,6 +488,7 @@ module {
             updatedBy = Variant.getOptNat32Opt(map.get("updatedBy"));
             assignedAt = Variant.getOptInt(map.get("assignedAt"));
             assignedTo = Variant.getOptNat32(map.get("assignedTo"));
+            dueAt = Variant.getOptInt(map.get("dueAt"));
         }
     };
 };

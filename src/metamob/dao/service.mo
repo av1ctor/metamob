@@ -25,6 +25,7 @@ module {
         config.set("MODERATOR_MIN_STAKE",           #nat64(100000000000)); // 1000 MMT
         config.set("MODERATOR_REWARD",              #nat64(  1000000000)); // 10 MMT
         config.set("MODERATOR_PUNISHMENT",          #nat64( 10000000000)); // 100 MMT
+        config.set("REPORT_MODERATING_SPAN",        #int(30*24*60*60*1000*1000*1000)); // 30 days in nanoseconds
         config.set("CHALLENGER_DEPOSIT",            #nat64( 10000000000)); // 100 MMT
         config.set("CHALLENGE_MAX_JUDGES",          #nat32(3));
         config.set("CHALLENGE_JUDGE_PUNISHMENT",    #nat64( 10000000000)); // 100 MMT

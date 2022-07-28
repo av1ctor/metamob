@@ -41,6 +41,7 @@ module {
         updatedBy: ?Nat32;
         assignedAt: Int;
         assignedTo: Nat32;
+        dueAt: Int;
     };
 
     public type ReportRequest = {

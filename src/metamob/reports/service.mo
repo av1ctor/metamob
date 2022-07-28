@@ -1,9 +1,12 @@
 import Principal "mo:base/Principal";
+import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
 import Result "mo:base/Result";
 import Option "mo:base/Option";
+import Time "mo:base/Time";
 import Variant "mo:mo-table/variant";
 import Random "../common/random";
 import Utils "../common/utils";
@@ -66,11 +69,13 @@ module {
                                 #err(msg);
                             };
                             case (#ok(entityCreatedBy)) {
+                                let dueAt = Time.now() + daoService.config.getAsInt("REPORT_MODERATING_SPAN");
                                 repo.create(
                                     req, 
                                     entityCreatedBy, 
                                     caller._id, 
-                                    _chooseModerator(caller._id, entityCreatedBy)
+                                    _chooseModerator([caller._id, entityCreatedBy]),
+                                    dueAt
                                 );
                             };
                         };
@@ -80,8 +85,7 @@ module {
         };
 
         private func _chooseModerator(
-            reporterId: Nat32,
-            reportedId: Nat32
+            toExclude: [Nat32]
         ): Nat32 {
             switch(userRepo.findByRole(#moderator)) {
                 case (#err(_)) {
@@ -92,8 +96,7 @@ module {
                     while(attempts < moderators.size()) {
                         let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
                         let _id = moderators[index]._id;
-                        // moderator cannot be the reporter or the reported user
-                        if(_id != reporterId and _id != reportedId) {
+                        if(Option.isNull(Array.find(toExclude, func(id: Nat32): Bool = _id == id))) {
                             return _id;
                         };
 
@@ -302,6 +305,49 @@ module {
             repo.restore(entities);
         };
 
+        public func verify(
+        ): () {
+            let dueAt = Time.now() + daoService.config.getAsInt("REPORT_MODERATING_SPAN");
+
+            switch(repo.findDue(100)) {
+                case (#ok(reports)) {
+                    if(reports.size() > 0) {
+                        D.print("Info: ReportService.verify: Selecting new moderator for " # Nat.toText(reports.size()) # " reports");
+                        for(report in reports.vals()) {
+                            _selectNewModerator(report, dueAt);
+                            _punishModerator(report.assignedTo);
+                        };
+                    };
+                };
+                case (#err(msg)) {
+                    D.print("Error: ReportService.verify: " # msg);
+                };
+            };
+        };
+
+        func _selectNewModerator(
+            report: Types.Report,
+            dueAt: Int
+        ) {
+            let mod = _chooseModerator([report.assignedTo]);
+            ignore repo.updateModerator(report, mod, dueAt);
+        };
+
+        func _punishModerator(
+            userId: Nat32
+        ) {
+            switch(userService.findById(userId)) {
+                case (#err(_)) {
+                };
+                case (#ok(moderator)) {
+                    ignore daoService.punishStaker(
+                        Principal.fromText(moderator.principal), 
+                        Nat64.toNat(daoService.config.getAsNat64("MODERATOR_PUNISHMENT"))
+                    );
+                };
+            };
+        };
+
         public func getRepository(
         ): Repository.Repository {
             repo;
@@ -326,9 +372,6 @@ module {
             e: Types.Report
         ): Bool {
             if(caller._id == e.createdBy) {
-                return true;
-            }
-            else if(UserUtils.isAdmin(caller)) {
                 return true;
             };
                 

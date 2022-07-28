@@ -1,6 +1,7 @@
 import Principal "mo:base/Principal";
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
+import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
@@ -93,7 +94,7 @@ module {
                                         };
                                     };
 
-                                    let judges = _chooseJudges(caller._id, report.entityCreatedBy, moderation.createdBy);
+                                    let judges = _chooseJudges([caller._id, report.entityCreatedBy, moderation.createdBy]);
 
                                     let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
 
@@ -119,9 +120,7 @@ module {
         };
 
         private func _chooseJudges(
-            challengerId: Nat32,
-            reportedId: Nat32,
-            moderatorId: Nat32
+            toExclude: [Nat32]
         ): [Nat32] {
             switch(userRepo.findByRole(#moderator)) {
                 case (#err(_)) {
@@ -139,8 +138,8 @@ module {
                         while(judges.size() < numJudges and attempts < moderators.size()) {
                             let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
                             let _id = moderators[index]._id;
-                            // judge cannot be the reporter or the reported user or the moderator
-                            if(_id != challengerId and _id != reportedId and _id != moderatorId) {
+                            
+                            if(Option.isNull(Array.find(toExclude, func(id: Nat32): Bool = _id == id))) {
                                 judges.add(_id);
                             };
 
@@ -269,16 +268,7 @@ module {
                                                                 this
                                                             );
 
-                                                            switch(userService.findById(moderation.createdBy)) {
-                                                                case (#err(_)) {
-                                                                };
-                                                                case (#ok(moderator)) {
-                                                                    ignore daoService.punishStaker(
-                                                                        Principal.fromText(moderator.principal), 
-                                                                        Nat64.toNat(daoService.config.getAsNat64("MODERATOR_PUNISHMENT"))
-                                                                    );
-                                                                };
-                                                            };
+                                                            _punishModerator(moderation.createdBy);
                                                         };
                                                     };
                                                 }
@@ -306,6 +296,21 @@ module {
                             };
                         };
                     };
+                };
+            };
+        };
+
+        func _punishModerator(
+            userId: Nat32
+        ) {
+            switch(userService.findById(userId)) {
+                case (#err(_)) {
+                };
+                case (#ok(moderator)) {
+                    ignore daoService.punishStaker(
+                        Principal.fromText(moderator.principal), 
+                        Nat64.toNat(daoService.config.getAsNat64("MODERATOR_PUNISHMENT"))
+                    );
                 };
             };
         };
@@ -495,6 +500,45 @@ module {
             entities: [[(Text, Variant.Variant)]]
         ) {
             repo.restore(entities);
+        };
+
+        public func verify(
+        ): () {
+            let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
+
+            switch(repo.findDue(100)) {
+                case (#ok(challenges)) {
+                    if(challenges.size() > 0) {
+                        D.print("Info: ChallengeService.verify: Selecting new jury for " # Nat.toText(challenges.size()) # " challenges");
+                        for(challenge in challenges.vals()) {
+                            let toPunish = _selectNewJury(challenge, dueAt);
+                            for(userId in toPunish.vals()) {
+                                _punishModerator(userId);
+                            };
+                        };
+                    };
+                };
+                case (#err(msg)) {
+                    D.print("Error: ChallengeService.verify: " # msg);
+                };
+            };
+        };
+
+        func _selectNewJury(
+            challenge: Types.Challenge,
+            dueAt: Int
+        ): [Nat32] {
+            let toExclude = Buffer.Buffer<Nat32>(5);
+            for(judgeId in challenge.judges.vals()) {
+                if(Option.isNull(Array.find(challenge.votes, func(v: Types.ChallengeVote): Bool = v.judgeId == judgeId))) {
+                    toExclude.add(judgeId);
+                };
+            };
+            
+            let judges = _chooseJudges(toExclude.toArray());
+            ignore repo.updateJudges(challenge, judges, dueAt);
+
+            toExclude.toArray();
         };
 
         public func getRepository(

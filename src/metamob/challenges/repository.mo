@@ -61,10 +61,9 @@ module {
         public func updateJudges(
             challenge: Types.Challenge, 
             judges: [Nat32],
-            dueAt: Int,
-            callerId: Nat32
+            dueAt: Int
         ): Result.Result<Types.Challenge, Text> {
-            let e = _updateEntityWhenJudgesChanged(challenge, judges, dueAt, callerId);
+            let e = _updateEntityWhenJudgesChanged(challenge, judges, dueAt);
             switch(challenges.replace(challenge._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -222,6 +221,30 @@ module {
                 FilterUtils.toLimit(limit)
             );
         };
+
+        public func findDue(
+            size: Nat
+        ): Result.Result<[Types.Challenge], Text> {
+
+            let criterias = ?[
+                {
+                    key = "state";
+                    op = #eq;
+                    value = #nat32(Types.STATE_VOTING);
+                },
+                {       
+                    key = "dueAt";
+                    op = #lte;
+                    value = #int(Time.now());
+                }                    
+            ];
+            
+            return challenges.find(
+                criterias, 
+                null, 
+                ?{offset = 0; size = size;}
+            );
+        };
         
         public func backup(
         ): [[(Text, Variant.Variant)]] {
@@ -282,8 +305,7 @@ module {
         func _updateEntityWhenJudgesChanged(
             e: Types.Challenge, 
             judges: [Nat32],
-            dueAt: Int,
-            callerId: Nat32
+            dueAt: Int
         ): Types.Challenge {
             {
                 _id = e._id;

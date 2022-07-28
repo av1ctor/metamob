@@ -1527,6 +1527,8 @@ shared({caller = owner}) actor class Metamob(
             try {
                 await userService.verify(this);
                 await campaignService.verify(this);
+                reportService.verify();
+                challengeService.verify();
             }
             catch(e) {
             };
