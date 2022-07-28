@@ -70,8 +70,6 @@ const ToModerate = (props: Props) => {
         }
     }, [challenges.status]);
 
-    console.log(challenges.data)
-
     return (
         <>
             <div className="page-title has-text-info-dark">
