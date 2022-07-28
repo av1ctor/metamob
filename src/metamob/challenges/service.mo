@@ -1,0 +1,530 @@
+import Principal "mo:base/Principal";
+import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
+import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Text "mo:base/Text";
+import Result "mo:base/Result";
+import Option "mo:base/Option";
+import Time "mo:base/Time";
+import Variant "mo:mo-table/variant";
+import Random "../common/random";
+import Utils "../common/utils";
+import Types "./types";
+import Repository "./repository";
+import EntityTypes "../common/entities";
+import UserTypes "../users/types";
+import UserUtils "../users/utils";
+import UserService "../users/service";
+import DaoService "../dao/service";
+import ReportTypes "../reports/types";
+import ReportService "../reports/service";
+import ModerationTypes "../moderations/types";
+import ModerationService "../moderations/service";
+import CampaignTypes "../campaigns/types";
+import CampaignService "../campaigns/service";
+import SignatureService "../signatures/service";
+import VoteService "../votes/service";
+import FundingService "../fundings/service";
+import DonationService "../donations/service";
+import UpdateService "../updates/service";
+import PlaceService "../places/service";
+import D "mo:base/Debug";
+
+module {
+    public class Service(
+        daoService: DaoService.Service,
+        userService: UserService.Service,
+        campaignService: CampaignService.Service,
+        signatureService: SignatureService.Service, 
+        voteService: VoteService.Service, 
+        fundingService: FundingService.Service, 
+        donationService: DonationService.Service, 
+        updateService: UpdateService.Service,
+        placeService: PlaceService.Service,
+        reportService: ReportService.Service,
+        moderationService: ModerationService.Service
+    ) {
+        let repo = Repository.Repository();
+
+        let userRepo = userService.getRepository();
+        let reportRepo = reportService.getRepository();
+        let moderationRepo = moderationService.getRepository();
+
+        let random = Random.Xoshiro256ss(Utils.genRandomSeed("judges"));
+
+        public func create(
+            req: Types.ChallengeRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Challenge, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    };
+
+                    switch(moderationRepo.findById(req.moderationId)) {
+                        case (#err(_)) {
+                            #err("Moderation not found");
+                        };
+                        case (#ok(moderation)) {
+                            if(moderation.state != ModerationTypes.STATE_CREATED) {
+                                return #err("Invalid moderation state");
+                            };
+                            
+                            switch(reportRepo.findById(moderation.reportId)) {
+                                case (#err(_)) {
+                                    #err("Report not found");
+                                };
+                                case (#ok(report)) {
+                                    switch(await daoService.deposit(
+                                        Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
+                                        Principal.fromText(caller.principal), 
+                                        this
+                                    )) {
+                                        case (#err(msg)) {
+                                            return #err(msg);
+                                        };
+                                        case (#ok()) {
+                                        };
+                                    };
+
+                                    let judges = _chooseJudges(caller._id, report.entityCreatedBy, moderation.createdBy);
+
+                                    let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
+
+                                    switch(repo.create(req, judges, dueAt, caller._id)) {
+                                        case (#err(msg)) {
+                                            ignore await daoService.reimburse(
+                                                Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
+                                                Principal.fromText(caller.principal), 
+                                                this);
+                                            #err(msg);
+                                        };
+                                        case (#ok(challenge)) {
+                                            ignore moderationRepo.challenge(moderation, challenge._id, caller._id);
+                                            #ok(challenge);
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        private func _chooseJudges(
+            challengerId: Nat32,
+            reportedId: Nat32,
+            moderatorId: Nat32
+        ): [Nat32] {
+            switch(userRepo.findByRole(#moderator)) {
+                case (#err(_)) {
+                    return [1]; // admin
+                };
+                case (#ok(moderators)) {
+                    if(moderators.size() == 0) {
+                        return [1]; // admin;
+                    }
+                    else {
+                        let maxJudges = Nat32.toNat(daoService.configGetAsNat32("CHALLENGE_MAX_JUDGES"));
+                        let numJudges = if(moderators.size() < maxJudges) moderators.size() else maxJudges;
+                        let judges = Buffer.Buffer<Nat32>(numJudges);
+                        var attempts = 0;
+                        while(judges.size() < numJudges and attempts < moderators.size()) {
+                            let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
+                            let _id = moderators[index]._id;
+                            // judge cannot be the reporter or the reported user or the moderator
+                            if(_id != challengerId and _id != reportedId and _id != moderatorId) {
+                                judges.add(_id);
+                            };
+
+                            attempts += 1;
+                        };
+
+                        if(judges.size() > 0) {
+                            return judges.toArray();
+                        };
+                    };
+                };
+            };
+
+            [1]; // admin
+        };
+
+        public func update(
+            id: Text, 
+            req: Types.ChallengeRequest,
+            invoker: Principal
+        ): Result.Result<Types.Challenge, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    }
+                    else {
+                        switch(repo.findByPubId(id)) {
+                            case (#err(msg)) {
+                                return #err(msg);
+                            };
+                            case (#ok(e)) {
+                                if(not canChange(caller, e)) {
+                                    return #err("Forbidden");
+                                };
+
+                                if(e.state != Types.STATE_VOTING) {
+                                    return #err("Invalid state");
+                                };
+
+                                if(e.votes.size() > 0) {
+                                    return #err("There are votes already cast");
+                                };
+
+                                repo.update(e, req, caller._id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func vote(
+            id: Text, 
+            req: Types.ChallengeVoteRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Challenge, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+                    
+                    switch(repo.findByPubId(id)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(e)) {
+                            if(e.state != Types.STATE_VOTING) {
+                                return #err("Invalid state");
+                            };
+
+                            if(Option.isNull(Array.find(e.judges, func (j: Nat32): Bool = j == caller._id))) {
+                                return #err("Forbidden: not a judge");
+                            };
+
+                            if(Option.isSome(Array.find(e.votes, func (v: Types.ChallengeVote): Bool = v.judgeId == caller._id))) {
+                                return #err("Forbidden: vote already cast");
+                            };
+
+                            let buff = Buffer.Buffer<Types.ChallengeVote>(e.judges.size());
+                            for(v in e.votes.vals()) {
+                                buff.add(v);
+                            };
+
+                            buff.add({
+                                judgeId = caller._id;
+                                pro = req.pro;
+                                reason = req.reason;
+                            });
+
+                            let votes = buff.toArray();
+
+                            if(votes.size() == e.judges.size()) {
+                                let result = _calcResult(votes);
+                                switch(repo.close(e, result, votes, caller._id))
+                                {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case (#ok(challange)) {
+                                        switch(moderationRepo.findById(e.moderationId)) {
+                                            case (#err(msg)) {
+                                                return #err(msg);
+                                            };
+                                            case (#ok(moderation)) {
+                                                ignore moderationRepo.closeChallenge(moderation, result);
+
+                                                if(result == Types.RESULT_ACCEPTED) {
+                                                    switch(userService.findById(e.createdBy)) {
+                                                        case (#err(_)) {
+                                                        };
+                                                        case (#ok(challenger)) {
+                                                            ignore _revertModeration(moderation);
+
+                                                            ignore await daoService.reimburse(
+                                                                Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
+                                                                Principal.fromText(challenger.principal), 
+                                                                this
+                                                            );
+
+                                                            switch(userService.findById(moderation.createdBy)) {
+                                                                case (#err(_)) {
+                                                                };
+                                                                case (#ok(moderator)) {
+                                                                    ignore daoService.punishStaker(
+                                                                        Principal.fromText(moderator.principal), 
+                                                                        Nat64.toNat(daoService.config.getAsNat64("MODERATOR_PUNISHMENT"))
+                                                                    );
+                                                                };
+                                                            };
+                                                        };
+                                                    };
+                                                }
+                                                else {
+                                                    switch(userService.findById(e.createdBy)) {
+                                                        case (#err(_)) {
+                                                        };
+                                                        case (#ok(challenger)) {
+                                                            ignore daoService.punishDepositor(
+                                                                Principal.fromText(challenger.principal), 
+                                                                Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT"))
+                                                            );
+                                                        };
+                                                    };
+                                                };
+                                            };
+                                        };
+
+                                        #ok(challange);
+                                    };
+                                };
+                            }
+                            else {
+                                repo.vote(e, votes, caller._id);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        func _revertModeration(
+            moderation: ModerationTypes.Moderation
+        ): Result.Result<(), Text> {
+            if(moderation.entityType == EntityTypes.TYPE_CAMPAIGNS) {
+                campaignService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_DONATIONS) {
+                donationService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_FUNDINGS) {
+                fundingService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_PLACES) {
+                placeService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_SIGNATURES) {
+                signatureService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_UPDATES) {
+                updateService.revertModeration(moderation);
+            }
+            else if(moderation.entityType == EntityTypes.TYPE_USERS) {
+                userService.revertModeration(moderation);
+            }
+            else /*if(moderation.entityType == EntityTypes.TYPE_VOTES)*/ {
+                voteService.revertModeration(moderation);
+            };
+        };
+
+        func _calcResult(
+            votes: [Types.ChallengeVote]
+        ): Types.ChallengeResult {
+            let half = (votes.size() * 100) / 2;
+            if((Array.filter(votes, func (v: Types.ChallengeVote): Bool = v.pro).size() * 100) >= half) {
+                Types.RESULT_ACCEPTED;
+            }
+            else {
+                Types.RESULT_REFUSED;
+            };
+        };
+
+        public func findById(
+            _id: Nat32,
+            invoker: Principal
+        ): Result.Result<Types.Challenge, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    let res = repo.findById(_id);
+                    switch(res) {
+                        case (#ok(e)) {
+                            if(e.createdBy != caller._id) {
+                                if(not _isJudge(caller._id, e)) {
+                                    return #err("Forbidden");
+                                };
+                            };
+                        };
+                        case _ {
+                        };
+                    };
+
+                    res;
+                };
+            };
+        };
+
+        public func findByPubId(
+            id: Text,
+            invoker: Principal
+        ): Result.Result<Types.Challenge, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    let res = repo.findByPubId(id);
+                    switch(res) {
+                        case (#ok(e)) {
+                            if(e.createdBy != caller._id) {
+                                if(not _isJudge(caller._id, e)) {
+                                    return #err("Forbidden");
+                                };
+                            };
+                        };
+                        case _ {
+                        };
+                    };
+
+                    res;
+                };
+            };
+        };
+
+        public func getModeration(
+            _id: Nat32,
+            invoker: Principal
+        ): Result.Result<ModerationTypes.Moderation, Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    switch(repo.findById(_id)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(e)) {
+                            if(not _isJudge(caller._id, e)) {
+                                return #err("Forbidden");
+                            };
+
+                            moderationRepo.findById(e.moderationId);
+                        };
+                    };
+                };
+            };
+        };
+
+        func _isJudge(
+            userId: Nat32,
+            challenge: Types.Challenge
+        ): Bool {
+            Option.isSome(Array.find(challenge.judges, func(j: Nat32): Bool = j == userId));
+        };
+
+        public func find(
+            criterias: ?[(Text, Text, Variant.Variant)],
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Challenge], Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(not UserUtils.isModerator(caller)) {
+                        return #err("Forbidden");
+                    };
+                    repo.find(criterias, sortBy, limit);
+                };
+            };
+        };
+
+        public func findByUser(
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Challenge], Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    repo.findByUser(caller._id, sortBy, limit);
+                };
+            };
+        };
+
+        public func findByJudge(
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat),
+            invoker: Principal
+        ): Result.Result<[Types.Challenge], Text> {
+            switch(userService.findByPrincipal(invoker)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    repo.findByJudge(caller._id, sortBy, limit);
+                };
+            };
+        };
+
+        public func backup(
+        ): [[(Text, Variant.Variant)]] {
+            repo.backup();
+        };
+
+        public func restore(
+            entities: [[(Text, Variant.Variant)]]
+        ) {
+            repo.restore(entities);
+        };
+
+        public func getRepository(
+        ): Repository.Repository {
+            repo;
+        };
+
+        func hasAuth(
+            caller: UserTypes.Profile
+        ): Bool {
+            if(not caller.active) {
+                return false;
+            };
+
+            if(caller.banned == UserTypes.BANNED_AS_MODERATOR) {
+                return false;
+            };
+
+            return true;
+        };
+
+        func canChange(
+            caller: UserTypes.Profile,
+            e: Types.Challenge
+        ): Bool {
+            if(caller._id == e.createdBy) {
+                return true;
+            };
+                
+            return false;
+        };
+    };
+};

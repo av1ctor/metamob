@@ -138,11 +138,11 @@ export const loginUser = async (
     
     client.login({
         identityProvider: config.II_URL,
+        maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
         windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
         onSuccess: onSuccess,
         onError: onError,
     });
-
 };
 
 export const isAdmin = (

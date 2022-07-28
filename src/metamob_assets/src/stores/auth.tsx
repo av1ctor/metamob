@@ -7,6 +7,7 @@ export interface UserBalances {
     icp: bigint;
     mmt: bigint;
     staked: bigint;
+    deposited: bigint;
 }
 
 export interface AuthState {
@@ -36,7 +37,8 @@ const initialState: AuthState = {
     balances: {
         icp: 0n,
         mmt: 0n,
-        staked: 0n
+        staked: 0n,
+        deposited: 0n,
     },
 };
 

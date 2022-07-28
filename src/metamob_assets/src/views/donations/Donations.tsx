@@ -157,6 +157,9 @@ const Donations = (props: Props) => {
                     entityId={donation._id}
                     moderated={donation.moderated}
                     onClose={toggleModerations}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </>

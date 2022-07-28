@@ -1,10 +1,9 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import {Campaign, ProfileResponse, DonationResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { DonationState } from "../../libs/donations";
-import { isModerator } from "../../libs/users";
 import { icpToDecimal } from "../../libs/icp";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
@@ -20,6 +19,12 @@ interface BaseItemProps {
 
 export const BaseItem = (props: BaseItemProps) => {
     const donation = props.donation;
+
+    const handleShowModerations = useCallback(() => {
+        if(props.onShowModerations) {
+            props.onShowModerations(props.donation);
+        }
+    }, [props.donation, props.onShowModerations]);
 
     return (
         <article className="media">
@@ -53,7 +58,7 @@ export const BaseItem = (props: BaseItemProps) => {
                     <div>
                         <ModerationBadge
                             reason={donation.moderated}
-                            onShowModerations={() => props.onShowModerations && props.onShowModerations(donation)} 
+                            onShowModerations={handleShowModerations} 
                         />
                     </div>
                     <Markdown
@@ -68,7 +73,7 @@ export const BaseItem = (props: BaseItemProps) => {
 };
 
 interface ItemProps {
-    campaign: Campaign;
+    campaign?: Campaign;
     donation: DonationResponse;
     onEdit: (donation: DonationResponse) => void;
     onDelete: (donation: DonationResponse) => void;
@@ -81,18 +86,18 @@ export const Item = (props: ItemProps) => {
     
     const {donation} = props;
 
-    const author = donation.createdBy && donation.createdBy.length > 0?
+    const creatorReq = useFindUserById(donation.createdBy);
+
+    const creator = donation.createdBy && donation.createdBy.length > 0?
         donation.createdBy[0] || 0:
         0;
 
-    const user = useFindUserById(author);
-
-    const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0));
+    const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === creator && creator !== 0));
 
     return (
         <BaseItem
-            user={user.data}
+            user={creatorReq.data}
             donation={donation}
             onShowModerations={props.onShowModerations}
         >

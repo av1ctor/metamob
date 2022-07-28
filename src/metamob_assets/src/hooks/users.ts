@@ -111,6 +111,32 @@ export const useSignupAsModerator = () => {
     );
 };
 
+export const useApprove = () => {
+    return useMutation(
+        async (options: {value: bigint, mmt?: MMT, main?: Metamob}) => {
+            if(!options.main || !metamobCanisterId) {
+                throw Error('Main actor undefined');
+            }
+
+            if(!options.mmt) {
+                throw Error('MMT actor undefined');
+            }
+            
+            const res = await options.mmt.approve(
+                Principal.fromText(metamobCanisterId), options.value);
+            if(res && 'Err' in res) {
+                throw new Error(JSON.stringify(res.Err));
+            }
+
+            return;
+        },
+        {
+            onSuccess: () => {
+            }   
+        }
+    );
+};
+
 export const useStake = () => {
     const queryClient = useQueryClient();
     return useMutation(
@@ -144,7 +170,7 @@ export const useStake = () => {
     );
 };
 
-export const useWithdraw = () => {
+export const useUnstake = () => {
     const queryClient = useQueryClient();
     return useMutation(
         async (options: {value: bigint, main?: Metamob}) => {
@@ -152,7 +178,7 @@ export const useWithdraw = () => {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.daoWithdraw(options.value);
+            const res = await options.main.daoUnStake(options.value);
             if('err' in res) {
                 throw new Error(res.err);
             }

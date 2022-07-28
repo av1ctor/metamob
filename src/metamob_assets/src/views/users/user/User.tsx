@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useEffect, useState } from "react"
 import * as yup from 'yup';
 import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
-import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {Profile, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { ActorContext } from "../../../stores/actor";
@@ -13,10 +12,10 @@ import countries from "../../../libs/countries";
 import { getMmtBalance } from "../../../libs/mmt";
 import { getIcpBalance } from "../../../libs/users";
 import { accountIdentifierFromBytes, icpToDecimal, principalToAccountDefaultIdentifier } from "../../../libs/icp";
-import { getStakedBalance } from "../../../libs/dao";
+import { getDepositedBalance, getStakedBalance } from "../../../libs/dao";
 import Modal from "../../../components/Modal";
 import StakeForm from "./Stake";
-import WithdrawForm from "./Withdraw";
+import UnstakeForm from "./Unstake";
 import TransferForm from "./Transfer";
 
 interface Props {
@@ -49,7 +48,7 @@ const User = (props: Props) => {
     });
     const [modals, setModals] = useState({
         stake: false,
-        withdraw: false,
+        unstake: false,
         transfer: false,
     });
 
@@ -118,7 +117,8 @@ const User = (props: Props) => {
         Promise.all([
             getIcpBalance(authState.identity, actorState.ledger),
             getMmtBalance(authState.identity, actorState.mmt),
-            getStakedBalance(actorState.main)
+            getStakedBalance(actorState.main),
+            getDepositedBalance(actorState.main),
         ]).then(res => {
             authDispatch({
                 type: AuthActionType.SET_BALANCES,
@@ -126,6 +126,7 @@ const User = (props: Props) => {
                     icp: res[0],
                     mmt: res[1],
                     staked: res[2],
+                    deposited: res[3],
                 }
             });
         }).catch(e => {
@@ -148,7 +149,7 @@ const User = (props: Props) => {
     const toggleWithdraw = useCallback(() => {
         setModals(modals => ({
             ...modals,
-            withdraw: !modals.withdraw,
+            unstake: !modals.unstake,
         }));
     }, []);
 
@@ -368,10 +369,10 @@ const User = (props: Props) => {
 
             <Modal
                 header={<span>Withdraw MMT</span>}
-                isOpen={modals.withdraw}
+                isOpen={modals.unstake}
                 onClose={toggleWithdraw}
             >
-                <WithdrawForm
+                <UnstakeForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleWithdraw}
                     onSuccess={props.onSuccess}

@@ -1,58 +1,49 @@
 import React from "react";
-import { useFindPlaceById } from "../../../hooks/places";
+import { Place } from "../../../../../declarations/metamob/metamob.did";
 import Avatar from "../../users/Avatar";
 import { PlaceIcon } from "./PlaceIcon";
 
 interface Props {
-    id: number;
+    place: Place;
     partial?: boolean;
 }
 
-const limitText = (text: string, chars: number): string => {
-    return text.length <= chars?
-        text:
-        `${text.substring(0, chars)}...`;
-}
-
 export const Preview = (props: Props) => {
-    const place = useFindPlaceById(props.id);
+    const {place} = props;
     
     return (
         <div className="mb-2">
-            {place.data?
-                props.partial?
-                    <div>
-                        <b>Place</b>:&nbsp;
-                        <PlaceIcon place={place.data} />
-                    </div>
-                :
-                    <div className="field">
-                        <label className="label">
-                            Place
-                        </label>
-                        <div className="control preview-box">
-                            <div>
-                                <label className="label">
-                                    Id
-                                </label>
-                                {place.data.pubId}
-                            </div>
-                            <div>
-                                <PlaceIcon place={place.data} />
-                            </div>
-                            <div>
-                                <label className="label mb-0 pb-0">
-                                    Author
-                                </label>
-                                <Avatar 
-                                    id={place.data.createdBy} 
-                                    size='lg'
-                                />
-                            </div>
+            {props.partial?
+                <div>
+                    <b>Place</b>:&nbsp;
+                    <PlaceIcon place={place} />
+                </div>
+            :
+                <div className="field">
+                    <label className="label">
+                        Place
+                    </label>
+                    <div className="control preview-box">
+                        <div>
+                            <label className="label">
+                                Id
+                            </label>
+                            {place.pubId}
+                        </div>
+                        <div>
+                            <PlaceIcon place={place} />
+                        </div>
+                        <div>
+                            <label className="label mb-0 pb-0">
+                                Author
+                            </label>
+                            <Avatar 
+                                id={place.createdBy} 
+                                size='lg'
+                            />
                         </div>
                     </div>
-                :
-                    null
+                </div>
             }
         </div>
     );

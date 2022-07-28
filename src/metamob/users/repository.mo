@@ -1,4 +1,5 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
 import Option "mo:base/Option";
@@ -59,12 +60,33 @@ module {
         public func moderate(
             prof: Types.Profile, 
             req: Types.ProfileRequest,
-            reason: ModerationTypes.ModerationReason,
+            moderation: ModerationTypes.Moderation,
             callerId: Nat32
         ): Result.Result<Types.Profile, Text> {
-            let e = _updateEntityWhenModerated(prof, req, reason, callerId);
+            let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
+                _updateEntityWhenModeratedAndRedacted(prof, req, moderation.reason, callerId);
+            }
+            else {
+                _updateEntityWhenModeratedAndFlagged(prof, moderation.reason, callerId);
+            };
 
             switch(users.replace(prof._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func revertModeration(
+            campaign: Types.Profile,
+            moderation: ModerationTypes.Moderation
+        ): Result.Result<Types.Profile, Text> {
+            let e = deserialize(Variant.mapToHashMap(moderation.entityOrg));
+
+            switch(users.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -263,7 +285,7 @@ module {
             }  
         };
 
-        func _updateEntityWhenModerated(
+        func _updateEntityWhenModeratedAndRedacted(
             e: Types.Profile, 
             req: Types.ProfileRequest,
             reason: ModerationTypes.ModerationReason,
@@ -296,9 +318,33 @@ module {
                 updatedBy = ?callerId;
             }  
         };
+
+        func _updateEntityWhenModeratedAndFlagged(
+            e: Types.Profile, 
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Profile {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                principal = e.principal;
+                name = e.name;
+                email = e.email;
+                avatar = e.avatar;
+                roles = e.roles;
+                active = e.active;
+                banned = e.banned;
+                country = e.country;
+                moderated = e.moderated | reason;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
     };
 
-    func serialize(
+    public func serialize(
         e: Types.Profile,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {

@@ -62,12 +62,33 @@ module {
         public func moderate(
             place: Types.Place, 
             req: Types.PlaceRequest,
-            reason: ModerationTypes.ModerationReason,
+            moderation: ModerationTypes.Moderation,
             callerId: Nat32
         ): Result.Result<Types.Place, Text> {
-            let e = _updateEntityWhenModerated(place, req, reason, callerId);
+            let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
+                _updateEntityWhenModeratedAndRedacted(place, req, moderation.reason, callerId);
+            }
+            else {
+                _updateEntityWhenModeratedAndFlagged(place, moderation.reason, callerId);
+            };
 
             switch(places.replace(place._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func revertModeration(
+            campaign: Types.Place,
+            moderation: ModerationTypes.Moderation
+        ): Result.Result<Types.Place, Text> {
+            let e = deserialize(Variant.mapToHashMap(moderation.entityOrg));
+
+            switch(places.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -273,7 +294,7 @@ module {
             }  
         };
 
-        func _updateEntityWhenModerated(
+        func _updateEntityWhenModeratedAndRedacted(
             e: Types.Place, 
             req: Types.PlaceRequest,
             reason: ModerationTypes.ModerationReason,
@@ -283,8 +304,8 @@ module {
                 _id = e._id;
                 pubId = e.pubId;
                 parentId = e.parentId;
-                kind = req.kind;
-                auth = req.auth;
+                kind = e.kind;
+                auth = e.auth;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -300,9 +321,36 @@ module {
                 updatedBy = ?callerId;
             }  
         };
+
+        func _updateEntityWhenModeratedAndFlagged(
+            e: Types.Place, 
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Place {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                parentId = e.parentId;
+                kind = e.kind;
+                auth = e.auth;
+                name = e.name;
+                description = e.description;
+                icon = e.icon;
+                banner = e.banner;
+                terms = e.terms;
+                active = e.active;
+                lat = e.lat;
+                lng = e.lng;
+                moderated = e.moderated | reason;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
     };
 
-    func serialize(
+    public func serialize(
         e: Types.Place,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {

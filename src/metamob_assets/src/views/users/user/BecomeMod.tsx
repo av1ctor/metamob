@@ -4,7 +4,7 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import TextField from "../../../components/TextField";
 import { useSignupAsModerator, useStake } from "../../../hooks/users";
-import { getConfigAsNat64, getStakedBalance } from "../../../libs/dao";
+import { getConfigAsNat64, getDepositedBalance, getStakedBalance } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
 import { getMmtBalance } from "../../../libs/mmt";
 import { getIcpBalance } from "../../../libs/users";
@@ -122,6 +122,7 @@ const BecomeModForm = (props: Props) => {
             getIcpBalance(authState.identity, actorState.ledger),
             getMmtBalance(authState.identity, actorState.mmt),
             getStakedBalance(actorState.main),
+            getDepositedBalance(actorState.main),
             getConfigAsNat64('MODERATOR_MIN_STAKE')
         ]).then(res => {
             authDispatch({
@@ -130,9 +131,10 @@ const BecomeModForm = (props: Props) => {
                     icp: res[0],
                     mmt: res[1],
                     staked: res[2],
+                    deposited: res[3],
                 }
             });
-            setMinStaked(res[3]);
+            setMinStaked(res[4]);
         }).catch(e => {
             props.onError(e);
         });

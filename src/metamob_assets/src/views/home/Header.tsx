@@ -136,6 +136,12 @@ const Header = (props: Props) => {
                                     href="/user/reports"
                                     redirect
                                 />
+                                <NavItem
+                                    title="Challenges"
+                                    icon="chess"
+                                    href="/user/challenges"
+                                    redirect
+                                />
                                 <hr className="navbar-divider"/>
                                 <NavItem
                                     title="Profile"

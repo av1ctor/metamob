@@ -202,6 +202,9 @@ const Updates = (props: Props) => {
                     entityId={update._id}
                     moderated={update.moderated}
                     onClose={toggleModerations}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </>

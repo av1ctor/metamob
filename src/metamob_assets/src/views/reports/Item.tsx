@@ -10,6 +10,7 @@ import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import EntityPreview from "./report/EntityPreview";
 import Badge from "../../components/Badge";
+import Box from "../../components/Box";
 
 interface BaseItemProps {
     report: ReportResponse;
@@ -25,50 +26,54 @@ export const BaseItem = (props: BaseItemProps) => {
     const report = props.report;
 
     return (
-        <article className="media">
-            {props.user && 
-                <div className="media-left">
-                    <div className="flex-node w-12">
-                        <Avatar id={props.user._id} size='lg' noName={true} />
-                    </div>
-                </div>
-            }
-            <div className="media-content">
-                <div className="content">
-                    {props.user && 
-                        <div>
-                            <strong>{props.user?.name}</strong>
+        <Box className="report-item">
+            <article className="media">
+                {props.user && 
+                    <div className="media-left">
+                        <div className="flex-node w-12">
+                            <Avatar id={props.user._id} size='lg' noName={true} />
                         </div>
-                    }
-                    <Markdown
-                        className="update-body" 
-                        body={report.description || '\n&nbsp;\n'}
-                    />
-                    <Badge 
-                        color={reportStateToColor(report.state)}
-                    >
-                        {reportStateToText(report.state)}
-                    </Badge>
-                    
-                    <Badge 
-                        color={reportResultToColor(report.result)}
-                        title={report.resolution}
-                    >
-                        {reportResultToText(report.result)}
-                    </Badge>
-
-                    <div>
-                        <EntityPreview
-                            report={report}
-                            partial
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                        />
                     </div>
-                    {props.children}
+                }
+                <div className="media-content">
+                    <div className="content">
+                        {props.user && 
+                            <div>
+                                <strong>{props.user?.name}</strong>
+                            </div>
+                        }
+                        <Markdown
+                            className="update-body" 
+                            body={report.description || '\n&nbsp;\n'}
+                        />
+                        <Badge 
+                            color={reportStateToColor(report.state)}
+                        >
+                            {reportStateToText(report.state)}
+                        </Badge>
+                        
+                        <Badge 
+                            color={reportResultToColor(report.result)}
+                            title={report.resolution}
+                        >
+                            {reportResultToText(report.result)}
+                        </Badge>
+
+                        <div>
+                            <EntityPreview
+                                report={report}
+                                partial
+                                onSuccess={props.onSuccess}
+                                onError={props.onError}
+                            />
+                        </div>
+                    </div>
+                    <div className="controls">
+                        {props.children}
+                    </div>
                 </div>
-            </div>
-        </article>
+            </article>
+        </Box>
     );
 };
 

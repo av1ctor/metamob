@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
-import { Campaign, Profile } from "../../../../../declarations/metamob/metamob.did";
+import { Campaign } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
-import { Preview } from "../../campaigns/campaign/Preview";
+import { PreviewWrapper as Preview } from "../../campaigns/campaign/PreviewWrapper";
 
 interface Props {
     campaign: Campaign;

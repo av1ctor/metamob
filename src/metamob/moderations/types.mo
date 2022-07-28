@@ -1,3 +1,5 @@
+import HashMap "mo:base/HashMap";
+import Variant "mo:mo-table/variant";
 import EntityTypes "../common/entities";
 
 module {
@@ -33,6 +35,7 @@ module {
         entityType: EntityTypes.EntityType;
         entityId: Nat32;
         entityPubId: Text;
+        entityOrg: [Variant.MapEntry];
         challengeId: ?Nat32;
         createdAt: Int;
         createdBy: Nat32;
@@ -45,5 +48,23 @@ module {
         reason: ModerationReason;
         action: ModerationAction;
         body: Text;
+    };
+
+    public type ModerationResponse = {
+        _id: Nat32;
+        pubId: Text;
+        state: ModerationState;
+        reason: ModerationReason;
+        action: ModerationAction;
+        body: Text;
+        reportId: Nat32;
+        entityType: EntityTypes.EntityType;
+        entityId: Nat32;
+        entityPubId: Text;
+        challengeId: ?Nat32;
+        createdAt: Int;
+        createdBy: ?Nat32;
+        updatedAt: ?Int;
+        updatedBy: ?Nat32;
     };
 };

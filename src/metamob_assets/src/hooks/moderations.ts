@@ -1,5 +1,5 @@
 import { useQuery, UseQueryResult } from "react-query";
-import { Metamob, Moderation } from "../../../declarations/metamob/metamob.did";
+import { Metamob, ModerationResponse } from "../../../declarations/metamob/metamob.did";
 import { EntityType, Limit, Order } from "../libs/common";
 import { findByEntity } from "../libs/moderations";
 
@@ -10,8 +10,8 @@ export const useFindModerationsByEntity = (
     orderBy: Order[], 
     limit: Limit, 
     main?: Metamob
-): UseQueryResult<Moderation[], Error> => {
-    return useQuery<Moderation[], Error>(
+): UseQueryResult<ModerationResponse[], Error> => {
+    return useQuery<ModerationResponse[], Error>(
         ['moderations', entityType, entityId, ...orderBy, limit.offset, limit.size], 
         () => findByEntity(entityType, entityId, orderBy, limit, main),
         {keepPreviousData: limit.offset > 0}

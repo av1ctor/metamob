@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import {Campaign, ProfileResponse, VoteResponse} from "../../../../declarations/metamob/metamob.did";
 import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
@@ -18,6 +18,12 @@ interface BaseItemProps {
 
 export const BaseItem = (props: BaseItemProps) => {
     const vote = props.vote;
+
+    const handleShowModerations = useCallback(() => {
+        if(props.onShowModerations) {
+            props.onShowModerations(props.vote);
+        }
+    }, [props.vote, props.onShowModerations]);
 
     return (
         <article className="media">
@@ -41,7 +47,7 @@ export const BaseItem = (props: BaseItemProps) => {
                     <div>
                         <ModerationBadge
                             reason={vote.moderated}
-                            onShowModerations={() => props.onShowModerations && props.onShowModerations(vote)} 
+                            onShowModerations={handleShowModerations} 
                         />
                     </div>
                     <Markdown 
@@ -56,7 +62,7 @@ export const BaseItem = (props: BaseItemProps) => {
 };
 
 interface ItemProps {
-    campaign: Campaign;
+    campaign?: Campaign;
     vote: VoteResponse;
     onEdit: (vote: VoteResponse) => void;
     onDelete: (vote: VoteResponse) => void;
@@ -69,18 +75,18 @@ export const Item = (props: ItemProps) => {
     
     const {vote} = props;
 
-    const author = vote.createdBy && vote.createdBy.length > 0?
+    const creatorReq = useFindUserById(vote.createdBy);
+
+    const creator = vote.createdBy && vote.createdBy.length > 0?
         vote.createdBy[0] || 0:
         0;
 
-    const user = useFindUserById(author);
-
-    const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0));
+    const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === creator && creator !== 0));
 
     return (
         <BaseItem
-            user={user.data}
+            user={creatorReq.data}
             vote={vote}
             onShowModerations={props.onShowModerations}
         >

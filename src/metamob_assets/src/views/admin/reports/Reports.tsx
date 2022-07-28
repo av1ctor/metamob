@@ -7,7 +7,7 @@ import { Filter, Order } from "../../../libs/common";
 import { ReportState, reportStateToText } from "../../../libs/reports";
 import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
 import { ActorContext } from "../../../stores/actor";
-import ViewForm from "../../reports/report/View";
+import ModerateForm from "../../reports/report/Moderate";
 import EditUserForm from "../../../views/users/user/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
@@ -203,7 +203,7 @@ const Reports = (props: Props) => {
                 onClose={toggleEdit}
             >
                 {report &&
-                    <ViewForm
+                    <ModerateForm
                         report={report}
                         onModerate={handleModerate}
                         onClose={toggleEdit}

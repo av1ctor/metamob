@@ -156,6 +156,9 @@ const Fundings = (props: Props) => {
                     entityId={funding._id}
                     moderated={funding.moderated}
                     onClose={toggleModerations}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </>

@@ -9,6 +9,7 @@ import {BaseItem} from "../../../reports/Item";
 import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportResult, ReportState } from "../../../../libs/reports";
+import CreateForm from "../../../challenges/challenge/Create";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -127,9 +128,9 @@ const AgainstMe = (props: Props) => {
                 isOpen={modals.challenge}
                 onClose={toggleChallenge}
             >
-                {report && 
-                    <EditForm
-                        report={report} 
+                {report && report.moderationId.length > 0 &&
+                    <CreateForm
+                        moderationId={report.moderationId[0] || 0} 
                         onClose={toggleChallenge}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

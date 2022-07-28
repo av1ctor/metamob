@@ -12,10 +12,13 @@ import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
 import { icpToDecimal } from "../../libs/icp";
 import Badge from "../../components/Badge";
+import { Markdown } from "../../components/Markdown";
+import ModerationBadge from "../moderations/moderation/Badge";
 
 interface Props {
-    campaign: Campaign,
-    isPreview?: boolean,
+    campaign: Campaign;
+    isPreview?: boolean;
+    showBody?: boolean;
 };
 
 const Item = (props: Props) => {
@@ -54,15 +57,25 @@ const Item = (props: Props) => {
                 </div>
             </>}
             img={
-                <Link to={`/c/${campaign.pubId}`}>
-                    <img src={campaign.cover}/>
-                </Link>
+                <img src={campaign.cover}/>
             }
         >
-            {props.isPreview &&
-                <div className="mb-5">
-                    {limitText(campaign.body, 200)}
-                </div>
+            {props.showBody?
+                <>
+                    <div className="has-text-right">
+                        <ModerationBadge 
+                            reason={campaign.moderated}
+                        />
+                    </div>
+                    <Markdown body={campaign.body} />
+                </>
+            :
+                props.isPreview?
+                    <div className="mb-5">
+                        {limitText(campaign.body, 200)}
+                    </div>
+                :
+                    null
             }
             <div className="level">
                 <div className="level-left">

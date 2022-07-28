@@ -1,4 +1,4 @@
-import { Metamob, Moderation } from "../../../declarations/metamob/metamob.did";
+import { Metamob, ModerationResponse } from "../../../declarations/metamob/metamob.did";
 import { EntityType, Limit, Order } from "./common";
 
 export enum ModerationState {
@@ -142,7 +142,7 @@ export const findByEntity = async (
     orderBy?: Order[], 
     limit?: Limit,
     main?: Metamob
-): Promise<Moderation[]> => {
+): Promise<ModerationResponse[]> => {
     if(!main) {
         return [];
     }

@@ -190,17 +190,38 @@ module {
                                         return #err("Forbidden");
                                     };
                                     case (?report) {
-                                        switch(moderationService.create(mod, report, caller)) {
+                                        switch(moderationService.create(
+                                            mod, report, Variant.hashMapToMap(Repository.serialize(entity, false)), caller)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
-                                                repo.moderate(entity, req, mod.reason, caller._id);
+                                                repo.moderate(entity, req, moderation, caller._id);
                                             };
                                         };
                                     };
                                 };
                             };
+                        };
+                    };
+                };
+            };
+        };
+
+        public func revertModeration(
+            mod: ModerationTypes.Moderation
+        ): Result.Result<(), Text> {
+            switch(repo.findById(mod.entityId)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(entity)) {
+                    switch(repo.revertModeration(entity, mod)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case _ {
+                            #ok()
                         };
                     };
                 };

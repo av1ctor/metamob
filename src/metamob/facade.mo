@@ -13,6 +13,8 @@ import FundingService "./fundings/service";
 import FundingTypes "./fundings/types";
 import Int "mo:base/Int";
 import LedgerUtils "./common/ledger";
+import ChallengeService "./challenges/service";
+import ChallengeTypes "./challenges/types";
 import ModerationService "./moderations/service";
 import ModerationTypes "./moderations/types";
 import Nat64 "mo:base/Nat64";
@@ -66,6 +68,8 @@ shared({caller = owner}) actor class Metamob(
     let updateService = UpdateService.Service(userService, campaignService, placeService, moderationService, reportRepo);
     let reportService = ReportService.Service(reportRepo, daoService, userService, campaignService, signatureService, 
         voteService, fundingService, donationService, updateService, placeService);
+    let challengeService = ChallengeService.Service(daoService, userService, campaignService, signatureService, 
+        voteService, fundingService, donationService, updateService, placeService, reportService, moderationService);
 
     // DAO facade
     public shared query(msg) func daoConfigGetAsNat32(
@@ -86,15 +90,20 @@ shared({caller = owner}) actor class Metamob(
         await daoService.stake(Nat64.toNat(value), msg.caller, this);
     };
 
-    public shared(msg) func daoWithdraw(
+    public shared(msg) func daoUnStake(
         value: Nat64
     ): async Result.Result<(), Text> {
-        await daoService.withdraw(Nat64.toNat(value), msg.caller, this);
+        await daoService.unstake(Nat64.toNat(value), msg.caller, this);
     };
 
     public shared query(msg) func daoStakedBalance(
     ): async Nat64 {
         Nat64.fromNat(daoService.stakedBalanceOf(msg.caller));
+    };
+
+    public shared query(msg) func daoDepositedBalance(
+    ): async Nat64 {
+        Nat64.fromNat(daoService.depositedBalanceOf(msg.caller));
     };
 
     /*public shared(msg) func daoReward(
@@ -1092,6 +1101,7 @@ shared({caller = owner}) actor class Metamob(
                 kind = e.kind;
                 description = e.description;
                 resolution = e.resolution;
+                moderationId = e.moderationId;
                 createdAt = e.createdAt;
                 createdBy = null;
                 updatedAt = e.updatedAt;
@@ -1113,6 +1123,7 @@ shared({caller = owner}) actor class Metamob(
                 kind = e.kind;
                 description = e.description;
                 resolution = e.resolution;
+                moderationId = e.moderationId;
                 createdAt = e.createdAt;
                 createdBy = ?e.createdBy;
                 updatedAt = e.updatedAt;
@@ -1163,8 +1174,142 @@ shared({caller = owner}) actor class Metamob(
         entityId: Nat32,
         sortBy: ?[(Text, Text)],
         limit: ?(Nat, Nat)
-    ): async Result.Result<[ModerationTypes.Moderation], Text> {
-        moderationService.findByEntity(entityType, entityId, sortBy, limit, msg.caller);
+    ): async Result.Result<[ModerationTypes.ModerationResponse], Text> {
+        _transformModerationResponses(
+            moderationService.findByEntity(entityType, entityId, sortBy, limit, msg.caller), 
+            true
+        );
+    };
+
+    func _redactModeration(
+        e: ModerationTypes.Moderation,
+        doRedact: Bool
+    ): ModerationTypes.ModerationResponse {
+        if(doRedact) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                reason = e.reason;
+                action = e.action;
+                body = e.body;
+                reportId = e.reportId;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                challengeId = e.challengeId;
+                createdAt = e.createdAt;
+                createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                reason = e.reason;
+                action = e.action;
+                body = e.body;
+                reportId = e.reportId;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                challengeId = e.challengeId;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            };
+        };
+    };
+
+    func _transformModerationResponse(
+        res: Result.Result<ModerationTypes.Moderation, Text>,
+        doRedact: Bool
+    ): Result.Result<ModerationTypes.ModerationResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactModeration(e, doRedact));
+            };
+        };
+    };
+
+    func _transformModerationResponses(
+        res: Result.Result<[ModerationTypes.Moderation], Text>,
+        doRedact: Bool
+    ): Result.Result<[ModerationTypes.ModerationResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(
+                    entities, 
+                    func(e: ModerationTypes.Moderation): ModerationTypes.ModerationResponse = 
+                        _redactModeration(e, doRedact)
+                ));
+            };
+        };
+    };
+
+    //
+    // challenges facade
+    //
+    public shared(msg) func challengeCreate(
+        req: ChallengeTypes.ChallengeRequest
+    ): async Result.Result<ChallengeTypes.Challenge, Text> {
+        await challengeService.create(req, msg.caller, this);
+    };
+
+    public shared(msg) func challengeUpdate(
+        pubId: Text,
+        req: ChallengeTypes.ChallengeRequest
+    ): async Result.Result<ChallengeTypes.Challenge, Text> {
+        challengeService.update(pubId, req, msg.caller);
+    };
+
+    public shared(msg) func challengeVote(
+        pubId: Text,
+        req: ChallengeTypes.ChallengeVoteRequest
+    ): async Result.Result<ChallengeTypes.Challenge, Text> {
+        await challengeService.vote(pubId, req, msg.caller, this);
+    };
+
+    public shared query(msg) func challengeFindById(
+        _id: Nat32
+    ): async Result.Result<ChallengeTypes.Challenge, Text> {
+        challengeService.findById(_id, msg.caller);
+    };
+
+    public shared query(msg) func challengeFindByPubId(
+        pubId: Text
+    ): async Result.Result<ChallengeTypes.Challenge, Text> {
+        challengeService.findByPubId(pubId, msg.caller);
+    };
+
+    public shared query(msg) func challengeFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ChallengeTypes.Challenge], Text> {
+        challengeService.findByUser(sortBy, limit, msg.caller);
+    };
+    
+    public shared query(msg) func challengeFindByJudge(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[ChallengeTypes.Challenge], Text> {
+        challengeService.findByJudge(sortBy, limit, msg.caller);
+    };
+
+    public shared query(msg) func challengeGetModeration(
+        _id: Nat32
+    ): async Result.Result<ModerationTypes.Moderation, Text> {
+        challengeService.getModeration(_id, msg.caller);
     };
 
     //
@@ -1282,6 +1427,7 @@ shared({caller = owner}) actor class Metamob(
     stable var daoEntities: DaoTypes.BackupEntity = {
         config = [];
         staked = [];
+        deposited = [];
     };
     stable var userEntities: [[(Text, Variant.Variant)]] = [];
     stable var categoryEntities: [[(Text, Variant.Variant)]] = [];
@@ -1293,6 +1439,7 @@ shared({caller = owner}) actor class Metamob(
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var moderationEntities: [[(Text, Variant.Variant)]] = [];
+    stable var challengeEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
@@ -1309,6 +1456,7 @@ shared({caller = owner}) actor class Metamob(
         updateEntities := updateService.backup();
         reportEntities := reportService.backup();
         moderationEntities := moderationService.backup();
+        challengeEntities := challengeService.backup();
         placeEntities := placeService.backup();
         placeEmailEntities := placeEmailService.backup();
         placeUserEntities := placeUserService.backup();
@@ -1319,6 +1467,7 @@ shared({caller = owner}) actor class Metamob(
         daoEntities := {
             config = [];
             staked = [];
+            deposited = [];
         };
         
         userService.restore(userEntities);
@@ -1350,6 +1499,9 @@ shared({caller = owner}) actor class Metamob(
 
         moderationService.restore(moderationEntities);
         moderationEntities := [];
+
+        challengeService.restore(challengeEntities);
+        challengeEntities := [];
         
         placeService.restore(placeEntities);
         placeEntities := [];

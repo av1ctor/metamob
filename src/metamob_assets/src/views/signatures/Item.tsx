@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import {Campaign, ProfileResponse, SignatureResponse} from "../../../../declarations/metamob/metamob.did";
 import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
@@ -17,6 +17,12 @@ interface BaseItemProps {
 
 export const BaseItem = (props: BaseItemProps) => {
     const signature = props.signature;
+
+    const handleShowModerations = useCallback(() => {
+        if(props.onShowModerations) {
+            props.onShowModerations(props.signature);
+        }
+    }, [props.signature, props.onShowModerations]);
 
     return (
         <article className="media">
@@ -37,7 +43,7 @@ export const BaseItem = (props: BaseItemProps) => {
                     <div>
                         <ModerationBadge
                             reason={signature.moderated}
-                            onShowModerations={() => props.onShowModerations && props.onShowModerations(signature)} 
+                            onShowModerations={handleShowModerations} 
                         />
                     </div>
                     <Markdown 
@@ -52,12 +58,12 @@ export const BaseItem = (props: BaseItemProps) => {
 };
 
 interface ItemProps {
-    campaign: Campaign;
+    campaign?: Campaign;
     signature: SignatureResponse;
     onEdit: (signature: SignatureResponse) => void;
     onDelete: (signature: SignatureResponse) => void;
     onReport: (signature: SignatureResponse) => void;
-    onShowModerations: (signature: SignatureResponse) => void;
+    onShowModerations?: (signature: SignatureResponse) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -65,18 +71,18 @@ export const Item = (props: ItemProps) => {
     
     const {signature} = props;
 
-    const author = signature.createdBy && signature.createdBy.length > 0?
+    const creatorData = useFindUserById(signature.createdBy);
+
+    const creator = signature.createdBy && signature.createdBy.length > 0?
         signature.createdBy[0] || 0:
         0;
 
-    const user = useFindUserById(author);
-
-    const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0));
+    const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === creator && creator !== 0));
 
     return (
         <BaseItem
-            user={user.data}
+            user={creatorData.data}
             signature={signature}
             onShowModerations={props.onShowModerations}
         >

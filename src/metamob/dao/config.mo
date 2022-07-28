@@ -25,6 +25,12 @@ module {
         ): Nat64 {
             Variant.getOptNat64(vars.get(key));
         };
+
+        public func getAsInt(
+            key: Text
+        ): Int {
+            Variant.getOptInt(vars.get(key));
+        };
         
         public func set(
             key: Text,

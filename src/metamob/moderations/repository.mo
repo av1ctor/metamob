@@ -1,5 +1,6 @@
 import Array "mo:base/Array";
 import Bool "mo:base/Bool";
+import ChallengeResult "../challenges/types";
 import ChallengeTypes "../challenges/types";
 import EntityTypes "../common/entities";
 import FilterUtils "../common/filters";
@@ -31,9 +32,10 @@ module {
         public func create(
             req: Types.ModerationRequest,
             report: ReportTypes.Report,
+            original: [Variant.MapEntry],
             callerId: Nat32
         ): Result.Result<Types.Moderation, Text> {
-            let e = _createEntity(req, report, callerId);
+            let e = _createEntity(req, report, original, callerId);
             switch(moderations.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -62,10 +64,25 @@ module {
 
         public func challenge(
             moderation: Types.Moderation, 
-            challenge: ChallengeTypes.Challenge,
+            challengeId: Nat32,
             callerId: Nat32
         ): Result.Result<Types.Moderation, Text> {
-            let e = _updateEntityWhenChallenged(moderation, challenge, callerId);
+            let e = _updateEntityWhenChallenged(moderation, challengeId, callerId);
+            switch(moderations.replace(moderation._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func closeChallenge(
+            moderation: Types.Moderation, 
+            result: ChallengeTypes.ChallengeResult
+        ): Result.Result<Types.Moderation, Text> {
+            let e = _updateEntityWhenChallengeClosed(moderation, result);
             switch(moderations.replace(moderation._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -192,6 +209,7 @@ module {
         func _createEntity(
             req: Types.ModerationRequest,
             report: ReportTypes.Report,
+            original: [Variant.MapEntry],
             callerId: Nat32
         ): Types.Moderation {
             {
@@ -205,6 +223,7 @@ module {
                 entityType = report.entityType;
                 entityId = report.entityId;
                 entityPubId = report.entityPubId;
+                entityOrg = original;
                 challengeId = null;
                 createdAt = Time.now();
                 createdBy = callerId;
@@ -229,6 +248,7 @@ module {
                 entityType = e.entityType;
                 entityId = e.entityId;
                 entityPubId = e.entityPubId;
+                entityOrg = e.entityOrg;
                 challengeId = e.challengeId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
@@ -239,13 +259,13 @@ module {
 
         func _updateEntityWhenChallenged(
             e: Types.Moderation, 
-            challenge: ChallengeTypes.Challenge,
+            challengeId: Nat32,
             callerId: Nat32
         ): Types.Moderation {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                state = e.state;
+                state = Types.STATE_CHALLENGED;
                 reason = e.reason;
                 action = e.action;
                 body = e.body;
@@ -253,7 +273,32 @@ module {
                 entityType = e.entityType;
                 entityId = e.entityId;
                 entityPubId = e.entityPubId;
-                challengeId = ?challenge._id;
+                entityOrg = e.entityOrg;
+                challengeId = ?challengeId;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
+
+        func _updateEntityWhenChallengeClosed(
+            e: Types.Moderation, 
+            result: ChallengeTypes.ChallengeResult
+        ): Types.Moderation {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = if(result == ChallengeResult.RESULT_ACCEPTED) Types.STATE_REVERTED else Types.STATE_CONFIRMED;
+                reason = e.reason;
+                action = e.action;
+                body = e.body;
+                reportId = e._id;
+                entityType = e.entityType;
+                entityId = e.entityId;
+                entityPubId = e.entityPubId;
+                entityOrg = e.entityOrg;
+                challengeId = e.challengeId;
                 createdAt = e.createdAt;
                 createdBy = e.createdBy;
                 updatedAt = e.updatedAt;
@@ -279,6 +324,7 @@ module {
         res.put("entityId", #nat32(e.entityId));
         res.put("entityPubId", #text(e.entityPubId));
         res.put("challengeId", switch(e.challengeId) {case null #nil; case (?challengeId) #nat32(challengeId);});
+        res.put("entityOrg", #map(e.entityOrg));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
@@ -301,6 +347,7 @@ module {
             entityType = Variant.getOptNat32(map.get("entityType"));
             entityId = Variant.getOptNat32(map.get("entityId"));
             entityPubId = Variant.getOptText(map.get("entityPubId"));
+            entityOrg = Variant.getOptMap(map.get("entityOrg"));
             challengeId = Variant.getOptNat32Opt(map.get("challengeId"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

@@ -45,6 +45,10 @@ module {
                 options = [];
             },
             {
+                name = "entityOrg";
+                options = [];
+            },
+            {
                 name = "challengeId";
                 options = [#nullable];
             },

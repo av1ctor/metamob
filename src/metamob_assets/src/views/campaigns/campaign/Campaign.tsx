@@ -47,7 +47,7 @@ const Campaign = (props: Props) => {
         moderations: false
     });
     
-    const data = useFindCampaignByPubId(id);
+    const campaignReq = useFindCampaignByPubId(id);
 
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
@@ -78,14 +78,14 @@ const Campaign = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(data.status === "loading");
-        if(data.status === "error") {
-            props.onError(data.error.message);
+        props.toggleLoading(campaignReq.status === "loading");
+        if(campaignReq.status === "error") {
+            props.onError(campaignReq.error.message);
         }
-    }, [data.status]);
+    }, [campaignReq.status]);
 
-    const campaign = data.status === 'success' && data.data?
-        data.data:
+    const campaign = campaignReq.status === 'success' && campaignReq.data?
+        campaignReq.data:
         undefined;
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
@@ -368,6 +368,9 @@ const Campaign = (props: Props) => {
                         entityId={campaign._id}
                         moderated={campaign.moderated}
                         onClose={toggleModerations}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
                     />
                 </>
             }

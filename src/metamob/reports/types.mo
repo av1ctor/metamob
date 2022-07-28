@@ -68,6 +68,7 @@ module {
         kind: ReportKind;
         description: Text;
         resolution: Text;
+        moderationId: ?Nat32;
         createdAt: Int;
         createdBy: ?Nat32;
         updatedAt: ?Int;

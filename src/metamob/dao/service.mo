@@ -17,13 +17,18 @@ module {
     ) {
         public let config = Config.Config();
         public let mmt = actor (mmtCanisterId) : DIP20.Interface;
-        let staked = HashMap.HashMap<Principal, Nat>(100, Principal.equal, Principal.hash);
+        let staked = HashMap.HashMap<Principal, Nat>(1000, Principal.equal, Principal.hash);
+        let deposited = HashMap.HashMap<Principal, Nat>(1000, Principal.equal, Principal.hash);
         
         // default values
-        config.set("REPORTER_REWARD", #nat64(100000000)); // 1 MMT
-        config.set("MODERATOR_MIN_STAKE", #nat64(100000000000)); // 1000 MMT
-        config.set("MODERATOR_REWARD", #nat64(1000000000)); // 10 MMT
-        config.set("CHALLENGE_MAX_JUDGES", #nat32(3));
+        config.set("REPORTER_REWARD",               #nat64(   100000000)); // 1 MMT
+        config.set("MODERATOR_MIN_STAKE",           #nat64(100000000000)); // 1000 MMT
+        config.set("MODERATOR_REWARD",              #nat64(  1000000000)); // 10 MMT
+        config.set("MODERATOR_PUNISHMENT",          #nat64( 10000000000)); // 100 MMT
+        config.set("CHALLENGER_DEPOSIT",            #nat64( 10000000000)); // 100 MMT
+        config.set("CHALLENGE_MAX_JUDGES",          #nat32(3));
+        config.set("CHALLENGE_JUDGE_PUNISHMENT",    #nat64( 10000000000)); // 100 MMT
+        config.set("CHALLENGE_VOTING_SPAN",         #int(30*24*60*60*1000*1000*1000)); // 30 days in nanoseconds
 
         public func configSet(
             key: Text,
@@ -51,6 +56,12 @@ module {
             key: Text
         ): Nat64 {
             config.getAsNat64(key);
+        };
+
+        public func configGetAsInt(
+            key: Text
+        ): Int {
+            config.getAsInt(key);
         };
 
         public func rewardUser(
@@ -123,7 +134,7 @@ module {
             };
         };
 
-        public func withdraw(
+        public func unstake(
             value: Nat,
             invoker: Principal,
             this: actor {}
@@ -157,15 +168,139 @@ module {
                 #ok();
             }
             catch(e) {
-                D.print("Error: daoService.withdraw(" # debug_show(invoker) # "):" # Error.message(e));
+                D.print("Error: daoService.unstake(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
+        };
+
+        public func punishStaker(
+            principal: Principal,
+            value: Nat
+        ): Result.Result<(), Text> {
+            let cur = switch(staked.get(principal)) {
+                case null 0;
+                case (?value) value;
+            };
+
+            if(cur < value) {
+                return #err("Insufficient staked balance");
+            };
+
+            staked.put(principal, cur - value);
+
+            #ok();
         };
 
         public func stakedBalanceOf(
             invoker: Principal
         ): Nat {
             switch(staked.get(invoker)) {
+                case null 0;
+                case (?value) value;
+            };
+        };
+
+        public func deposit(
+            value: Nat,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            try {
+                let fee = await mmt.getTokenFee();
+                if(value <= fee) {
+                    return #err("Value too low");
+                };
+            
+                let allowed = await mmt.allowance(invoker, Principal.fromActor(this));
+                
+                if(allowed < value + fee) {
+                    return #err("Insufficient allowance");
+                };
+
+                let cur = switch(deposited.get(invoker)) {
+                    case null 0;
+                    case (?value) value;
+                };
+                
+                switch(await mmt.transferFrom(invoker, Principal.fromActor(this), value)) {
+                    case (#Err(msg)) {
+                        return #err(debug_show(msg));
+                    };
+                    case _ {
+                    };
+                };
+
+                deposited.put(invoker, cur + value);
+
+                #ok();
+            }
+            catch(e) {
+                D.print("Error: daoService.deposit(" # debug_show(invoker) # "):" # Error.message(e));
+                #err(Error.message(e));
+            };
+        };
+
+        public func reimburse(
+            value: Nat,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            try {
+                let fee = await mmt.getTokenFee();
+                if(value == 0) {
+                    return #err("Value too low");
+                };
+
+                let cur = switch(deposited.get(invoker)) {
+                    case null 0;
+                    case (?value) value;
+                };
+
+                if(cur < value) {
+                    return #err("Insufficient deposited balance");
+                };
+
+                deposited.put(invoker, cur - value);
+
+                switch(await mmt.transfer(invoker, value)) {
+                    case (#Err(msg)) {
+                        deposited.put(invoker, cur);
+                        return #err(debug_show(msg));
+                    };
+                    case _ {
+                    };
+                };
+
+                #ok();
+            }
+            catch(e) {
+                D.print("Error: daoService.reimburse(" # debug_show(invoker) # "):" # Error.message(e));
+                #err(Error.message(e));
+            };
+        };
+
+        public func punishDepositor(
+            principal: Principal,
+            value: Nat
+        ): Result.Result<(), Text> {
+            let cur = switch(deposited.get(principal)) {
+                case null 0;
+                case (?value) value;
+            };
+
+            if(cur < value) {
+                return #err("Insufficient deposited balance");
+            };
+
+            deposited.put(principal, cur - value);
+
+            #ok();
+        };
+
+        public func depositedBalanceOf(
+            invoker: Principal
+        ): Nat {
+            switch(deposited.get(invoker)) {
                 case null 0;
                 case (?value) value;
             };
@@ -178,14 +313,20 @@ module {
                 conf.add(entry);
             };
 
-            let stkd = Buffer.Buffer<(Principal, Nat)>(staked.size());
+            let _staked = Buffer.Buffer<(Principal, Nat)>(staked.size());
             for(entry in staked.entries()) {
-                stkd.add(entry);
+                _staked.add(entry);
+            };
+
+            let _deposited = Buffer.Buffer<(Principal, Nat)>(deposited.size());
+            for(entry in deposited.entries()) {
+                _deposited.add(entry);
             };
             
             {
                 config = conf.toArray();
-                staked = stkd.toArray();
+                staked = _staked.toArray();
+                deposited = _deposited.toArray();
             };
         };
 
@@ -197,6 +338,9 @@ module {
             };
             for(entry in e.staked.vals()) {
                 staked.put(entry.0, entry.1);
+            };
+            for(entry in e.deposited.vals()) {
+                deposited.put(entry.0, entry.1);
             };
         };
     };

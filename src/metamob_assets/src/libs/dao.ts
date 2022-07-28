@@ -33,7 +33,7 @@ export const stake = async (
     return;
 };
 
-export const withdraw = async (
+export const unstake = async (
     value: bigint,
     main?: Metamob
 ): Promise<undefined> => {
@@ -41,7 +41,7 @@ export const withdraw = async (
         return;
     }
 
-    const res = await main.daoWithdraw(value);
+    const res = await main.daoUnStake(value);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -49,3 +49,12 @@ export const withdraw = async (
     return;
 };
 
+export const getDepositedBalance = async (
+    main?: Metamob
+): Promise<bigint> => {
+    if(!main) {
+        return BigInt(0);
+    }
+
+    return await main.daoDepositedBalance();
+};

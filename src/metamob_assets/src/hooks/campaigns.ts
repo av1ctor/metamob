@@ -4,7 +4,7 @@ import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../li
 import {Filter, Limit, Order} from "../libs/common";
 
 export const useFindCampaignById = (
-    _id: number
+    _id?: number
 ): UseQueryResult<Campaign, Error> => {
     return useQuery<Campaign, Error>(
         ['campaigns', _id], 

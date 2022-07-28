@@ -1,11 +1,10 @@
-import React, { useContext } from "react";
-import { useFindUpdateById } from "../../../hooks/updates";
-import { ActorContext } from "../../../stores/actor";
+import React from "react";
+import { Update } from "../../../../../declarations/metamob/metamob.did";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import Avatar from "../../users/Avatar";
 
 interface Props {
-    id: number;
+    update: Update;
     partial?: boolean;
 }
 
@@ -16,55 +15,50 @@ const limitText = (text: string, chars: number): string => {
 }
 
 export const Preview = (props: Props) => {
-    const [actorState, ] = useContext(ActorContext);
-    
-    const update = useFindUpdateById(props.id, actorState.main);
+    const {update} = props;
 
     return (
         <div className="mb-2">
-            {update.data?
-                props.partial?
-                    <div>
-                        <b>Update at campaign</b>:&nbsp;
-                        <CampaignLink id={update.data.campaignId} />
-                    </div>
-                :
-                    <div className="field">
-                        <label className="label">
-                            Update
-                        </label>
-                        <div className="control preview-box">
-                            <div>
-                                <label className="label">
-                                    Id
-                                </label>
-                                {update.data.pubId}
-                            </div>
-                            <div>
-                                <label className="label">
-                                    Message
-                                </label>
-                                {limitText(update.data.body, 60)}
-                            </div>
-                            <div>
-                                <label className="label mb-0 pb-0">
-                                    Author
-                                </label>
-                                <Avatar 
-                                    id={update.data.createdBy} 
-                                    size='lg'
-                                />
-                            </div>
-                            <div>
-                                <label className="label mb-0 pb-0">
-                                    Campaign
-                                </label>
-                                <CampaignLink id={update.data.campaignId} />
-                            </div>
+            {props.partial?
+                <div>
+                    <b>Update at campaign</b>:&nbsp;
+                    <CampaignLink id={update.campaignId} />
+                </div>
+            :
+                <div className="field">
+                    <label className="label">
+                        Update
+                    </label>
+                    <div className="control preview-box">
+                        <div>
+                            <label className="label">
+                                Id
+                            </label>
+                            {update.pubId}
+                        </div>
+                        <div>
+                            <label className="label">
+                                Message
+                            </label>
+                            {limitText(update.body, 60)}
+                        </div>
+                        <div>
+                            <label className="label mb-0 pb-0">
+                                Author
+                            </label>
+                            <Avatar 
+                                id={update.createdBy} 
+                                size='lg'
+                            />
+                        </div>
+                        <div>
+                            <label className="label mb-0 pb-0">
+                                Campaign
+                            </label>
+                            <CampaignLink id={update.campaignId} />
                         </div>
                     </div>
-            :
-                null
+                </div>
             }
         </div>
     );

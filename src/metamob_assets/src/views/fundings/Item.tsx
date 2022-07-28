@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {Campaign, ProfileResponse, FundingResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
@@ -29,6 +29,12 @@ export const BaseItem = (props: BaseItemProps) => {
             setCampaign(campaign);
         }
     }
+
+    const handleShowModerations = useCallback(() => {
+        if(props.onShowModerations) {
+            props.onShowModerations(props.funding);
+        }
+    }, [props.funding, props.onShowModerations]);
 
     useEffect(() => {
         loadCampaign();
@@ -77,7 +83,7 @@ export const BaseItem = (props: BaseItemProps) => {
                     <div>
                         <ModerationBadge
                             reason={funding.moderated}
-                            onShowModerations={() => props.onShowModerations && props.onShowModerations(funding)} 
+                            onShowModerations={handleShowModerations} 
                         />
                     </div>
                     <Markdown
@@ -92,7 +98,7 @@ export const BaseItem = (props: BaseItemProps) => {
 };
 
 interface ItemProps {
-    campaign: Campaign;
+    campaign?: Campaign;
     funding: FundingResponse;
     onEdit: (funding: FundingResponse) => void;
     onDelete: (funding: FundingResponse) => void;
@@ -105,18 +111,18 @@ export const Item = (props: ItemProps) => {
     
     const {funding} = props;
 
-    const author = funding.createdBy && funding.createdBy.length > 0?
+    const creatorReq = useFindUserById(funding.createdBy);
+
+    const creator = funding.createdBy && funding.createdBy.length > 0?
         funding.createdBy[0] || 0:
         0;
 
-    const user = useFindUserById(author);
-
-    const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === author && author !== 0));
+    const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
+        auth.user && (auth.user._id === creator && creator !== 0));
 
     return (
         <BaseItem
-            user={user.data}
+            user={creatorReq.data}
             campaign={props.campaign}
             funding={funding}
             onShowModerations={props.onShowModerations}

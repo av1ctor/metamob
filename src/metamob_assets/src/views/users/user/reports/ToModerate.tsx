@@ -6,7 +6,7 @@ import { useFindReportsAssigned } from "../../../../hooks/reports";
 import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
-import ViewForm from "../../../reports/report/View";
+import ModerateForm from "../../../reports/report/Moderate";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
 import EntityModerate from "../../../reports/report/EntityModerate";
@@ -147,7 +147,7 @@ const ToModerate = (props: Props) => {
                 onClose={toggleEdit}
             >
                 {report && 
-                    <ViewForm
+                    <ModerateForm
                         report={report} 
                         onModerate={handleModerate}
                         onClose={toggleEdit}

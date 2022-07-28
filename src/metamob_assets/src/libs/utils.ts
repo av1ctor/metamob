@@ -1,3 +1,4 @@
+import { Variant } from "../../../declarations/metamob/metamob.did";
 
 export const setField = (
     obj: any, 
@@ -46,8 +47,73 @@ export const copyToClipboard = (
     }
 }
 
-export const limitText = (text: string, max: number): string => {
+export const limitText = (
+    text: string, 
+    max: number
+): string => {
     return text.length <= max?
         text:
         text.substr(0, max) + '...';
+};
+
+export const variantUnbox = (
+    value: Variant
+): any => {
+    if(!value) {
+        return undefined;
+    }
+    else if('nil' in value) {
+        return null;
+    }
+    else if('text' in value) {
+        return value.text;
+    }
+    else if('array' in value) {
+        return value.array.map(i => variantUnbox(i));
+    }
+    else if('map' in value) {
+        return value.map.reduce((obj, entry) => {
+            obj[entry.key] = variantUnbox(entry.value)
+            return obj;
+        }, {} as any);
+    }
+    else if('float' in value) {
+        return value.float;
+    }
+    else if('bool' in value) {
+        return value.bool;
+    }
+    else if('int' in value) {
+        return value.int;
+    }
+    else if('nat' in value) {
+        return value.nat;
+    }
+    else if('int8' in value) {
+        return value.int8;
+    }
+    else if('nat8' in value) {
+        return value.nat8;
+    }
+    else if('int16' in value) {
+        return value.int16;
+    }
+    else if('nat16' in value) {
+        return value.nat16;
+    }
+    else if('int32' in value) {
+        return value.int32;
+    }
+    else if('nat32' in value) {
+        return value.nat32;
+    }
+    else if('int64' in value) {
+        return value.int64;
+    }
+    else if('nat64' in value) {
+        return value.nat64;
+    }
+    else if('blob' in value) {
+        return value.blob;
+    }
 };

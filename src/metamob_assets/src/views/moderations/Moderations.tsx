@@ -1,22 +1,31 @@
-import React, { useCallback, useContext } from "react";
-import { EntityType } from "../../../../declarations/metamob/metamob.did";
+import React, { useCallback, useContext, useState } from "react";
+import { EntityType, ModerationResponse } from "../../../../declarations/metamob/metamob.did";
 import Button from "../../components/Button";
+import Modal from "../../components/Modal";
 import { useFindModerationsByEntity } from "../../hooks/moderations";
 import { ActorContext } from "../../stores/actor";
+import CreateForm from "../challenges/challenge/Create";
 import Item from "./Item";
 
 interface Props {
     entityType: EntityType;
     entityId: number;
     onClose: () => void;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const orderBy = [{key: '_id', dir: 'desc'}];
 const limit = {offset: 0, size: 5};
 
 const Moderations = (props: Props) => {
-
     const [actorState, ] = useContext(ActorContext);
+
+    const [modals, setModals] = useState({
+        challenge: false,
+    });
+    const [moderation, setModeration] = useState<ModerationResponse>();
     
     const moderations = useFindModerationsByEntity(
         props.entityType, 
@@ -25,6 +34,18 @@ const Moderations = (props: Props) => {
         limit,
         actorState.main
     );
+
+    const toggleChallenge = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            challenge: !modals.challenge
+        }));
+    }, []);
+
+    const handleChallenge = useCallback((moderation: ModerationResponse) => {
+        setModeration(moderation);
+        toggleChallenge();
+    }, []);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -40,6 +61,7 @@ const Moderations = (props: Props) => {
                         <Item
                             key={mod._id}
                             moderation={mod}
+                            onChallenge={handleChallenge}
                         />
                     )
                 }
@@ -52,6 +74,22 @@ const Moderations = (props: Props) => {
                     Cancel
                 </Button>
             </div>
+
+            {moderation &&
+                <Modal
+                    header={<span>Challenge moderation</span>}
+                    isOpen={modals.challenge}
+                    onClose={toggleChallenge}
+                >
+                        <CreateForm
+                            moderationId={moderation._id}
+                            onClose={toggleChallenge}
+                            onSuccess={props.onSuccess}
+                            onError={props.onError}
+                            toggleLoading={props.toggleLoading}
+                        />
+                </Modal> 
+            }
         </>
     )
 };

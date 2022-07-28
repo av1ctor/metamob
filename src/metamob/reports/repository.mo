@@ -165,42 +165,6 @@ module {
             );
         };
 
-        public func findByCampaign(
-            campaignId: Nat32,
-            sortBy: ?[(Text, Text)],
-            limit: ?(Nat, Nat)
-        ): Result.Result<[Types.Report], Text> {
-
-            let criterias = ?[
-                {       
-                    key = "campaignId";
-                    op = #eq;
-                    value = #nat32(campaignId);
-                }
-            ];
-            
-            return reports.find(
-                criterias, 
-                FilterUtils.toSortBy<Types.Report>(sortBy, _comparer), 
-                FilterUtils.toLimit(limit)
-            );
-        };
-
-        public func countByCampaign(
-            campaignId: Nat32
-        ): Result.Result<Nat, Text> {
-
-            let criterias = ?[
-                {       
-                    key = "campaignId";
-                    op = #eq;
-                    value = #nat32(campaignId);
-                }
-            ];
-            
-            return reports.count(criterias);
-        };
-
         public func findByUser(
             userId: Nat32,
             sortBy: ?[(Text, Text)],

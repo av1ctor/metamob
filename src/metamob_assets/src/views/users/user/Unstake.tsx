@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
-import { useWithdraw } from "../../../hooks/users";
+import { useUnstake } from "../../../hooks/users";
 import { getStakedBalance } from "../../../libs/dao";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { getMmtBalance } from "../../../libs/mmt";
@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
     value: yup.string().required()
 });
 
-const WithdrawForm = (props: Props) => {
+const UnstakeForm = (props: Props) => {
     const [actorState, ] = useContext(ActorContext);
     const [authState, ] = useContext(AuthContext);
     
@@ -29,7 +29,7 @@ const WithdrawForm = (props: Props) => {
         value: "0.0",
     });
 
-    const withdrawMut = useWithdraw();
+    const unstakeMut = useUnstake();
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -72,7 +72,7 @@ const WithdrawForm = (props: Props) => {
                 throw Error("Value too high");
             }
 
-            await withdrawMut.mutateAsync({
+            await unstakeMut.mutateAsync({
                 main: actorState.main,
                 value: value
             });
@@ -109,7 +109,7 @@ const WithdrawForm = (props: Props) => {
             />
             <TextField
                 name="value"
-                label="Value to withdraw"
+                label="Value to unstake"
                 value={form.value}
                 onChange={changeForm}
             />
@@ -118,7 +118,7 @@ const WithdrawForm = (props: Props) => {
                 <div className="control">
                     <Button
                         onClick={handleWithdraw}
-                        disabled={withdrawMut.isLoading}
+                        disabled={unstakeMut.isLoading}
                     >
                         Withdraw
                     </Button>
@@ -136,4 +136,4 @@ const WithdrawForm = (props: Props) => {
     );
 };
 
-export default WithdrawForm;
+export default UnstakeForm;

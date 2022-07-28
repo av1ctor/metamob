@@ -1,4 +1,5 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import Bool "mo:base/Bool";
 import CampaignRepository "../campaigns/repository";
 import Debug "mo:base/Debug";
@@ -65,12 +66,33 @@ module {
         public func moderate(
             signature: Types.Signature, 
             req: Types.SignatureRequest,
-            reason: ModerationTypes.ModerationReason,
+            moderation: ModerationTypes.Moderation,
             callerId: Nat32
         ): Result.Result<Types.Signature, Text> {
-            let e = _updateEntityWhenModerated(signature, req, reason, callerId);
+            let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
+                _updateEntityWhenModeratedAndRedacted(signature, req, moderation.reason, callerId);
+            }
+            else {
+                _updateEntityWhenModeratedAndFlagged(signature, moderation.reason, callerId);
+            };
 
             switch(signatures.replace(signature._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func revertModeration(
+            campaign: Types.Signature,
+            moderation: ModerationTypes.Moderation
+        ): Result.Result<Types.Signature, Text> {
+            let e = deserialize(Variant.mapToHashMap(moderation.entityOrg));
+
+            switch(signatures.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -386,7 +408,7 @@ module {
             }  
         };
 
-        func _updateEntityWhenModerated(
+        func _updateEntityWhenModeratedAndRedacted(
             e: Types.Signature, 
             req: Types.SignatureRequest,
             reason: ModerationTypes.ModerationReason,
@@ -396,7 +418,7 @@ module {
                 _id = e._id;
                 pubId = e.pubId;
                 body = req.body;
-                anonymous = req.anonymous;
+                anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 moderated = e.moderated | reason;
                 createdAt = e.createdAt;
@@ -405,9 +427,28 @@ module {
                 updatedBy = ?callerId;
             }  
         };
+
+        func _updateEntityWhenModeratedAndFlagged(
+            e: Types.Signature, 
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Signature {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                body = e.body;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                moderated = e.moderated | reason;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
     };
 
-    func serialize(
+    public func serialize(
         e: Types.Signature,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {

@@ -10,6 +10,9 @@ interface Props {
     entityId: number;
     isOpen: boolean;
     onClose: () => void;
+    onSuccess: (message: string) => void;
+    onError: (message: any) => void;
+    toggleLoading: (to: boolean) => void;
 }
 
 const ModerationModal = (props: Props) => {
@@ -24,6 +27,9 @@ const ModerationModal = (props: Props) => {
                     entityType={props.entityType}
                     entityId={props.entityId}
                     onClose={props.onClose}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </Modal>

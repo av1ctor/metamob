@@ -1,4 +1,5 @@
 import Array "mo:base/Array";
+import Buffer "mo:base/Buffer";
 import Bool "mo:base/Bool";
 import CampaignRepository "../campaigns/repository";
 import Debug "mo:base/Debug";
@@ -70,12 +71,33 @@ module {
         public func moderate(
             vote: Types.Vote, 
             req: Types.VoteRequest,
-            reason: ModerationTypes.ModerationReason,
+            moderation: ModerationTypes.Moderation,
             callerId: Nat32
         ): Result.Result<Types.Vote, Text> {
-            let e = _updateEntityWhenModerated(vote, req, reason, callerId);
+            let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
+                _updateEntityWhenModeratedAndRedacted(vote, req, moderation.reason, callerId);
+            }
+            else {
+                _updateEntityWhenModeratedAndFlagged(vote, moderation.reason, callerId);
+            };
 
             switch(votes.replace(vote._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func revertModeration(
+            campaign: Types.Vote,
+            moderation: ModerationTypes.Moderation
+        ): Result.Result<Types.Vote, Text> {
+            let e = deserialize(Variant.mapToHashMap(moderation.entityOrg));
+
+            switch(votes.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -397,7 +419,7 @@ module {
             }  
         };
 
-        func _updateEntityWhenModerated(
+        func _updateEntityWhenModeratedAndRedacted(
             e: Types.Vote, 
             req: Types.VoteRequest,
             reason: ModerationTypes.ModerationReason,
@@ -406,10 +428,10 @@ module {
             {
                 _id = e._id;
                 pubId = e.pubId;
-                anonymous = req.anonymous;
+                anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = req.body;
-                pro = req.pro;
+                pro = e.pro;
                 weight = e.weight;
                 moderated = e.moderated | reason;
                 createdAt = e.createdAt;
@@ -418,9 +440,30 @@ module {
                 updatedBy = ?callerId;
             }  
         };
+
+        func _updateEntityWhenModeratedAndFlagged(
+            e: Types.Vote, 
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Vote {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                body = e.body;
+                pro = e.pro;
+                weight = e.weight;
+                moderated = e.moderated | reason;
+                createdAt = e.createdAt;
+                createdBy = e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            }  
+        };
     };
 
-    func serialize(
+    public func serialize(
         e: Types.Vote,
         ignoreCase: Bool
     ): HashMap.HashMap<Text, Variant.Variant> {

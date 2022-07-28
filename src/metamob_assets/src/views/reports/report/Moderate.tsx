@@ -32,7 +32,7 @@ const results: Option[] = [
     {name: 'Ignored', value: ReportResult.IGNORED},
 ];
 
-const ViewForm = (props: Props) => {
+const ModerateForm = (props: Props) => {
     const [actorContext, ] = useContext(ActorContext);
     
     const [form, setForm] = useState<ReportCloseRequest>({
@@ -181,4 +181,4 @@ const ViewForm = (props: Props) => {
     );
 };
 
-export default ViewForm;
+export default ModerateForm;

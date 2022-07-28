@@ -156,6 +156,9 @@ const Signatures = (props: Props) => {
                     entityId={signature._id}
                     moderated={signature.moderated}
                     onClose={toggleModerations}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </>

@@ -1,14 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import Badge from "../../../components/Badge";
 import { ModerationReason, moderationReasonToColor, moderationReasonToText, moderationReasonToTitle } from "../../../libs/moderations";
+import { AuthContext } from "../../../stores/auth";
 
 interface Props {
     reason: ModerationReason;
     isLarge?: boolean;
-    onShowModerations: () => void;
+    onShowModerations?: () => void;
 }
 
 const ModBadge = (props: Props) => {
+    const [auth] = useContext(AuthContext);
 
     const desc = useMemo((): {texts: string[], titles: string[]} => {
         const res: {texts: string[], titles: string[]} = {texts: [], titles: []};
@@ -21,6 +23,20 @@ const ModBadge = (props: Props) => {
         }
         return res;
     }, [props.reason]);
+
+    const title = useMemo(() => {
+        return desc.titles.join('/');
+    }, [desc.titles]);
+
+    const text = useMemo(() => {
+        return desc.texts.join('/');
+    }, [desc.texts]);
+
+    const handleShowModerations = useCallback(() => {
+        if(auth.user && props.onShowModerations) {
+            props.onShowModerations();
+        }
+    }, [auth.user, props.onShowModerations]);
 
     if(props.reason === ModerationReason.NONE) {
         return null;
@@ -35,10 +51,10 @@ const ModBadge = (props: Props) => {
         >
             <span 
                 className="has-tooltip-arrow" 
-                data-tooltip={desc.titles.join('/')}
-                onClick={props.onShowModerations}
+                data-tooltip={title}
+                onClick={handleShowModerations}
             >
-                {desc.texts.join('/')}
+                {text}
             </span>
         </Badge>
     );

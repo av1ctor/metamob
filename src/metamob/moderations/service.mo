@@ -1,4 +1,5 @@
 import Buffer "mo:base/Buffer";
+import HashMap "mo:base/HashMap";
 import ChallengeTypes "../challenges/types";
 import D "mo:base/Debug";
 import DaoService "../dao/service";
@@ -7,7 +8,6 @@ import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import Random "../common/random";
 import ReportRepository "../reports/repository";
 import ReportTypes "../reports/types";
 import Repository "./repository";
@@ -27,11 +27,10 @@ module {
     ) {
         let repo = Repository.Repository();
 
-        let random = Random.Xoshiro256ss(Utils.genRandomSeed("judges"));
-
         public func create(
             req: Types.ModerationRequest,
             report: ReportTypes.Report,
+            original: [Variant.MapEntry],
             caller: UserTypes.Profile
         ): Result.Result<Types.Moderation, Text> {
             if(report.state != ReportTypes.STATE_ASSIGNED) {
@@ -53,7 +52,7 @@ module {
                 return #err("Invalid action");
             };
 
-            switch(repo.create(req, report, caller._id)) {
+            switch(repo.create(req, report, original, caller._id)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -63,73 +62,6 @@ module {
                 };
             };
         };
-
-        private func _chooseJudges(
-            reporterId: Nat32,
-            reportedId: Nat32,
-            moderatorId: Nat32
-        ): [Nat32] {
-            switch(userRepo.findByRole(#moderator)) {
-                case (#err(_)) {
-                    return [1]; // admin
-                };
-                case (#ok(moderators)) {
-                    if(moderators.size() == 0) {
-                        return [1]; // admin;
-                    }
-                    else {
-                        let maxJudges = Nat32.toNat(daoService.configGetAsNat32("CHALLENGE_MAX_JUDGES"));
-                        let numJudges = if(moderators.size() < maxJudges) moderators.size() else maxJudges;
-                        let judges = Buffer.Buffer<Nat32>(numJudges);
-                        var attempts = 0;
-                        while(judges.size() < numJudges and attempts < moderators.size()) {
-                            let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
-                            let _id = moderators[index]._id;
-                            // judge cannot be the reporter or the reported user or the moderator
-                            if(_id != reporterId and _id != reportedId and _id != moderatorId) {
-                                judges.add(_id);
-                            };
-
-                            attempts += 1;
-                        };
-
-                        return judges.toArray();
-                    };
-                };
-            };
-
-            [1]; // admin
-        };
-
-        public func challenge(
-            _id: Nat32, 
-            challenge: ChallengeTypes.Challenge,
-            invoker: Principal
-        ): async Result.Result<Types.Moderation, Text> {
-            switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    if(not UserUtils.isModerator(caller)) {
-                        return #err("Forbidden");
-                    };
-                    
-                    switch(repo.findById(_id)) {
-                        case (#err(msg)) {
-                            #err(msg);
-                        };
-                        case (#ok(e)) {
-                            if(e.state != Types.STATE_CREATED) {
-                                return #err("Invalid state");
-                            };
-
-                            repo.challenge(e, challenge, caller._id);
-                        };
-                    };
-                };
-            };
-        };        
 
         public func findById(
             id: Text,

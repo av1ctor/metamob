@@ -145,6 +145,9 @@ const PublicProfile = (props: Props) => {
                 entityId={profile._id}
                 moderated={profile.moderated}
                 onClose={toggleModerations}
+                onSuccess={props.onSuccess}
+                onError={props.onError}
+                toggleLoading={props.toggleLoading}
             />
         </>
     )

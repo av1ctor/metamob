@@ -504,3 +504,21 @@ a:not(:first-child) {
     border-radius: 6px;
     padding: 4px;
 }
+
+.report-item {
+    article {
+        .media-content {
+            display: flex;
+            height: 14rem;
+            flex-direction: column;
+
+            .content {
+                flex: 1 0 90%;
+            }
+
+            .controls {
+                flex: 1 0 10%;
+            }
+        }
+    }
+}

@@ -156,6 +156,9 @@ const Votes = (props: Props) => {
                     entityId={vote._id}
                     moderated={vote.moderated}
                     onClose={toggleModerations}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
                 />
             }
         </>
