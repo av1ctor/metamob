@@ -76,6 +76,16 @@ module {
                             if(moderation.state != ModerationTypes.STATE_CREATED) {
                                 return #err("Invalid moderation state");
                             };
+
+                            switch(repo.findByEntityAndState(moderation.entityId, moderation.entityType, Types.STATE_VOTING, null, null)) {
+                                case (#ok(challenges)) {
+                                    if(challenges.size() > 0) {
+                                        return #err("Another challenge is open for this entity. Wait until it is closed");
+                                    };
+                                };
+                                case _ {
+                                };
+                            };
                             
                             switch(reportRepo.findById(moderation.reportId)) {
                                 case (#err(_)) {
@@ -98,7 +108,7 @@ module {
 
                                     let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
 
-                                    switch(repo.create(req, judges, dueAt, caller._id)) {
+                                    switch(repo.create(req, moderation.entityId, moderation.entityType, judges, dueAt, caller._id)) {
                                         case (#err(msg)) {
                                             ignore await daoService.reimburse(
                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
@@ -134,16 +144,20 @@ module {
                         let maxJudges = Nat32.toNat(daoService.configGetAsNat32("CHALLENGE_MAX_JUDGES"));
                         let numJudges = if(moderators.size() < maxJudges) moderators.size() else maxJudges;
                         let judges = Buffer.Buffer<Nat32>(numJudges);
+                        let attempted = Array.init<Bool>(moderators.size(), false);
                         var attempts = 0;
                         while(judges.size() < numJudges and attempts < moderators.size()) {
                             let index = Nat64.toNat(random.next() % Nat64.fromNat(moderators.size()));
-                            let _id = moderators[index]._id;
-                            
-                            if(Option.isNull(Array.find(toExclude, func(id: Nat32): Bool = _id == id))) {
-                                judges.add(_id);
-                            };
+                            if(not attempted[index]) {
+                                attempted[index] := true;
+                                attempts += 1;
 
-                            attempts += 1;
+                                let _id = moderators[index]._id;
+                                
+                                if(Option.isNull(Array.find(toExclude, func(id: Nat32): Bool = _id == id))) {
+                                    judges.add(_id);
+                                };
+                            };
                         };
 
                         if(judges.size() > 0) {

@@ -1,3 +1,5 @@
+import EntityTypes "../common/entities";
+
 module {
     public type ChallengeState = Nat32;
     public let STATE_VOTING: Nat32 = 0;
@@ -20,6 +22,8 @@ module {
         state: ChallengeState;
         description: Text;
         moderationId: Nat32;
+        entityType: EntityTypes.EntityType;
+        entityId: Nat32;
         judges: [Nat32];
         votes: [ChallengeVote];
         result: ChallengeResult;

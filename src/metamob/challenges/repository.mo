@@ -1,23 +1,24 @@
 import Array "mo:base/Array";
-import HashMap "mo:base/HashMap";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
 import Bool "mo:base/Bool";
+import EntityTypes "../common/entities";
+import FilterUtils "../common/filters";
+import HashMap "mo:base/HashMap";
 import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
-import Time "mo:base/Time";
-import Variant "mo:mo-table/variant";
-import Table "mo:mo-table/table";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
 import Random "../common/random";
+import Result "mo:base/Result";
+import Schema "./schema";
+import Table "mo:mo-table/table";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
+import Types "./types";
 import ULID "../common/ulid";
 import Utils "../common/utils";
-import FilterUtils "../common/filters";
-import Types "./types";
-import Schema "./schema";
+import Variant "mo:mo-table/variant";
 
 module {
     public class Repository(
@@ -27,11 +28,13 @@ module {
 
         public func create(
             req: Types.ChallengeRequest,
+            entityId: Nat32,
+            entityType: EntityTypes.EntityType,
             judges: [Nat32],
             dueAt: Int,
             callerId: Nat32
         ): Result.Result<Types.Challenge, Text> {
-            let e = _createEntity(req, judges, dueAt, callerId);
+            let e = _createEntity(req, entityId, entityType, judges, dueAt, callerId);
             switch(challenges.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -222,6 +225,39 @@ module {
             );
         };
 
+        public func findByEntityAndState(
+            entityType: EntityTypes.EntityType,
+            entityId: Nat32,
+            state: Types.ChallengeState,
+            sortBy: ?[(Text, Text)],
+            limit: ?(Nat, Nat)
+        ): Result.Result<[Types.Challenge], Text> {
+
+            let criterias = ?[
+                {       
+                    key = "entityType";
+                    op = #eq;
+                    value = #nat32(entityType);
+                },
+                {       
+                    key = "entityId";
+                    op = #eq;
+                    value = #nat32(entityId);
+                },
+                {
+                    key = "state";
+                    op = #eq;
+                    value = #nat32(state);
+                }
+            ];
+            
+            return challenges.find(
+                criterias, 
+                FilterUtils.toSortBy<Types.Challenge>(sortBy, _comparer), 
+                FilterUtils.toLimit(limit)
+            );
+        };
+
         public func findDue(
             size: Nat
         ): Result.Result<[Types.Challenge], Text> {
@@ -259,6 +295,8 @@ module {
 
         func _createEntity(
             req: Types.ChallengeRequest,
+            entityId: Nat32,
+            entityType: EntityTypes.EntityType,
             judges: [Nat32],
             dueAt: Int,
             callerId: Nat32
@@ -268,6 +306,8 @@ module {
                 pubId = ulid.next();
                 state = Types.STATE_VOTING;
                 moderationId = req.moderationId;
+                entityId = entityId;
+                entityType = entityType;
                 description = req.description;
                 judges = judges;
                 votes = [];
@@ -290,6 +330,8 @@ module {
                 pubId = e.pubId;
                 state = e.state;
                 moderationId = e.moderationId;
+                entityId = e.entityId;
+                entityType = e.entityType;
                 description = req.description;
                 judges = e.judges;
                 votes = e.votes;
@@ -312,6 +354,8 @@ module {
                 pubId = e.pubId;
                 state = e.state;
                 moderationId = e.moderationId;
+                entityId = e.entityId;
+                entityType = e.entityType;
                 description = e.description;
                 judges = judges;
                 votes = e.votes;
@@ -334,6 +378,8 @@ module {
                 pubId = e.pubId;
                 state = e.state;
                 moderationId = e.moderationId;
+                entityId = e.entityId;
+                entityType = e.entityType;
                 description = e.description;
                 judges = e.judges;
                 votes = votes;
@@ -357,6 +403,8 @@ module {
                 pubId = e.pubId;
                 state = Types.STATE_CLOSED;
                 moderationId = e.moderationId;
+                entityId = e.entityId;
+                entityType = e.entityType;
                 description = e.description;
                 judges = e.judges;
                 votes = votes;
@@ -380,6 +428,8 @@ module {
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("state", #nat32(e.state));
         res.put("moderationId", #nat32(e.moderationId));
+        res.put("entityId", #nat32(e.entityId));
+        res.put("entityType", #nat32(e.entityType));
         res.put("description", #text(if ignoreCase Utils.toLower(e.description) else e.description));
         res.put("judges", #array(Array.map(e.judges, func (id: Nat32): Variant.Variant = #nat32(id))));
         res.put("votes", #array(Array.map(e.votes, 
@@ -410,6 +460,8 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             state = Variant.getOptNat32(map.get("state"));
             moderationId = Variant.getOptNat32(map.get("moderationId"));
+            entityId = Variant.getOptNat32(map.get("entityId"));
+            entityType = Variant.getOptNat32(map.get("entityType"));
             description = Variant.getOptText(map.get("description"));
             judges = Array.map(Variant.getOptArray(map.get("judges")), Variant.getNat32);
             votes = Array.map(votes, func (vote: HashMap.HashMap<Text, Variant.Variant>): Types.ChallengeVote {

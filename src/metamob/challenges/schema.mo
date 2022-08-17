@@ -25,6 +25,14 @@ module {
                 options = [#sortable];
             },
             {
+                name = "entityType";
+                options = [#sortable];
+            },
+            {
+                name = "entityId";
+                options = [#sortable];
+            },
+            {
                 name = "judges";
                 options = [#multiple, #sortable, #min(1)];
             },
