@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 export interface Option {
     name: string;
@@ -25,7 +26,7 @@ const SelectField = (props: Props) => {
         <div className="field">
             {props.label && 
                 <label className="label">
-                    {props.label}
+                    <FormattedMessage id={props.label} defaultMessage={props.label} />
                 </label>
             }
             <div className={`control select ${props.leftIcon? 'has-icons-left': ''}`}>

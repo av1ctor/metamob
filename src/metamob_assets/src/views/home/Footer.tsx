@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -17,17 +18,17 @@ const Footer = () => {
                         <ul>
                             <li>
                                 <Link to="/about">
-                                    About us
+                                    <FormattedMessage id="Aboutus" defaultMessage="About us"/>
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/jobs">
-                                    Jobs
+                                    <FormattedMessage id="Jobs" defaultMessage="Jobs" />
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/team">
-                                    Team
+                                    <FormattedMessage id="Team" defaultMessage="Team" />
                                 </Link>
                             </li>
                         </ul>
@@ -36,17 +37,17 @@ const Footer = () => {
                         <ul>
                             <li>
                                 <Link to="/policies">
-                                    Policies
+                                    <FormattedMessage id="Policies" defaultMessage="Policies" />
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/privacy">
-                                    Privacy
+                                    <FormattedMessage id="Privacy" defaultMessage="Privacy" />
                                 </Link>
                             </li>
                             <li>
                                 <Link to="/contact">
-                                    Contact
+                                    <FormattedMessage id="Contact" defaultMessage="Contact" />
                                 </Link>
                             </li>
                         </ul>

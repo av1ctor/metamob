@@ -522,3 +522,15 @@ a:not(:first-child) {
         }
     }
 }
+
+.intl {
+    &.icon {
+        display: inline-block;
+        border-radius: 50%;
+        overflow: hidden;
+        &img {
+            width: auto;
+            height: 12px;
+        }
+    }
+}

@@ -5,6 +5,7 @@ import {AuthContextProvider} from "./stores/auth";
 import {CategoryContextProvider} from "./stores/category";
 import {Home} from "./views/home/Home";
 import { ActorContextProvider } from "./stores/actor";
+import { IntlContextProvider } from "./stores/intl";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -15,19 +16,21 @@ const queryClient = new QueryClient({
 });
 
 export const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-        <AuthContextProvider>
-            <ActorContextProvider>
-                <CategoryContextProvider>
-                    <Router>                    
-                        <Home />
-                    </Router>
-                </CategoryContextProvider>
-            </ActorContextProvider>
-        </AuthContextProvider>
-    </QueryClientProvider>
-  );
+    return (
+        <IntlContextProvider>
+            <QueryClientProvider client={queryClient}>
+                <AuthContextProvider>
+                    <ActorContextProvider>
+                        <CategoryContextProvider>
+                            <Router>     
+                                <Home />
+                            </Router>
+                        </CategoryContextProvider>
+                    </ActorContextProvider>
+                </AuthContextProvider>
+            </QueryClientProvider>
+        </IntlContextProvider> 
+    );
 };
 
 

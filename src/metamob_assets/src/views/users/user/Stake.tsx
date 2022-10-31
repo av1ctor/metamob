@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
@@ -119,7 +120,7 @@ const StakeForm = (props: Props) => {
                         onClick={handleStake}
                         disabled={stakeMut.isLoading}
                     >
-                        Stake
+                        <FormattedMessage id="Stake" defaultMessage="Stake"/>
                     </Button>
                 </div>
                 <div className="control">
@@ -127,7 +128,7 @@ const StakeForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Close
+                        <FormattedMessage id="Close" defaultMessage="Close"/>
                     </Button>
                 </div>
             </div>

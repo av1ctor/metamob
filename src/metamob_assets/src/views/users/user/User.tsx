@@ -17,6 +17,7 @@ import Modal from "../../../components/Modal";
 import StakeForm from "./Stake";
 import UnstakeForm from "./Unstake";
 import TransferForm from "./Transfer";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -211,7 +212,7 @@ const User = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My profile
+                <FormattedMessage defaultMessage="My profile" />
             </div>
             
             <form onSubmit={handleUpdate}>
@@ -294,7 +295,9 @@ const User = (props: Props) => {
                         />
                     </div>
                     <div className="column is-auto">
-                        <label className="label">Actions</label>
+                        <label className="label">
+                            <FormattedMessage id="Actions" defaultMessage="Actions" />
+                        </label>
                         <div className="field">
                             <div className="control is-grouped">
                                 <Button
@@ -302,7 +305,7 @@ const User = (props: Props) => {
                                     disabled={balances.mmt < 10000}
                                     onClick={handleStake}
                                 >
-                                    Stake
+                                    <FormattedMessage id="Stake" defaultMessage="Stake" />
                                 </Button>
                                 <Button
                                     className="ml-2"
@@ -310,7 +313,7 @@ const User = (props: Props) => {
                                     disabled={balances.mmt < 10000}
                                     onClick={handleTransfer}
                                 >
-                                    Transfer
+                                    <FormattedMessage id="Transfer" defaultMessage="Transfer" />
                                 </Button>
                             </div>
                         </div>
@@ -325,7 +328,9 @@ const User = (props: Props) => {
                         />
                     </div>
                     <div className="column is-auto">
-                        <label className="label">Actions</label>
+                        <label className="label">
+                            <FormattedMessage id="Actions" defaultMessage="Actions" />
+                        </label>
                         <div className="field">
                             <div className="control is-grouped">
                                 <Button
@@ -333,7 +338,7 @@ const User = (props: Props) => {
                                     disabled={balances.staked < 10000}
                                     onClick={handleWithdraw}
                                 >
-                                    Withdraw
+                                    <FormattedMessage id="Withdraw" defaultMessage="Withdraw" />
                                 </Button>
                             </div>
                         </div>
@@ -345,7 +350,7 @@ const User = (props: Props) => {
                             <div className="control">
                                 <Button
                                     onClick={handleUpdate}>
-                                    Update
+                                    <FormattedMessage id="Update" defaultMessage="Update" />
                                 </Button>
                             </div>
                         </div>
@@ -354,7 +359,7 @@ const User = (props: Props) => {
             </form>
 
             <Modal
-                header={<span>Stake MMT</span>}
+                header={<span><FormattedMessage id="Stake" defaultMessage="Stake" /> MMT</span>}
                 isOpen={modals.stake}
                 onClose={toggleStake}
             >
@@ -368,7 +373,7 @@ const User = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Withdraw MMT</span>}
+                header={<span><FormattedMessage id="Withdraw" defaultMessage="Withdraw" /> MMT</span>}
                 isOpen={modals.unstake}
                 onClose={toggleWithdraw}
             >
@@ -382,7 +387,7 @@ const User = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Transfer MMT</span>}
+                header={<span><FormattedMessage id="Transfer" defaultMessage="Transfer" /> MMT</span>}
                 isOpen={modals.transfer}
                 onClose={toggleTransfer}
             >

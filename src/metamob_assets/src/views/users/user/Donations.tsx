@@ -10,6 +10,7 @@ import {BaseItem} from "../../donations/Item";
 import DeleteForm from "../../donations/donation/Delete";
 import EditForm from "../../donations/donation/Edit";
 import { Paginator } from "../../../components/Paginator";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -82,7 +83,7 @@ const Donations = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My donations
+                <FormattedMessage defaultMessage="My donations" />
             </div>
 
             <div>
@@ -100,17 +101,17 @@ const Donations = (props: Props) => {
                                 <p>
                                     <small>
                                         <a
-                                        title="Edit donation"
-                                        onClick={() => toggleEdit(donation)}
+                                            title="Edit donation"
+                                            onClick={() => toggleEdit(donation)}
                                         >
-                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <a
                                             title="Delete donation"
                                             onClick={() => toggleDelete(donation)}
                                         >
-                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage id="Delete" defaultMessage="Delete"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <TimeFromNow 
@@ -118,13 +119,13 @@ const Donations = (props: Props) => {
                                         />
                                         {donation.updatedBy && donation.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
                                 </p>
 
-                                Campaign: <CampaignLink 
+                                <FormattedMessage id="Campaign" defaultMessage="Campaign"/>: <CampaignLink 
                                     id={donation.campaignId} 
                                 />
                                 
@@ -142,7 +143,7 @@ const Donations = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit donation</span>}
+                header={<span><FormattedMessage defaultMessage="Edit donation"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -158,7 +159,7 @@ const Donations = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete donation</span>}
+                header={<span><FormattedMessage defaultMessage="Delete donation"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >

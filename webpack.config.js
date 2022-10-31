@@ -5,6 +5,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const {transform} = require('@formatjs/ts-transformer');
 const Dotenv = require('dotenv-webpack');
 
 //const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
@@ -77,7 +78,21 @@ module.exports = /*smp.wrap(*/{
   },
   module: {
     rules: [
-      { test: /\.(js|ts)x?$/, loader: "ts-loader" },
+      { test: /\.(js|ts)x?$/, 
+        loader: "ts-loader",
+        options: {
+          getCustomTransformers() {
+            return {
+              before: [
+                transform({
+                  overrideIdFn: '[sha512:contenthash:base64:6]',
+                }),
+              ],
+            }
+          },
+        },
+        exclude: '/node_modules/', 
+      },
       { test: /\.css$/, use: ['style-loader','css-loader'] },
       { test: /\.s[ac]ss$/i, use: [
         MiniCssExtractPlugin.loader,

@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 export interface Step {
     title: string;
@@ -23,7 +24,7 @@ const Steps = (props: Props) => {
                         </span>
                     </span>
                     <div className="steps-content">
-                        <p className="heading">{step.title}</p>
+                        <p className="heading"><FormattedMessage id={step.title} defaultMessage={step.title}/></p>
                     </div>
                 </li>
             )}

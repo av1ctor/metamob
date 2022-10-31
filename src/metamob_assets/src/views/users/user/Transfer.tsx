@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
@@ -122,7 +123,7 @@ const TransferForm = (props: Props) => {
                         onClick={handleTransfer}
                         disabled={transferMut.isLoading}
                     >
-                        Transfer
+                        <FormattedMessage id="Transfer" defaultMessage="Transfer"/>
                     </Button>
                 </div>
                 <div className="control">
@@ -130,7 +131,7 @@ const TransferForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Close
+                        <FormattedMessage id="Close" defaultMessage="Close"/>
                     </Button>
                 </div>
             </div>

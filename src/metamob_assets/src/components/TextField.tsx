@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     id?: string;
@@ -19,7 +20,7 @@ const TextField = (props: Props) => {
         <div className="field">
             {props.label &&
                 <label className="label">
-                    {props.label}
+                    <FormattedMessage id={props.label} defaultMessage={props.label} />
                 </label>
             }
             <div className={`control ${props.leftIcon? 'has-icons-left': ''} ${props.rightIcon? 'has-icons-right': ''}`}>

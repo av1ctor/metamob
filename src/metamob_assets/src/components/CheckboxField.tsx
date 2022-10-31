@@ -1,6 +1,7 @@
 import React from "react";
 
 import "bulma-checkradio/dist/css/bulma-checkradio.min.css";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     id?: string;
@@ -28,7 +29,7 @@ const CheckboxField = (props: Props) => {
                 />
                 {props.label &&
                     <label htmlFor={props.id || props.name}>
-                        <b>{props.label}</b>
+                        <b><FormattedMessage id={props.label} defaultMessage={props.label} /></b>
                     </label>
                 }
         </div>

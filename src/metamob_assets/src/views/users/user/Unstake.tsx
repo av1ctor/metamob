@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
@@ -120,7 +121,7 @@ const UnstakeForm = (props: Props) => {
                         onClick={handleWithdraw}
                         disabled={unstakeMut.isLoading}
                     >
-                        Withdraw
+                        <FormattedMessage id="Withdraw" defaultMessage="Withdraw"/>
                     </Button>
                 </div>
                 <div className="control">
@@ -128,7 +129,7 @@ const UnstakeForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Close
+                        <FormattedMessage id="Close" defaultMessage="Close"/>
                     </Button>
                 </div>
             </div>

@@ -1,7 +1,11 @@
 import React, { useContext, useCallback, useRef } from "react";
+import { FormattedMessage } from "react-intl";
 import { Link, useNavigate } from "react-router-dom";
+import { LangIcon } from "../../components/LangIcon";
 import NavItem from "../../components/NavItem";
+import { Lang, languages, loadMessages } from "../../libs/intl";
 import { AuthActionType, AuthContext } from "../../stores/auth";
+import { IntlActionType, IntlContext } from "../../stores/intl";
 import Avatar from "../users/Avatar";
 
 interface Props {
@@ -10,6 +14,7 @@ interface Props {
 };
 
 const Header = (props: Props) => {
+    const [intl, intlDispatch] = useContext(IntlContext);
     const [auth, authDispatch] = useContext(AuthContext);
     
     const menuRef = useRef<HTMLDivElement>(null);
@@ -34,6 +39,19 @@ const Header = (props: Props) => {
         burgerRef.current?.classList.toggle('is-active');
         menuRef.current?.classList.toggle('is-active');
     }, [burgerRef.current, menuRef.current]);
+
+    const handleChangeLanguage = useCallback(async (lang: Lang) => {
+        const messages = await loadMessages(lang.locale);
+        intlDispatch({
+            type: IntlActionType.CHANGE,
+            payload: {
+                locale: lang.locale,
+                flag: lang.flag,
+                title: lang.title,
+                messages: messages
+            }
+        })
+    }, []);
 
     const isLogged = !!auth.user;
 
@@ -85,6 +103,24 @@ const Header = (props: Props) => {
                 </div>
 
                 <div className="navbar-end">
+                    <div className="navbar-item has-dropdown is-hoverable">
+                        <a className="navbar-link">
+                            <LangIcon flag={intl.flag} title={intl.title} />
+                        </a>
+                        <div className="navbar-dropdown is-right">
+                            {languages.map(l => 
+                                <span key={l.locale}>
+                                    <a 
+                                        className={`navbar-item ${intl.locale === l.locale? 'is-active': ''}`}
+                                        onClick={() => handleChangeLanguage(l)}
+                                    >
+                                        <LangIcon flag={l.flag} title={l.title} />
+                                    </a>
+                                </span>)
+                            }
+                        </div>
+                    </div>
+
                     {isLogged &&
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
@@ -151,7 +187,7 @@ const Header = (props: Props) => {
                                 />
                                 <hr className="navbar-divider"/>
                                 <a className="navbar-item" onClick={handleLogout}>
-                                    <i className="la la-sign-out-alt"/>&nbsp;Logout
+                                    <i className="la la-sign-out-alt"/>&nbsp;<FormattedMessage id="Logout" defaultMessage="Logout" />
                                 </a>
                             </div>
                         </div>
@@ -164,7 +200,7 @@ const Header = (props: Props) => {
                                     className="button is-success"
                                     onClick={redirectToLogon}
                                 >
-                                    <i className="la la-user"/>&nbsp;Log in
+                                    <i className="la la-user"/>&nbsp;<FormattedMessage id="Login" defaultMessage="Log in" />
                                 </a>
                             </div>
                         </div>
@@ -176,3 +212,4 @@ const Header = (props: Props) => {
 };
 
 export default Header;
+

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { Paginator } from "../../../components/Paginator";
 import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
 import { ActorContext } from "../../../stores/actor";
@@ -55,7 +56,7 @@ const Campaigns = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My campaigns
+                <FormattedMessage defaultMessage="My campaigns" />
             </div>
             
             <div>

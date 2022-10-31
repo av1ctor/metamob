@@ -9,6 +9,7 @@ import UserCreateForm from "../users/user/Create";
 import { loginUser } from "../../libs/users";
 import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import { ActorActionType, ActorContext } from "../../stores/actor";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -153,7 +154,7 @@ const Logon = (props: Props) => {
                 {step === 0 && 
                     <Button 
                         onClick={handleAuthenticate}>
-                        <i className="la la-key"/>&nbsp;Authenticate
+                        <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate" defaultMessage="Authenticate"/>
                     </Button>
                 }
                 {step === 1 && 
@@ -166,7 +167,7 @@ const Logon = (props: Props) => {
                 {step === 2 && 
                     <Button 
                         onClick={handleReturn}>
-                        <i className="la la-check"/>&nbsp;Return
+                        <i className="la la-check"/>&nbsp;<FormattedMessage id="Return" defaultMessage="Return"/>
                     </Button>
                 }
             </Container>

@@ -11,6 +11,7 @@ import TextField from "../../../components/TextField";
 import { isModerator } from "../../../libs/users";
 import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     donation: DonationResponse;
@@ -173,7 +174,7 @@ const EditForm = (props: Props) => {
                             onClick={handleUpdate}
                             disabled={updateMut.isLoading}
                         >
-                            Update
+                            <FormattedMessage id="Update" defaultMessage="Update"/>
                         </Button>
                     </div>
                     <div className="control">
@@ -181,7 +182,7 @@ const EditForm = (props: Props) => {
                             color="danger"
                             onClick={handleClose}
                         >
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

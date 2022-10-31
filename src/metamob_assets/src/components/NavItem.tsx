@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { FormattedMessage } from "react-intl";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 interface Props {
@@ -25,14 +26,14 @@ const NavItem = (props: Props) => {
                 className={`navbar-item ${isActive? 'is-active': ''}`}
                 to={props.href}
             >
-                <i className={`la la-${props.icon}`}/>&nbsp;{props.title}
+                <i className={`la la-${props.icon}`}/>&nbsp;<FormattedMessage id={props.title} defaultMessage={props.title}/>
             </Link>
         :
             <a 
                 className={`navbar-item ${isActive? 'is-active': ''}`}
                 onClick={handleRedirect}
             >
-                <i className={`la la-${props.icon}`}/>&nbsp;{props.title}
+                <i className={`la la-${props.icon}`}/>&nbsp;<FormattedMessage id={props.title} defaultMessage={props.title}/>
             </a>
     )
 };
