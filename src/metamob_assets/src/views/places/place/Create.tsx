@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
 import AutocompleteField from "../../../components/AutocompleteField";
@@ -40,6 +41,7 @@ const formSchema = yup.object().shape({
 
 const Create = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+    const intl = useIntl();
     
     const [form, setForm] = useState<PlaceRequest>({
         name: '',
@@ -142,7 +144,7 @@ const Create = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Place created!');
+            props.onSuccess(intl.formatMessage({defaultMessage: 'Place created!'}));
             props.onClose();
         }
         catch(e) {
@@ -298,7 +300,7 @@ const Create = (props: Props) => {
                         <Button
                             onClick={handleCreate}
                         >
-                            Create
+                            <FormattedMessage id="Create" defaultMessage="Create"/>
                         </Button>
                     </div>
                     <div className="control">
@@ -306,7 +308,7 @@ const Create = (props: Props) => {
                             color="danger"
                             onClick={handleClose}
                         >
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 import Modal from "../../components/Modal";
 import { EntityType } from "../../libs/common";
 import { ModerationReason } from "../../libs/moderations";
@@ -18,7 +19,7 @@ interface Props {
 const ModerationModal = (props: Props) => {
     return (
         <Modal
-            header={<span>Moderations</span>}
+            header={<span><FormattedMessage defaultMessage="Moderations"/></span>}
             isOpen={props.isOpen}
             onClose={props.onClose}
         >

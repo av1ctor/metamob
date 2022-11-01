@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { FormattedMessage } from "react-intl";
 import { ModerationResponse } from "../../../../declarations/metamob/metamob.did";
 import Button from "../../components/Button";
 import TextAreaField from "../../components/TextAreaField";
@@ -59,7 +60,7 @@ const Item = (props: Props) => {
                             disabled={mod.state !== ModerationState.Created}
                             onClick={handleChallenge}
                         >
-                            Challenge
+                            <FormattedMessage id="Challenge" defaultMessage="Challenge"/>
                         </Button>
                     </div>
                 }

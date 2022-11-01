@@ -4,6 +4,7 @@ import {Campaign} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -50,8 +51,8 @@ const DeleteForm = (props: Props) => {
             <form onSubmit={handleDelete}>
                 <Container>
                     <div className="has-text-centered">
-                        <p>Are you sure you want to delete this campaign?</p>
-                        <p className="has-text-danger">This action can not be reverted!</p>
+                        <p><FormattedMessage defaultMessage="Are you sure you want to delete this campaign?"/></p>
+                        <p className="has-text-danger"><FormattedMessage defaultMessage="This action can not be reverted!"/></p>
                     </div>
                     <div className="field is-grouped mt-2">
                         <div className="control">
@@ -60,14 +61,14 @@ const DeleteForm = (props: Props) => {
                                 disabled={deleteMut.isLoading}
                                 onClick={handleDelete}
                             >
-                                Delete
+                                <FormattedMessage id="Delete" defaultMessage="Delete"/>
                             </Button>
                         </div>
                         <div className="control">
                             <Button
                                 onClick={handleClose}
                             >
-                                Cancel
+                                <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                             </Button>
                         </div>
                     </div>

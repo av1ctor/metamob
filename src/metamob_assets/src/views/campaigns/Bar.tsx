@@ -10,6 +10,7 @@ import CreateForm from "./campaign/Create";
 import Button from "../../components/Button";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { Sort } from "./Sort";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     filters: Filter[];
@@ -77,7 +78,7 @@ export const Bar = (props: Props) => {
                                         title="Create a new campaign" 
                                         onClick={isLoggedIn? toggleCreate: redirectToLogon}
                                     >
-                                        <i className="la la-plus-circle" />&nbsp;Create
+                                        <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                                     </Button>
                                 </div>
                             </div>
@@ -87,7 +88,7 @@ export const Bar = (props: Props) => {
             </nav>
 
             <Modal
-                header={<span>Create campaign</span>}
+                header={<span><FormattedMessage defaultMessage="Create campaign"/></span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { EntityType, ModerationResponse } from "../../../../declarations/metamob/metamob.did";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
@@ -71,13 +72,13 @@ const Moderations = (props: Props) => {
                     color="danger"
                     onClick={handleClose}
                 >
-                    Cancel
+                    <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                 </Button>
             </div>
 
             {moderation &&
                 <Modal
-                    header={<span>Challenge moderation</span>}
+                    header={<span><FormattedMessage defaultMessage="Challenge moderation"/></span>}
                     isOpen={modals.challenge}
                     onClose={toggleChallenge}
                 >

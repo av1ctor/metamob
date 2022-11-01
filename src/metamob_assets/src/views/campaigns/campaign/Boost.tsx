@@ -11,6 +11,7 @@ import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { depositIcp, getIcpBalance } from "../../../libs/users";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
+import { FormattedMessage } from "react-intl";
 
 const MIN_ICP_VALUE = BigInt(10000 * 10);
 
@@ -142,8 +143,8 @@ const Boost = (props: Props) => {
             <div
                 className="mb-2"
             >
-                <div className="is-size-4 has-text-success-dark">Promote this campaign</div>
-                <div>Total promoted: {icpToDecimal(props.campaign.boosting)} ICP</div>
+                <div className="is-size-4 has-text-success-dark"><FormattedMessage defaultMessage="Promote this campaign"/></div>
+                <div><FormattedMessage defaultMessage="Total promoted"/>: {icpToDecimal(props.campaign.boosting)} ICP</div>
             </div>
             <form onSubmit={handleBoost}>
                 <TextField
@@ -164,7 +165,7 @@ const Boost = (props: Props) => {
                             onClick={isLoggedIn? handleBoost: redirectToLogon}
                             disabled={isLoading || boostMut.isLoading}
                         >
-                            <i className="la la-rocket"/>&nbsp;BOOST
+                            <i className="la la-rocket"/>&nbsp;<FormattedMessage id="BOOST" defaultMessage="BOOST"/>
                         </Button>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     id?: string;
@@ -26,7 +27,7 @@ const SwitchField = (props: Props) => {
                 />
                 {props.label &&
                     <label htmlFor={props.id || props.name}>
-                        <b>{props.label}</b>
+                        <b><FormattedMessage id={props.label} defaultMessage={props.label} /></b>
                     </label>
                 }
         </div>

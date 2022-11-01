@@ -13,6 +13,7 @@ import ReportForm from "../../reports/report/Create";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import ModerationModal from "../../moderations/Modal";
 import EditForm from "./Edit";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     place?: Place;
@@ -103,7 +104,7 @@ export const PlaceBar = (props: Props) => {
                                     title="View terms and conditions"
                                     onClick={isLoggedIn? toggleTerms: redirectToLogon}
                                 >
-                                    <i className={`la la-${termsAccepted? 'check-square': 'align-left'}`}/>&nbsp;Terms
+                                    <i className={`la la-${termsAccepted? 'check-square': 'align-left'}`}/>&nbsp;<FormattedMessage id="Terms" defaultMessage="Terms"/>
                                 </Button>
                             </div>
                         </div>
@@ -126,7 +127,7 @@ export const PlaceBar = (props: Props) => {
                                     title="Edit place"
                                     onClick={toggleEdit}
                                 >
-                                    <span className="whitespace-nowrap has-text-info"><i className="la la-pencil" /> Edit</span>
+                                    <span className="whitespace-nowrap has-text-info"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                 </a>
                                 &nbsp;·&nbsp;
                             </>
@@ -136,7 +137,7 @@ export const PlaceBar = (props: Props) => {
                                 title="Report place"
                                 onClick={toggleReport}
                             >
-                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
                             </a>
                         }
                     </div>
@@ -144,7 +145,7 @@ export const PlaceBar = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit place</span>}
+                header={<span><FormattedMessage defaultMessage="Edit place"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -160,7 +161,7 @@ export const PlaceBar = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Terms & Conditions</span>}
+                header={<span><FormattedMessage defaultMessage="Terms & Conditions"/></span>}
                 isOpen={modals.terms}
                 onClose={toggleTerms}
             >
@@ -177,7 +178,7 @@ export const PlaceBar = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Report place</span>}
+                header={<span><FormattedMessage defaultMessage="Report place"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

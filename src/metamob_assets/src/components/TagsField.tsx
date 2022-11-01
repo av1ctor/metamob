@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     label?: string;
@@ -42,7 +43,7 @@ const TagsField = (props: Props) => {
         <div className="field">
             {props.label &&
                 <label className="label">
-                    {props.label}
+                    <FormattedMessage id={props.label} defaultMessage={props.label}/>
                 </label>
             }
             <div className="control">

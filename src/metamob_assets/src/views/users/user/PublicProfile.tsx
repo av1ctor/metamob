@@ -11,6 +11,7 @@ import ReportForm from "../../reports/report/Create";
 import { EntityType } from "../../../libs/common";
 import ModerationModal from "../../moderations/Modal";
 import ModerationBadge from "../../moderations/moderation/Badge";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     pubId?: string;
@@ -65,7 +66,7 @@ const PublicProfile = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                profile
+                <FormattedMessage id="profile" defaultMessage="profile"/>
             </div>
             
             <div className="columns">
@@ -117,14 +118,14 @@ const PublicProfile = (props: Props) => {
                             title="Report user"
                             onClick={toggleReport}
                         >
-                            <span className="whitespace-nowrap has-text-danger"><i className="la la-flag" /> Report</span>
+                            <span className="whitespace-nowrap has-text-danger"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
                         </a>
                     }
                 </div>
             </div>
 
             <Modal
-                header={<span>Report user</span>}
+                header={<span><FormattedMessage defaultMessage="Report user"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

@@ -10,6 +10,7 @@ import {BaseItem} from "../../fundings/Item";
 import DeleteForm from "../../fundings/funding/Delete";
 import EditForm from "../../fundings/funding/Edit";
 import { Paginator } from "../../../components/Paginator";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -76,13 +77,13 @@ const Fundings = (props: Props) => {
     }, [fundings.status]);
 
     if(!auth.user) {
-        return <div>Forbidden</div>;
+        return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My fundraisings
+                <FormattedMessage defaultMessage="My fundraisings" />
             </div>
 
             <div>
@@ -103,14 +104,14 @@ const Fundings = (props: Props) => {
                                         title="Edit funding"
                                         onClick={() => toggleEdit(funding)}
                                         >
-                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <a
                                             title="Delete funding"
                                             onClick={() => toggleDelete(funding)}
                                         >
-                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage id="Delete" defaultMessage="Delete"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <TimeFromNow 
@@ -118,13 +119,13 @@ const Fundings = (props: Props) => {
                                         />
                                         {funding.updatedBy && funding.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
                                 </p>
 
-                                Campaign: <CampaignLink 
+                                <FormattedMessage id="Campaign" defaultMessage="Campaign"/>: <CampaignLink 
                                     id={funding.campaignId} 
                                 />
                                 
@@ -142,7 +143,7 @@ const Fundings = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit funding</span>}
+                header={<span><FormattedMessage defaultMessage="Edit funding"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -158,7 +159,7 @@ const Fundings = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete funding</span>}
+                header={<span><FormattedMessage defaultMessage="Delete funding"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >

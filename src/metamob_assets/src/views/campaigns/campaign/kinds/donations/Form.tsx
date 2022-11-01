@@ -14,6 +14,7 @@ import { depositIcp, getIcpBalance } from "../../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -228,7 +229,7 @@ const DonationForm = (props: Props) => {
                     </>
                 }
                 
-                <div className="has-text-danger is-size-7"><b>Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!</b></div>
+                <div className="has-text-danger is-size-7"><b><FormattedMessage defaultMessage="Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!"/></b></div>
 
                 <div className="field mt-2">
                     <div className="control">
@@ -237,7 +238,7 @@ const DonationForm = (props: Props) => {
                             onClick={isLoggedIn? handleDonation: redirectToLogon}
                             disabled={isLoading}
                         >
-                            <i className="la la-money-bill"/>&nbsp;DONATE
+                            <i className="la la-money-bill"/>&nbsp;<FormattedMessage id="DONATE" defaultMessage="DONATE"/>
                         </Button>
                     </div>
                 </div>

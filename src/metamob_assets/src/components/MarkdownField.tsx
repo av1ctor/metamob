@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import SimpleMDE from "react-simplemde-editor";
 import 'easymde/dist/easymde.min.css';
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     id?: string;
@@ -38,7 +39,7 @@ const MarkdownField = (props: Props) => {
         <div className="field">
             {props.label && 
                 <label className="label">
-                    {props.label}
+                    <FormattedMessage id={props.label} defaultMessage={props.label} />
                 </label>
             }
             <div className="control">

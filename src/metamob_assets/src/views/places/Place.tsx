@@ -10,6 +10,7 @@ import Button from "../../components/Button";
 import { sortByDate } from "../campaigns/Sort";
 import { ScrollToTop } from "../../components/ScrollToTop";
 import Skeleton from "react-loading-skeleton";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -119,7 +120,7 @@ const Place = (props: Props) => {
                             disabled={!campaigns.hasNextPage || campaigns.isFetchingNextPage}
                             onClick={() => campaigns.fetchNextPage()}
                         >
-                            <i className="la la-sync" />&nbsp;{campaigns.hasNextPage? 'Load more': 'All loaded'}
+                            <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={campaigns.hasNextPage? 'Load more': 'All loaded'}/>
                         </Button>
                     </div>
                 </div>

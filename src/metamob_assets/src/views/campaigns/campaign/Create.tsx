@@ -19,6 +19,7 @@ import { AuthContext } from "../../../stores/auth";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { ModerationReason } from "../../../libs/moderations";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     mutation: any;
@@ -507,7 +508,7 @@ const CreateForm = (props: Props) => {
                         />
                         {(Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS) &&
                             <>
-                                <label className="label">Action (transfer funds)</label>
+                                <label className="label"><FormattedMessage defaultMessage="Action (transfer funds)"/></label>
                                 <div className="p-2 border">
                                     <TextField 
                                         label="To account" 
@@ -523,7 +524,7 @@ const CreateForm = (props: Props) => {
                         }
                         {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
                             <>
-                                <label className="label">Action (invoke method)</label>
+                                <label className="label"><FormattedMessage defaultMessage="Action (invoke method)"/></label>
                                 <div className="p-2 border">
                                     <TextField 
                                         label="Canister Id" 
@@ -561,14 +562,14 @@ const CreateForm = (props: Props) => {
                                 onClick={handlePrev} 
                                 disabled={step === 0}
                             >
-                                Prev
+                                <FormattedMessage id="Prev" defaultMessage="Prev"/>
                             </Button>
                         </div>
                         <div className="control">
                             <Button 
                                 onClick={handleNext} 
                             >
-                                Next
+                                <FormattedMessage id="Next" defaultMessage="Next" />
                             </Button>
                         </div>
                         <div className="control">
@@ -576,7 +577,7 @@ const CreateForm = (props: Props) => {
                                 color="danger"
                                 onClick={handleClose} 
                             >
-                                Cancel
+                                <FormattedMessage id="Cancel" defaultMessage="Cancel" />
                             </Button>
                         </div>
                     </div>
@@ -592,7 +593,7 @@ const CreateForm = (props: Props) => {
                                 <Button 
                                     onClick={handlePrev} 
                                 >
-                                    Prev
+                                    <FormattedMessage id="Prev" defaultMessage="Prev"/>
                                 </Button>
                             </div>
                             <div className="control">
@@ -600,7 +601,7 @@ const CreateForm = (props: Props) => {
                                     onClick={handleCreate} 
                                     disabled={props.mutation.isLoading}
                                 >
-                                    Create
+                                    <FormattedMessage id="Create" defaultMessage="Create" />
                                 </Button>
                             </div>
                             <div className="control">
@@ -608,7 +609,7 @@ const CreateForm = (props: Props) => {
                                     color="danger"
                                     onClick={handleClose} 
                                 >
-                                    Cancel
+                                    <FormattedMessage id="Cancel" defaultMessage="Cancel" />
                                 </Button>
                             </div>
                         </div>

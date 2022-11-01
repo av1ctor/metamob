@@ -29,6 +29,7 @@ import { Markdown } from "../../../components/Markdown";
 import { ScrollToTop } from "../../../components/ScrollToTop";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import ModerationModal from "../../moderations/Modal";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -40,6 +41,7 @@ const Campaign = (props: Props) => {
     const {id} = useParams();
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
+    const intl = useIntl();
     const [modals, setModals] = useState({
         edit: false,
         delete: false,
@@ -205,17 +207,17 @@ const Campaign = (props: Props) => {
                                 {canEdit?
                                     <>
                                         <a
-                                            title="Edit campaign"
+                                            title={intl.formatMessage({defaultMessage: "Edit campaign"})}
                                             onClick={toggleEdit}
                                         >
-                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage defaultMessage="Edit"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <a
-                                            title="Delete campaign"
+                                            title={intl.formatMessage({defaultMessage: "Delete campaign"})}
                                             onClick={toggleDelete}
                                         >
-                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage defaultMessage="Delete"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                     </>
@@ -225,10 +227,10 @@ const Campaign = (props: Props) => {
                                 {auth.user && 
                                     <>
                                         <a
-                                            title="Report campaign"
+                                            title={intl.formatMessage({defaultMessage: "Report campaign"})}
                                             onClick={toggleReport}
                                         >
-                                            <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                            <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage defaultMessage="Report"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                     </>
@@ -240,7 +242,7 @@ const Campaign = (props: Props) => {
 
                                 {campaign.updatedBy && campaign.updatedBy.length > 0 &&
                                     <>
-                                        &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                        &nbsp;·&nbsp;<b><i><FormattedMessage defaultMessage="Edited"/></i></b>
                                     </>
                                 }
                             </small>
@@ -269,7 +271,7 @@ const Campaign = (props: Props) => {
                                 icon: campaignKindToIcon(campaign.kind),
                             },
                             {
-                                title: 'Updates', 
+                                title: intl.formatMessage({defaultMessage: 'Updates'}), 
                                 icon: 'newspaper', 
                                 badge: campaign.updates > 0? campaign.updates.toString(): ''
                             }
@@ -318,7 +320,7 @@ const Campaign = (props: Props) => {
                     </Tabs>
 
                     <Modal
-                        header={<span>Edit campaign</span>}
+                        header={<span><FormattedMessage defaultMessage="Edit campaign"/></span>}
                         isOpen={modals.edit}
                         onClose={toggleEdit}
                     >
@@ -333,7 +335,7 @@ const Campaign = (props: Props) => {
                     </Modal>
 
                     <Modal
-                        header={<span>Delete campaign</span>}
+                        header={<span><FormattedMessage defaultMessage="Delete campaign"/></span>}
                         isOpen={modals.delete}
                         onClose={toggleDelete}
                     >
@@ -347,7 +349,7 @@ const Campaign = (props: Props) => {
                     </Modal>
 
                     <Modal
-                        header={<span>Report campaign</span>}
+                        header={<span><FormattedMessage defaultMessage="Report campaign"/></span>}
                         isOpen={modals.report}
                         onClose={toggleReport}
                     >

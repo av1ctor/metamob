@@ -9,6 +9,7 @@ import ReportForm from "../reports/report/Create";
 import DeleteForm from "./signature/Delete";
 import Button from "../../components/Button";
 import ModerationModal from "../moderations/Modal";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -94,13 +95,13 @@ const Signatures = (props: Props) => {
                         disabled={!signatures.hasNextPage || signatures.isFetchingNextPage}
                         onClick={() => signatures.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;{signatures.hasNextPage? 'Load more': 'All loaded'}
+                        <i className="la la-sync" />&nbsp;{<FormattedMessage defaultMessage={signatures.hasNextPage? 'Load more': 'All loaded'}/>}
                     </Button>
                 </div>
             </div>
 
             <Modal
-                header={<span>Edit signature</span>}
+                header={<span><FormattedMessage defaultMessage="Edit signature"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -116,7 +117,7 @@ const Signatures = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete signature</span>}
+                header={<span><FormattedMessage defaultMessage="Delete signature"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -132,7 +133,7 @@ const Signatures = (props: Props) => {
             </Modal>            
 
             <Modal
-                header={<span>Report signature</span>}
+                header={<span><FormattedMessage defaultMessage="Report signature"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

@@ -1,7 +1,9 @@
 import React, { useCallback, useContext, useMemo } from "react";
+import { useIntl } from "react-intl";
 import Badge from "../../../components/Badge";
 import { ModerationReason, moderationReasonToColor, moderationReasonToText, moderationReasonToTitle } from "../../../libs/moderations";
 import { AuthContext } from "../../../stores/auth";
+import { IntlContext } from "../../../stores/intl";
 
 interface Props {
     reason: ModerationReason;
@@ -11,18 +13,23 @@ interface Props {
 
 const ModBadge = (props: Props) => {
     const [auth] = useContext(AuthContext);
+    const [lang] = useContext(IntlContext);
+
+    const intl = useIntl();
 
     const desc = useMemo((): {texts: string[], titles: string[]} => {
         const res: {texts: string[], titles: string[]} = {texts: [], titles: []};
         for(let mask = 1; mask <= 65536; ) {
             if((props.reason & mask) !== 0) {
-                res.texts.push(moderationReasonToText(mask));
-                res.titles.push(moderationReasonToTitle(mask));
+                const text = moderationReasonToText(mask);
+                res.texts.push(intl.formatMessage({id: text, defaultMessage: text}));
+                const title = moderationReasonToTitle(mask);
+                res.titles.push(intl.formatMessage({id: title, defaultMessage: title}));
             }
             mask <<= 1;
         }
         return res;
-    }, [props.reason]);
+    }, [props.reason, lang.locale]);
 
     const title = useMemo(() => {
         return desc.titles.join('/');

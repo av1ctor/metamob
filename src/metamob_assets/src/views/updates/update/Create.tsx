@@ -10,6 +10,7 @@ import { CampaignResult } from "../../../libs/campaigns";
 import Container from "../../../components/Container";
 import CheckboxField from "../../../components/CheckboxField";
 import SwitchField from "../../../components/SwitchField";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -158,7 +159,7 @@ const Create = (props: Props) => {
                             title="Post an update message"
                             onClick={handleCreate}
                         >
-                            Create
+                            <FormattedMessage id="Create" defaultMessage="Create"/>
                         </Button>
                     </div>
                     <div className="control">
@@ -166,7 +167,7 @@ const Create = (props: Props) => {
                             color="danger"
                             onClick={handleClose}
                         >
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel" />
                         </Button>
                     </div>
                 </div>

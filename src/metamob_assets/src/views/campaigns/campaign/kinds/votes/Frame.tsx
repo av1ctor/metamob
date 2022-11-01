@@ -8,6 +8,7 @@ import VoteForm from "./Form";
 import Result from "../../Result";
 import Share from "../../Share";
 import Boost from "../../Boost";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -32,13 +33,13 @@ export const VoteFrame = (props: Props) => {
             <div className="voting">
                 <progress className="progress voting mb-0 pb-0 is-success" value={Number(proVotes)} max={Number(totalVotes)}>{proVotes.toString()}</progress>
             </div>
-            <div><small><b>{proVotes.toString()}</b> in favor/<b>{againstVotes.toString()}</b> against of {totalVotes.toString()} votes in total.</small></div>
+            <div><small><b>{proVotes.toString()}</b> <FormattedMessage defaultMessage="in favor"/>/<b>{againstVotes.toString()}</b> <FormattedMessage defaultMessage="against of"/> {totalVotes.toString()} votes in total.</small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>
                     <Box>
                         <div className="is-size-4">
-                            To: <span className="is-size-4 has-text-link">{campaign.target}</span>
+                            <FormattedMessage id="To" defaultMessage="To"/>: <span className="is-size-4 has-text-link">{campaign.target}</span>
                         </div>
                         <VoteForm 
                             campaign={campaign}

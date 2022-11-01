@@ -14,6 +14,7 @@ import { icpToDecimal } from "../../libs/icp";
 import Badge from "../../components/Badge";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -85,7 +86,7 @@ const Item = (props: Props) => {
                         />
                     </span>
                     {campaign.boosting > 0n && 
-                        <span>&nbsp;·&nbsp;<Badge color="primary is-light"><i className="la la-rocket"/>&nbsp;promoted</Badge></span>
+                        <span>&nbsp;·&nbsp;<Badge color="primary is-light"><i className="la la-rocket"/>&nbsp;<FormattedMessage id="promoted" defaultMessage="promoted"/></Badge></span>
                     }
                     &nbsp;·&nbsp;
                     <span 

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState, useTransition } from "react";
+import { FormattedMessage } from "react-intl";
 import Button from "./Button";
 import { Option } from "./SelectField";
 
@@ -106,7 +107,7 @@ const AutocompleteField = (props: Props) => {
         <div className="field">
             {props.label && 
                 <label className="label">
-                    {props.label}
+                    <FormattedMessage id={props.label} defaultMessage={props.label} />
                 </label>
             }
             <div className="dropdown is-flex">

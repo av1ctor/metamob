@@ -9,6 +9,7 @@ import DeleteForm from "./vote/Delete";
 import EditForm from "./vote/Edit";
 import Button from "../../components/Button";
 import ModerationModal from "../moderations/Modal";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -94,13 +95,13 @@ const Votes = (props: Props) => {
                         disabled={!votes.hasNextPage || votes.isFetchingNextPage}
                         onClick={() => votes.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;{votes.hasNextPage? 'Load more': 'All loaded'}
+                        <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={votes.hasNextPage? 'Load more': 'All loaded'}/>
                     </Button>
                 </div>
             </div>
 
             <Modal
-                header={<span>Edit vote</span>}
+                header={<span><FormattedMessage defaultMessage="Edit vote"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -116,7 +117,7 @@ const Votes = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete vote</span>}
+                header={<span><FormattedMessage defaultMessage="Delete vote"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -132,7 +133,7 @@ const Votes = (props: Props) => {
             </Modal>            
 
             <Modal
-                header={<span>Report vote</span>}
+                header={<span><FormattedMessage defaultMessage="Report vote"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

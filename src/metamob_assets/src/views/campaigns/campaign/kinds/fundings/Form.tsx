@@ -14,10 +14,10 @@ import { depositIcp, getIcpBalance } from "../../../../../libs/users";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
 import { icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
-import SelectField from "../../../../../components/SelectField";
 import NumberField from "../../../../../components/NumberField";
 import CustomSelectField from "../../../../../components/CustomSelectField";
 import Badge from "../../../../../components/Badge";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -210,7 +210,7 @@ const FundingForm = (props: Props) => {
                     value: index,
                     node: 
                         <div className="tier-option">
-                            <div className="has-text-info"><b>Tier {1+index}</b></div>
+                            <div className="has-text-info"><b><FormattedMessage id="Tier" defaultMessage="Tier"/> {1+index}</b></div>
                             <div>
                                 <strong>{tier.title} ({icpToDecimal(tier.value)} ICP)</strong>
                             </div> 
@@ -276,7 +276,7 @@ const FundingForm = (props: Props) => {
                     </>
                 }
 
-                <div className="has-text-danger is-size-7"><b>Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!</b></div>
+                <div className="has-text-danger is-size-7"><b><FormattedMessage defaultMessage="Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!"/></b></div>
 
                 <div className="field mt-2">
                     <div className="control">
@@ -285,7 +285,7 @@ const FundingForm = (props: Props) => {
                             onClick={isLoggedIn? handleFunding: redirectToLogon}
                             disabled={isLoading}
                         >
-                            <i className="la la-lightbulb"/>&nbsp;FUND
+                            <i className="la la-lightbulb"/>&nbsp;<FormattedMessage id="FUND" defaultMessage="FUND"/>
                         </Button>
                     </div>
                 </div>

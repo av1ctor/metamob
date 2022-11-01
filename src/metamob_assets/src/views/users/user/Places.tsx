@@ -12,6 +12,7 @@ import CreateForm from '../../places/place/Create';
 import Button from "../../../components/Button";
 import { Paginator } from "../../../components/Paginator";
 import { PlaceIcon } from "../../places/place/PlaceIcon";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -100,13 +101,13 @@ const Places = (props: Props) => {
     }, [places.status]);
     
     if(!auth.user) {
-        return <div>Forbidden</div>;
+        return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My places
+                <FormattedMessage defaultMessage="My places"/>
             </div>
             
             <div className="level">
@@ -117,7 +118,7 @@ const Places = (props: Props) => {
                         title="Create a new place"
                         onClick={toggleCreate}
                     >
-                        <i className="la la-plus-circle" />&nbsp;Create
+                        <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                     </Button>
                 </div>
             </div>
@@ -147,21 +148,21 @@ const Places = (props: Props) => {
                                                     title="View place"
                                                     onClick={() => handleRedirect(place)}
                                                 >
-                                                    <span className="whitespace-nowrap has-text-primary-dark"><i className="la la-eye" /> View</span>
+                                                    <span className="whitespace-nowrap has-text-primary-dark"><i className="la la-eye" /> <FormattedMessage id="View" defaultMessage="View"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                                 <a
                                                     title="Edit place"
                                                     onClick={() => toggleEdit(place)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                                 <a
                                                     title="Delete place"
                                                     onClick={() => toggleDelete(place)}
                                                 >
-                                                    <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                                    <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage defaultMessage="Delete"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                                 <TimeFromNow 
@@ -185,7 +186,7 @@ const Places = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Create place</span>}
+                header={<span><FormattedMessage defaultMessage="Create place"/></span>}
                 isOpen={modals.create}
                 isOverOtherModal={true}
                 onClose={toggleCreate}
@@ -199,7 +200,7 @@ const Places = (props: Props) => {
             </Modal>            
             
             <Modal
-                header={<span>Edit place</span>}
+                header={<span><FormattedMessage defaultMessage="Edit place"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -216,14 +217,14 @@ const Places = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete place</span>}
+                header={<span><FormattedMessage defaultMessage="Delete place"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
             </Modal> 
 
             <Modal
-                header={<span>Edit place e-mails</span>}
+                header={<span><FormattedMessage defaultMessage="Edit place e-mails"/></span>}
                 isOpen={modals.editEmails}
                 onClose={toggleEditEmails}
             >

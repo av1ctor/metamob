@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { Place, PlaceUser, PlaceUserRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
@@ -23,6 +24,7 @@ const formSchema = yup.object().shape({
 
 const TermsForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+    const intl = useIntl();
 
     const [form, setForm] = useState<PlaceUserRequest>({
         placeId: props.place._id,
@@ -109,7 +111,7 @@ const TermsForm = (props: Props) => {
             />
             <br/>
             <CheckboxField
-                label="I have read and agree to the terms and conditions"
+                label={intl.formatMessage({defaultMessage: "I have read and agree to the terms and conditions"})}
                 id="termsAccepted"
                 value={form.termsAccepted}
                 onChange={changeForm}
@@ -120,7 +122,7 @@ const TermsForm = (props: Props) => {
                         onClick={handleCreate}
                         disabled={createMut.isLoading}
                     >
-                        Submit
+                        <FormattedMessage id="Submit" defaultMessage="Submit"/>
                     </Button>
                 </div>
                 <div className="control">
@@ -128,7 +130,7 @@ const TermsForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Cancel
+                        <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                     </Button>
                 </div>
             </div>

@@ -105,7 +105,7 @@ const Header = (props: Props) => {
                 <div className="navbar-end">
                     <div className="navbar-item has-dropdown is-hoverable">
                         <a className="navbar-link">
-                            <LangIcon flag={intl.flag} title={intl.title} />
+                            <LangIcon flag={intl.flag} />
                         </a>
                         <div className="navbar-dropdown is-right">
                             {languages.map(l => 

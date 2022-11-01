@@ -9,6 +9,7 @@ import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
+import { FormattedMessage } from "react-intl";
 
 interface BaseItemProps {
     donation: DonationResponse;
@@ -43,7 +44,7 @@ export const BaseItem = (props: BaseItemProps) => {
                         </div>
                     }
                     <div>
-                        Value:&nbsp;
+                        <FormattedMessage id="Value" defaultMessage="Value"/>:&nbsp;
                         <span 
                             className={`${props.donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
                         >
@@ -109,14 +110,14 @@ export const Item = (props: ItemProps) => {
                                 title="Edit donation"
                                 onClick={() => props.onEdit(donation)}
                             >
-                                <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                             </a>
                             &nbsp;·&nbsp;
                             <a
                                 title="Delete donation"
                                 onClick={() => props.onDelete(donation)}
                             >
-                                <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage id="Delete" defaultMessage="Delete"/></span>
                             </a>
                             &nbsp;·&nbsp;
                         </>
@@ -127,7 +128,7 @@ export const Item = (props: ItemProps) => {
                                 title="Report donation"
                                 onClick={() => props.onReport(donation)}
                             >
-                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> Report</span>
+                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
                             </a>
                             &nbsp;·&nbsp;
                         </>
@@ -137,7 +138,7 @@ export const Item = (props: ItemProps) => {
                     />
                     {donation.updatedBy && donation.updatedBy.length > 0 &&
                         <>
-                            &nbsp;·&nbsp;<b><i>Edited</i></b>
+                            &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                         </>
                     }
                 </small>

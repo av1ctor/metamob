@@ -7,6 +7,7 @@ import Result from "../../Result";
 import Share from "../../Share";
 import { icpToDecimal } from "../../../../../libs/icp";
 import Boost from "../../Boost";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -23,13 +24,13 @@ export const DonationFrame = (props: Props) => {
     return (
         <>
             <progress className="progress mb-0 pb-0 is-success" value={Number(donated / 100000000n)} max={Number(campaign.goal / 100000000n)}>{donated.toString()}</progress>
-            <div><small><b>{icpToDecimal(donated, 2)} ICP</b> donated. More <b>{icpToDecimal(campaign.goal - donated, 2)} ICP</b> to goal. Keep going!</small></div>
+            <div><small><b>{icpToDecimal(donated, 2)} ICP</b> <FormattedMessage defaultMessage="donated"/>. <FormattedMessage defaultMessage="More"/> <b>{icpToDecimal(campaign.goal - donated, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></small></div>
             <br/>
             {campaign.state === CampaignState.PUBLISHED? 
                 <>
                     <Box>
                         <div className="is-size-4">
-                            To: <span className="is-size-4 has-text-link">{campaign.target}</span>
+                            <FormattedMessage id="To" defaultMessage="To"/>: <span className="is-size-4 has-text-link">{campaign.target}</span>
                         </div>
                         <DonationForm 
                             campaign={campaign}

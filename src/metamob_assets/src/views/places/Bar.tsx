@@ -8,6 +8,7 @@ import SearchForm from "./Search";
 import CreateForm from "./place/Create";
 import { Sort } from "./Sort";
 import { Modes } from "./Places";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     filters: Filter[];
@@ -81,7 +82,7 @@ export const Bar = (props: Props) => {
                                         title="Create a new place" 
                                         onClick={isLoggedIn? toggleCreate: redirectToLogon}
                                     >
-                                        <i className="la la-plus-circle" />&nbsp;Create
+                                        <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                                     </Button>
                                 </div>
                             </div>
@@ -91,7 +92,7 @@ export const Bar = (props: Props) => {
             </nav>
 
             <Modal
-                header={<span>Create place</span>}
+                header={<span><FormattedMessage defaultMessage="Create place"/></span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >

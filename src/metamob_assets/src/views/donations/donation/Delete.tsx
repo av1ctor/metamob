@@ -5,7 +5,7 @@ import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import { useFindCampaignById } from "../../../hooks/campaigns";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Props {
     donation: DonationResponse;
@@ -18,6 +18,7 @@ interface Props {
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+    const intl = useIntl();
     
     const deleteMut = useDeleteDonation();
     const campaign = useFindCampaignById(props.donation.campaignId);
@@ -38,7 +39,7 @@ const DeleteForm = (props: Props) => {
                 campaignPubId: campaign.data.pubId,
             });
             
-            props.onSuccess('Donation deleted!');
+            props.onSuccess(intl.formatMessage({defaultMessage: 'Donation deleted!'}));
             props.onClose();
         }
         catch(e) {

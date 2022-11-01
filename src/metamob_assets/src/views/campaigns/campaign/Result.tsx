@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { Campaign } from "../../../../../declarations/metamob/metamob.did";
 import Box from "../../../components/Box";
 import Modal from "../../../components/Modal";
@@ -46,11 +47,11 @@ const Result = (props: Props) => {
             <div>
                 {campaign.result === CampaignResult.OK? 
                     <div className="notification is-success is-light">
-                        This campaign finished and the goal was achieved! Congratulations!
+                        <FormattedMessage defaultMessage="This campaign finished and the goal was achieved! Congratulations!"/>
                     </div>
                 :
                     <div className="notification is-danger is-light">
-                        This campaign finished and unfortunately the goal was not achieved. Maybe next time!
+                        <FormattedMessage defaultMessage="This campaign finished and unfortunately the goal was not achieved. Maybe next time!"/>
                     </div>
                 }
             </div>
@@ -58,7 +59,7 @@ const Result = (props: Props) => {
                 <> 
                     <br/>
                     <Box className="campaign-actions">
-                        Choose now an action to execute:
+                    <FormattedMessage defaultMessage="Choose now an action to execute"/>:
                         <div className="columns is-multiline">
                             <div className="column is-3">
                                 <div 
@@ -66,14 +67,14 @@ const Result = (props: Props) => {
                                     onClick={toggleGenEmail}
                                 >
                                     <div><i className="la la-envelope is-size-1"/></div>
-                                    <div className="is-size-7">Generate e-mail</div>
+                                    <div className="is-size-7"><FormattedMessage defaultMessage="Generate e-mail"/></div>
                                 </div>
                             </div>
                         </div>
                     </Box>
                     
                     <Modal
-                        header="Action"
+                        header={<FormattedMessage id="Action" defaultMessage="Action"/>}
                         isOpen={modals.show}
                         onClose={toggleShow}
                     >

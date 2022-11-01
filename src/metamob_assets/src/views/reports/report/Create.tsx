@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { ReportRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
@@ -7,7 +8,7 @@ import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateReport } from "../../../hooks/reports";
 import { EntityType } from "../../../libs/common";
-import { kinds, ReportKind } from "../../../libs/reports";
+import { kinds } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
@@ -30,6 +31,7 @@ const formSchema = yup.object().shape({
 
 const CreateForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+    const intl = useIntl();
     
     const [form, setForm] = useState<ReportRequest>({
         entityId: props.entityId,
@@ -74,7 +76,7 @@ const CreateForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!');
+            props.onSuccess(intl.formatMessage({defaultMessage: 'Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!'}));
             props.onClose();
         }
         catch(e) {
@@ -120,14 +122,14 @@ const CreateForm = (props: Props) => {
                     <div className="control">
                         <Button
                             onClick={handleCreate}>
-                            Create
+                            <FormattedMessage id="Create" defaultMessage="Create"/>
                         </Button>
                     </div>
                     <div className="control">
                         <Button
                             color="danger"
                             onClick={handleClose}>
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import { VoteResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
@@ -76,13 +77,13 @@ const Votes = (props: Props) => {
     }, [votes.status]);
     
     if(!auth.user) {
-        return <div>Forbidden</div>;
+        return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My votes
+                <FormattedMessage defaultMessage="My votes"/>
             </div>
 
             <div>
@@ -103,14 +104,14 @@ const Votes = (props: Props) => {
                                         title="Edit vote"
                                         onClick={() => toggleEdit(vote)}
                                         >
-                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                            <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <a
                                             title="Delete vote"
                                             onClick={() => toggleDelete(vote)}
                                         >
-                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> Delete</span>
+                                            <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage id="Delete" defaultMessage="Delete"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <TimeFromNow 
@@ -118,13 +119,13 @@ const Votes = (props: Props) => {
                                         />
                                         {vote.updatedBy && vote.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
                                 </p>
 
-                                Campaign: <CampaignLink 
+                                <FormattedMessage id="Campaign" defaultMessage="Campaign"/>: <CampaignLink 
                                     id={vote.campaignId} 
                                 />
                                 
@@ -142,7 +143,7 @@ const Votes = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit vote</span>}
+                header={<span><FormattedMessage defaultMessage="Edit vote"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -158,7 +159,7 @@ const Votes = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete vote</span>}
+                header={<span><FormattedMessage defaultMessage="Delete vote"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >

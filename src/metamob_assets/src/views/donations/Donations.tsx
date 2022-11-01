@@ -10,6 +10,7 @@ import DeleteForm from "./donation/Delete";
 import EditForm from "./donation/Edit";
 import Button from "../../components/Button";
 import ModerationModal from "../moderations/Modal";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -95,13 +96,13 @@ const Donations = (props: Props) => {
                         disabled={!donations.hasNextPage || donations.isFetchingNextPage}
                         onClick={() => donations.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;{donations.hasNextPage? 'Load more': 'All loaded'}
+                        <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={donations.hasNextPage? 'Load more': 'All loaded'}/>
                     </Button>
                 </div>
             </div>
 
             <Modal
-                header={<span>Edit donation</span>}
+                header={<span><FormattedMessage defaultMessage="Edit donation"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -117,7 +118,7 @@ const Donations = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete donation</span>}
+                header={<span><FormattedMessage defaultMessage="Delete donation"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -133,7 +134,7 @@ const Donations = (props: Props) => {
             </Modal>            
 
             <Modal
-                header={<span>Report donation</span>}
+                header={<span><FormattedMessage defaultMessage="Report donation"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

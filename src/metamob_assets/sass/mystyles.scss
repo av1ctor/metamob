@@ -524,10 +524,15 @@ a:not(:first-child) {
 }
 
 .intl {
-    &.icon {
-        display: inline-block;
+    .title {
+        vertical-align: middle;
+        font-size: small;
+        padding-left: 4px;
+    }
+    .icon {
         border-radius: 50%;
         overflow: hidden;
+        vertical-align: middle;
         &img {
             width: auto;
             height: 12px;

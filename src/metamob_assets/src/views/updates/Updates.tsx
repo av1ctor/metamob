@@ -12,6 +12,7 @@ import ReportForm from "../reports/report/Create";
 import Button from "../../components/Button";
 import DeleteForm from "./update/Delete";
 import ModerationModal from "../moderations/Modal";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -114,7 +115,7 @@ const Updates = (props: Props) => {
                             <Button
                                 onClick={toggleCreate}
                             >
-                                <i className="la la-plus-circle" />&nbsp;Create
+                                <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                             </Button>
                         }
                     </div>
@@ -125,14 +126,14 @@ const Updates = (props: Props) => {
                             disabled={!updates.hasNextPage || updates.isFetchingNextPage}
                             onClick={() => updates.fetchNextPage()}
                         >
-                            <i className="la la-sync" />&nbsp;{updates.hasNextPage? 'Load more': 'All loaded'}
+                            <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={updates.hasNextPage? 'Load more': 'All loaded'}/>
                         </Button>
                     </div>
                 </div>
             </div>
 
             <Modal
-                header={<span>Create update</span>}
+                header={<span><FormattedMessage defaultMessage="Create update"/></span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >
@@ -146,7 +147,7 @@ const Updates = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Edit update</span>}
+                header={<span><FormattedMessage defaultMessage="Edit update"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -162,7 +163,7 @@ const Updates = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Delete update</span>}
+                header={<span><FormattedMessage defaultMessage="Delete update"/></span>}
                 isOpen={modals.delete}
                 onClose={toggleDelete}
             >
@@ -178,7 +179,7 @@ const Updates = (props: Props) => {
             </Modal>            
 
             <Modal
-                header={<span>Report update</span>}
+                header={<span><FormattedMessage defaultMessage="Report update"/></span>}
                 isOpen={modals.report}
                 onClose={toggleReport}
             >

@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import MyChallenges from "./challenges/MyChallenges";
 import BecomeModForm from "./BecomeMod";
 import ToModerate from "./challenges/ToModerate";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -28,7 +29,7 @@ const Challenges = (props: Props) => {
     }, []);
 
     if(!auth.user) {
-        return <div>Forbidden</div>;
+        return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
 
     return (
@@ -49,14 +50,14 @@ const Challenges = (props: Props) => {
                 :
                     <div className="container border mt-6 p-4">
                         <div className="has-text-centered">
-                            <b>Become a moderator and receive MMT's on every moderation done!</b>
+                            <b><FormattedMessage defaultMessage="Become a moderator and receive MMT's on every moderation done!"/></b>
                         </div>
                         <div className="field is-grouped mt-2 has-text-centered">
                             <div className="control m-auto">
                                 <Button 
                                     onClick={toggleBecomeMod}
                                 >
-                                    Sign up!
+                                    <FormattedMessage id="Sign up" defaultMessage="Sign up"/>!
                                 </Button>
                             </div>
                         </div>
@@ -65,7 +66,7 @@ const Challenges = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Become a moderator</span>}
+                header={<span><FormattedMessage defaultMessage="Become a moderator"/></span>}
                 isOpen={modals.becomeMod}
                 onClose={toggleBecomeMod}
             >

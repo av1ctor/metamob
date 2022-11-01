@@ -11,7 +11,7 @@ import TextField from "../../../components/TextField";
 import { isModerator } from "../../../libs/users";
 import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Props {
     donation: DonationResponse;
@@ -31,6 +31,7 @@ const formSchema = yup.object().shape({
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+    const intl = useIntl();
     
     const [form, setForm] = useState<DonationRequest>({
         campaignId: props.donation.campaignId,
@@ -105,7 +106,7 @@ const EditForm = (props: Props) => {
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
                 });
-                props.onSuccess('Donation moderated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Donation moderated!'}));
             }
             else {
                 await updateMut.mutateAsync({
@@ -113,7 +114,7 @@ const EditForm = (props: Props) => {
                     pubId: props.donation.pubId, 
                     req: transformReq(),
                 });
-                props.onSuccess('Donation updated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Donation updated!'}));
             }
 
             props.onClose();

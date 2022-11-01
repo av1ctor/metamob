@@ -8,6 +8,7 @@ import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
 import { ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -133,7 +134,7 @@ const SignForm = (props: Props) => {
                             onClick={isLoggedIn? handleSign: redirectToLogon}
                             disabled={isLoggedIn? createMut.isLoading || hasSigned: false}
                         >
-                            <i className="la la-pen-fancy"/>&nbsp;SIGN
+                            <i className="la la-pen-fancy"/>&nbsp;<FormattedMessage id="SIGN" defaultMessage="SIGN"/>
                         </Button>
                     </div>
                 </div>

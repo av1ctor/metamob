@@ -20,6 +20,7 @@ import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
+import { FormattedMessage } from "react-intl";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -410,7 +411,7 @@ const EditForm = (props: Props) => {
                 />
                 {(Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS) &&
                     <>
-                        <label className="label">Action (transfer funds)</label>
+                        <label className="label"><FormattedMessage defaultMessage="Action (transfer funds)"/></label>
                         <div className="p-2 border">
                             <TextField 
                                 label="To account" 
@@ -426,7 +427,7 @@ const EditForm = (props: Props) => {
                 }
                 {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
                     <>
-                        <label className="label">Action (invoke method)</label>
+                        <label className="label"><FormattedMessage defaultMessage="Action (invoke method)"/></label>
                         <div className="p-2 border">
                             <TextField 
                                 label="Canister Id" 
@@ -476,7 +477,7 @@ const EditForm = (props: Props) => {
                             onClick={handleUpdate}
                             disabled={updateMut.isLoading}
                         >
-                            Update
+                            <FormattedMessage id="Update" defaultMessage="Update"/>
                         </Button>
                     </div>
                     <div className="control">
@@ -484,7 +485,7 @@ const EditForm = (props: Props) => {
                             color="danger"
                             onClick={handleClose}
                         >
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

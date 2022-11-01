@@ -1,4 +1,5 @@
 import React from "react";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     id?: string;
@@ -16,7 +17,7 @@ const NumberField = (props: Props) => {
     return (
         <div className="field">
             <label className="label">
-                {props.label}
+                <FormattedMessage id={props.label} defaultMessage={props.label} />
             </label>
             <div className="control">
                 <input 

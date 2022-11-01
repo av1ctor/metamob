@@ -11,6 +11,7 @@ import TextField from "../../../components/TextField";
 import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { isModerator } from "../../../libs/users";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Props {
     funding: FundingResponse;
@@ -30,6 +31,7 @@ const formSchema = yup.object().shape({
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+    const intl = useIntl();
     
     const [form, setForm] = useState<FundingRequest>({
         campaignId: props.funding.campaignId,
@@ -108,7 +110,7 @@ const EditForm = (props: Props) => {
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
                 });
-                props.onSuccess('Funding moderated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Funding moderated!'}));
             }
             else {
                 await updateMut.mutateAsync({
@@ -116,7 +118,7 @@ const EditForm = (props: Props) => {
                     pubId: props.funding.pubId, 
                     req: transformReq(),
                 });
-                props.onSuccess('Funding updated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Funding updated!'}));
             }
             
             props.onClose();
@@ -179,7 +181,7 @@ const EditForm = (props: Props) => {
                             onClick={handleUpdate}
                             disabled={updateMut.isLoading}
                         >
-                            Update
+                            <FormattedMessage id="Update" defaultMessage="Update"/>
                         </Button>
                     </div>
                     <div className="control">
@@ -187,7 +189,7 @@ const EditForm = (props: Props) => {
                             color="danger"
                             onClick={handleClose}
                         >
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

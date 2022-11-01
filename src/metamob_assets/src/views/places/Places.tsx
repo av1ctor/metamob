@@ -8,6 +8,7 @@ import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import { FormattedMessage } from "react-intl";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
@@ -192,7 +193,7 @@ const Places = (props: Props) => {
                         disabled={!places.hasNextPage || places.isFetchingNextPage}
                         onClick={() => places.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;{places.hasNextPage? 'Load more': 'All loaded'}
+                        <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={places.hasNextPage? 'Load more': 'All loaded'}/>
                     </Button>
                 </div>
             </div>

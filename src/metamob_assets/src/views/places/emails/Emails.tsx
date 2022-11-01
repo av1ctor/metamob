@@ -1,4 +1,5 @@
 import React, {useState, useCallback, useEffect, useContext} from "react";
+import { FormattedMessage } from "react-intl";
 import { Place } from "../../../../../declarations/metamob/metamob.did";
 import Badge from "../../../components/Badge";
 import Button from "../../../components/Button";
@@ -88,7 +89,7 @@ const PlaceEmails = (props: Props) => {
                 <div className="header">
                     <div className="columns">
                         <div className="column">
-                            E-mail
+                            <FormattedMessage id="E-mail" defaultMessage="E-mail"/>
                         </div>
                     </div>
                 </div>
@@ -124,13 +125,13 @@ const PlaceEmails = (props: Props) => {
                     <Button
                         onClick={toggleCreate}
                     >
-                        <i className="la la-plus-circle" />&nbsp;Create
+                        <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                     </Button>
                 </div>
             </div>
 
             <Modal
-                header={<span>Create e-mail</span>}
+                header={<span><FormattedMessage defaultMessage="Create e-mail"/></span>}
                 isOpen={modals.create}
                 onClose={toggleCreate}
             >

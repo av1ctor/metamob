@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { FormattedMessage } from "react-intl";
 import { Campaign } from "../../../../../declarations/metamob/metamob.did";
 import { config } from "../../../config";
 
@@ -47,7 +48,7 @@ const Share = (props: Props) => {
             <div
                 className="is-size-4 has-text-success-dark mb-2"
             >
-                Share this campaign
+                <FormattedMessage defaultMessage="Share this campaign"/>
             </div>
             <div className="columns">
                 <div className="column is-3">
