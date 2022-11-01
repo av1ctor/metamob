@@ -207,14 +207,14 @@ const Campaign = (props: Props) => {
                                 {canEdit?
                                     <>
                                         <a
-                                            title={intl.formatMessage({defaultMessage: "Edit campaign"})}
+                                            title={intl.formatMessage({id: "Edit campaign", defaultMessage: "Edit campaign"})}
                                             onClick={toggleEdit}
                                         >
                                             <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage defaultMessage="Edit"/></span>
                                         </a>
                                         &nbsp;·&nbsp;
                                         <a
-                                            title={intl.formatMessage({defaultMessage: "Delete campaign"})}
+                                            title={intl.formatMessage({id: "Delete campaign", defaultMessage: "Delete campaign"})}
                                             onClick={toggleDelete}
                                         >
                                             <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage defaultMessage="Delete"/></span>
@@ -227,7 +227,7 @@ const Campaign = (props: Props) => {
                                 {auth.user && 
                                     <>
                                         <a
-                                            title={intl.formatMessage({defaultMessage: "Report campaign"})}
+                                            title={intl.formatMessage({id: "Report campaign", defaultMessage: "Report campaign"})}
                                             onClick={toggleReport}
                                         >
                                             <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage defaultMessage="Report"/></span>
@@ -242,7 +242,7 @@ const Campaign = (props: Props) => {
 
                                 {campaign.updatedBy && campaign.updatedBy.length > 0 &&
                                     <>
-                                        &nbsp;·&nbsp;<b><i><FormattedMessage defaultMessage="Edited"/></i></b>
+                                        &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                     </>
                                 }
                             </small>
@@ -271,7 +271,7 @@ const Campaign = (props: Props) => {
                                 icon: campaignKindToIcon(campaign.kind),
                             },
                             {
-                                title: intl.formatMessage({defaultMessage: 'Updates'}), 
+                                title: intl.formatMessage({id: "Updates", defaultMessage: 'Updates'}), 
                                 icon: 'newspaper', 
                                 badge: campaign.updates > 0? campaign.updates.toString(): ''
                             }

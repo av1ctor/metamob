@@ -126,7 +126,7 @@ const Updates = (props: Props) => {
                             disabled={!updates.hasNextPage || updates.isFetchingNextPage}
                             onClick={() => updates.fetchNextPage()}
                         >
-                            <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={updates.hasNextPage? 'Load more': 'All loaded'}/>
+                            <i className="la la-sync" />&nbsp;<FormattedMessage id={updates.hasNextPage? 'Load more': 'All loaded'} defaultMessage={updates.hasNextPage? 'Load more': 'All loaded'}/>
                         </Button>
                     </div>
                 </div>

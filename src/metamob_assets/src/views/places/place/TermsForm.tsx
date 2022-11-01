@@ -111,7 +111,7 @@ const TermsForm = (props: Props) => {
             />
             <br/>
             <CheckboxField
-                label={intl.formatMessage({defaultMessage: "I have read and agree to the terms and conditions"})}
+                label={intl.formatMessage({id: "I have read and agree to the terms and conditions", defaultMessage: "I have read and agree to the terms and conditions"})}
                 id="termsAccepted"
                 value={form.termsAccepted}
                 onChange={changeForm}

@@ -193,7 +193,7 @@ const Places = (props: Props) => {
                         disabled={!places.hasNextPage || places.isFetchingNextPage}
                         onClick={() => places.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={places.hasNextPage? 'Load more': 'All loaded'}/>
+                        <i className="la la-sync" />&nbsp;<FormattedMessage id={places.hasNextPage? 'Load more': 'All loaded'} defaultMessage={places.hasNextPage? 'Load more': 'All loaded'}/>
                     </Button>
                 </div>
             </div>

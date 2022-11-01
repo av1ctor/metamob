@@ -95,7 +95,7 @@ const Signatures = (props: Props) => {
                         disabled={!signatures.hasNextPage || signatures.isFetchingNextPage}
                         onClick={() => signatures.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;{<FormattedMessage defaultMessage={signatures.hasNextPage? 'Load more': 'All loaded'}/>}
+                        <i className="la la-sync" />&nbsp;{<FormattedMessage id={signatures.hasNextPage? 'Load more': 'All loaded'} defaultMessage={signatures.hasNextPage? 'Load more': 'All loaded'}/>}
                     </Button>
                 </div>
             </div>

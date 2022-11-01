@@ -95,7 +95,7 @@ const Votes = (props: Props) => {
                         disabled={!votes.hasNextPage || votes.isFetchingNextPage}
                         onClick={() => votes.fetchNextPage()}
                     >
-                        <i className="la la-sync" />&nbsp;<FormattedMessage defaultMessage={votes.hasNextPage? 'Load more': 'All loaded'}/>
+                        <i className="la la-sync" />&nbsp;<FormattedMessage id={votes.hasNextPage? 'Load more': 'All loaded'} defaultMessage={votes.hasNextPage? 'Load more': 'All loaded'}/>
                     </Button>
                 </div>
             </div>
