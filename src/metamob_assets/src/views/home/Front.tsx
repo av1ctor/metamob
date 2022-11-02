@@ -109,7 +109,7 @@ const Front = (props: Props) => {
                             <strong><FormattedMessage defaultMessage="Find or create your place"/></strong>
                         </div>
                         <div className="text">
-                            <FormattedMessage defaultMessage="You can create a new place"/>&nbsp;<Link to="/user/places">here</Link>&nbsp;<FormattedMessage defaultMessage="or use an existing one."/><br/>
+                            <FormattedMessage defaultMessage="You can create a new place"/>&nbsp;<Link to="/user/places"><FormattedMessage id="here" defaultMessage="here"/></Link>&nbsp;<FormattedMessage defaultMessage="or use an existing one."/><br/>
                             <FormattedMessage defaultMessage="They can be restricted by e-mail list, DIP20 (tokens) or DIP721 (NFT's) balances, so you can control who can participate." />
                         </div>
                     </div>
