@@ -4,7 +4,7 @@ import {Campaign} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 interface Props {
     campaign: Campaign;
@@ -16,6 +16,7 @@ interface Props {
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext)
+    const intl = useIntl();
     
     const deleteMut = useDeleteCampaign();
 
@@ -30,7 +31,7 @@ const DeleteForm = (props: Props) => {
                 pubId: props.campaign.pubId, 
             });
 
-            props.onSuccess('Campaign deleted!');
+            props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign deleted!'}));
             props.onClose();
         }
         catch(e) {

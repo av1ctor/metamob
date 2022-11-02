@@ -42,6 +42,7 @@ const Campaign = (props: Props) => {
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
     const intl = useIntl();
+    
     const [modals, setModals] = useState({
         edit: false,
         delete: false,

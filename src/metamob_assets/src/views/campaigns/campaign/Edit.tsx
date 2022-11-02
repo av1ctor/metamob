@@ -20,7 +20,7 @@ import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -139,6 +139,7 @@ interface Props {
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext)
     const [auth, ] = useContext(AuthContext);
+    const intl = useIntl();
     
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
@@ -271,7 +272,7 @@ const EditForm = (props: Props) => {
                     mod: transformModerationForm(modForm)
                 });
     
-                props.onSuccess('Campaign moderated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign moderated!'}));
             }
             else {
                 await updateMut.mutateAsync({
@@ -280,7 +281,7 @@ const EditForm = (props: Props) => {
                     req: transformReq()
                 });
     
-                props.onSuccess('Campaign updated!');
+                props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign updated!'}));
             }
             
             props.onClose();
