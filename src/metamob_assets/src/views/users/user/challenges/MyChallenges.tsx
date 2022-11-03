@@ -9,6 +9,7 @@ import {BaseItem} from "../../../challenges/Item";
 import EditForm from "../../../challenges/challenge/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ChallengeState } from "../../../../libs/challenges";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -69,7 +70,7 @@ const MyChallenges = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My challenges
+                <FormattedMessage id="My challenges" defaultMessage="My challenges"/>
             </div>
 
             <div>
@@ -95,7 +96,7 @@ const MyChallenges = (props: Props) => {
                                                     title="Edit challenge"
                                                     onClick={() => toggleEdit(challenge)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -105,7 +106,7 @@ const MyChallenges = (props: Props) => {
                                         />
                                         {challenge.updatedBy && challenge.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
@@ -124,7 +125,7 @@ const MyChallenges = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit challenge</span>}
+                header={<span><FormattedMessage id="Edit challenge" defaultMessage="Edit challenge"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >

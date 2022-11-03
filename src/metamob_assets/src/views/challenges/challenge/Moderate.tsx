@@ -12,6 +12,7 @@ import Avatar from "../../users/Avatar";
 import EntityViewWrapper from "./EntityViewWrapper";
 import EntityView from "./EntityView";
 import { variantUnbox } from "../../../libs/utils";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     challenge: Challenge;
@@ -130,7 +131,7 @@ const ModerateForm = (props: Props) => {
             />
             <div className="field">
                 <label className="label">
-                    Challenger
+                    <FormattedMessage id="Challenger" defaultMessage="Challenger" />
                 </label>
                 <div className="control">
                     <Avatar 
@@ -148,7 +149,7 @@ const ModerateForm = (props: Props) => {
 
             <div className="field">
                 <label className="label">
-                    Original entity
+                    <FormattedMessage id="Original entity" defaultMessage="Original entity"/>
                 </label>
                 <div className="control preview-box">
                     <EntityView
@@ -160,7 +161,7 @@ const ModerateForm = (props: Props) => {
 
             <div className="field">
                 <label className="label">
-                    Moderated entity
+                    <FormattedMessage id="Moderated entity" defaultMessage="Moderated entity"/>
                 </label>
                 <div className="control preview-box">
                     <EntityViewWrapper
@@ -172,7 +173,7 @@ const ModerateForm = (props: Props) => {
             
             <div className="field">
                 <label className="label">
-                    Decision
+                    <FormattedMessage id="Decision" defaultMessage="Decision"/>
                 </label>
                 <div className="control preview-box">
                     <CheckboxField
@@ -198,7 +199,7 @@ const ModerateForm = (props: Props) => {
                         onClick={handleVote}
                         disabled={closeMut.isLoading}
                     >
-                        Vote
+                        <FormattedMessage id="Vote" defaultMessage="Vote"/>
                     </Button>
                 </div>
                 <div className="control">
@@ -206,7 +207,7 @@ const ModerateForm = (props: Props) => {
                         color="danger"
                         onClick={handleClose}
                     >
-                        Cancel
+                        <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                     </Button>
                 </div>
             </div>

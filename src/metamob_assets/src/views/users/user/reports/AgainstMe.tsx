@@ -6,10 +6,10 @@ import { useFindAgainstUserReports } from "../../../../hooks/reports";
 import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
-import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportResult, ReportState } from "../../../../libs/reports";
 import CreateForm from "../../../challenges/challenge/Create";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -69,7 +69,7 @@ const AgainstMe = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                Against me
+                <FormattedMessage id="Against me" defaultMessage="Against me"/>
             </div>
 
             <div>
@@ -95,7 +95,7 @@ const AgainstMe = (props: Props) => {
                                                     title="Challenge report"
                                                     onClick={() => toggleChallenge(report)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-bullhorn" /> Challenge</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-bullhorn" /> <FormattedMessage id="Challenge" defaultMessage="Challenge"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -105,7 +105,7 @@ const AgainstMe = (props: Props) => {
                                         />
                                         {report.updatedBy && report.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
@@ -124,7 +124,7 @@ const AgainstMe = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Challenge report</span>}
+                header={<span><FormattedMessage id="Challenge moderation" defaultMessage="Challenge moderation"/></span>}
                 isOpen={modals.challenge}
                 onClose={toggleChallenge}
             >

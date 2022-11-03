@@ -11,6 +11,7 @@ import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
 import EntityModerate from "../../../reports/report/EntityModerate";
 import { entityTypeToText } from "../../../../libs/common";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -87,8 +88,8 @@ const ToModerate = (props: Props) => {
 
     return (
         <>
-            <div className="page-title has-text-info-dark">
-                To moderate
+            <div className="page-title has-text-info-dark">                
+                <FormattedMessage id="To moderate" defaultMessage="To moderate"/>
             </div>
 
             <div>
@@ -113,7 +114,7 @@ const ToModerate = (props: Props) => {
                                                     title="Edit report"
                                                     onClick={() => toggleEdit(report)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-pen" /> Edit</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-pen" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -123,7 +124,7 @@ const ToModerate = (props: Props) => {
                                         />
                                         {report.updatedBy && report.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
@@ -142,7 +143,7 @@ const ToModerate = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit report</span>}
+                header={<span><FormattedMessage id="Edit report" defaultMessage="Edit report"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >
@@ -159,7 +160,7 @@ const ToModerate = (props: Props) => {
             </Modal>
 
             <Modal
-                header={<span>Moderate {report? entityTypeToText(report?.entityType): ''}</span>}
+                header={<span><FormattedMessage id="Moderate" defaultMessage="Moderate"/> {report? <FormattedMessage id={entityTypeToText(report?.entityType)} defaultMessage={entityTypeToText(report?.entityType)}/>: ''}</span>}
                 isOpen={modals.moderate}
                 onClose={toggleModerate}
             >

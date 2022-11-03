@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import { ChallengeRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
@@ -129,11 +130,11 @@ const CreateForm = (props: Props) => {
         <form onSubmit={handleCreate}>
             <Container>
                 <div className="mb-4">
-                    <p>To challenge a moderation, your wallet will be billed <b>{icpToDecimal(minDeposit)} MMT</b>.</p>
-                    <p className="mt-2">If the challenge is accepted and the moderation get reverted, the deposited value will be reimbursed to your wallet. Otherwise, <b><span className="has-text-danger">the value deposited will be lost</span></b>!</p>
+                    <p><FormattedMessage defaultMessage="To challenge a moderation, your wallet will be billed {mmt} MMT" values={{mmt: icpToDecimal(minDeposit)}} />.</p>
+                    <p className="mt-2"><FormattedMessage defaultMessage="If the challenge is accepted and the moderation get reverted, the deposited value will be reimbursed to your wallet. Otherwise"/>, <b><span className="has-text-danger"><FormattedMessage defaultMessage="the value deposited will be lost"/></span></b>!</p>
                     {auth.balances.mmt <= minDeposit &&
                         <p className="mt-2">
-                            Sorry, your balance (<b>{icpToDecimal(auth.balances.mmt)} MMT</b>) is <span className="has-text-danger">too low</span>.
+                            <FormattedMessage defaultMessage="Sorry, your balance ({mmt} MMT) is too low" values={{mmt: icpToDecimal(auth.balances.mmt)}} />.
                         </p>
                     }
                 </div>
@@ -150,14 +151,14 @@ const CreateForm = (props: Props) => {
                         <Button
                             disabled={auth.balances.mmt <= minDeposit}
                             onClick={handleCreate}>
-                            Create
+                            <FormattedMessage id="Create" defaultMessage="Create"/>
                         </Button>
                     </div>
                     <div className="control">
                         <Button
                             color="danger"
                             onClick={handleClose}>
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>

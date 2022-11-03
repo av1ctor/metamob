@@ -9,6 +9,7 @@ import {BaseItem} from "../../../challenges/Item";
 import { Paginator } from "../../../../components/Paginator";
 import { ChallengeState } from "../../../../libs/challenges";
 import ModerateForm from "../../../challenges/challenge/Moderate";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -73,7 +74,7 @@ const ToModerate = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                To moderate
+                <FormattedMessage id="To moderate" defaultMessage="To moderate"/>
             </div>
 
             <div>
@@ -98,7 +99,7 @@ const ToModerate = (props: Props) => {
                                                     title="Moderate challenge"
                                                     onClick={() => handleModerate(challenge)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-chess" /> Moderate</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-chess" /> <FormattedMessage id="Moderate" defaultMessage="Moderate"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -108,7 +109,7 @@ const ToModerate = (props: Props) => {
                                         />
                                         {challenge.updatedBy && challenge.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
@@ -127,7 +128,7 @@ const ToModerate = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Moderate challenge</span>}
+                header={<span><FormattedMessage id="Moderate challenge" defaultMessage="Moderate challenge"/></span>}
                 isOpen={modals.moderate}
                 onClose={toggleModerate}
             >

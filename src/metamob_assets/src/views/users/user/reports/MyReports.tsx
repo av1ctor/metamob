@@ -9,6 +9,7 @@ import {BaseItem} from "../../../reports/Item";
 import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
+import { FormattedMessage } from "react-intl";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -68,7 +69,7 @@ const MyReports = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                My reports
+                <FormattedMessage id="My reports" defaultMessage="My reports"/>
             </div>
 
             <div>
@@ -94,7 +95,7 @@ const MyReports = (props: Props) => {
                                                     title="Edit report"
                                                     onClick={() => toggleEdit(report)}
                                                 >
-                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> Edit</span>
+                                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                                 </a>
                                                 &nbsp;·&nbsp;
                                             </span>
@@ -104,7 +105,7 @@ const MyReports = (props: Props) => {
                                         />
                                         {report.updatedBy && report.updatedBy.length > 0 &&
                                             <>
-                                                &nbsp;·&nbsp;<b><i>Edited</i></b>
+                                                &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                                             </>
                                         }
                                     </small>
@@ -123,7 +124,7 @@ const MyReports = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit report</span>}
+                header={<span><FormattedMessage id="Edit report" defaultMessage="Edit report"/></span>}
                 isOpen={modals.edit}
                 onClose={toggleEdit}
             >

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import { Challenge, ChallengeRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
@@ -109,14 +110,14 @@ const EditForm = (props: Props) => {
                     <div className="control">
                         <Button
                             onClick={handleUpdate}>
-                            Update
+                            <FormattedMessage id="Update" defaultMessage="Update"/>
                         </Button>
                     </div>
                     <div className="control">
                         <Button
                             color="danger"
                             onClick={handleClose}>
-                            Cancel
+                            <FormattedMessage id="Cancel" defaultMessage="Cancel"/>
                         </Button>
                     </div>
                 </div>
