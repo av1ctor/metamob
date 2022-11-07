@@ -51,8 +51,9 @@ shared(msg) actor class Token(
         ledger.getMetadata();
     };
 
-    public shared(msg) func dip721_set_name(
-        name: Text
+    private func _setName(
+        name: Text,
+        caller: Principal
     ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
@@ -65,12 +66,19 @@ shared(msg) actor class Token(
                 created_at = md.created_at;
                 upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
-            msg.caller
+            caller
         )
     };
 
-    public shared(msg) func dip721_set_logo(
-        logo: Text
+    public shared(msg) func dip721_set_name(
+        name: Text
+    ): async Types.Result<()> {
+        await _setName(name, msg.caller)
+    };
+
+    private shared(msg) func _setLogo(
+        logo: Text,
+        caller: Principal
     ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
@@ -83,12 +91,19 @@ shared(msg) actor class Token(
                 created_at = md.created_at;
                 upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
-            msg.caller
+            caller
         )
     };
 
-    public shared(msg) func dip721_set_symbol(
-        symbol: Text
+    public shared(msg) func dip721_set_logo(
+        logo: Text
+    ): async Types.Result<()> {
+        await _setLogo(logo, msg.caller)
+    };
+
+    private func _setSymbol(
+        symbol: Text,
+        caller: Principal
     ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
@@ -101,12 +116,19 @@ shared(msg) actor class Token(
                 created_at = md.created_at;
                 upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
-            msg.caller
+            caller
         )
     };
 
-    public shared(msg) func dip721_set_custodians(
-        custodians: [Principal]
+    public shared(msg) func dip721_set_symbol(
+        symbol: Text
+    ): async Types.Result<()> {
+        await _setSymbol(symbol, msg.caller)
+    };
+
+    private func _setCustodians(
+        custodians: [Principal],
+        caller: Principal
     ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
@@ -119,8 +141,14 @@ shared(msg) actor class Token(
                 created_at = md.created_at;
                 upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
-            msg.caller
+            caller
         )
+    };
+
+    public shared(msg) func dip721_set_custodians(
+        custodians: [Principal]
+    ): async Types.Result<()> {
+        await _setCustodians(custodians, msg.caller)
     };
 
     // ==================================================================================================
@@ -146,13 +174,13 @@ shared(msg) actor class Token(
         ledger.ownersCount();
     };
 
-    public func dip721_stats(
+    public query func dip721_stats(
     ): async Types.Stats {
         {
-            cycles = await dip721_cycles();
-            total_transactions = await dip721_total_transactions();
-            total_unique_holders = await dip721_total_unique_holders();
-            total_supply = await dip721_total_supply();
+            cycles = ExperimentalCycles.balance();
+            total_transactions = ledger.txCount();
+            total_unique_holders = ledger.ownersCount();
+            total_supply = ledger.tokensCount();
         }
     };
 
@@ -245,10 +273,10 @@ shared(msg) actor class Token(
     // ==================================================================================================
     // approved for all
     // ==================================================================================================
-    public query func dip721_is_approved_for_all(
+    private func _isApprovedForAll(
         owner: Principal,
         operator: Principal
-    ): async Types.Result<Bool> {
+    ): Types.Result<Bool> {
         switch(ledger.getOwnerTokensMetadata(owner)) {
             case (#Err(msg)) {
                 return #Err(msg);
@@ -272,15 +300,21 @@ shared(msg) actor class Token(
         #Ok(true);
     };
 
+    public query func dip721_is_approved_for_all(
+        owner: Principal,
+        operator: Principal
+    ): async Types.Result<Bool> {
+        _isApprovedForAll(owner, operator)
+    };
+
     // ==================================================================================================
     // core api
     // ==================================================================================================
-    public shared(msg) func dip721_approve(
+    private func _approve(
         operator: Principal,
-        id: Types.TokenIdentifier
+        id: Types.TokenIdentifier,
+        caller: Principal
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-        
         if(Principal.equal(operator, caller)) {
             return #Err(#SelfApprove);
         };
@@ -334,12 +368,18 @@ shared(msg) actor class Token(
         #Ok(ledger.incTx() - 1);
     };
 
-    public shared(msg) func dip721_set_approval_for_all(
+    public shared(msg) func dip721_approve(
         operator: Principal,
-        is_approved: Bool
+        id: Types.TokenIdentifier
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-        
+        await _approve(operator, id, msg.caller)
+    };
+
+    private func _setApprovalForAll(
+        operator: Principal,
+        is_approved: Bool, 
+        caller: Principal
+    ): async Types.Result<Nat> {
         if(Principal.equal(operator, caller)) {
             return #Err(#SelfApprove);
         };
@@ -384,13 +424,19 @@ shared(msg) actor class Token(
 
         #Ok(ledger.incTx() - 1);
     };
-    
-    public shared(msg) func dip721_transfer(
-        to: Principal,
-        id: Types.TokenIdentifier
+
+    public shared(msg) func dip721_set_approval_for_all(
+        operator: Principal,
+        is_approved: Bool
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-        
+        await _setApprovalForAll(operator, is_approved, msg.caller)
+    };
+    
+    private func _transfer(
+        to: Principal,
+        id: Types.TokenIdentifier,
+        caller: Principal
+    ): async Types.Result<Nat> {
         if(Principal.equal(to, caller)) {
             return #Err(#SelfTransfer);
         };
@@ -447,13 +493,19 @@ shared(msg) actor class Token(
         #Ok(ledger.incTx() - 1);
     };
 
-    public shared(msg) func dip721_transfer_from(
-        owner: Principal,
+    public shared(msg) func dip721_transfer(
         to: Principal,
         id: Types.TokenIdentifier
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-        
+        await _transfer(to, id, msg.caller)
+    };
+
+    private func _transferFrom(
+        owner: Principal,
+        to: Principal,
+        id: Types.TokenIdentifier,
+        caller: Principal
+    ): async Types.Result<Nat> {
         if(Principal.equal(to, owner)) {
             return #Err(#SelfTransfer);
         };
@@ -520,13 +572,20 @@ shared(msg) actor class Token(
         #Ok(ledger.incTx() - 1);
     };
 
-    public shared(msg) func dip721_mint(
+    public shared(msg) func dip721_transfer_from(
+        owner: Principal,
+        to: Principal,
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _transferFrom(owner, to, id, msg.caller)
+    };
+
+    private func _mint(
         to: Principal,
         id: Types.TokenIdentifier,
-        properties: [(Text, Types.GenericValue)]
+        properties: [(Text, Types.GenericValue)],
+        caller: Principal
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-
         if(not _isCanisterCustodian(caller)) {
             return #Err(#UnauthorizedOwner);
         };
@@ -568,11 +627,18 @@ shared(msg) actor class Token(
         #Ok(ledger.incTx() - 1);
     };
 
-    public shared(msg) func dip721_burn(
-        id: Types.TokenIdentifier
+    public shared(msg) func dip721_mint(
+        to: Principal,
+        id: Types.TokenIdentifier,
+        properties: [(Text, Types.GenericValue)]
     ): async Types.Result<Nat> {
-        let caller = msg.caller;
-        
+        await _mint(to, id, properties, msg.caller)
+    };
+
+    private func _burn(
+        id: Types.TokenIdentifier,
+        caller: Principal
+    ): async Types.Result<Nat> {
         let oldOwner = switch(ledger.getOwnerOf(id)) {
             case (#Err(msg)) {
                 return #Err(msg);
@@ -622,6 +688,212 @@ shared(msg) actor class Token(
         );
 
         #Ok(ledger.incTx() - 1);
+    };
+
+    public shared(msg) func dip721_burn(
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _burn(id, msg.caller)
+    };
+
+    // ==================================================================================================
+    // legacy
+    // ==================================================================================================
+    public query func name(
+    ): async ?Text {
+        ledger.getMetadata().name;
+    };
+
+    public query func logo(
+    ): async ?Text {
+        ledger.getMetadata().logo;
+    };
+
+    public query func symbol(
+    ): async ?Text {
+        ledger.getMetadata().symbol;
+    };
+
+    public query func custodians(
+    ): async [Principal] {
+        TrieSet.toArray<Principal>(ledger.getMetadata().custodians);
+    };
+
+    public query func metadata(
+    ): async Types.Metadata {
+        ledger.getMetadata();
+    };
+
+    public shared(msg) func setName(
+        name: Text
+    ): async Types.Result<()> {
+        await _setName(name, msg.caller)
+    };
+
+    public shared(msg) func setLogo(
+        logo: Text
+    ): async Types.Result<()> {
+        await _setLogo(logo, msg.caller)
+    };
+
+    public shared(msg) func setSymbol(
+        symbol: Text
+    ): async Types.Result<()> {
+        await _setSymbol(symbol, msg.caller)
+    };
+
+    public shared(msg) func setCustodians(
+        custodians: [Principal]
+    ): async Types.Result<()> {
+        await _setCustodians(custodians, msg.caller)
+    };
+
+    public query func totalSupply(
+    ): async Nat {
+        ledger.tokensCount();
+    };
+
+    public query func totalTransactions(
+    ): async Nat {
+        ledger.txCount();
+    };
+
+    public query func cycles(
+    ): async Nat {
+        ExperimentalCycles.balance();
+    };
+
+    public query func totalUniqueHolders(
+    ): async Nat {
+        ledger.ownersCount();
+    };
+
+    public query func stats(
+    ): async Types.Stats {
+        {
+            cycles = ExperimentalCycles.balance();
+            total_transactions = ledger.txCount();
+            total_unique_holders = ledger.ownersCount();
+            total_supply = ledger.tokensCount();
+        }
+    };
+
+    public query func supportedInterfaces(
+    ): async [Types.SupportedInterface] {
+        [#Approval, #Mint, #Burn]
+    };
+
+    public query func balanceOf(
+        owner: Principal
+    ): async Types.Result<Nat> {
+        switch(ledger.getOwnerTokenIdentifiers(owner)) {
+            case (#Err(msg)) {
+                #Err(msg);
+            };
+            case (#Ok(ids)) {
+                #Ok(TrieSet.size(ids));
+            };
+        };
+    };
+
+    public query func ownerOf(
+        id: Types.TokenIdentifier
+    ): async Types.Result<?Principal> {
+        ledger.getOwnerOf(id);
+    };
+
+    public query func operatorOf(
+        id: Types.TokenIdentifier
+    ): async Types.Result<?Principal> {
+        ledger.getOperatorOf(id);
+    };
+
+    public query func ownerTokenMetadata(
+        owner: Principal
+    ): async Types.Result<[Types.TokenMetadata]> {
+        ledger.getOwnerTokensMetadata(owner);
+    };
+
+    public query func operatorTokenMetadata(
+        operator: Principal
+    ): async Types.Result<[Types.TokenMetadata]> {
+        ledger.getOperatorTokensMetadata(operator);
+    };
+
+    public query func ownerTokenIdentifiers(
+        owner: Principal
+    ): async Types.Result<[Types.TokenIdentifier]> {
+        switch(ledger.getOwnerTokenIdentifiers(owner)) {
+            case (#Err(msg)) {
+                #Err(msg);
+            };
+            case (#Ok(ids)) {
+                #Ok(TrieSet.toArray(ids));
+            };
+        };
+    };
+
+    public query func operatorTokenIdentifiers(
+        operator: Principal
+    ): async Types.Result<[Types.TokenIdentifier]> {
+        switch(ledger.getOperatorTokenIdentifiers(operator)) {
+            case (#Err(msg)) {
+                #Err(msg);
+            };
+            case (#Ok(ids)) {
+                #Ok(TrieSet.toArray(ids));
+            };
+        };
+    };
+
+    public query func isApprovedForAll(
+        owner: Principal,
+        operator: Principal
+    ): async Types.Result<Bool> {
+        _isApprovedForAll(owner, operator)
+    };
+
+    public shared(msg) func approve(
+        operator: Principal,
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _approve(operator, id, msg.caller)
+    };
+
+    public shared(msg) func setApprovalForAll(
+        operator: Principal,
+        is_approved: Bool
+    ): async Types.Result<Nat> {
+        await _setApprovalForAll(operator, is_approved, msg.caller)
+    };
+
+    public shared(msg) func transfer(
+        to: Principal,
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _transfer(to, id, msg.caller)
+    };
+
+    public shared(msg) func transferFrom(
+        owner: Principal,
+        to: Principal,
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _transferFrom(owner, to, id, msg.caller)
+    };
+
+    public shared(msg) func mint(
+        to: Principal,
+        id: Types.TokenIdentifier,
+        properties: [(Text, Types.GenericValue)]
+    ): async Types.Result<Nat> {
+        await _mint(to, id, properties, msg.caller)
+    };
+
+    public shared(msg) func burn(
+        id: Types.TokenIdentifier
+    ): async Types.Result<Nat> {
+        await _burn(id, msg.caller)
     };
 
     // ==================================================================================================
