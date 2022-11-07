@@ -40,13 +40,13 @@ module {
     public func regionMatches(
         pattern: [Char],
         offset: Nat,
-        with: [Char],
+        with_: [Char],
         len: Nat
     ): Bool {
         
         var i = 0;
         while(i < len) {
-            if(pattern[offset+i] != with[i]) {
+            if(pattern[offset+i] != with_[i]) {
                 return false;
             };
             i += 1;

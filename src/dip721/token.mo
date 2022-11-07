@@ -2,7 +2,6 @@ import Array "mo:base/Array";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
-import Ledger "./ledger";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
@@ -11,9 +10,10 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import TrieSet "mo:base/Blob";
+import TrieSet "mo:base/TrieSet";
 import Cap "./cap/Cap";
 import Root "./cap/Root";
+import Ledger "./ledger";
 import Types "./types";
 
 shared(msg) actor class Token(
@@ -337,7 +337,7 @@ shared(msg) actor class Token(
                 return #err(msg);
             };
             case (#ok(ids)) {
-                for(id in TrieSet.toArray(ids).vals()) {
+                for(id in TrieSet.toArray<Types.TokenIdentifier>(ids).vals()) {
                     let oldOperator = switch(ledger.getOperatorOf(id)) {
                         case (#err(msg)) {
                             return #err(msg);
@@ -345,7 +345,7 @@ shared(msg) actor class Token(
                         case (#ok(op)) {
                             op;
                         };
-                    }
+                    };
                     let newOperator = if is_approved ?operator else null;
                     
                     ledger.updateOperatorCache(id, oldOperator, newOperator);
@@ -511,15 +511,15 @@ shared(msg) actor class Token(
     public shared(msg) func dip721_mint(
         to: Principal,
         id: Types.TokenIdentifier,
-        properties: [{Text; Types.GenericValue}]
+        properties: [(Text, Types.GenericValue)]
     ): Result.Result<Nat, Types.NftError> {
         let caller = msg.caller;
 
-        if not _isCanisterCustodian(caller) {
+        if(not _isCanisterCustodian(caller)) {
             return #err(#UnauthorizedOwner);
         };
 
-        if ledger.tokenExists(id) {
+        if(ledger.tokenExists(id)) {
             return #err(#ExistedNFT);
         };
         

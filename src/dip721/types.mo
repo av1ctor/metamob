@@ -1,6 +1,6 @@
 import TrieSet "mo:base/TrieSet";
 module {
-    public type TokenIdentifier = Nat32;
+    public type TokenIdentifier = Nat;
 
     public type GenericValue = {
         #Nat64Content : Nat64;
@@ -13,10 +13,10 @@ module {
         #Nat16Content : Nat16;
         #Int32Content : Int32;
         #Int8Content : Int8;
-        #FloatContent : Float64;
+        #FloatContent : Float;
         #Int16Content : Int16;
         #BlobContent : Blob;
-        #NestedContent : Vec;
+        #NestedContent : [GenericValue];
         #Principal : Principal;
         #TextContent : Text;
     };
@@ -65,7 +65,7 @@ module {
         operator : ?Principal;
         approved_at : ?Nat64;
         approved_by : ?Principal;
-        properties : [(Text; GenericValue)];
+        properties : [(Text, GenericValue)];
         is_burned : Bool;
         token_identifier : Nat;
         burned_at : ?Nat64;

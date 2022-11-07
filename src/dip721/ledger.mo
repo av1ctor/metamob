@@ -1,12 +1,17 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
+import Hash "mo:base/Hash";
+import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
+import Int "mo:base/Int";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
-import TrieSet "mo:base/Blob";
+import TrieSet "mo:base/TrieSet";
+import Iter "mo:base/Iter";
 import Cap "./cap/Cap";
 import Types "./types";
 
@@ -20,12 +25,12 @@ module Ledger {
             name = args.name;
             custodians = TrieSet.fromArray<Principal>(args.custodians, Principal.hash, Principal.equal);
             symbol = args.symbol;
-            created_at = Time.now();
-            upgraded_at = Time.now();
+            created_at = Nat64.fromNat(Int.abs(Time.now()));
+            upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
         };
-        var tokens = HashMap.HashMap<Types.TokenIdentifier, Types.TokenMetadata>(1, Nat32.equal, Nat32.hash);
-        var owners = HashMap.HashMap<Principal, TrieSet.Set<Types.TokenIdentifier>(1, Principal.equal, Principal.hash);
-        var operators = HashMap.HashMap<Principal, TrieSet.Set<Types.TokenIdentifier>(1, Principal.equal, Principal.hash);
+        var tokens = HashMap.HashMap<Types.TokenIdentifier, Types.TokenMetadata>(1, Nat.equal, Nat32.fromNat);
+        var owners = HashMap.HashMap<Principal, TrieSet.Set<Types.TokenIdentifier>>(1, Principal.equal, Principal.hash);
+        var operators = HashMap.HashMap<Principal, TrieSet.Set<Types.TokenIdentifier>>(1, Principal.equal, Principal.hash);
         var tx_count: Nat = 0;
 
         public func serialize(
@@ -40,7 +45,7 @@ module Ledger {
         public func deserialize(
             state: Types.State
         ) {
-            metadata = state.metadata;
+            metadata := state.metadata;
             for(e in state.tokens.vals()) {
                 let id = e.0;
                 let token = e.1;
@@ -48,7 +53,7 @@ module Ledger {
                 updateOwnerCache(id, null, token.owner);
                 updateOperatorCache(id, null, token.operator);
             };
-            tx_count = state.tx_count;
+            tx_count := state.tx_count;
         };
 
         public func getMetadata(
@@ -60,10 +65,11 @@ module Ledger {
             data: Types.Metadata,
             caller: Principal
         ): Result.Result<(), Types.NftError> {
-            if(not TrieSet.mem<Principal>(metadata, caller, Principal.hash, Principal.equal)) {
+            if(not TrieSet.mem<Principal>(metadata.custodians, caller, Principal.hash(caller), Principal.equal)) {
                 #err(#UnauthorizedOwner);
             }
             else {
+                metadata := data;
                 #ok();
             };
         };
@@ -89,7 +95,7 @@ module Ledger {
 
         public func getTokenMetadata(
             id: Types.TokenIdentifier
-        ): Result.Result<Types.TokenIdentifier, Types.NftError> {
+        ): Result.Result<Types.TokenMetadata, Types.NftError> {
             switch(tokens.get(id)) {
                 case null {
                     #err(#TokenNotFound);
@@ -150,21 +156,23 @@ module Ledger {
                     #ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
                         switch(tokens.get(arr[i])) {
                             case null {
-                                transferred_at = null;
-                                transferred_by = null;
-                                owner = null;
-                                operator = null;
-                                approved_at = null;
-                                approved_by = null;
-                                properties = [];
-                                is_burned = false;
-                                token_identifier = 0;
-                                burned_at = null;
-                                burned_by = null;
-                                minted_at = 0;
-                                minted_by = owner;
+                                {
+                                    transferred_at = null;
+                                    transferred_by = null;
+                                    owner = null;
+                                    operator = null;
+                                    approved_at = null;
+                                    approved_by = null;
+                                    properties = [];
+                                    is_burned = false;
+                                    token_identifier = 0;
+                                    burned_at = null;
+                                    burned_by = null;
+                                    minted_at = 0;
+                                    minted_by = owner;
+                                };
                             };
-                            case {?token} {
+                            case (?token) {
                                 token;
                             };
                         };
@@ -185,8 +193,8 @@ module Ledger {
                         case null {
                         };
                         case (?ids) {
-                            let set = TrieSet.delete<Types.TokenIdentifier>(ids, id, Nat32.hash, Nat32.equal);
-                            if set.size() == 0 {
+                            let set = TrieSet.delete<Types.TokenIdentifier>(ids, id, Hash.hash(id), Nat.equal);
+                            if(TrieSet.size(set) == 0) {
                                 owners.delete(oldOwner);
                             } 
                             else {
@@ -202,10 +210,10 @@ module Ledger {
                 case (?newOwner) {
                     switch(owners.get(newOwner)) {
                         case null {
-                            owners.put(newOwner, TrieSet.put(TrieSet.empty<Types.TokenIdentifier>(), id, Nat32.hash, Nat32.equal));
+                            owners.put(newOwner, TrieSet.put<Types.TokenIdentifier>(TrieSet.empty<Types.TokenIdentifier>(), id, Hash.hash(id), Nat.equal));
                         };
                         case (?ids) {
-                            ignore owners.replace(newOwner, TrieSet.put(ids, id, Nat32.hash, Nat32.equal));
+                            ignore owners.replace(newOwner, TrieSet.put<Types.TokenIdentifier>(ids, id, Hash.hash(id), Nat.equal));
                         };
                     };
                 };
@@ -250,21 +258,23 @@ module Ledger {
                     #ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
                         switch(tokens.get(arr[i])) {
                             case null {
-                                transferred_at = null;
-                                transferred_by = null;
-                                owner = null;
-                                operator = null;
-                                approved_at = null;
-                                approved_by = null;
-                                properties = [];
-                                is_burned = false;
-                                token_identifier = 0;
-                                burned_at = null;
-                                burned_by = null;
-                                minted_at = 0;
-                                minted_by = owner;
+                                {
+                                    transferred_at = null;
+                                    transferred_by = null;
+                                    owner = null;
+                                    operator = null;
+                                    approved_at = null;
+                                    approved_by = null;
+                                    properties = [];
+                                    is_burned = false;
+                                    token_identifier = 0;
+                                    burned_at = null;
+                                    burned_by = null;
+                                    minted_at = 0;
+                                    minted_by = operator;
+                                };
                             };
-                            case {?token} {
+                            case (?token) {
                                 token;
                             };
                         };
@@ -285,8 +295,8 @@ module Ledger {
                         case null {
                         };
                         case (?ids) {
-                            let set = TrieSet.delete<Types.TokenIdentifier>(ids, id, Nat32.hash, Nat32.equal);
-                            if set.size() == 0 {
+                            let set = TrieSet.delete<Types.TokenIdentifier>(ids, id, Hash.hash(id), Nat.equal);
+                            if(TrieSet.size(set) == 0) {
                                 operators.delete(oldOperator);
                             } 
                             else {
@@ -302,10 +312,10 @@ module Ledger {
                 case (?newOperator) {
                     switch(operators.get(newOperator)) {
                         case null {
-                            operators.put(newOperator, TrieSet.put(TrieSet.empty<Types.TokenIdentifier>(), id, Nat32.hash, Nat32.equal));
+                            operators.put(newOperator, TrieSet.put<Types.TokenIdentifier>(TrieSet.empty<Types.TokenIdentifier>(), id, Hash.hash(id), Nat.equal));
                         };
                         case (?ids) {
-                            ignore operators.replace(newOperator, TrieSet.put(ids, id, Nat32.hash, Nat32.equal));
+                            ignore operators.replace(newOperator, TrieSet.put<Types.TokenIdentifier>(ids, id, Hash.hash(id), Nat.equal));
                         };
                     };
                 };
@@ -327,7 +337,7 @@ module Ledger {
                         transferred_by = token.transferred_by;
                         owner = token.owner;
                         operator = newOperator;
-                        approved_at = ?Time.now();
+                        approved_at = ?Nat64.fromNat(Int.abs(Time.now()));
                         approved_by = ?approvedBy;
                         properties = token.properties;
                         is_burned = token.is_burned;
@@ -353,7 +363,7 @@ module Ledger {
                 };
                 case (?token) {
                     ignore tokens.replace(id, {
-                        transferred_at = ?Time.now();
+                        transferred_at = ?Nat64.fromNat(Int.abs(Time.now()));
                         transferred_by = ?transferredBy;
                         owner = newOwner;
                         operator = token.operator;
@@ -391,7 +401,7 @@ module Ledger {
                         properties = token.properties;
                         is_burned = true;
                         token_identifier = token.token_identifier;
-                        burned_at = ?Time.now();
+                        burned_at = ?Nat64.fromNat(Int.abs(Time.now()));
                         burned_by = ?burnedBy;
                         minted_at = token.minted_at;
                         minted_by = token.minted_by;

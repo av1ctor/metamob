@@ -1,5 +1,17 @@
 {
   "canisters": {
+    "ledger": {
+      "type": "custom",
+      "wasm": "ledger.wasm",
+      "candid": "ledger.public.did",
+      "build": "",
+      "remote": {
+        "candid": "ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    },
     "metamob": {
       "main": "src/metamob/facade.mo",
       "type": "motoko"
@@ -28,7 +40,7 @@
       "subnet_type":"system"
     }
   },
-  "dfx": "0.10.0",
+  "dfx": "0.11.2",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

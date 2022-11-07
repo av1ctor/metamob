@@ -58,7 +58,7 @@ module {
             #ok(insert_response)
         };
 
-        public func insert_sync(event: Root.IndefiniteEvent) {
+        public func insert_sync(event: Root.IndefiniteEvent): async () {
             let root = switch(rootBucket) {
                 case(?r) { r };
                 case(_) { Prelude.unreachable() };
