@@ -58,17 +58,6 @@ module {
             #ok(insert_response)
         };
 
-        public func insert_sync(event: Root.IndefiniteEvent): async () {
-            let root = switch(rootBucket) {
-                case(?r) { r };
-                case(_) { Prelude.unreachable() };
-            };
-            let rb: Root.Self = actor(root);
-
-            ignore rb.insert(event);
-        };
-
-
         /// Returns the principal of the root canister
         public func performHandshake(): async () {
             switch(rootBucket) {

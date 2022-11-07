@@ -2,12 +2,12 @@ import Array "mo:base/Array";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
+import Int "mo:base/Int";
 import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Order "mo:base/Order";
 import Principal "mo:base/Principal";
-import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import TrieSet "mo:base/TrieSet";
@@ -21,41 +21,39 @@ shared(msg) actor class Token(
 ) = this {
 
     let ledger: Ledger.Ledger = Ledger.Ledger(args);
-    let cap: Cap.Cap = Cap.Cap(Principal.fromActor(this), 2_000_000_000_000);
+    private var cap: ?Cap.Cap = null;
     
-    ignore cap.performHandshake();
-
     // ==================================================================================================
     // metadata
     // ==================================================================================================
     public query func dip721_name(
-    ): ?Text {
+    ): async ?Text {
         ledger.getMetadata().name;
     };
 
     public query func dip721_logo(
-    ): ?Text {
+    ): async ?Text {
         ledger.getMetadata().logo;
     };
 
     public query func dip721_symbol(
-    ): ?Text {
+    ): async ?Text {
         ledger.getMetadata().symbol;
     };
 
     public query func dip721_custodians(
-    ): [Principal] {
-        TrieSet.toArray<Types.TokenIdentifier>(ledger.getMetadata().custodians);
+    ): async [Principal] {
+        TrieSet.toArray<Principal>(ledger.getMetadata().custodians);
     };
 
     public query func dip721_metadata(
-    ): Types.Metadata {
+    ): async Types.Metadata {
         ledger.getMetadata();
     };
 
     public shared(msg) func dip721_set_name(
         name: Text
-    ): Result.Result<(), Types.NftError> {
+    ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
             {
@@ -65,15 +63,15 @@ shared(msg) actor class Token(
                 custodians = md.custodians;
                 symbol = md.symbol;
                 created_at = md.created_at;
-                upgraded_at = Time.now();
+                upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
             msg.caller
-        );
+        )
     };
 
     public shared(msg) func dip721_set_logo(
         logo: Text
-    ): Result.Result<(), Types.NftError> {
+    ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
             {
@@ -83,15 +81,15 @@ shared(msg) actor class Token(
                 custodians = md.custodians;
                 symbol = md.symbol;
                 created_at = md.created_at;
-                upgraded_at = Time.now();
+                upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
             msg.caller
-        );
+        )
     };
 
     public shared(msg) func dip721_set_symbol(
         symbol: Text
-    ): Result.Result<(), Types.NftError> {
+    ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
             {
@@ -101,15 +99,15 @@ shared(msg) actor class Token(
                 custodians = md.custodians;
                 symbol = ?symbol;
                 created_at = md.created_at;
-                upgraded_at = Time.now();
+                upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
             msg.caller
-        );
+        )
     };
 
     public shared(msg) func dip721_set_custodians(
         custodians: [Principal]
-    ): Result.Result<(), Types.NftError> {
+    ): async Types.Result<()> {
         let md = ledger.getMetadata();
         ledger.setMetadata(
             {
@@ -119,42 +117,42 @@ shared(msg) actor class Token(
                 custodians = TrieSet.fromArray<Principal>(custodians, Principal.hash, Principal.equal);
                 symbol = md.symbol;
                 created_at = md.created_at;
-                upgraded_at = Time.now();
+                upgraded_at = Nat64.fromNat(Int.abs(Time.now()));
             }, 
             msg.caller
-        );
+        )
     };
 
     // ==================================================================================================
     // stats
     // ==================================================================================================
     public query func dip721_total_supply(
-    ): Nat {
+    ): async Nat {
         ledger.tokensCount();
     };
 
     public query func dip721_total_transactions(
-    ): Nat {
+    ): async Nat {
         ledger.txCount();
     };
 
     public query func dip721_cycles(
-    ): Nat {
+    ): async Nat {
         ExperimentalCycles.balance();
     };
 
     public query func dip721_total_unique_holders(
-    ): Nat {
+    ): async Nat {
         ledger.ownersCount();
     };
 
-    public query func dip721_stats(
-    ): Types.Stats {
+    public func dip721_stats(
+    ): async Types.Stats {
         {
-            cycles = dip721_cycles();
-            total_transactions = dip721_total_transactions();
-            total_unique_holders = dip721_total_unique_holders();
-            total_supply = dip721_total_supply();
+            cycles = await dip721_cycles();
+            total_transactions = await dip721_total_transactions();
+            total_unique_holders = await dip721_total_unique_holders();
+            total_supply = await dip721_total_supply();
         }
     };
 
@@ -162,7 +160,7 @@ shared(msg) actor class Token(
     // supported interfaces
     // ==================================================================================================
     public query func dip721_supported_interfaces(
-    ): [Types.SupportedInterface] {
+    ): async [Types.SupportedInterface] {
         [#Approval, #Mint, #Burn]
     };
 
@@ -171,13 +169,13 @@ shared(msg) actor class Token(
     // ==================================================================================================
     public query func dip721_balance_of(
         owner: Principal
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         switch(ledger.getOwnerTokenIdentifiers(owner)) {
-            case (#err(msg)) {
-                #err(msg);
+            case (#Err(msg)) {
+                #Err(msg);
             };
-            case (#ok(ids)) {
-                ids.size();
+            case (#Ok(ids)) {
+                #Ok(TrieSet.size(ids));
             };
         };
     };
@@ -187,38 +185,52 @@ shared(msg) actor class Token(
     // ==================================================================================================
     public query func dip721_owner_of(
         id: Types.TokenIdentifier
-    ): Result.Result<?Principal, Types.NftError> {
+    ): async Types.Result<?Principal> {
         ledger.getOwnerOf(id);
     };
 
     public query func dip721_operator_of(
         id: Types.TokenIdentifier
-    ): Result.Result<?Principal, Types.NftError> {
+    ): async Types.Result<?Principal> {
         ledger.getOperatorOf(id);
     };
 
     public query func dip721_owner_token_metadata(
         owner: Principal
-    ): Result.Result<[Types.TokenMetadata], Types.NftError> {
+    ): async Types.Result<[Types.TokenMetadata]> {
         ledger.getOwnerTokensMetadata(owner);
     };
 
     public query func dip721_operator_token_metadata(
         operator: Principal
-    ): Result.Result<[Types.TokenMetadata], Types.NftError> {
+    ): async Types.Result<[Types.TokenMetadata]> {
         ledger.getOperatorTokensMetadata(operator);
     };
 
     public query func dip721_owner_token_identifiers(
         owner: Principal
-    ): Result.Result<[Types.TokenIdentifier], Types.NftError> {
-        ledger.getOwnerTokenIdentifiers(owner);
+    ): async Types.Result<[Types.TokenIdentifier]> {
+        switch(ledger.getOwnerTokenIdentifiers(owner)) {
+            case (#Err(msg)) {
+                #Err(msg);
+            };
+            case (#Ok(ids)) {
+                #Ok(TrieSet.toArray(ids));
+            };
+        };
     };
 
     public query func dip721_operator_token_identifiers(
         operator: Principal
-    ): Result.Result<[Types.TokenIdentifier], Types.NftError> {
-        ledger.getOperatorTokenIdentifiers(operator);
+    ): async Types.Result<[Types.TokenIdentifier]> {
+        switch(ledger.getOperatorTokenIdentifiers(operator)) {
+            case (#Err(msg)) {
+                #Err(msg);
+            };
+            case (#Ok(ids)) {
+                #Ok(TrieSet.toArray(ids));
+            };
+        };
     };
 
     // ==================================================================================================
@@ -226,7 +238,7 @@ shared(msg) actor class Token(
     // ==================================================================================================
     public query func dip721_token_metadata(
         id: Types.TokenIdentifier
-    ): Result.Result<Types.TokenMetadata, Types.NftError> {
+    ): async Types.Result<Types.TokenMetadata> {
         ledger.getTokenMetadata(id);
     };
 
@@ -236,20 +248,20 @@ shared(msg) actor class Token(
     public query func dip721_is_approved_for_all(
         owner: Principal,
         operator: Principal
-    ): Result.Result<Bool, Types.NftError> {
+    ): async Types.Result<Bool> {
         switch(ledger.getOwnerTokensMetadata(owner)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(tokens)) {
+            case (#Ok(tokens)) {
                 for(token in tokens.vals()) {
                     switch(token.operator) {
                         case null { 
-                            return #ok(false); 
+                            return #Ok(false); 
                         };
                         case (?op) {
                             if(not Principal.equal(operator, op)) {
-                                return #ok(false);
+                                return #Ok(false);
                             };
                         };
                     };
@@ -257,7 +269,7 @@ shared(msg) actor class Token(
             };
         };
 
-        #ok(true);
+        #Ok(true);
     };
 
     // ==================================================================================================
@@ -266,25 +278,25 @@ shared(msg) actor class Token(
     public shared(msg) func dip721_approve(
         operator: Principal,
         id: Types.TokenIdentifier
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
         
         if(Principal.equal(operator, caller)) {
-            return #err(#SelfApprove);
+            return #Err(#SelfApprove);
         };
 
         switch(ledger.getOwnerOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(owner)) {
+            case (#Ok(owner)) {
                 switch(owner) {
                     case null {
-                        return #err(#UnauthorizedOwner);
+                        return #Err(#UnauthorizedOwner);
                     };
                     case (?owner) {
                         if(not Principal.equal(owner, caller)) {
-                            return #err(#UnauthorizedOwner);
+                            return #Err(#UnauthorizedOwner);
                         };  
                     };
                 };
@@ -292,17 +304,17 @@ shared(msg) actor class Token(
         };
 
         let oldOperator = switch(ledger.getOperatorOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(op)) {
+            case (#Ok(op)) {
                 op;
             };
         };
 
         switch(ledger.approve(caller, id, ?operator)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
             case _ {
             };
@@ -310,39 +322,39 @@ shared(msg) actor class Token(
 
         ledger.updateOperatorCache(id, oldOperator, ?operator);
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "approve",
             [
-                ("operator", operator.toText()),
-                ("token_identifier", id.toText())
+                ("operator", #Principal(operator)),
+                ("token_identifier", #Text(Nat.toText(id)))
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
 
     public shared(msg) func dip721_set_approval_for_all(
         operator: Principal,
         is_approved: Bool
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
         
         if(Principal.equal(operator, caller)) {
-            return #err(#SelfApprove);
+            return #Err(#SelfApprove);
         };
 
         switch(ledger.getOwnerTokenIdentifiers(caller)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(ids)) {
+            case (#Ok(ids)) {
                 for(id in TrieSet.toArray<Types.TokenIdentifier>(ids).vals()) {
                     let oldOperator = switch(ledger.getOperatorOf(id)) {
-                        case (#err(msg)) {
-                            return #err(msg);
+                        case (#Err(msg)) {
+                            return #Err(msg);
                         };
-                        case (#ok(op)) {
+                        case (#Ok(op)) {
                             op;
                         };
                     };
@@ -350,9 +362,9 @@ shared(msg) actor class Token(
                     
                     ledger.updateOperatorCache(id, oldOperator, newOperator);
                     
-                    switch(ledger.approve(caller, id, ?newOperator)) {
-                        case (#err(msg)) {
-                            return #err(msg);
+                    switch(ledger.approve(caller, id, newOperator)) {
+                        case (#Err(msg)) {
+                            return #Err(msg);
                         };
                         case _ {
                         };
@@ -361,40 +373,40 @@ shared(msg) actor class Token(
             };
         };
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "setApprovalForAll",
             [
-                ("operator", operator.toText()),
-                ("is_approved", if is_approved "True" else "False")
+                ("operator", #Principal(operator)),
+                ("is_approved", if(is_approved) {#True} else {#False})
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
     
     public shared(msg) func dip721_transfer(
         to: Principal,
         id: Types.TokenIdentifier
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
         
         if(Principal.equal(to, caller)) {
-            return #err(#SelfTransfer);
+            return #Err(#SelfTransfer);
         };
 
         let oldOwner = switch(ledger.getOwnerOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(owner)) {
+            case (#Ok(owner)) {
                 switch(owner) {
                     case null {
-                        return #err(#UnauthorizedOwner);
+                        return #Err(#UnauthorizedOwner);
                     };
                     case (?owner) {
                         if(not Principal.equal(owner, caller)) {
-                            return #err(#UnauthorizedOwner);
+                            return #Err(#UnauthorizedOwner);
                         };  
                     };
                 };
@@ -403,17 +415,17 @@ shared(msg) actor class Token(
         };
 
         let oldOperator = switch(ledger.getOperatorOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(op)) {
+            case (#Ok(op)) {
                 op;
             };
         };
 
         switch(ledger.transfer(caller, id, ?to)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
             case _ {
             };
@@ -422,42 +434,42 @@ shared(msg) actor class Token(
         ledger.updateOwnerCache(id, oldOwner, ?to);
         ledger.updateOperatorCache(id, oldOperator, null);
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "transfer",
             [
-                ("owner", caller.toText()),
-                ("to", to.toText()),
-                ("token_identifier", id.toText())
+                ("owner", #Principal(caller)),
+                ("to", #Principal(to)),
+                ("token_identifier", #Text(Nat.toText(id)))
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
 
     public shared(msg) func dip721_transfer_from(
         owner: Principal,
         to: Principal,
         id: Types.TokenIdentifier
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
         
         if(Principal.equal(to, owner)) {
-            return #err(#SelfTransfer);
+            return #Err(#SelfTransfer);
         };
 
         let oldOwner = switch(ledger.getOwnerOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(oldOwner)) {
+            case (#Ok(oldOwner)) {
                 switch(oldOwner) {
                     case null {
-                        return #err(#UnauthorizedOwner);
+                        return #Err(#UnauthorizedOwner);
                     };
                     case (?oldOwner) {
                         if(not Principal.equal(oldOwner, owner)) {
-                            return #err(#UnauthorizedOwner);
+                            return #Err(#UnauthorizedOwner);
                         };  
                     };
                 };
@@ -466,17 +478,17 @@ shared(msg) actor class Token(
         };
 
         let oldOperator = switch(ledger.getOperatorOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(op)) {
+            case (#Ok(op)) {
                 switch(op) {
                     case null {
-                        return #err(#UnauthorizedOperator);
+                        return #Err(#UnauthorizedOperator);
                     };
                     case (?op) {
                         if(not Principal.equal(op,  caller)) {
-                            return #err(#UnauthorizedOperator);
+                            return #Err(#UnauthorizedOperator);
                         };
                     };
                 };
@@ -485,42 +497,42 @@ shared(msg) actor class Token(
         };
 
         switch(ledger.transfer(caller, id, ?to)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
             case _ {
             };
         };
 
         ledger.updateOwnerCache(id, oldOwner, ?to);
-        ledger.updateOperatorCache(id, oldOperator null);
+        ledger.updateOperatorCache(id, oldOperator, null);
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "transferFrom",
             [
-                ("owner", owner.toText()),
-                ("to", to.toText()),
-                ("token_identifier", id.toText())
+                ("owner", #Principal(owner)),
+                ("to", #Principal(to)),
+                ("token_identifier", #Text(Nat.toText(id)))
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
 
     public shared(msg) func dip721_mint(
         to: Principal,
         id: Types.TokenIdentifier,
         properties: [(Text, Types.GenericValue)]
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
 
         if(not _isCanisterCustodian(caller)) {
-            return #err(#UnauthorizedOwner);
+            return #Err(#UnauthorizedOwner);
         };
 
         if(ledger.tokenExists(id)) {
-            return #err(#ExistedNFT);
+            return #Err(#ExistedNFT);
         };
         
         ledger.addTokenMetadata(
@@ -531,7 +543,7 @@ shared(msg) actor class Token(
                 operator = null;
                 properties = properties;
                 is_burned = false;
-                minted_at = Time.now();
+                minted_at = Nat64.fromNat(Int.abs(Time.now()));
                 minted_by = caller;
                 transferred_at = null;
                 transferred_by = null;
@@ -544,35 +556,35 @@ shared(msg) actor class Token(
 
         ledger.updateOwnerCache(id, null, ?to);
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "mint",
             [
-                ("to", to.toText()),
-                ("token_identifier", id.toText())
+                ("to", #Principal(to)),
+                ("token_identifier", #Text(Nat.toText(id)))
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
 
     public shared(msg) func dip721_burn(
         id: Types.TokenIdentifier
-    ): Result.Result<Nat, Types.NftError> {
+    ): async Types.Result<Nat> {
         let caller = msg.caller;
         
         let oldOwner = switch(ledger.getOwnerOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(owner)) {
+            case (#Ok(owner)) {
                 switch(owner) {
                     case null {
-                        return #err(#UnauthorizedOwner);
+                        return #Err(#UnauthorizedOwner);
                     };
                     case (?owner) {
                         if(not Principal.equal(owner, caller)) {
-                            return #err(#UnauthorizedOwner);
+                            return #Err(#UnauthorizedOwner);
                         };  
                     };
                 };
@@ -582,17 +594,17 @@ shared(msg) actor class Token(
         };
 
         let oldOperator = switch(ledger.getOperatorOf(id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
-            case (#ok(op)) {
+            case (#Ok(op)) {
                 op;
             };
         };
 
         switch(ledger.burn(caller, id)) {
-            case (#err(msg)) {
-                return #err(msg);
+            case (#Err(msg)) {
+                return #Err(msg);
             };
             case _ {
             };
@@ -601,15 +613,15 @@ shared(msg) actor class Token(
         ledger.updateOwnerCache(id, oldOwner, null);
         ledger.updateOperatorCache(id, oldOperator, null);
 
-        _addRecord(
+        ignore _addRecord(
             caller,
             "burn",
             [
-                ("token_identifier", id.toText())
+                ("token_identifier", #Text(Nat.toText(id)))
             ]
         );
 
-        #ok(ledger.incTx() - 1);
+        #Ok(ledger.incTx() - 1);
     };
 
     // ==================================================================================================
@@ -637,15 +649,20 @@ shared(msg) actor class Token(
     private func _isCanisterCustodian(
         caller: Principal
     ): Bool {
-        TrieSet.mem<Principal>(ledger.getMetadata().custodians, caller, Principal.hash, Principal.equal);
+        TrieSet.mem<Principal>(ledger.getMetadata().custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
     private func _addRecord(
         caller: Principal,
         op: Text, 
         details: [(Text, Root.DetailValue)]
-    ) {
-        cap.insert_sync({
+    ): async () {
+        let c = switch(cap) {
+            case(?c) { c };
+            case(_) { Cap.Cap(Principal.fromActor(this), 2_000_000_000_000) };
+        };        
+
+        ignore c.insert({
             operation = op;
             details = details;
             caller = caller;

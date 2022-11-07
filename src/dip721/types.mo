@@ -1,4 +1,5 @@
 import TrieSet "mo:base/TrieSet";
+
 module {
     public type TokenIdentifier = Nat;
 
@@ -47,6 +48,12 @@ module {
         #OperatorNotFound;
         #ExistedNFT;
         #OwnerNotFound;
+        #Other;
+    };
+
+    public type Result<T> = {
+        #Ok: T; 
+        #Err: NftError;
     };
 
     public type Stats = {

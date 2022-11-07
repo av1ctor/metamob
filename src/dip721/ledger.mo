@@ -8,7 +8,6 @@ import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
-import Result "mo:base/Result";
 import Time "mo:base/Time";
 import TrieSet "mo:base/TrieSet";
 import Iter "mo:base/Iter";
@@ -64,13 +63,13 @@ module Ledger {
         public func setMetadata(
             data: Types.Metadata,
             caller: Principal
-        ): Result.Result<(), Types.NftError> {
+        ): Types.Result<()> {
             if(not TrieSet.mem<Principal>(metadata.custodians, caller, Principal.hash(caller), Principal.equal)) {
-                #err(#UnauthorizedOwner);
+                #Err(#UnauthorizedOwner);
             }
             else {
                 metadata := data;
-                #ok();
+                #Ok();
             };
         };
 
@@ -95,13 +94,13 @@ module Ledger {
 
         public func getTokenMetadata(
             id: Types.TokenIdentifier
-        ): Result.Result<Types.TokenMetadata, Types.NftError> {
+        ): Types.Result<Types.TokenMetadata> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
-                    #ok(token);
+                    #Ok(token);
                 };
             };
         };
@@ -120,40 +119,40 @@ module Ledger {
 
         public func getOwnerTokenIdentifiers(
             owner: Principal
-        ): Result.Result<TrieSet.Set<Types.TokenIdentifier>, Types.NftError> {
+        ): Types.Result<TrieSet.Set<Types.TokenIdentifier>> {
             switch(owners.get(owner)) {
                 case null {
-                    #err(#OwnerNotFound);
+                    #Err(#OwnerNotFound);
                 };
                 case (?ids) {
-                    #ok(ids);
+                    #Ok(ids);
                 };
             };
         };
 
         public func getOwnerOf(
             id: Types.TokenIdentifier
-        ): Result.Result<?Principal, Types.NftError> {
+        ): Types.Result<?Principal> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
-                    #ok(token.owner);
+                    #Ok(token.owner);
                 };
             };
         };
 
         public func getOwnerTokensMetadata(
             owner: Principal
-        ): Result.Result<[Types.TokenMetadata], Types.NftError> {
+        ): Types.Result<[Types.TokenMetadata]> {
             switch(owners.get(owner)) {
                 case null {
-                    #err(#OwnerNotFound);
+                    #Err(#OwnerNotFound);
                 };
                 case (?ids) {
                     let arr = TrieSet.toArray<Types.TokenIdentifier>(ids);
-                    #ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
+                    #Ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
                         switch(tokens.get(arr[i])) {
                             case null {
                                 {
@@ -222,40 +221,40 @@ module Ledger {
 
         public func getOperatorTokenIdentifiers(
             operator: Principal
-        ): Result.Result<TrieSet.Set<Types.TokenIdentifier>, Types.NftError> {
+        ): Types.Result<TrieSet.Set<Types.TokenIdentifier>> {
             switch(operators.get(operator)) {
                 case null {
-                    #err(#OperatorNotFound);
+                    #Err(#OperatorNotFound);
                 };
                 case (?ids) {
-                    #ok(ids);
+                    #Ok(ids);
                 };
             };
         };
 
         public func getOperatorOf(
             id: Types.TokenIdentifier
-        ): Result.Result<?Principal, Types.NftError> {
+        ): Types.Result<?Principal> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
-                    #ok(token.operator);
+                    #Ok(token.operator);
                 };
             };
         };
 
         public func getOperatorTokensMetadata(
             operator: Principal
-        ): Result.Result<[Types.TokenMetadata], Types.NftError> {
+        ): Types.Result<[Types.TokenMetadata]> {
             switch(operators.get(operator)) {
                 case null {
-                    #err(#OperatorNotFound);
+                    #Err(#OperatorNotFound);
                 };
                 case (?ids) {
                     let arr = TrieSet.toArray<Types.TokenIdentifier>(ids);
-                    #ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
+                    #Ok(Array.tabulate<Types.TokenMetadata>(arr.size(), func (i: Nat): Types.TokenMetadata {
                         switch(tokens.get(arr[i])) {
                             case null {
                                 {
@@ -326,10 +325,10 @@ module Ledger {
             approvedBy: Principal,
             id: Types.TokenIdentifier,
             newOperator: ?Principal
-        ): Result.Result<(), Types.NftError> {
+        ): Types.Result<()> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
                     ignore tokens.replace(id, {
@@ -347,7 +346,7 @@ module Ledger {
                         minted_at = token.minted_at;
                         minted_by = token.minted_by;
                     });
-                    #ok();
+                    #Ok();
                 };
             };
         };
@@ -356,10 +355,10 @@ module Ledger {
             transferredBy: Principal,
             id: Types.TokenIdentifier,
             newOwner: ?Principal
-        ): Result.Result<(), Types.NftError> {
+        ): Types.Result<()> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
                     ignore tokens.replace(id, {
@@ -377,7 +376,7 @@ module Ledger {
                         minted_at = token.minted_at;
                         minted_by = token.minted_by;
                     });
-                    #ok();
+                    #Ok();
                 };
             };
         };
@@ -385,10 +384,10 @@ module Ledger {
         public func burn(
             burnedBy: Principal,
             id: Types.TokenIdentifier
-        ): Result.Result<(), Types.NftError> {
+        ): Types.Result<()> {
             switch(tokens.get(id)) {
                 case null {
-                    #err(#TokenNotFound);
+                    #Err(#TokenNotFound);
                 };
                 case (?token) {
                     ignore tokens.replace(id, {
@@ -406,7 +405,7 @@ module Ledger {
                         minted_at = token.minted_at;
                         minted_by = token.minted_by;
                     });  
-                    #ok();
+                    #Ok();
                 };
             };
         };
