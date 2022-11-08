@@ -8,4 +8,5 @@ module {
     public let TYPE_DONATIONS: Nat32 = 5;
     public let TYPE_FUNDINGS: Nat32 = 6;
     public let TYPE_PLACES: Nat32 = 7;
+    public let TYPE_POAPS: Nat32 = 8;
 }

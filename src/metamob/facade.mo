@@ -1,3 +1,6 @@
+// Copyright 2022 by André Vicentini (https://github.com/av1ctor)
+// Released under the GPL-3.0 license
+
 import Array "mo:base/Array";
 import CampaignService "./campaigns/service";
 import CampaignTypes "./campaigns/types";
@@ -40,6 +43,8 @@ import UserTypes "./users/types";
 import Variant "mo:mo-table/variant";
 import VoteService "./votes/service";
 import VoteTypes "./votes/types";
+import PoapService "./poap/service";
+import PoapTypes "./poap/types";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
@@ -92,16 +97,22 @@ shared({caller = owner}) actor class Metamob(
     let updateService = UpdateService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
     );
+    let poapService = PoapService.Service(
+        daoService, userService, campaignService, signatureService, voteService, fundingService, 
+        donationService, placeService, moderationService, reportRepo, ledgerUtils
+    );
     let reportService = ReportService.Service(
         reportRepo, daoService, userService, campaignService, signatureService, 
-        voteService, fundingService, donationService, updateService, placeService
+        voteService, fundingService, donationService, updateService, placeService, poapService
     );
     let challengeService = ChallengeService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, updateService, placeService, reportService, moderationService
+        donationService, updateService, placeService, poapService, reportService, moderationService
     );
 
+    //
     // DAO facade
+    //
     public shared query(msg) func daoConfigGetAsNat32(
         key: Text
     ): async Nat32 {
@@ -1452,6 +1463,71 @@ shared({caller = owner}) actor class Metamob(
     };
 
     //
+    // POAP facade
+    //
+    public shared(msg) func poapCreate(
+        req: PoapTypes.PoapRequest
+    ): async Result.Result<PoapTypes.Poap, Text> {
+        await poapService.create(req, msg.caller, this);
+    };
+
+    public shared(msg) func poapUpdate(
+        pubId: Text,
+        req: PoapTypes.PoapRequest
+    ): async Result.Result<PoapTypes.Poap, Text> {
+        await poapService.update(pubId, req, msg.caller);
+    };
+
+    public shared(msg) func poapModerate(
+        id: Text, 
+        req: PoapTypes.PoapRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<PoapTypes.Poap, Text> {
+        poapService.moderate(id, req, mod, msg.caller);
+    };
+
+    public shared query(msg) func poapFindById(
+        _id: Nat32
+    ): async Result.Result<PoapTypes.Poap, Text> {
+        poapService.findById(_id, msg.caller);
+    };
+
+    public query func poapFindByPubId(
+        pubId: Text
+    ): async Result.Result<PoapTypes.Poap, Text> {
+        poapService.findByPubId(pubId);
+    };
+
+    public shared query(msg) func poapFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[PoapTypes.Poap], Text> {
+        poapService.find(criterias, sortBy, limit);
+    };
+
+    public query func poapFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[PoapTypes.Poap], Text> {
+        poapService.findByCampaign(campaignId, sortBy, limit);
+    };
+
+    public shared query(msg) func poapFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[PoapTypes.Poap], Text> {
+        poapService.findByUser(sortBy, limit, msg.caller);
+    };
+
+    public shared(msg) func poapDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        await poapService.delete(id, msg.caller, this);
+    };   
+
+    //
     // migration
     //
     stable var daoEntities: DaoTypes.BackupEntity = {
@@ -1473,6 +1549,7 @@ shared({caller = owner}) actor class Metamob(
     stable var placeEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
+    stable var poapEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         daoEntities := daoService.backup();
@@ -1490,6 +1567,7 @@ shared({caller = owner}) actor class Metamob(
         placeEntities := placeService.backup();
         placeEmailEntities := placeEmailService.backup();
         placeUserEntities := placeUserService.backup();
+        poapEntities := poapService.backup();
     };
 
     system func postupgrade() {
@@ -1541,6 +1619,9 @@ shared({caller = owner}) actor class Metamob(
 
         placeUserService.restore(placeUserEntities);
         placeUserEntities := [];
+
+        poapService.restore(poapEntities);
+        poapEntities := [];
     };
 
     let interval: Nat = 60 * 1000_000_000; // 1 minute

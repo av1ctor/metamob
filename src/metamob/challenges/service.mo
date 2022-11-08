@@ -30,6 +30,7 @@ import FundingService "../fundings/service";
 import DonationService "../donations/service";
 import UpdateService "../updates/service";
 import PlaceService "../places/service";
+import PoapService "../poap/service";
 import D "mo:base/Debug";
 
 module {
@@ -43,6 +44,7 @@ module {
         donationService: DonationService.Service, 
         updateService: UpdateService.Service,
         placeService: PlaceService.Service,
+        poapService: PoapService.Service,
         reportService: ReportService.Service,
         moderationService: ModerationService.Service
     ) {
@@ -353,8 +355,11 @@ module {
             else if(moderation.entityType == EntityTypes.TYPE_USERS) {
                 userService.revertModeration(moderation);
             }
-            else /*if(moderation.entityType == EntityTypes.TYPE_VOTES)*/ {
+            else if(moderation.entityType == EntityTypes.TYPE_VOTES) {
                 voteService.revertModeration(moderation);
+            }
+            else /*if(moderation.entityType == EntityTypes.TYPE_POAPS)*/ {
+                poapService.revertModeration(moderation);
             };
         };
 

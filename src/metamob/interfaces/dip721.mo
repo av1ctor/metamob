@@ -31,16 +31,16 @@ module {
         #Other: Text;
     };
 
-    public type Result = {
-        #Ok: Nat; 
+    public type Result<T> = {
+        #Ok: T; 
         #Err: NftError;
     };
 
     public type Interface = actor {
         balanceOf: (who: Principal) -> async Nat;
-        transfer: (to: Principal, value: Nat) -> async Result;
-        transferFrom: (from: Principal, to: Principal, value: Nat) -> async Result;
-        mint: (to: Principal, id: Nat, properties: [(Text, GenericValue)]) -> async Result
+        transfer: (to: Principal, value: Nat) -> async Result<Nat>;
+        transferFrom: (from: Principal, to: Principal, value: Nat) -> async Result<Nat>;
+        mint: (to: Principal, id: Nat, properties: [(Text, GenericValue)]) -> async Result<Nat>
     };
     
 };

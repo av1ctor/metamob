@@ -25,6 +25,7 @@ import DonationService "../donations/service";
 import UpdateService "../updates/service";
 import PlaceService "../places/service";
 import DaoService "../dao/service";
+import PoapService "../poap/service";
 import D "mo:base/Debug";
 
 module {
@@ -38,7 +39,8 @@ module {
         fundingService: FundingService.Service, 
         donationService: DonationService.Service, 
         updateService: UpdateService.Service,
-        placeService: PlaceService.Service
+        placeService: PlaceService.Service,
+        poapService: PoapService.Service
     ) {
         let campaignRepo = campaignService.getRepository();
         let userRepo = userService.getRepository();
@@ -48,6 +50,7 @@ module {
         let donationRepo = donationService.getRepository();
         let updateRepo = updateService.getRepository();
         let placeRepo = placeService.getRepository();
+        let poapRepo = poapService.getRepository();
 
         let random = Random.Xoshiro256ss(Utils.genRandomSeed("moderators"));
 
@@ -486,8 +489,23 @@ module {
                     };
                 };
             }
-            else {
+            else if(req.entityType == EntityTypes.TYPE_PLACES) {
                 switch(placeRepo.findById(req.entityId)) {
+                    case (#err(msg)) {
+                        #err(msg);
+                    };
+                    case (#ok(e)) {
+                        if(not Text.equal(e.pubId, req.entityPubId)) {
+                            #err("Wrong pubId");
+                        }
+                        else {
+                            #ok(e.createdBy);
+                        };
+                    };
+                };
+            }
+            else /*if(req.entityType == EntityTypes.TYPE_POAP)*/ {
+                switch(poapRepo.findById(req.entityId)) {
                     case (#err(msg)) {
                         #err(msg);
                     };

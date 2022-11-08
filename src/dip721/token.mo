@@ -1,3 +1,7 @@
+// Copyright 2022 by André Vicentini (https://github.com/av1ctor)
+// Released under the GPL-3.0 license
+// Ported from https://github.com/Psychedelic/DIP721
+
 import Array "mo:base/Array";
 import ExperimentalCycles "mo:base/ExperimentalCycles";
 import HashMap "mo:base/HashMap";
@@ -20,7 +24,7 @@ shared(msg) actor class Token(
     args: Types.InitArgs
 ) = this {
 
-    let ledger: Ledger.Ledger = Ledger.Ledger(args);
+    let ledger: Ledger.Ledger = Ledger.Ledger(args, msg.caller);
     private var cap: ?Cap.Cap = null;
     
     // ==================================================================================================
@@ -76,7 +80,7 @@ shared(msg) actor class Token(
         await _setName(name, msg.caller)
     };
 
-    private shared(msg) func _setLogo(
+    private func _setLogo(
         logo: Text,
         caller: Principal
     ): async Types.Result<()> {

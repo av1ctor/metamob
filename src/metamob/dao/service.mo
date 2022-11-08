@@ -21,15 +21,19 @@ module {
         let deposited = HashMap.HashMap<Principal, Nat>(1000, Principal.equal, Principal.hash);
         
         // default values
-        config.set("REPORTER_REWARD",               #nat64(   100000000)); // 1 MMT
-        config.set("MODERATOR_MIN_STAKE",           #nat64(100000000000)); // 1000 MMT
-        config.set("MODERATOR_REWARD",              #nat64(  1000000000)); // 10 MMT
-        config.set("MODERATOR_PUNISHMENT",          #nat64( 10000000000)); // 100 MMT
+        config.set("REPORTER_REWARD",               #nat64(   1_00000000)); // 1 MMT
+        config.set("MODERATOR_MIN_STAKE",           #nat64(1000_00000000)); // 1000 MMT
+        config.set("MODERATOR_REWARD",              #nat64(  10_00000000)); // 10 MMT
+        config.set("MODERATOR_PUNISHMENT",          #nat64( 100_00000000)); // 100 MMT
         config.set("REPORT_MODERATING_SPAN",        #int(30*24*60*60*1000*1000*1000)); // 30 days in nanoseconds
-        config.set("CHALLENGER_DEPOSIT",            #nat64( 10000000000)); // 100 MMT
+        config.set("CHALLENGER_DEPOSIT",            #nat64( 100_00000000)); // 100 MMT
         config.set("CHALLENGE_MAX_JUDGES",          #nat32(3));
-        config.set("CHALLENGE_JUDGE_PUNISHMENT",    #nat64( 10000000000)); // 100 MMT
+        config.set("CHALLENGE_JUDGE_PUNISHMENT",    #nat64( 100_00000000)); // 100 MMT
         config.set("CHALLENGE_VOTING_SPAN",         #int(30*24*60*60*1000*1000*1000)); // 30 days in nanoseconds
+        config.set("POAP_DEPLOYING_PRICE",          #nat64(  10_00000000)); // 10 ICP
+        config.set("POAP_DEPLOYING_CYCLES",         #nat64(300_000_000_000)); // 300B cycles
+        config.set("POAP_MINTING_MIN_PRICE",        #nat64(   1_00000000)); // 1 ICP
+        config.set("POAP_MINTING_TAX",              #nat64(30));            // 30%
 
         public func configSet(
             key: Text,

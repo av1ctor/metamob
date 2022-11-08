@@ -48,7 +48,7 @@ module {
         #OperatorNotFound;
         #ExistedNFT;
         #OwnerNotFound;
-        #Other;
+        #Other: Text;
     };
 
     public type Result<T> = {

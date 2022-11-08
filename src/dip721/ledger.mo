@@ -16,10 +16,11 @@ import Types "./types";
 
 module Ledger {
     public class Ledger(
-        args: Types.InitArgs
+        args: Types.InitArgs,
+        caller: Principal
     ) {
         var metadata: Types.Metadata = {
-            cap = null;
+            cap = ?caller;
             logo = args.logo;
             name = args.name;
             custodians = TrieSet.fromArray<Principal>(args.custodians, Principal.hash, Principal.equal);
