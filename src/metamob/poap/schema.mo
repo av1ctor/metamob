@@ -37,6 +37,14 @@ module {
                 options = [#min(6), #max(8192)];
             },
             {
+                name = "width";
+                options = [#min(50), #max(4096)];
+            },
+            {
+                name = "height";
+                options = [#min(50), #max(4096)];
+            },
+            {
                 name = "price";
                 options = [];
             },

@@ -1,3 +1,10 @@
+import Hex "../common/hex";
+import Utils "../common/utils";
+import Random "../common/random";
+import Nat8 "mo:base/Nat8";
+import Time "mo:base/Time";
+import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
 import Array "mo:base/Array";
 import Result "mo:base/Result";
@@ -53,6 +60,7 @@ module {
         let ic: IC.ICActor = actor("aaaaa-aa");
         let repo = Repository.Repository();
         let campaignRepo = campaignService.getRepository();
+        let rand = Random.Xoshiro256ss(Utils.genRandomSeed("poaps"));
 
         public func create(
             req: Types.PoapRequest,
@@ -256,7 +264,7 @@ module {
                                                     };
                                                 };
 
-                                                return await _mintNFT(entity, caller);
+                                                return await _mintNFT(entity, campaign, caller);
                                             };
                                         };
                                     }
@@ -327,13 +335,55 @@ module {
             };
         };
 
+        func _generateNFT(
+            poap: Types.Poap,
+            id: Nat,
+            rgbBgColor: Text,
+            caller: UserTypes.Profile
+        ): Blob {
+            let w = Nat32.toText(poap.width);
+            let h = Nat32.toText(poap.height);
+            Text.encodeUtf8(
+                "<svg viewBox=\"0 0 " # w # " " # h # "\" xmlns=\"http://www.w3.org/2000/svg\"><rect fill=\"" # rgbBgColor # "\" width=\"" # w # "\" height=\"" # h # "\">"
+                    # poap.svg # 
+                "</rect></svg>"
+            )
+        };
+
+        func _generateColor(
+        ): (Nat8, Nat8, Nat8) {
+            let value = rand.next();
+            (
+                Nat8.fromNat(Nat64.toNat((value & 0x000000000000ff))), 
+                Nat8.fromNat(Nat64.toNat((value & 0x00000000ff0000) >> 16)),
+                Nat8.fromNat(Nat64.toNat((value & 0x0000ff00000000) >> 32))
+            )
+        };
+
+        func _toRGB(
+            color: (Nat8, Nat8, Nat8)
+        ): Text {
+            "#" # Hex.encode([color.0, color.1, color.2])
+        };
+
         func _mintNFT(
             poap: Types.Poap,
+            campaign: CampaignTypes.Campaign,
             caller: UserTypes.Profile
         ): async Result.Result<Nat32, Text> {
             try {
-                let props: [(Text, Dip721Types.GenericValue)] = [];
                 let id = Nat32.toNat(poap.totalSupply);
+                let bgColor = _generateColor();
+                let rgbBgColor = _toRGB(bgColor);
+                let props: [(Text, Dip721Types.GenericValue)] = [
+                    ("data", #BlobContent(_generateNFT(poap, id, rgbBgColor, caller))),
+                    ("contentType", #TextContent("image/svg+xml")),
+                    ("id", #NatContent(id)),
+                    ("campaingId", #TextContent(campaign.pubId)),
+                    ("date", #IntContent(Time.now())),
+                    ("bgColor", #TextContent(rgbBgColor)),
+                ];
+
                 ignore repo.changeSupply(poap, 1);
                 
                 switch(await Dip721.mint(poap.canisterId, Principal.fromText(caller.principal), id, props)) {

@@ -19,6 +19,8 @@ module {
         logo: Text;
         name: Text;
         symbol: Text;
+        width: Nat32;
+        height: Nat32;
         price: Nat64;
         totalSupply: Nat32;
         maxSupply: ?Nat32;
@@ -36,6 +38,8 @@ module {
         logo: Text;
         name: Text;
         symbol: Text;
+        width: Nat32;
+        height: Nat32;
         price: Nat64;
         maxSupply: ?Nat32;
         svg: Text;

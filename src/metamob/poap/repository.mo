@@ -288,6 +288,8 @@ module {
                 logo = req.logo;
                 name = req.name;
                 symbol = req.symbol;
+                width = req.width;
+                height = req.height;
                 price = req.price;
                 totalSupply = 0;
                 maxSupply = req.maxSupply;
@@ -315,6 +317,8 @@ module {
                 logo = req.logo;
                 name = req.name;
                 symbol = req.symbol;
+                width = req.width;
+                height = req.height;
                 price = req.price;
                 totalSupply = e.totalSupply;
                 maxSupply = req.maxSupply;
@@ -343,6 +347,8 @@ module {
                 logo = req.logo;
                 name = req.name;
                 symbol = req.symbol;
+                width = e.width;
+                height = e.height;
                 price = e.price;
                 totalSupply = e.totalSupply;
                 maxSupply = e.maxSupply;
@@ -370,6 +376,8 @@ module {
                 logo = e.logo;
                 name = e.name;
                 symbol = e.symbol;
+                width = e.width;
+                height = e.height;
                 price = e.price;
                 totalSupply = e.totalSupply;
                 maxSupply = e.maxSupply;
@@ -396,6 +404,8 @@ module {
                 logo = e.logo;
                 name = e.name;
                 symbol = e.symbol;
+                width = e.width;
+                height = e.height;
                 price = e.price;
                 totalSupply = Int32.toNat32(Int32.fromNat32(e.totalSupply) + by);
                 maxSupply = e.maxSupply;
@@ -424,6 +434,8 @@ module {
         res.put("logo", #text(e.logo));
         res.put("name", #text(e.name));
         res.put("symbol", #text(e.symbol));
+        res.put("width", #nat32(e.width));
+        res.put("height", #nat32(e.height));
         res.put("price", #nat64(e.price));
         res.put("totalSupply", #nat32(e.totalSupply));
         res.put("maxSupply", switch(e.maxSupply) {case null #nil; case (?maxSupply) #nat32(maxSupply);});
@@ -450,6 +462,8 @@ module {
             logo = Variant.getOptText(map.get("logo"));
             name = Variant.getOptText(map.get("name"));
             symbol = Variant.getOptText(map.get("symbol"));
+            width = Variant.getOptNat32(map.get("width"));
+            height = Variant.getOptNat32(map.get("height"));
             price = Variant.getOptNat64(map.get("price"));
             totalSupply = Variant.getOptNat32(map.get("totalSupply"));
             maxSupply = Variant.getOptNat32Opt(map.get("maxSupply"));
