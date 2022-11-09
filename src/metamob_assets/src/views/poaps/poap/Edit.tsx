@@ -15,7 +15,8 @@ import FileDropArea from "../../../components/FileDropArea";
 import NumberField from "../../../components/NumberField";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { Identity } from "@dfinity/agent";
-import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { icpToDecimal } from "../../../libs/icp";
+import { getConfigAsNat64 } from "../../../libs/dao";
 import { POAP_DEPLOYING_PRICE } from "../../../libs/poap";
 
 interface Props {
@@ -77,6 +78,7 @@ const EditForm = (props: Props) => {
     
     const [form, setForm] = useState<PoapRequest>(() => loadForm(props.campaignId, props.poap));
     const [balance, setBalance] = useState(BigInt(0));
+    const [poapDeployingPrice, setPoapDeployingPrice] = useState(POAP_DEPLOYING_PRICE);
 
     const [modForm, setModForm] = useModerationForm(props.reportId);
     
@@ -245,13 +247,11 @@ const EditForm = (props: Props) => {
                         throw Error("Main canister undefined");
                     }
                     
-                    const value = POAP_DEPLOYING_PRICE;
-        
-                    if(value + fees >= balance) {
-                        throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + fees)} ICP.`)
+                    if(poapDeployingPrice + fees >= balance) {
+                        throw Error(`Insufficient funds! Needed: ${icpToDecimal(poapDeployingPrice + fees)} ICP.`)
                     }
 
-                    await depositIcp(auth.user, value + fees, actors.main, actors.ledger);
+                    await depositIcp(auth.user, poapDeployingPrice + fees, actors.main, actors.ledger);
                     
                     try {
                         await createMut.mutateAsync({
@@ -282,7 +282,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, balance, updateState, props.onClose]);
+    }, [form, modForm, balance, poapDeployingPrice, updateState, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -296,6 +296,14 @@ const EditForm = (props: Props) => {
     useEffect(() => {
         updateState();
     }, [updateState]);
+
+
+    useEffect(() => {
+        (async () => {
+            const price = await getConfigAsNat64("POAP_DEPLOYING_PRICE");
+            setPoapDeployingPrice(price);
+        })();
+    }, []);
 
     return (
         <form onSubmit={handleUpdate}>
@@ -385,7 +393,7 @@ const EditForm = (props: Props) => {
                 }
                 {!props.poap &&
                     <div className="warning-box">
-                        <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: icpToDecimal(POAP_DEPLOYING_PRICE + fees)}} />
+                        <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: icpToDecimal(poapDeployingPrice + fees)}} />
                     </div>
                 }
                 <div className="field is-grouped mt-2">
