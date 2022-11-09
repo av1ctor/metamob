@@ -17,7 +17,7 @@ import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { Identity } from "@dfinity/agent";
 import { icpToDecimal } from "../../../libs/icp";
 import { getConfigAsNat64 } from "../../../libs/dao";
-import { POAP_DEPLOYING_PRICE } from "../../../libs/poap";
+import { formatPoapBody, POAP_DEPLOYING_PRICE } from "../../../libs/poap";
 
 interface Props {
     campaignId: number,
@@ -170,7 +170,14 @@ const EditForm = (props: Props) => {
             return;
         }
         
-        const value = await file.text();
+        let value = await file.text();
+
+        if(field === 'body') {
+            const parser = new DOMParser();
+            const svg = parser.parseFromString(value, 'text/xml');
+            value = svg.getElementsByTagName('svg')[0].innerHTML;
+        }
+
         setForm(form => ({
             ...form, 
             [field]: value
@@ -379,7 +386,7 @@ const EditForm = (props: Props) => {
                     {form.body && 
                         <img 
                             className="poap-body"
-                            src={"data:image/svg+xml;utf8," + encodeURIComponent(form.body)}
+                            src={"data:image/svg+xml;utf8," + encodeURIComponent(formatPoapBody(form.body, form.width, form.height))}
                             width={form.width || 50}
                             height={form.height || 50}
                         />

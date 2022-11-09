@@ -114,3 +114,21 @@ export const findByPubId = async (
     }
     return res.ok; 
 };
+
+export const formatPoapBody = (
+    body: string,
+    width: number,
+    height: number
+): string => {
+    const r = (Math.random()*256|0).toString(16);
+    const g = (Math.random()*256|0).toString(16);
+    const b = (Math.random()*256|0).toString(16);
+    const rgbBgColor = `#${r}${g}${b}`;
+
+    return (`<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        <svg version="1.1" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+            <rect fill="${rgbBgColor}" width="${width}" height="${height}"/>
+            ${body}
+        </svg>`
+    );
+};

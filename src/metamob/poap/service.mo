@@ -345,9 +345,9 @@ module {
             let h = Nat32.toText(poap.height);
             Text.encodeUtf8(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" #
-                "<svg version=\"1.1\" viewBox=\"0 0 " # w # " " # h # "\" xmlns=\"http://www.w3.org/2000/svg\"><rect fill=\"" # rgbBgColor # "\" width=\"" # w # "\" height=\"" # h # "\">"
+                "<svg version=\"1.1\" viewBox=\"0 0 " # w # " " # h # "\" xmlns=\"http://www.w3.org/2000/svg\"><rect fill=\"" # rgbBgColor # "\" width=\"" # w # "\" height=\"" # h # "\"/>"
                     # poap.body # 
-                "</rect></svg>"
+                "</svg>"
             )
         };
 
