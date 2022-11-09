@@ -30,6 +30,11 @@ import { ScrollToTop } from "../../../components/ScrollToTop";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import ModerationModal from "../../moderations/Modal";
 import { FormattedMessage, useIntl } from "react-intl";
+import Box from "../../../components/Box";
+import Boost from "./Boost";
+import Share from "./Share";
+import Result from "./Result";
+import Poaps from "../../poaps/Poaps";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -181,6 +186,38 @@ const Campaign = (props: Props) => {
                                         toggleLoading={props.toggleLoading}
                                     />
                                 }
+                                {campaign.state === CampaignState.PUBLISHED? 
+                                    <>
+                                        <Box>
+                                            <Boost 
+                                                campaign={campaign} 
+                                                onSuccess={props.onSuccess}
+                                                onError={props.onError}
+                                                toggleLoading={props.toggleLoading}
+                                            />
+                                        </Box>
+                                        <Box>
+                                            <Poaps
+                                                campaign={campaign}
+                                                onSuccess={props.onSuccess}
+                                                onError={props.onError}
+                                                toggleLoading={props.toggleLoading}
+                                            />
+                                        </Box>
+                                        <Box>
+                                            <Share
+                                                campaign={campaign}
+                                            />
+                                        </Box>
+                                    </>
+                                :
+                                    <Result
+                                        campaign={campaign} 
+                                        onSuccess={props.onSuccess}
+                                        onError={props.onError}
+                                        toggleLoading={props.toggleLoading}
+                                    />
+                                }
                             </>:
                             <>
                                 <Skeleton count={2} />
@@ -268,7 +305,7 @@ const Campaign = (props: Props) => {
                     <Tabs
                         tabs={[
                             {
-                                title: campaignKindToTitle(campaign.kind), 
+                                title: intl.formatMessage({id: campaignKindToTitle(campaign.kind), defaultMessage: campaignKindToTitle(campaign.kind)}), 
                                 icon: campaignKindToIcon(campaign.kind),
                             },
                             {

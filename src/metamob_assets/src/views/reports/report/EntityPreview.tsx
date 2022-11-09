@@ -7,6 +7,7 @@ import { PreviewWrapper as DonationPreview } from "../../donations/donation/Prev
 import { PreviewWrapper as FundingPreview } from "../../fundings/funding/PreviewWrapper";
 import { PreviewWrapper as UpdatePreview } from "../../updates/update/PreviewWrapper";
 import { PreviewWrapper as PlacePreview } from "../../places/place/PreviewWrapper";
+import { PreviewWrapper as PoapPreview } from "../../poaps/poap/PreviewWrapper";
 import { EntityType } from "../../../libs/common";
 import Button from "../../../components/Button";
 import Avatar from "../../users/Avatar";
@@ -90,7 +91,15 @@ const EntityPreview = (props: Props) => {
                         size="xl"
                     />
                 </div>
-            )
+            );
+
+        case EntityType.POAPS:
+            return (
+                <PoapPreview 
+                    id={report.entityId}
+                    partial={props.partial}
+                />
+            );
 
         default:
             return (

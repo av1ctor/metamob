@@ -1,56 +1,44 @@
 import React, { useCallback, useContext } from "react";
-import {Campaign, ProfileResponse, SignatureResponse} from "../../../../declarations/metamob/metamob.did";
-import { Markdown } from "../../components/Markdown";
+import {Campaign, ProfileResponse, Poap} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { AuthContext } from "../../stores/auth";
-import Avatar from "../users/Avatar";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
 
 interface BaseItemProps {
-    signature: SignatureResponse;
+    poap: Poap;
     user?: ProfileResponse;
     children?: any;
-    onShowModerations?: (signature: SignatureResponse) => void;
+    onShowModerations?: (poap: Poap) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
-    const signature = props.signature;
+    const poap = props.poap;
 
     const handleShowModerations = useCallback(() => {
         if(props.onShowModerations) {
-            props.onShowModerations(props.signature);
+            props.onShowModerations(props.poap);
         }
-    }, [props.signature, props.onShowModerations]);
+    }, [props.poap, props.onShowModerations]);
 
     return (
         <article className="media">
-            {props.user &&
-                <div className="media-left">
-                    <div className="flex-node w-12">
-                        <Avatar id={props.user._id} size='lg' noName={true} />
-                    </div>
-                </div>
-            }
             <div className="media-content">
                 <div className="content">
-                    {props.user &&
-                        <div>
-                            <strong>{props.user?.name}</strong>
-                        </div>
-                    }
+                    <div className="poap-logo">
+                        <img 
+                            className="mini"
+                            src={"data:image/svg+xml;utf8," + encodeURIComponent(poap.logo)} 
+                        />
+                    </div>
                     <div>
                         <ModerationBadge
-                            reason={signature.moderated}
+                            reason={poap.moderated}
                             onShowModerations={handleShowModerations} 
                         />
                     </div>
-                    <Markdown 
-                        className="update-body" 
-                        body={signature.body || '\n&nbsp;\n'}
-                    />
                     {props.children}
                 </div>
             </div>
@@ -60,31 +48,29 @@ export const BaseItem = (props: BaseItemProps) => {
 
 interface ItemProps {
     campaign?: Campaign;
-    signature: SignatureResponse;
-    onEdit: (signature: SignatureResponse) => void;
-    onDelete: (signature: SignatureResponse) => void;
-    onReport: (signature: SignatureResponse) => void;
-    onShowModerations?: (signature: SignatureResponse) => void;
+    poap: Poap;
+    onEdit: (poap: Poap) => void;
+    onDelete: (poap: Poap) => void;
+    onReport: (poap: Poap) => void;
+    onShowModerations?: (poap: Poap) => void;
 };
 
 export const Item = (props: ItemProps) => {
     const [auth, ] = useContext(AuthContext);
     
-    const {signature} = props;
+    const {poap} = props;
 
-    const creatorData = useFindUserById(signature.createdBy);
+    const creatorReq = useFindUserById(poap.createdBy);
 
-    const creator = signature.createdBy && signature.createdBy.length > 0?
-        signature.createdBy[0] || 0:
-        0;
+    const creator = poap.createdBy;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
         auth.user && (auth.user._id === creator && creator !== 0));
 
     return (
         <BaseItem
-            user={creatorData.data}
-            signature={signature}
+            user={creatorReq.data}
+            poap={poap}
             onShowModerations={props.onShowModerations}
         >
             <p>
@@ -92,15 +78,15 @@ export const Item = (props: ItemProps) => {
                     {canEdit && 
                         <>
                             <a
-                                title="Edit signature"
-                                onClick={() => props.onEdit(signature)}
+                                title="Edit poap"
+                                onClick={() => props.onEdit(poap)}
                             >
                                 <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                             </a>
                             &nbsp;·&nbsp;
                             <a
-                                title="Delete signature"
-                                onClick={() => props.onDelete(signature)}
+                                title="Delete poap"
+                                onClick={() => props.onDelete(poap)}
                             >
                                 <span className="whitespace-nowrap has-text-danger"><i className="la la-trash" /> <FormattedMessage id="Delete" defaultMessage="Delete"/></span>
                             </a>
@@ -110,8 +96,8 @@ export const Item = (props: ItemProps) => {
                     {auth.user && 
                         <>
                             <a
-                                title="Report signature"
-                                onClick={() => props.onReport(signature)}
+                                title="Report poap"
+                                onClick={() => props.onReport(poap)}
                             >
                                 <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
                             </a>
@@ -119,13 +105,13 @@ export const Item = (props: ItemProps) => {
                         </>
                     }
                     <TimeFromNow 
-                        date={BigInt.asIntN(64, signature.createdAt)}
+                        date={BigInt.asIntN(64, poap.createdAt)}
                     />
-                    {signature.updatedBy && signature.updatedBy.length > 0 &&
+                    {poap.updatedBy && poap.updatedBy.length > 0 &&
                         <>
                             &nbsp;·&nbsp;<b><i><FormattedMessage id="Edited" defaultMessage="Edited"/></i></b>
                         </>
-                    }                            
+                    }
                 </small>
             </p>
         </BaseItem>

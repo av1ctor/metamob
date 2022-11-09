@@ -7,6 +7,7 @@ import Reports from "./reports/Reports";
 import Users from "./users/Users";
 import Categories from "./categories/Categories";
 import Places from "./places/Places";
+import Poaps from "./poaps/Poaps";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -51,6 +52,10 @@ const Admin = (props: Props) => {
 
             <Box>
                 <Categories {...subProps} />
+            </Box>
+
+            <Box>
+                <Poaps {...subProps} />
             </Box>
 
         </>

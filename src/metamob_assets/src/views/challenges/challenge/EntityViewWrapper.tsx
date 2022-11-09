@@ -5,6 +5,7 @@ import { BaseItemWrapper as SignatureItem } from "../../signatures/ItemWrapper";
 import { BaseItemWrapper as VoteItem } from "../../votes/ItemWrapper";
 import { BaseItemWrapper as FundingItem } from "../../fundings/ItemWrapper";
 import { BaseItemWrapper as UpdateItem } from "../../updates/ItemWrapper";
+import { BaseItemWrapper as PoapItem } from "../../poaps/ItemWrapper";
 import PlaceItem from "../../places/ItemWrapper";
 import { EntityType, entityTypeToText } from "../../../libs/common";
 
@@ -66,6 +67,13 @@ const EntityViewWrapper = (props: Props) => {
         case EntityType.PLACES:
             return (
                 <PlaceItem
+                    pubId={props.pubId}
+                />
+            );
+
+        case EntityType.POAPS:
+            return (
+                <PoapItem
                     pubId={props.pubId}
                 />
             );

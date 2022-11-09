@@ -539,3 +539,71 @@ a:not(:first-child) {
         }
     }
 }
+
+.file-drop-area {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 16px;
+    text-align: center;
+
+    &:hover {
+        border-color: #bbb;
+    }
+
+    .message {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .value{
+        text-align: center;
+        font-size: small;
+        text-decoration: underline;
+        padding-bottom: 1rem;
+    }
+}
+
+.poap-logo {
+    text-align: center;
+    img {
+        width: 350px;
+        height: 350px;
+    }
+
+    .mini {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+.poap-body {
+    &img {
+        min-width: 50px;
+        max-width: 4096px;
+        min-height: 50px;
+        max-width: 4096px;
+    }
+}
+
+.warning-box {
+    &::before {
+        position: absolute;
+        content: "WARNING";
+        width: 10rem;
+        top: -1rem;
+        left: calc(50% - 5rem);
+        background-color: rgb(231, 206, 206);
+        border: 2px solid #f00;
+        border-radius: 8px;
+    }
+    position: relative;
+    border: 2px solid #f00;
+    border-radius: 8px;
+    background-color: rgb(231, 206, 206);
+    text-align: center;
+    font-weight: bold;
+    font-size: large;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}

@@ -5,6 +5,7 @@ import { BaseItem as SignatureItem } from "../../signatures/Item";
 import { BaseItem as VoteItem } from "../../votes/Item";
 import { BaseItem as FundingItem } from "../../fundings/Item";
 import { BaseItem as UpdateItem } from "../../updates/Item";
+import { BaseItem as PoapItem } from "../../poaps/Item";
 import PlaceItem from "../../places/Item";
 import { EntityType, entityTypeToText } from "../../../libs/common";
 
@@ -67,6 +68,13 @@ const EntityView = (props: Props) => {
             return (
                 <PlaceItem
                     place={props.entity}
+                />
+            );
+
+        case EntityType.POAPS:
+            return (
+                <PoapItem
+                    poap={props.entity}
                 />
             );
 

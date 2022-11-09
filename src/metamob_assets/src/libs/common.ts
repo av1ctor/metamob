@@ -23,6 +23,7 @@ export enum EntityType {
     DONATIONS = 5,
     FUNDINGS = 6,
     PLACES = 7,
+    POAPS = 8,
 }
 
 export const entityTypeToText = (
@@ -45,6 +46,8 @@ export const entityTypeToText = (
             return 'User';
         case EntityType.PLACES:
             return 'Place';
+        case EntityType.POAPS:
+            return 'Poap';
         default:
             return 'Unknown';
     }
@@ -69,6 +72,8 @@ export const entityTypeToColor = (
         case EntityType.USERS:
             return 'dark';
         case EntityType.PLACES:
+            return 'primary';
+        case EntityType.POAPS:
             return 'primary';
         default:
             return 'black';
