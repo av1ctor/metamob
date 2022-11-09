@@ -57,7 +57,7 @@ module {
                 options = [#nullable];
             },
             {
-                name = "svg";
+                name = "body";
                 options = [#min(6), #max(8192)];
             },
             {

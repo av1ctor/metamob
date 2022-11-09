@@ -24,7 +24,7 @@ module {
         price: Nat64;
         totalSupply: Nat32;
         maxSupply: ?Nat32;
-        svg: Text;
+        body: Text;
         options: PoapOptions;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
@@ -42,7 +42,7 @@ module {
         height: Nat32;
         price: Nat64;
         maxSupply: ?Nat32;
-        svg: Text;
+        body: Text;
         options: PoapOptions;
     };
 };

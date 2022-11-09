@@ -293,7 +293,7 @@ module {
                 price = req.price;
                 totalSupply = 0;
                 maxSupply = req.maxSupply;
-                svg = req.svg;
+                body = req.body;
                 options = req.options;
                 moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
@@ -322,7 +322,7 @@ module {
                 price = req.price;
                 totalSupply = e.totalSupply;
                 maxSupply = req.maxSupply;
-                svg = req.svg;
+                body = req.body;
                 options = req.options;
                 moderated = e.moderated;
                 createdAt = e.createdAt;
@@ -352,7 +352,7 @@ module {
                 price = e.price;
                 totalSupply = e.totalSupply;
                 maxSupply = e.maxSupply;
-                svg = req.svg;
+                body = req.body;
                 options = e.options;
                 moderated = e.moderated | reason;
                 createdAt = e.createdAt;
@@ -381,7 +381,7 @@ module {
                 price = e.price;
                 totalSupply = e.totalSupply;
                 maxSupply = e.maxSupply;
-                svg = e.svg;
+                body = e.body;
                 options = e.options;
                 moderated = e.moderated | reason;
                 createdAt = e.createdAt;
@@ -409,7 +409,7 @@ module {
                 price = e.price;
                 totalSupply = Int32.toNat32(Int32.fromNat32(e.totalSupply) + by);
                 maxSupply = e.maxSupply;
-                svg = e.svg;
+                body = e.body;
                 options = e.options;
                 moderated = e.moderated;
                 createdAt = e.createdAt;
@@ -439,7 +439,7 @@ module {
         res.put("price", #nat64(e.price));
         res.put("totalSupply", #nat32(e.totalSupply));
         res.put("maxSupply", switch(e.maxSupply) {case null #nil; case (?maxSupply) #nat32(maxSupply);});
-        res.put("svg", #text(e.svg));
+        res.put("body", #text(e.body));
         res.put("options", #nat32(e.options));
         res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
@@ -467,7 +467,7 @@ module {
             price = Variant.getOptNat64(map.get("price"));
             totalSupply = Variant.getOptNat32(map.get("totalSupply"));
             maxSupply = Variant.getOptNat32Opt(map.get("maxSupply"));
-            svg = Variant.getOptText(map.get("svg"));
+            body = Variant.getOptText(map.get("body"));
             options = Variant.getOptNat32(map.get("options"));
             moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

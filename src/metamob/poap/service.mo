@@ -99,9 +99,9 @@ module {
                 };
             
                 let price = daoService.configGetAsNat64("POAP_DEPLOYING_PRICE");
-                let balance = await ledgerUtils.getCampaignBalance(campaign, this);
+                let balance = await ledgerUtils.getUserBalance(invoker, this);
                 if(balance < price + Nat64.fromNat(LedgerUtils.icp_fee)) {
-                    return #err("Insufficient campaign ICP balance");
+                    return #err("Insufficient ICP balance");
                 };
 
                 if(req.price < daoService.configGetAsNat64("POAP_MINTING_MIN_PRICE")) {
@@ -113,7 +113,7 @@ module {
                     Account.defaultSubaccount()
                 );
 
-                switch(await ledgerUtils.withdrawFromCampaignSubaccount(campaign, price, app, caller._id)) {
+                switch(await ledgerUtils.transferFromUserSubaccount(caller._id, price, app, invoker, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -344,8 +344,9 @@ module {
             let w = Nat32.toText(poap.width);
             let h = Nat32.toText(poap.height);
             Text.encodeUtf8(
-                "<svg viewBox=\"0 0 " # w # " " # h # "\" xmlns=\"http://www.w3.org/2000/svg\"><rect fill=\"" # rgbBgColor # "\" width=\"" # w # "\" height=\"" # h # "\">"
-                    # poap.svg # 
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" #
+                "<svg version=\"1.1\" viewBox=\"0 0 " # w # " " # h # "\" xmlns=\"http://www.w3.org/2000/svg\"><rect fill=\"" # rgbBgColor # "\" width=\"" # w # "\" height=\"" # h # "\">"
+                    # poap.body # 
                 "</rect></svg>"
             )
         };
@@ -364,6 +365,18 @@ module {
             color: (Nat8, Nat8, Nat8)
         ): Text {
             "#" # Hex.encode([color.0, color.1, color.2])
+        };
+
+        func _revertSupplyChange(
+            poapId: Nat32
+        ) {
+            switch(repo.findById(poapId)) {
+                case (#ok(poap)) {
+                    ignore repo.changeSupply(poap, -1);
+                };
+                case _ {
+                };
+            };
         };
 
         func _mintNFT(
@@ -388,7 +401,7 @@ module {
                 
                 switch(await Dip721.mint(poap.canisterId, Principal.fromText(caller.principal), id, props)) {
                     case (#Err(msg)) {
-                        ignore repo.changeSupply(poap, -1);
+                        _revertSupplyChange(poap._id);
                         #err(debug_show(msg));
                     };
                     case (#Ok(_)) {
@@ -397,7 +410,7 @@ module {
                 };
             }
             catch(e) {
-                ignore repo.changeSupply(poap, -1);
+                _revertSupplyChange(poap._id);
                 D.print("Error: poapService._mintNft(" # caller.principal # "):" # Error.message(e));
                 return #err(Error.message(e));
             };
