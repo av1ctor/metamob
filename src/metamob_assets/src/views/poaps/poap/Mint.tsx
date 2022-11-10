@@ -131,7 +131,7 @@ const MintForm = (props: Props) => {
             }
             
             if(!checkParticipation(props.campaign, auth.user)) {
-                throw Error("You didn't have participate on the campaign");
+                throw Error("You didn't participate in the campaign");
             }
 
             if(props.poap.price + fees >= balance) {
