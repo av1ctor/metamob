@@ -7,6 +7,7 @@ import { AuthContext } from "../../stores/auth";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
 import Button from "../../components/Button";
+import { PoapState } from "../../libs/poap";
 
 interface BaseItemProps {
     poap: Poap;
@@ -69,6 +70,10 @@ export const Item = (props: ItemProps) => {
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
         auth.user && (auth.user._id === creator && creator !== 0));
 
+    const maxSupply = poap.maxSupply.length > 0? poap.maxSupply[0] || Number.MAX_SAFE_INTEGER: Number.MAX_SAFE_INTEGER;
+    const canMint = (poap.state === PoapState.MINTING) && 
+        (poap.totalSupply < maxSupply);
+
     return (
         <BaseItem
             user={creatorReq.data}
@@ -80,7 +85,7 @@ export const Item = (props: ItemProps) => {
                     <Button
                         size="small"
                         color="dark"
-                        disabled={!auth.user}
+                        disabled={!canMint || !auth.user}
                         onClick={() => props.onMint? props.onMint(poap): null}
                     >
                         <i className="la la-hammer"/>&nbsp;<FormattedMessage id="Mint" defaultMessage="Mint"/>
@@ -88,7 +93,7 @@ export const Item = (props: ItemProps) => {
                 </div>
             }
 
-            <p>
+            <p className="has-text-centered">
                 <small>
                     {canEdit && 
                         <>
@@ -119,6 +124,8 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
+                    {poap.totalSupply}/{maxSupply !== Number.MAX_SAFE_INTEGER? maxSupply.toString(): '∞'}
+                    &nbsp;·&nbsp;
                     <TimeFromNow 
                         date={BigInt.asIntN(64, poap.createdAt)}
                     />

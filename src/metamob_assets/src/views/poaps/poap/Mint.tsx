@@ -157,7 +157,7 @@ const MintForm = (props: Props) => {
                 />
                 <TextField
                     label="Supply"
-                    value={poap.totalSupply.toString() + (poap.maxSupply.length > 0? `/${poap.maxSupply[0]}`: '')}
+                    value={poap.totalSupply.toString() + `/${poap.maxSupply.length > 0? poap.maxSupply[0]?.toString(): '∞'}`}
                     disabled
                 />
                 <div>

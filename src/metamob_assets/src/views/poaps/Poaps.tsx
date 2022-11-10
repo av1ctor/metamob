@@ -121,6 +121,7 @@ const Poaps = (props: Props) => {
             <div className="has-text-centered">
                 <div className="control">
                     <Button
+                        size="small"
                         disabled={!poaps.hasNextPage || poaps.isFetchingNextPage}
                         onClick={() => poaps.fetchNextPage()}
                     >
@@ -129,6 +130,7 @@ const Poaps = (props: Props) => {
                     {isOwner &&
                         <span className="pl-2">
                             <Button 
+                                size="small"
                                 color="danger"
                                 onClick={toggleCreate}>
                                 <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
