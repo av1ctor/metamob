@@ -120,9 +120,9 @@ export const formatPoapBody = (
     width: number,
     height: number
 ): string => {
-    const r = (Math.random()*256|0).toString(16);
-    const g = (Math.random()*256|0).toString(16);
-    const b = (Math.random()*256|0).toString(16);
+    const r = ('0' + (Math.random()*255|0).toString(16)).substr(-2);
+    const g = ('0' + (Math.random()*255|0).toString(16)).substr(-2);
+    const b = ('0' + (Math.random()*255|0).toString(16)).substr(-2);
     const rgbBgColor = `#${r}${g}${b}`;
 
     return (`<?xml version="1.0" encoding="UTF-8" standalone="no"?>

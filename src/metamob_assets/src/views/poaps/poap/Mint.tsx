@@ -13,7 +13,7 @@ import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { Identity } from "@dfinity/agent";
 import { icpToDecimal } from "../../../libs/icp";
 import { formatPoapBody } from "../../../libs/poap";
-import { CampaignKind, CampaignState } from "../../../libs/campaigns";
+import { CampaignKind } from "../../../libs/campaigns";
 import { findByCampaignAndUser as findSignatureByCampaignAndUser } from "../../../libs/signatures";
 import { findByCampaignAndUser as findDonationByCampaignAndUser } from "../../../libs/donations";
 import { findByCampaignAndUser as findVoteByCampaignAndUser } from "../../../libs/votes";
