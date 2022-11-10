@@ -25,6 +25,13 @@ const FileDropArea = (props: Props) => {
     const handleDrag = useCallback((event: any) => {
         event.preventDefault();
     }, []);
+
+    const handleFileSelected = useCallback((event: any) => {
+        event.preventDefault();
+        if(props.onDrop) {
+            props.onDrop(event.target.files, props.id, props.name);
+        }
+    }, [props.id, props.name, props.onDrop]);
     
     return (
         <div className="field">
@@ -47,7 +54,13 @@ const FileDropArea = (props: Props) => {
                     </div>
                 }
                 <div className="message">
-                    <FormattedMessage defaultMessage="Drop your file here" />
+                    <input 
+                        type="file"  
+                        accept=".svg,image/svg+xml"
+                        onChange={handleFileSelected}
+                    />
+                    <br/>
+                    <FormattedMessage defaultMessage="Or drop your file here" />
                 </div>
                 
             </div>
