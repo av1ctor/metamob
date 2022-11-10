@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#NOTE: assuming dfx.json is configured as shown at https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup
+#NOTE: assuming dfx.json is configured as shown at https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup (until step 7)
 
 export IC_VERSION=dd3a710b03bd3ae10368a91b255571d012d1ec2f
 curl -o ../ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister_notify-method.wasm.gz
