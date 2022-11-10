@@ -52,6 +52,33 @@ module {
             return balance.e8s;
         };
 
+        public func transferFromUserSubaccount(
+            callerId: Nat32,
+            amount: Nat64,
+            to: AccountTypes.AccountIdentifier,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Nat64, Text> {
+            
+            let receipt = await ledger.transfer({
+                memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
+                from_subaccount = ?Account.principalToSubaccount(invoker);
+                to = to;
+                amount = { e8s = amount - Nat64.fromNat(icp_fee) };
+                fee = { e8s = Nat64.fromNat(icp_fee) };
+                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+            });
+
+            switch (receipt) {
+                case (#Err(e)) {
+                    #err("Transfer failed: " # debug_show(e));
+                };
+                case _ {
+                    #ok(amount);
+                };
+            };
+        };
+
         public func transferFromUserSubaccountToCampaignSubaccountEx(
             campaign: CampaignTypes.Campaign,
             callerId: Nat32,

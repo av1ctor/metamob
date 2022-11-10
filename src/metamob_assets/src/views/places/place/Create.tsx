@@ -39,11 +39,8 @@ const formSchema = yup.object().shape({
     lng: yup.number().required(),
 });
 
-const Create = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-    const intl = useIntl();
-    
-    const [form, setForm] = useState<PlaceRequest>({
+const emptyForm = (): PlaceRequest => {
+    return ({
         name: '',
         description: '',
         icon: '',
@@ -56,6 +53,13 @@ const Create = (props: Props) => {
         lat: 0,
         lng: 0,
     });
+};
+
+const Create = (props: Props) => {
+    const [actors, ] = useContext(ActorContext);
+    const intl = useIntl();
+    
+    const [form, setForm] = useState<PlaceRequest>(emptyForm());
 
     const mutation = useCreatePlace();
     
@@ -144,6 +148,7 @@ const Create = (props: Props) => {
                 }
             });
 
+            setForm(emptyForm());
             props.onSuccess(intl.formatMessage({defaultMessage: 'Place created!'}));
             props.onClose();
         }
@@ -190,6 +195,13 @@ const Create = (props: Props) => {
                     rows={5}
                     onChange={changeForm}
                 />
+                <SelectField
+                    label="Kind"
+                    id="kind"
+                    value={form.kind}
+                    options={kinds}
+                    onChange={changeForm}
+                />
                 {Number(form.kind) === PlaceKind.PLANET || Number(form.kind) === PlaceKind.CONTINENT?
                     <PlacePicker 
                         label="Icon"
@@ -218,19 +230,6 @@ const Create = (props: Props) => {
                     value={form.banner[0] || ''}
                     onChange={changeFormOpt}
                 />
-                <MarkdownField 
-                    label="Terms and conditions"
-                    name="terms"
-                    value={form.terms[0] || ''}
-                    onChange={changeFormOpt}
-                />
-                <SelectField
-                    label="Kind"
-                    id="kind"
-                    value={form.kind}
-                    options={kinds}
-                    onChange={changeForm}
-                />
                 <TextField 
                     label="Latitude"
                     name="lat"
@@ -244,6 +243,12 @@ const Create = (props: Props) => {
                     value={form.lng.toString()}
                     required={true}
                     onChange={changeForm}
+                />
+                <MarkdownField 
+                    label="Terms and conditions"
+                    name="terms"
+                    value={form.terms[0] || ''}
+                    onChange={changeFormOpt}
                 />
                 <SelectField 
                     label="Authorization"

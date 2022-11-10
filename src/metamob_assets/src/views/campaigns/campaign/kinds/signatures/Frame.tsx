@@ -5,9 +5,6 @@ import { useFindSignatureByCampaignAndUser } from "../../../../../hooks/signatur
 import { Campaign } from "../../../../../../../declarations/metamob/metamob.did";
 import { AuthContext } from "../../../../../stores/auth";
 import SignForm from "./Form";
-import Result from "../../Result";
-import Share from "../../Share";
-import Boost from "../../Boost";
 import { FormattedMessage } from "react-intl";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
@@ -49,41 +46,19 @@ export const SignFrame = (props: Props) => {
             <progress className="progress mb-0 pb-0 is-success" value={total} max={goal}>{total}</progress>
             <div><small><b>{total}</b> <FormattedMessage defaultMessage="have signed."/> {campaign.state === CampaignState.PUBLISHED? <span><FormattedMessage defaultMessage="Let's get to"/> {goal}!</span>: null}</small></div>
             <br/>
-            {campaign.state === CampaignState.PUBLISHED? 
-                <>
-                    <Box>
-                        <div className="is-size-4">
-                            <FormattedMessage id="To" defaultMessage="To"/>: <span className="is-size-4 has-text-link">{campaign.target}</span>
-                        </div>
-                        <SignForm 
-                            campaign={campaign}
-                            signature={userSignature?.data} 
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
-                        />
-                    </Box>
-                    <Box>
-                        <Boost 
-                            campaign={campaign} 
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
-                        />
-                    </Box>
-                    <Box>
-                        <Share
-                            campaign={campaign}
-                        />
-                    </Box>
-                </>
-            :
-                <Result 
-                    campaign={campaign} 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
-                />
+            {campaign.state === CampaignState.PUBLISHED &&
+                <Box>
+                    <div className="is-size-4">
+                        <FormattedMessage id="To" defaultMessage="To"/>: <span className="is-size-4 has-text-link">{campaign.target}</span>
+                    </div>
+                    <SignForm 
+                        campaign={campaign}
+                        signature={userSignature?.data} 
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                </Box>
             }
         </>
     );

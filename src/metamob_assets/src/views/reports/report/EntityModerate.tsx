@@ -8,6 +8,7 @@ import FundingEdit from "../../fundings/funding/EditWrapper";
 import UpdateEdit from "../../updates/update/EditWrapper";
 import PlaceEdit from "../../places/place/EditWrapper";
 import UserEdit from "../../users/user/EditWrapper";
+import PoapEdit from "../../poaps/poap/EditWrapper";
 import { EntityType } from "../../../libs/common";
 
 interface Props {
@@ -110,6 +111,18 @@ const EntityModerate = (props: Props) => {
             return (
                 <UserEdit
                     id={report.entityId}
+                    reportId={report._id}
+                    onClose={props.onClose}
+                    onSuccess={props.onSuccess}
+                    onError={props.onError}
+                    toggleLoading={props.toggleLoading}
+                />
+            );
+
+        case EntityType.POAPS:
+            return (
+                <PoapEdit
+                    pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
                     onSuccess={props.onSuccess}

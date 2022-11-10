@@ -219,6 +219,13 @@ const EditForm = (props: Props) => {
                 rows={5}
                 onChange={changeForm}
             />
+            <SelectField
+                label="Kind"
+                name="kind"
+                value={form.kind}
+                options={kinds}
+                onChange={changeForm}
+            />
             {Number(form.kind) === PlaceKind.PLANET || Number(form.kind) === PlaceKind.CONTINENT?
                 <PlacePicker 
                     label="Icon"
@@ -247,19 +254,6 @@ const EditForm = (props: Props) => {
                 value={form.banner[0] || ''}
                 onChange={changeFormOpt}
             />
-            <MarkdownField
-                label="Terms and conditions"
-                name="terms"
-                value={form.terms[0] || ''}
-                onChange={changeFormOpt}
-            />
-            <SelectField
-                label="Kind"
-                name="kind"
-                value={form.kind}
-                options={kinds}
-                onChange={changeForm}
-            />
             <TextField 
                 label="Latitude"
                 name="lat"
@@ -273,6 +267,12 @@ const EditForm = (props: Props) => {
                 value={form.lng.toString()}
                 required={true}
                 onChange={changeForm}
+            />
+            <MarkdownField
+                label="Terms and conditions"
+                name="terms"
+                value={form.terms[0] || ''}
+                onChange={changeFormOpt}
             />
             <SelectField 
                 label="Authorization"

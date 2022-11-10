@@ -17,8 +17,7 @@
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
     "prestart": "npm run copy:types",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --delete src/declarations",
-    "extract": "formatjs extract -- \"src/metamob_assets/src/**/*.ts*\" --ignore=\"**/*.d.ts\" --out-file \"src/metamob_assets/assets/lang/en.json\" --id-interpolation-pattern \"[sha512:contenthash:base64:6]\"",
-    "compile": "formatjs compile "
+    "i18n:extract": "formatjs extract -- \"src/metamob_assets/src/**/*.ts*\" --ignore=\"**/*.d.ts\" --out-file \"src/metamob_assets/assets/lang/en.json\" --id-interpolation-pattern \"[sha512:contenthash:base64:6]\""
   },
   "devDependencies": {
     "@creativebulma/bulma-badge": "^1.0.1",

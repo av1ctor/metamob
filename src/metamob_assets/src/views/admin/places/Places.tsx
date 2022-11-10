@@ -64,6 +64,7 @@ const Places = (props: Props) => {
             ...modals,
             create: !modals.create
         }));
+        setPlace(undefined);
     }, []);
 
     const toggleEdit = useCallback(() => {
