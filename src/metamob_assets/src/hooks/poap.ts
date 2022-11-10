@@ -66,6 +66,7 @@ export const useFindUserPoaps = (
 };
 
 export const useCreatePoap = () => {
+    const queryClient = useQueryClient();
     return useMutation(
         async (options: {main?: Metamob, req: PoapRequest}) => {
             if(!options.main) {
@@ -80,6 +81,7 @@ export const useCreatePoap = () => {
         },
         {
             onSuccess: () => {
+                queryClient.invalidateQueries(['poaps']);
             }   
         }
     );

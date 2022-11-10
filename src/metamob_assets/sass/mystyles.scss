@@ -568,6 +568,8 @@ a:not(:first-child) {
     img {
         width: 350px;
         height: 350px;
+        border: 1px solid #eee;
+        border-radius: 8px;
     }
 
     .mini {
@@ -583,6 +585,8 @@ a:not(:first-child) {
         max-width: 4096px;
         min-height: 50px;
         max-width: 4096px;
+        border: 1px solid #eee;
+        border-radius: 8px;
     }
 }
 

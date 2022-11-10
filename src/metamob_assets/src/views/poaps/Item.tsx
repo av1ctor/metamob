@@ -36,7 +36,7 @@ export const BaseItem = (props: BaseItemProps) => {
                             src={"data:image/svg+xml;utf8," + encodeURIComponent(poap.logo)} 
                         />
                     </div>
-                    <div>
+                    <div className="has-text-centered">
                         <ModerationBadge
                             reason={poap.moderated}
                             onShowModerations={handleShowModerations} 

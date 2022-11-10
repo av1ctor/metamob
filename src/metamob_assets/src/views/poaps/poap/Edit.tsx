@@ -15,7 +15,7 @@ import FileDropArea from "../../../components/FileDropArea";
 import NumberField from "../../../components/NumberField";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { Identity } from "@dfinity/agent";
-import { icpToDecimal } from "../../../libs/icp";
+import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { getConfigAsNat64 } from "../../../libs/dao";
 import { formatPoapBody, POAP_DEPLOYING_PRICE } from "../../../libs/poap";
 
@@ -152,6 +152,15 @@ const EditForm = (props: Props) => {
         }));
     }, []);
 
+    const changeFormICP = useCallback((e: any) => {
+        const field = e.target.id || e.target.name;
+        const value = decimalToIcp(e.target.value);
+        setForm(form => ({
+            ...form, 
+            [field]: value
+        }));
+    }, []);
+
     const handleDrop = useCallback(async (files: FileList, id?: string, name?: string) => {
         const field = id || name || '';
         
@@ -223,7 +232,7 @@ const EditForm = (props: Props) => {
                 logo: form.logo,
                 width: form.width,
                 height: form.height,
-                price: BigInt(form.price),
+                price: form.price,
                 maxSupply: form.maxSupply.length > 0? [Number(form.maxSupply[0])]: [],
                 body: form.body,
                 options: form.options,
@@ -353,9 +362,9 @@ const EditForm = (props: Props) => {
                 <TextField
                     label="Price (ICP)"
                     name="price"
-                    value={form.price.toString()}
+                    value={icpToDecimal(form.price)}
                     required
-                    onChange={changeForm} 
+                    onChange={changeFormICP} 
                 />
                 <NumberField
                     label="Max supply"
