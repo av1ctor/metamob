@@ -404,16 +404,11 @@ module {
             callerId: Nat32
         ): Types.Vote {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 anonymous = req.anonymous;
-                campaignId = e.campaignId;
                 body = req.body;
                 pro = req.pro;
-                weight = e.weight;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -426,16 +421,10 @@ module {
             callerId: Nat32
         ): Types.Vote {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
+                e
+                with
                 body = req.body;
-                pro = e.pro;
-                weight = e.weight;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -447,18 +436,9 @@ module {
             callerId: Nat32
         ): Types.Vote {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
-                body = e.body;
-                pro = e.pro;
-                weight = e.weight;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

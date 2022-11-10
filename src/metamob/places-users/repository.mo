@@ -172,9 +172,8 @@ module {
             req: Types.PlaceUserRequest
         ): Types.PlaceUser {
             {
-                _id = e._id;
-                placeId = e.placeId;
-                userId = e.userId;
+                e
+                with
                 termsAccepted = req.termsAccepted;
             }
         };

@@ -326,21 +326,11 @@ module {
             callerId: Nat32
         ): Types.Challenge {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                moderationId = e.moderationId;
-                entityId = e.entityId;
-                entityType = e.entityType;
+                e
+                with
                 description = req.description;
-                judges = e.judges;
-                votes = e.votes;
-                result = e.result;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                dueAt = e.dueAt;
             }  
         };
 
@@ -350,20 +340,9 @@ module {
             dueAt: Int
         ): Types.Challenge {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                moderationId = e.moderationId;
-                entityId = e.entityId;
-                entityType = e.entityType;
-                description = e.description;
+                e
+                with
                 judges = judges;
-                votes = e.votes;
-                result = e.result;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
                 dueAt = dueAt;
             }  
         };
@@ -374,21 +353,11 @@ module {
             callerId: Nat32
         ): Types.Challenge {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                moderationId = e.moderationId;
-                entityId = e.entityId;
-                entityType = e.entityType;
-                description = e.description;
-                judges = e.judges;
+                e
+                with
                 votes = votes;
-                result = e.result;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                dueAt = e.dueAt;
             }  
         };
         
@@ -399,21 +368,13 @@ module {
             callerId: Nat32
         ): Types.Challenge {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = Types.STATE_CLOSED;
-                moderationId = e.moderationId;
-                entityId = e.entityId;
-                entityType = e.entityType;
-                description = e.description;
-                judges = e.judges;
                 votes = votes;
                 result = result;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                dueAt = e.dueAt;
             }  
         };
     };

@@ -238,20 +238,11 @@ module {
             callerId: Nat32
         ): Types.Moderation {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
+                e
+                with
                 reason = req.reason;
                 action = req.action;
                 body = req.body;
-                reportId = e._id;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityOrg = e.entityOrg;
-                challengeId = e.challengeId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -263,22 +254,10 @@ module {
             callerId: Nat32
         ): Types.Moderation {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = Types.STATE_CHALLENGED;
-                reason = e.reason;
-                action = e.action;
-                body = e.body;
-                reportId = e._id;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityOrg = e.entityOrg;
                 challengeId = ?challengeId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
 
@@ -287,22 +266,9 @@ module {
             result: ChallengeTypes.ChallengeResult
         ): Types.Moderation {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = if(result == ChallengeResult.RESULT_ACCEPTED) Types.STATE_REVERTED else Types.STATE_CONFIRMED;
-                reason = e.reason;
-                action = e.action;
-                body = e.body;
-                reportId = e._id;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityOrg = e.entityOrg;
-                challengeId = e.challengeId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

@@ -435,16 +435,12 @@ module {
             callerId: Nat32
         ): Types.Donation {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = state;
                 anonymous = req.anonymous;
-                campaignId = e.campaignId;
                 body = req.body;
                 value = req.value;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -456,18 +452,10 @@ module {
             callerId: Nat32
         ): Types.Donation {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = Types.STATE_COMPLETED;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
-                body = e.body;
                 value = value;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
 
@@ -478,16 +466,10 @@ module {
             callerId: Nat32
         ): Types.Donation {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
+                e
+                with
                 body = req.body;
-                value = e.value;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -499,18 +481,9 @@ module {
             callerId: Nat32
         ): Types.Donation {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
-                body = e.body;
-                value = e.value;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

@@ -395,14 +395,10 @@ module {
             callerId: Nat32
         ): Types.Signature {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 body = req.body;
                 anonymous = req.anonymous;
-                campaignId = e.campaignId;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -415,14 +411,10 @@ module {
             callerId: Nat32
         ): Types.Signature {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 body = req.body;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -434,16 +426,9 @@ module {
             callerId: Nat32
         ): Types.Signature {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                body = e.body;
-                anonymous = e.anonymous;
-                campaignId = e.campaignId;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

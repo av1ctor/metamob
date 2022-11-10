@@ -309,24 +309,17 @@ module {
             callerId: Nat32
         ): Types.Poap {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                canisterId = e.canisterId;
-                campaignId = e.campaignId;
+                e
+                with
                 logo = req.logo;
                 name = req.name;
                 symbol = req.symbol;
                 width = req.width;
                 height = req.height;
                 price = req.price;
-                totalSupply = e.totalSupply;
                 maxSupply = req.maxSupply;
                 body = req.body;
                 options = req.options;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -339,24 +332,13 @@ module {
             callerId: Nat32
         ): Types.Poap {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                canisterId = e.canisterId;
-                campaignId = e.campaignId;
+                e
+                with
                 logo = req.logo;
                 name = req.name;
                 symbol = req.symbol;
-                width = e.width;
-                height = e.height;
-                price = e.price;
-                totalSupply = e.totalSupply;
-                maxSupply = e.maxSupply;
                 body = req.body;
-                options = e.options;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -368,26 +350,9 @@ module {
             callerId: Nat32
         ): Types.Poap {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                canisterId = e.canisterId;
-                campaignId = e.campaignId;
-                logo = e.logo;
-                name = e.name;
-                symbol = e.symbol;
-                width = e.width;
-                height = e.height;
-                price = e.price;
-                totalSupply = e.totalSupply;
-                maxSupply = e.maxSupply;
-                body = e.body;
-                options = e.options;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
 
@@ -396,26 +361,9 @@ module {
             by: Int32
         ): Types.Poap {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                canisterId = e.canisterId;
-                campaignId = e.campaignId;
-                logo = e.logo;
-                name = e.name;
-                symbol = e.symbol;
-                width = e.width;
-                height = e.height;
-                price = e.price;
+                e
+                with
                 totalSupply = Int32.toNat32(Int32.fromNat32(e.totalSupply) + by);
-                maxSupply = e.maxSupply;
-                body = e.body;
-                options = e.options;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

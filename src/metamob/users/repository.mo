@@ -258,9 +258,8 @@ module {
             callerId: Nat32
         ): Types.Profile {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                principal = e.principal;
+                e
+                with
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
@@ -277,9 +276,6 @@ module {
                     case (?val) val;
                 };
                 country = req.country;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -292,9 +288,8 @@ module {
             callerId: Nat32
         ): Types.Profile {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                principal = e.principal;
+                e
+                with
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
@@ -312,8 +307,6 @@ module {
                 };
                 country = req.country;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -325,21 +318,9 @@ module {
             callerId: Nat32
         ): Types.Profile {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                principal = e.principal;
-                name = e.name;
-                email = e.email;
-                avatar = e.avatar;
-                roles = e.roles;
-                active = e.active;
-                banned = e.banned;
-                country = e.country;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

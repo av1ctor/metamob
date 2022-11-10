@@ -273,9 +273,8 @@ module {
             callerId: Nat32
         ): Types.Place {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                parentId = e.parentId;
+                e
+                with
                 kind = req.kind;
                 auth = req.auth;
                 name = req.name;
@@ -286,9 +285,6 @@ module {
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -301,11 +297,8 @@ module {
             callerId: Nat32
         ): Types.Place {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                parentId = e.parentId;
-                kind = e.kind;
-                auth = e.auth;
+                e
+                with
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
@@ -315,8 +308,6 @@ module {
                 lat = req.lat;
                 lng = req.lng;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -328,24 +319,9 @@ module {
             callerId: Nat32
         ): Types.Place {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                parentId = e.parentId;
-                kind = e.kind;
-                auth = e.auth;
-                name = e.name;
-                description = e.description;
-                icon = e.icon;
-                banner = e.banner;
-                terms = e.terms;
-                active = e.active;
-                lat = e.lat;
-                lng = e.lng;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };

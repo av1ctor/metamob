@@ -327,25 +327,12 @@ module {
             callerId: Nat32
         ): Types.Report {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                state = e.state;
-                result = e.result;
+                e
+                with
                 kind = req.kind;
                 description = req.description;
-                resolution = e.resolution;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityCreatedBy = e.entityCreatedBy;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                moderationId = e.moderationId;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                assignedAt = e.assignedAt;
-                assignedTo = e.assignedTo;
-                dueAt = e.dueAt;
             }  
         };
 
@@ -355,28 +342,16 @@ module {
             callerId: Nat32
         ): Types.Report {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = if(req.result == Types.RESULT_VERIFYING) 
                         Types.STATE_ASSIGNED 
                     else 
                         Types.STATE_CLOSED;
                 result = req.result;
-                kind = e.kind;
-                description = e.description;
                 resolution = req.resolution;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityCreatedBy = e.entityCreatedBy;
-                moderationId = e.moderationId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                assignedAt = e.assignedAt;
-                assignedTo = e.assignedTo;
-                dueAt = e.dueAt;
             }  
         };
 
@@ -386,25 +361,12 @@ module {
             callerId: Nat32
         ): Types.Report {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = Types.STATE_MODERATING;
-                result = e.result;
-                kind = e.kind;
-                description = e.description;
-                resolution = e.resolution;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityCreatedBy = e.entityCreatedBy;
                 moderationId = ?moderationId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                assignedAt = e.assignedAt;
-                assignedTo = e.assignedTo;
-                dueAt = e.dueAt;
             }  
         };
 
@@ -414,22 +376,9 @@ module {
             dueAt: Int
         ): Types.Report {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 state = Types.STATE_MODERATING;
-                result = e.result;
-                kind = e.kind;
-                description = e.description;
-                resolution = e.resolution;
-                entityType = e.entityType;
-                entityId = e.entityId;
-                entityPubId = e.entityPubId;
-                entityCreatedBy = e.entityCreatedBy;
-                moderationId = e.moderationId;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
                 assignedAt = Time.now();
                 assignedTo = moderatorId;
                 dueAt = dueAt;

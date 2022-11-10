@@ -188,19 +188,16 @@ module {
         };
 
         func _updateEntity(
-            category: Types.Category, 
+            e: Types.Category, 
             req: Types.CategoryRequest,
             callerId: Nat32
         ): Types.Category {
             {
-                _id = category._id;
-                pubId = category.pubId;
+                e
+                with
                 name = req.name;
                 description = req.description;
-                active = category.active;
                 color = req.color;
-                createdAt = category.createdAt;
-                createdBy = category.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  

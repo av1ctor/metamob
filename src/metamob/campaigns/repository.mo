@@ -746,8 +746,8 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 kind = req.kind;
                 title = req.title;
                 target = req.target;
@@ -759,25 +759,12 @@ module {
                     case null e.state;
                     case (?state) state;
                 };
-                result = e.result;
-                duration = e.duration;
                 tags = req.tags;
                 info = _updateInfoEntity(e.info, req);
                 goal = req.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
                 action = req.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };
 
@@ -786,33 +773,13 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
+                e
+                with
                 title = "";
                 target = "";
                 cover = "";
                 body = "";
-                categoryId = e.categoryId;
-                placeId = e.placeId;
                 state = Types.STATE_DELETED;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
                 deletedAt = ?Time.now();
                 deletedBy = ?callerId;
             }  
@@ -823,35 +790,10 @@ module {
             signature: SignatureTypes.Signature
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
+                e
+                with
                 total = e.total + 1;
                 interactions = e.interactions + 1;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };        
 
@@ -860,35 +802,10 @@ module {
             signature: SignatureTypes.Signature
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
+                e
+                with
                 total = if(e.total > 0) e.total - 1 else 0;
-                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
+                interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             }  
         };
 
@@ -897,19 +814,8 @@ module {
             vote: VoteTypes.Vote
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
+                e
+                with
                 info = switch(e.info) {
                     case (#votes(info)) {
                         #votes({
@@ -921,21 +827,8 @@ module {
                         e.info;
                     };
                 };
-                goal = e.goal;
                 total = e.total + 1;
                 interactions = e.interactions + 1;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };   
 
@@ -944,19 +837,8 @@ module {
             vote: VoteTypes.Vote
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
+                e
+                with
                 info = switch(e.info) {
                     case (#votes(info)) {
                         #votes({
@@ -968,21 +850,8 @@ module {
                         e.info;
                     };
                 };
-                goal = e.goal;
                 total = if(e.total > 0) e.total - 1 else 0;
-                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
+                interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             }  
         };
 
@@ -991,35 +860,10 @@ module {
             donation: DonationTypes.Donation
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
+                e
+                with
                 total = e.total + donation.value;
                 interactions = e.interactions + 1;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };        
 
@@ -1028,35 +872,10 @@ module {
             donation: DonationTypes.Donation
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
+                e
+                with
                 total = if(e.total > donation.value) e.total - donation.value else 0;
-                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
+                interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             };
         };
 
@@ -1065,19 +884,8 @@ module {
             funding: FundingTypes.Funding
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
+                e
+                with
                 info = switch(e.info) {
                     case (#funding(info)) {
                         #funding({
@@ -1107,18 +915,6 @@ module {
                 goal = e.goal;
                 total = e.total + funding.value;
                 interactions = e.interactions + 1;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };        
 
@@ -1127,19 +923,8 @@ module {
             funding: FundingTypes.Funding
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
+                e
+                with
                 info = switch(e.info) {
                     case (#funding(info)) {
                         #funding({
@@ -1152,7 +937,7 @@ module {
                                             desc = tier.desc;
                                             value = tier.value;
                                             max = tier.max;
-                                            total = if(tier.total >= funding.amount) tier.total - funding.amount else 0;
+                                            total = if(tier.total >= funding.amount) tier.total - funding.amount else Nat32.fromNat(0);
                                         };
                                     }
                                     else {
@@ -1166,21 +951,8 @@ module {
                         other;
                     };
                 };
-                goal = e.goal;
                 total = if(e.total > funding.value) e.total - funding.value else 0;
-                interactions = if(e.interactions > 0) e.interactions - 1 else 0;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
+                interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             };
         };
 
@@ -1189,35 +961,9 @@ module {
             update: UpdateTypes.Update
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
+                e
+                with
                 updates = e.updates + 1;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };        
 
@@ -1226,35 +972,9 @@ module {
             update: UpdateTypes.Update
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = if(e.updates > 0) e.updates - 1 else 0;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
+                e
+                with
+                updates = if(e.updates > 0) e.updates - Nat32.fromNat(1) else Nat32.fromNat(0);
             }  
         };           
 
@@ -1266,35 +986,11 @@ module {
             let limit = now + Int64.toInt(Int64.fromNat64(Nat64.fromNat(Nat32.toNat(e.duration) * ONE_DAY)));
 
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
+                e
+                with
                 state = Types.STATE_PUBLISHED;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
                 publishedAt = ?now;
                 expiredAt = ?limit;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };
 
@@ -1303,35 +999,9 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
+                e
+                with
                 state = Types.STATE_BUILDING;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };
 
@@ -1341,35 +1011,10 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
+                e
+                with
                 state = Types.STATE_FINISHED;
                 result = result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };  
 
@@ -1378,35 +1023,9 @@ module {
             value: Nat
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
+                e
+                with
                 boosting = e.boosting + value;
-                updates = e.updates;
-                action = e.action;
-                moderated = e.moderated;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };  
 
@@ -1417,35 +1036,19 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
+                e
+                with
                 title = req.title;
                 target = req.target;
                 cover = req.cover;
                 body = req.body;
                 categoryId = req.categoryId;
                 placeId = req.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
                 tags = req.tags;
                 info = _updateInfoEntityWhenModeratedAndRedacted(e.info, req);
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
                 moderated = e.moderated | reason;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };
 
@@ -1455,35 +1058,9 @@ module {
             callerId: Nat32
         ): Types.Campaign {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                kind = e.kind;
-                title = e.title;
-                target = e.target;
-                cover = e.cover;
-                body = e.body;
-                categoryId = e.categoryId;
-                placeId = e.placeId;
-                state = e.state;
-                result = e.result;
-                duration = e.duration;
-                tags = e.tags;
-                info = e.info;
-                goal = e.goal;
-                total = e.total;
-                interactions = e.interactions;
-                boosting = e.boosting;
-                updates = e.updates;
-                action = e.action;
+                e 
+                with
                 moderated = e.moderated | reason;
-                publishedAt = e.publishedAt;
-                expiredAt = e.expiredAt;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
-                deletedAt = e.deletedAt;
-                deletedBy = e.deletedBy;
             }  
         };
     };

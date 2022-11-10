@@ -300,13 +300,10 @@ module {
             callerId: Nat32
         ): Types.Update {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 body = req.body;
                 campaignId = req.campaignId;
-                moderated = e.moderated;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -319,13 +316,10 @@ module {
             callerId: Nat32
         ): Types.Update {
             {
-                _id = e._id;
-                pubId = e.pubId;
+                e
+                with
                 body = req.body;
-                campaignId = e.campaignId;
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -337,15 +331,9 @@ module {
             callerId: Nat32
         ): Types.Update {
             {
-                _id = e._id;
-                pubId = e.pubId;
-                body = e.body;
-                campaignId = e.campaignId;
+                e
+                with
                 moderated = e.moderated | reason;
-                createdAt = e.createdAt;
-                createdBy = e.createdBy;
-                updatedAt = e.updatedAt;
-                updatedBy = e.updatedBy;
             }  
         };
     };
