@@ -21,7 +21,7 @@ module {
     func nat8ToHex(
         byte: Nat8
     ): Text {
-        let char1 = hexTb[Nat8.toNat(byte >> 8)];
+        let char1 = hexTb[Nat8.toNat(byte >> 4)];
         let char2 = hexTb[Nat8.toNat(byte & 0x0f)];
         Char.toText(char1) # Char.toText(char2);
   };

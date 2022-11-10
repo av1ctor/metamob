@@ -577,7 +577,8 @@ a:not(:first-child) {
 }
 
 .poap-body {
-    &img {
+    text-align: center;
+    img {
         min-width: 50px;
         max-width: 4096px;
         min-height: 50px;

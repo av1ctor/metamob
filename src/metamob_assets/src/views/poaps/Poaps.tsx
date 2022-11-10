@@ -12,6 +12,7 @@ import Button from "../../components/Button";
 import ModerationModal from "../moderations/Modal";
 import { FormattedMessage } from "react-intl";
 import { AuthContext } from "../../stores/auth";
+import MintForm from "./poap/Mint";
 
 interface Props {
     campaign: Campaign;
@@ -34,6 +35,7 @@ const Poaps = (props: Props) => {
         delete: false,
         report: false,
         moderations: false,
+        mint: false,
     });
     const [poap, setPoap] = useState<Poap | undefined>(undefined);
 
@@ -77,6 +79,14 @@ const Poaps = (props: Props) => {
         setPoap(poap);
     }, []);
 
+    const toggleMint = useCallback((poap: Poap | undefined = undefined) => {
+        setModals(modals => ({
+            ...modals,
+            mint: !modals.mint
+        }));
+        setPoap(poap);
+    }, []);
+
     const campaign = props.campaign;
     const isOwner = campaign.createdBy === auth.user?._id;
 
@@ -95,14 +105,15 @@ const Poaps = (props: Props) => {
                     <Fragment key={index}>
                         {page.map(poap => 
                             <Item
-                                key={poap._id} 
+                                key={poap._id}
                                 poap={poap}
                                 campaign={campaign}
                                 onEdit={toggleEdit}
                                 onDelete={toggleDelete}
                                 onReport={toggleReport}
                                 onShowModerations={toggleModerations}
-                            />                        
+                                onMint={toggleMint}
+                            />
                         )}
                     </Fragment>
                 )}
@@ -191,7 +202,23 @@ const Poaps = (props: Props) => {
                         toggleLoading={props.toggleLoading}
                     />
                 }
-            </Modal>        
+            </Modal>
+
+            <Modal
+                header={<span><FormattedMessage defaultMessage="Mint poap"/></span>}
+                isOpen={modals.mint}
+                onClose={toggleMint}
+            >
+                {poap && 
+                    <MintForm
+                        poap={poap} 
+                        onClose={toggleMint}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>     
         
             {poap &&
                 <ModerationModal

@@ -1527,6 +1527,12 @@ shared({caller = owner}) actor class Metamob(
         await poapService.delete(id, msg.caller, this);
     };   
 
+    public shared(msg) func poapMint(
+        id: Text
+    ): async Result.Result<Nat32, Text> {
+        await poapService.mint(id, msg.caller, this);
+    };   
+
     //
     // migration
     //

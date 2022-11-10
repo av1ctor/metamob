@@ -223,6 +223,16 @@ module {
                                 return #err("Not minting");
                             };
 
+                            switch(entity.maxSupply) {
+                                case (?maxSupply) {
+                                    if(entity.totalSupply >= maxSupply) {
+                                        return #err("All tokens minted");
+                                    };
+                                };
+                                case _ {
+                                };
+                            };
+
                             switch(campaignRepo.findById(entity.campaignId)) {
                                 case (#err(msg)) {
                                     return #err(msg);
@@ -239,7 +249,7 @@ module {
                                     try {
                                         let balance = await ledgerUtils.getUserBalance(Principal.fromText(caller.principal), this);
                                         if(balance < entity.price + Nat64.fromNat(LedgerUtils.icp_fee)) {
-                                            return #err("Insufficient user ICP balance");
+                                            return #err("Insufficient ICP balance");
                                         };
                                         
                                         switch(await ledgerUtils

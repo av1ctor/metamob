@@ -6,6 +6,7 @@ import { CampaignState } from "../../libs/campaigns";
 import { AuthContext } from "../../stores/auth";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
+import Button from "../../components/Button";
 
 interface BaseItemProps {
     poap: Poap;
@@ -53,6 +54,7 @@ interface ItemProps {
     onDelete: (poap: Poap) => void;
     onReport: (poap: Poap) => void;
     onShowModerations?: (poap: Poap) => void;
+    onMint?: (poap: Poap) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -73,6 +75,19 @@ export const Item = (props: ItemProps) => {
             poap={poap}
             onShowModerations={props.onShowModerations}
         >
+            {props.onMint &&
+                <div className="has-text-centered">
+                    <Button
+                        size="small"
+                        color="dark"
+                        disabled={!auth.user}
+                        onClick={() => props.onMint? props.onMint(poap): null}
+                    >
+                        <i className="la la-hammer"/>&nbsp;<FormattedMessage id="Mint" defaultMessage="Mint"/>
+                    </Button>
+                </div>
+            }
+
             <p>
                 <small>
                     {canEdit && 

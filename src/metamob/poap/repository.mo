@@ -458,7 +458,7 @@ module {
             pubId = Variant.getOptText(map.get("pubId"));
             state = Variant.getOptNat32(map.get("state"));
             canisterId = Variant.getOptText(map.get("canisterId"));
-            campaignId = Variant.getOptNat32(map.get("campaign"));
+            campaignId = Variant.getOptNat32(map.get("campaignId"));
             logo = Variant.getOptText(map.get("logo"));
             name = Variant.getOptText(map.get("name"));
             symbol = Variant.getOptText(map.get("symbol"));

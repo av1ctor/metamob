@@ -289,7 +289,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, balance, poapDeployingPrice, updateState, props.onClose]);
+    }, [form, modForm, props.poap, balance, poapDeployingPrice, updateState, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -384,12 +384,14 @@ const EditForm = (props: Props) => {
                     onDrop={handleDrop} 
                 >
                     {form.body && 
-                        <img 
-                            className="poap-body"
-                            src={"data:image/svg+xml;utf8," + encodeURIComponent(formatPoapBody(form.body, form.width, form.height))}
-                            width={form.width || 50}
-                            height={form.height || 50}
-                        />
+                        <div className="poap-body">
+                            <img 
+                                className="full"
+                                src={"data:image/svg+xml;utf8," + encodeURIComponent(formatPoapBody(form.body, form.width, form.height))}
+                                width={form.width || 50}
+                                height={form.height || 50}
+                            />
+                        </div>
                     }
                 </FileDropArea>
                 {props.reportId && isModerator(auth.user) &&
