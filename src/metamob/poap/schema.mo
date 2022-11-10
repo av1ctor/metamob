@@ -34,7 +34,7 @@ module {
             },
             {
                 name = "logo";
-                options = [#min(6), #max(8192)];
+                options = [#min(6), #max(16384)];
             },
             {
                 name = "width";
@@ -58,7 +58,7 @@ module {
             },
             {
                 name = "body";
-                options = [#min(6), #max(8192)];
+                options = [#min(6), #max(16384)];
             },
             {
                 name = "options";

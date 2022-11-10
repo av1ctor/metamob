@@ -31,14 +31,14 @@ interface Props {
 
 const formSchema = yup.object().shape({
     campaignId: yup.number().required(),
-    logo: yup.string().required().min(6).max(8192),
+    logo: yup.string().required().min(6).max(16384),
     name: yup.string().required().min(3).max(64),
     symbol: yup.string().required().min(3).max(8),
     width: yup.number().required().min(50).max(4096),
     height: yup.number().required().min(50).max(4096),
     price: yup.number().required().min(1),
     maxSupply: yup.number().optional(),
-    body: yup.string().required().min(6).max(8192),
+    body: yup.string().required().min(6).max(16384),
     options: yup.number().required(),
 });
 
@@ -170,7 +170,7 @@ const EditForm = (props: Props) => {
         }
 
         const file = files[0];
-        if(file.size > 8192) {
+        if(file.size > 16384) {
             props.onError("File is too big");
             return;
         }
