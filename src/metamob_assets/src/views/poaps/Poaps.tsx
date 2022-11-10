@@ -214,6 +214,7 @@ const Poaps = (props: Props) => {
                 {poap && 
                     <MintForm
                         poap={poap} 
+                        campaign={campaign}
                         onClose={toggleMint}
                         onSuccess={props.onSuccess}
                         onError={props.onError}

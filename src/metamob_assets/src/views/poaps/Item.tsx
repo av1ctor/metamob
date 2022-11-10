@@ -10,6 +10,7 @@ import Button from "../../components/Button";
 import { PoapState } from "../../libs/poap";
 
 interface BaseItemProps {
+    campaign?: Campaign;
     poap: Poap;
     user?: ProfileResponse;
     children?: any;
@@ -72,18 +73,19 @@ export const Item = (props: ItemProps) => {
 
     const maxSupply = poap.maxSupply.length > 0? poap.maxSupply[0] || Number.MAX_SAFE_INTEGER: Number.MAX_SAFE_INTEGER;
     const canMint = (poap.state === PoapState.MINTING) && 
-        (poap.totalSupply < maxSupply);
+        (poap.totalSupply < maxSupply) &&
+        (props.campaign?.state === CampaignState.PUBLISHED);
 
     return (
         <BaseItem
             user={creatorReq.data}
+            campaign={props.campaign}
             poap={poap}
             onShowModerations={props.onShowModerations}
         >
             {props.onMint &&
                 <div className="has-text-centered">
                     <Button
-                        size="small"
                         color="dark"
                         disabled={!canMint || !auth.user}
                         onClick={() => props.onMint? props.onMint(poap): null}

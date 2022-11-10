@@ -89,7 +89,7 @@ const VoteForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form]);
+    }, [form, auth, actors.main]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);

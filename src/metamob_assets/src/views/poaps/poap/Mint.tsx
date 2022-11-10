@@ -1,25 +1,26 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
-import * as yup from 'yup';
-import {useCreatePoap, useMintPoap, useModeratePoap, useUpdatePoap} from "../../../hooks/poap";
-import {Poap, PoapRequest} from "../../../../../declarations/metamob/metamob.did";
+import {useMintPoap} from "../../../hooks/poap";
+import {Campaign, Poap, ProfileResponse} from "../../../../../declarations/metamob/metamob.did";
 import {idlFactory as Ledger} from "../../../../../declarations/ledger";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import TextField from "../../../components/TextField";
-import { depositIcp, getIcpBalance, isModerator } from "../../../libs/users";
+import { depositIcp, getIcpBalance } from "../../../libs/users";
 import { AuthContext } from "../../../stores/auth";
-import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { FormattedMessage, useIntl } from "react-intl";
-import FileDropArea from "../../../components/FileDropArea";
-import NumberField from "../../../components/NumberField";
 import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { Identity } from "@dfinity/agent";
 import { icpToDecimal } from "../../../libs/icp";
-import { getConfigAsNat64 } from "../../../libs/dao";
 import { formatPoapBody } from "../../../libs/poap";
+import { CampaignKind, CampaignState } from "../../../libs/campaigns";
+import { findByCampaignAndUser as findSignatureByCampaignAndUser } from "../../../libs/signatures";
+import { findByCampaignAndUser as findDonationByCampaignAndUser } from "../../../libs/donations";
+import { findByCampaignAndUser as findVoteByCampaignAndUser } from "../../../libs/votes";
+import { findByCampaignAndUser as findFundingByCampaignAndUser } from "../../../libs/fundings";
 
 interface Props {
+    campaign: Campaign;
     poap: Poap;
     onClose: () => void;
     onSuccess: (message: string) => void;
@@ -37,6 +38,41 @@ const MintForm = (props: Props) => {
     const mintMut = useMintPoap();
 
     const fees = LEDGER_TRANSFER_FEE * BigInt(2);
+
+    const checkParticipation = async (
+        campaign: Campaign,
+        user: ProfileResponse
+    ): Promise<boolean> => {
+        if(campaign.kind == CampaignKind.SIGNATURES) { 
+            const res = await findSignatureByCampaignAndUser(campaign._id, user._id);
+            if(!res._id) {
+                return false;
+            }
+        }
+        else if(campaign.kind == CampaignKind.VOTES || campaign.kind == CampaignKind.WEIGHTED_VOTES) {
+            const res = await findVoteByCampaignAndUser(campaign._id, user._id);
+            if(!res._id) {
+                return false;
+            }
+        }
+        else if(campaign.kind == CampaignKind.FUNDINGS) {
+            const res = await findFundingByCampaignAndUser(campaign._id, user._id);
+            if(!res._id) {
+                return false;
+            }
+        }
+        else if(campaign.kind == CampaignKind.DONATIONS) {
+            const res = await findDonationByCampaignAndUser(campaign._id, user._id);
+            if(!res._id) {
+                return false;
+            }
+        }
+        else {
+            return false;
+        };
+
+        return true;
+    };    
 
     const getLedgerCanister = async (
     ): Promise<Ledger | undefined> => {
@@ -83,7 +119,6 @@ const MintForm = (props: Props) => {
     const handleMint = useCallback(async (e: any) => {
         e.preventDefault();
 
-
         try {
             props.toggleLoading(true);
 
@@ -95,6 +130,10 @@ const MintForm = (props: Props) => {
                 throw Error("Main canister undefined");
             }
             
+            if(!checkParticipation(props.campaign, auth.user)) {
+                throw Error("You didn't have participate on the campaign");
+            }
+
             if(props.poap.price + fees >= balance) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(props.poap.price + fees)} ICP.`)
             }
@@ -119,7 +158,7 @@ const MintForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [props.poap, balance, updateState, props.onClose]);
+    }, [props.poap, props.campaign, balance, updateState, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

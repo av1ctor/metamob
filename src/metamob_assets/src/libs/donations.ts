@@ -38,16 +38,16 @@ export const findAll = async (
 }
 
 export const findByCampaign = async (
-    topicId?: number, 
+    donationId?: number, 
     orderBy?: Order[], 
     limit?: Limit
 ): Promise<DonationResponse[]> => {
-    if(!topicId) {
+    if(!donationId) {
         return [];
     }
     
     const res = await metamob.donationFindByCampaign(
-        topicId, 
+        donationId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -59,15 +59,15 @@ export const findByCampaign = async (
 }
 
 export const findByCampaignAndUser = async (
-    topicId?: number, 
+    donationId?: number, 
     userId?: number
 ): Promise<DonationResponse> => {
-    if(!topicId || !userId) {
+    if(!donationId || !userId) {
         return {} as DonationResponse;
     }
     
     const res = await metamob.donationFindByCampaignAndUser(
-        topicId, 
+        donationId, 
         userId);
     
     if('err' in res) {

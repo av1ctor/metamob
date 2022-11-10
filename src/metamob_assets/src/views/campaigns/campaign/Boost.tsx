@@ -130,7 +130,7 @@ const Boost = (props: Props) => {
             setIsLoading(false);
             props.toggleLoading(false);
         }
-    }, [form, actors.main, props.campaign]);
+    }, [form, auth, actors.main, props.campaign]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);

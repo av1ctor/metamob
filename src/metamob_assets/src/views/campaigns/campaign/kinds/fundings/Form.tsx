@@ -190,7 +190,7 @@ const FundingForm = (props: Props) => {
             setIsLoading(false);
             props.toggleLoading(false);
         }
-    }, [form, balance, props.campaign, updateState]);
+    }, [form, auth, actors.main, balance, props.campaign, updateState]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);

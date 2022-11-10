@@ -145,6 +145,7 @@ export const useMintPoap = () => {
         },
         {
             onSuccess: () => {
+                queryClient.invalidateQueries(['poaps']);
             }   
         }
     );

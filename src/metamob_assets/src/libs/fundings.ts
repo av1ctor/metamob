@@ -38,16 +38,16 @@ export const findAll = async (
 }
 
 export const findByCampaign = async (
-    topicId?: number, 
+    fundingId?: number, 
     orderBy?: Order[], 
     limit?: Limit
 ): Promise<FundingResponse[]> => {
-    if(!topicId) {
+    if(!fundingId) {
         return [];
     }
     
     const res = await metamob.fundingFindByCampaign(
-        topicId, 
+        fundingId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -59,15 +59,15 @@ export const findByCampaign = async (
 }
 
 export const findByCampaignAndUser = async (
-    topicId?: number, 
+    fundingId?: number, 
     userId?: number
 ): Promise<FundingResponse> => {
-    if(!topicId || !userId) {
+    if(!fundingId || !userId) {
         return {} as FundingResponse;
     }
     
     const res = await metamob.fundingFindByCampaignAndUser(
-        topicId, 
+        fundingId, 
         userId);
     
     if('err' in res) {

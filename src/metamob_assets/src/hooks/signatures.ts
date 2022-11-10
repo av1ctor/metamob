@@ -35,13 +35,13 @@ export const useFindSignatures = (
 };
 
 export const useFindSignaturesByCampaign = (
-    topicId: number, 
+    signatureId: number, 
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<SignatureResponse[], Error> => {
     return useInfiniteQuery<SignatureResponse[], Error>(
-        ['signatures', topicId, ...orderBy], 
-        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ['signatures', signatureId, ...orderBy], 
+        ({pageParam = 0}) => findByCampaign(signatureId, orderBy, {offset: pageParam, size: size}),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size?
@@ -53,12 +53,12 @@ export const useFindSignaturesByCampaign = (
 };
 
 export const useFindSignatureByCampaignAndUser = (
-    topicId?: number, 
+    signatureId?: number, 
     userId?: number
 ): UseQueryResult<SignatureResponse, Error> => {
     return useQuery<SignatureResponse, Error>(
-        ['signatures', topicId, userId], 
-        () => findByCampaignAndUser(topicId, userId)
+        ['signatures', signatureId, userId], 
+        () => findByCampaignAndUser(signatureId, userId)
     );
 
 };

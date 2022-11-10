@@ -33,16 +33,16 @@ export const findAll = async (
 }
 
 export const findByCampaign = async (
-    topicId?: number, 
+    signatureId?: number, 
     orderBy?: Order[], 
     limit?: Limit
 ): Promise<SignatureResponse[]> => {
-    if(!topicId) {
+    if(!signatureId) {
         return [];
     }
     
     const res = await metamob.signatureFindByCampaign(
-        topicId, 
+        signatureId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -54,15 +54,15 @@ export const findByCampaign = async (
 }
 
 export const findByCampaignAndUser = async (
-    topicId?: number, 
+    signatureId?: number, 
     userId?: number
 ): Promise<SignatureResponse> => {
-    if(!topicId || !userId) {
+    if(!signatureId || !userId) {
         return {} as SignatureResponse;
     }
     
     const res = await metamob.signatureFindByCampaignAndUser(
-        topicId, 
+        signatureId, 
         userId);
     
     if('err' in res) {

@@ -177,7 +177,7 @@ const DonationForm = (props: Props) => {
             setIsLoading(false);
             props.toggleLoading(false);
         }
-    }, [form, balance, updateState]);
+    }, [form, auth, actors.main, balance, updateState]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
