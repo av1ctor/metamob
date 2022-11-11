@@ -53,7 +53,7 @@ const Place = (props: Props) => {
         if(place.status === "success") {
             setPlaceId(place.data._id);
         }
-    }, [place.status]);
+    }, [place.status, id]);
 
     useEffect(() => {
         props.toggleLoading(place.status === 'loading' || campaigns.status === "loading");
