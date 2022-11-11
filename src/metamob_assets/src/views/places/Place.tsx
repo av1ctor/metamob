@@ -36,6 +36,7 @@ const Place = (props: Props) => {
         }
     ]);
     const [orderBy, setOrderBy] = useState(sortByDate);
+    const [placesVisible, setPlacesVisible] = useState(true);
 
     const place = useFindPlaceByPubId(id);
 
@@ -47,6 +48,10 @@ const Place = (props: Props) => {
 
     const handleChangeSort = useCallback((orderBy: Order[]) => {
         setOrderBy(orderBy);
+    }, []);
+
+    const handleTogglePlaces = useCallback(() => {
+        setPlacesVisible(visible => !visible);
     }, []);
 
     useEffect(() => {
@@ -73,8 +78,10 @@ const Place = (props: Props) => {
                 onSuccess={props.onSuccess}
                 onError={props.onError}
                 toggleLoading={props.toggleLoading}
+                onTogglePlaces={handleTogglePlaces}
             />
             <Children
+                visible={placesVisible}
                 place={place.data}
                 onSuccess={props.onSuccess}
                 onError={props.onError}

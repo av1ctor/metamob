@@ -354,11 +354,25 @@
     .place-info {
         margin: 0;
         padding: 0;
-        font-size: smaller;
+        font-size: smaller;        
+        
         .level-right {
+            border-radius: 4px;
             padding: 0 16px;
             width: fit-content;
-            background-color: #0003;
+            background-color: #0009;
+            color: #fff;
+            user-select: none;
+
+            a:nth-child(1) {
+                color: rgb(190, 241, 190);
+            }
+            a:nth-child(2) {
+                color: rgb(195, 245, 245);
+            }
+            a:nth-child(3) {
+                color: rgb(248, 248, 203);
+            }
         }
     }
 }

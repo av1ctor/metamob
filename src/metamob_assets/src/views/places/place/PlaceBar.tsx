@@ -14,12 +14,14 @@ import ModerationBadge from "../../moderations/moderation/Badge";
 import ModerationModal from "../../moderations/Modal";
 import EditForm from "./Edit";
 import { FormattedMessage } from "react-intl";
+import PlaceTree from "./PlaceTree";
 
 interface Props {
     place?: Place;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
+    onTogglePlaces: () => void;
 }
 
 export const PlaceBar = (props: Props) => {
@@ -93,7 +95,11 @@ export const PlaceBar = (props: Props) => {
                             size="lg"
                         />
                         <div className="place-name ml-4">
-                            {place? place.name: <Skeleton width={100} />}
+                            <span>{place? place.name: <Skeleton width={100} />}</span>
+                            <PlaceTree 
+                                id={place? place._id: 0} 
+                                skipLast
+                            />
                         </div>
                     </div>
                     {hasTerms &&
@@ -121,13 +127,20 @@ export const PlaceBar = (props: Props) => {
                         }
                     </div>
                     <div className="level-right">
+                        <a
+                            title="Toggle children places"
+                            onClick={props.onTogglePlaces}
+                        >
+                            <span className="whitespace-nowrap"><i className="la la-globe" /> <FormattedMessage id="Places" defaultMessage="Places"/></span>
+                        </a>
+                        &nbsp;·&nbsp;
                         {canEdit && 
                             <>
                                 <a
                                     title="Edit place"
                                     onClick={toggleEdit}
                                 >
-                                    <span className="whitespace-nowrap has-text-info"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
+                                    <span className="whitespace-nowrap"><i className="la la-pencil" /> <FormattedMessage id="Edit" defaultMessage="Edit"/></span>
                                 </a>
                                 &nbsp;·&nbsp;
                             </>
@@ -137,7 +150,7 @@ export const PlaceBar = (props: Props) => {
                                 title="Report place"
                                 onClick={toggleReport}
                             >
-                                <span className="whitespace-nowrap has-text-warning"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
+                                <span className="whitespace-nowrap"><i className="la la-flag" /> <FormattedMessage id="Report" defaultMessage="Report"/></span>
                             </a>
                         }
                     </div>

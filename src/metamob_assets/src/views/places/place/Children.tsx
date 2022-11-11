@@ -8,6 +8,7 @@ import Child from "./Child";
 
 interface Props {
     place?: Place;
+    visible: boolean;
     onSuccess: (message: string) => void;
     onError: (message: any) => void;
     toggleLoading: (to: boolean) => void;
@@ -53,7 +54,7 @@ const Children = (props: Props) => {
     return (
         <div 
             ref={containerRef}
-            className={`place-children ${places.isSuccess && (places.data.pages.length == 0 || places.data.pages[0].length === 0)? 'hidden': ''} ${places.isLoading || places.isFetchingNextPage? 'is-loading': ''}`}
+            className={`place-children ${!props.visible || (places.isSuccess && (places.data.pages.length == 0 || places.data.pages[0].length === 0))? 'hidden': ''} ${places.isLoading || places.isFetchingNextPage? 'is-loading': ''}`}
         >
             {props.place &&
                 places.isSuccess && 

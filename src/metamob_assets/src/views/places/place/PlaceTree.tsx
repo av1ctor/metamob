@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useFindPlaceTreeById } from '../../../hooks/places';
 
 interface Props {
-    id?: number
+    id?: number;
+    skipLast?: boolean;
 };
 
 const reversed = (arr: any[]) => {
@@ -21,11 +22,14 @@ const PlaceTree = (props: Props) => {
             <nav className="breadcrumb" aria-label="breadcrumbs">
                 <ul className='is-size-7'>
                     {reversed(places.data).map((place, index) => 
-                        <li 
-                            key={place._id} 
-                        >
-                            <Link to={`/p/${place.pubId}`}>{place.name}</Link>
-                        </li>
+                        props.skipLast && index === places.data.length -1?
+                            undefined
+                        :
+                            <li 
+                                key={place._id} 
+                            >
+                                <Link to={`/p/${place.pubId}`}>{place.name}</Link>
+                            </li>
                     )}
                 </ul>
             </nav>

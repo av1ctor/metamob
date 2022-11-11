@@ -26,7 +26,8 @@ const Item = (props: Props) => {
             subtitle={<>
                 <div className="mb-1">
                     <PlaceTree 
-                        id={place._id} 
+                        id={place._id}
+                        skipLast
                     />
                 </div>
             </>}
