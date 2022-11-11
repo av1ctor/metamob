@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import Skeleton from "react-loading-skeleton";
 import {Carousel} from 'react-responsive-carousel';
+import { useNavigate } from "react-router-dom";
 import {useFindCampaigns} from "../../hooks/campaigns";
 import Item from "./Item";
 import { sortByHot } from "./Sort";
@@ -13,8 +14,17 @@ interface Props {
 
 const HotCampaigns = (props: Props) => {
     const [orderBy, ] = useState(sortByHot);
+    
+    const navigate = useNavigate();
 
     const campaigns = useFindCampaigns([], orderBy, {offset: 0, size: 4});
+
+    const handleClick = useCallback((index: number) => {
+        if(campaigns.data && campaigns.data.length > index) {
+            const campaign = campaigns.data[index];
+            navigate(`/c/${campaign.pubId}`);
+        }
+    }, [campaigns]);
 
     return (
         <div>
@@ -25,7 +35,8 @@ const HotCampaigns = (props: Props) => {
                 showIndicators={false}
                 autoPlay={true}
                 infiniteLoop={true}
-                interval={3000}>
+                interval={3000}
+            >
                 {campaigns.status === 'success'? 
                     campaigns.data.map((campaign) => 
                         <div

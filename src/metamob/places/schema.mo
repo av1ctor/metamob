@@ -14,7 +14,7 @@ module {
             },
             {
                 name = "parentId";
-                options = [#nullable];
+                options = [#nullable, #sortable];
             },
             {
                 name = "name";

@@ -72,6 +72,15 @@ export const useFindPlacesInf = (
     );
 };
 
+export const useFindChildrenPlacesInf = (
+    filters: Filter[], 
+    orderBy: Order[], 
+    size: number,
+    place?: Place
+): UseInfiniteQueryResult<Place [], Error> => {
+    return useFindPlacesInf([...filters, {key: 'parentId', op: 'eq', value: place? place._id: 0}], orderBy, size);
+};
+
 export const useCreatePlace = (
 ) => {
     const queryClient = useQueryClient();

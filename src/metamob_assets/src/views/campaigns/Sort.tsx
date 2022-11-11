@@ -24,6 +24,13 @@ export const sortByDate: Order[] = [
     }
 ];
 
+export const sortByName: Order[] = [
+    {
+        key: 'name',
+        dir: 'asc'
+    }
+];
+
 interface Props {
     current: Order[];
     onChange: (orderBy: Order[]) => void

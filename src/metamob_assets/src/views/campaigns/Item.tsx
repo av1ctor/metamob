@@ -32,11 +32,9 @@ const Item = (props: Props) => {
     return (
         <Card 
             title={
-                <>
-                    <Link to={`/c/${campaign.pubId}`}>
-                        {limitText(campaign.title, 45)}
-                    </Link>                    
-                </>
+                <Link to={`/c/${campaign.pubId}`}>
+                    {limitText(campaign.title, 45)}
+                </Link>                    
             } 
             subtitle={<>
                 <div className="mb-1">
@@ -58,7 +56,9 @@ const Item = (props: Props) => {
                 </div>
             </>}
             img={
-                <img src={campaign.cover}/>
+                <Link to={`/c/${campaign.pubId}`}>
+                    <img src={campaign.cover}/>
+                </Link>
             }
         >
             {props.showBody?

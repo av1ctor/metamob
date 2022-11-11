@@ -11,6 +11,7 @@ import { sortByDate } from "../campaigns/Sort";
 import { ScrollToTop } from "../../components/ScrollToTop";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
+import Children from "./place/Children";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -68,6 +69,12 @@ const Place = (props: Props) => {
         <>
             <ScrollToTop />
             <PlaceBar
+                place={place.data}
+                onSuccess={props.onSuccess}
+                onError={props.onError}
+                toggleLoading={props.toggleLoading}
+            />
+            <Children
                 place={place.data}
                 onSuccess={props.onSuccess}
                 onError={props.onError}

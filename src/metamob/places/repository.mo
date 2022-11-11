@@ -275,6 +275,7 @@ module {
             {
                 e
                 with
+                parentId = req.parentId;
                 kind = req.kind;
                 auth = req.auth;
                 name = req.name;
@@ -299,6 +300,7 @@ module {
             {
                 e
                 with
+                parentId = req.parentId;
                 name = req.name;
                 description = req.description;
                 icon = req.icon;
