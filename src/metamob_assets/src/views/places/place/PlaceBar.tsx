@@ -128,15 +128,17 @@ export const PlaceBar = (props: Props) => {
                     </div>
                     <div className="level-right">
                         <a
+                            className="link-places"
                             title="Toggle children places"
                             onClick={props.onTogglePlaces}
                         >
                             <span className="whitespace-nowrap"><i className="la la-globe" /> <FormattedMessage id="Places" defaultMessage="Places"/></span>
                         </a>
-                        &nbsp;·&nbsp;
                         {canEdit && 
                             <>
+                                &nbsp;·&nbsp;
                                 <a
+                                    className="link-edit"
                                     title="Edit place"
                                     onClick={toggleEdit}
                                 >
@@ -147,6 +149,7 @@ export const PlaceBar = (props: Props) => {
                         }
                         {isLoggedIn &&
                             <a
+                                className="link-report"    
                                 title="Report place"
                                 onClick={toggleReport}
                             >
