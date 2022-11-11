@@ -583,12 +583,11 @@ module {
                 switch(req.info) {
                     case (#funding(info)) {
                         #funding({
-                            tiers = Array.map(info.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
-                                title = tier.title;
-                                desc = tier.desc;
-                                value = tier.value;
-                                max = tier.max;
-                                total = 0;
+                            tiers = Array.map(info.tiers, func(tier: Types.FundingTier): Types.FundingTier = 
+                            {
+                                tier
+                                with
+                                total = Nat32.fromNat(0);
                             })
                         });
                     };
@@ -637,12 +636,11 @@ module {
                             if(a != b) {
                                 // note: info can only be updated if campaign.total = 0, so the tiers' totals can be assumed to be 0
                                 #funding({
-                                    tiers = Array.map(b.tiers, func(tier: Types.FundingTier): Types.FundingTier = {
-                                        title = tier.title;
-                                        desc = tier.desc;
-                                        value = tier.value;
-                                        max = tier.max;
-                                        total = 0;
+                                    tiers = Array.map(b.tiers, func(tier: Types.FundingTier): Types.FundingTier = 
+                                    {
+                                        tier
+                                        with
+                                        total = Nat32.fromNat(0);
                                     })
                                 });
                             }
@@ -670,9 +668,10 @@ module {
                         case (#funding(b)) {
                             if(a != b) {
                                 #funding({
-                                    tiers = Array.mapEntries(b.tiers, func(tier: Types.FundingTier, index: Nat): Types.FundingTier = {
-                                        title = tier.title;
-                                        desc = tier.desc;
+                                    tiers = Array.mapEntries(b.tiers, func(tier: Types.FundingTier, index: Nat): Types.FundingTier = 
+                                    {
+                                        tier
+                                        with
                                         value = a.tiers[index].value;
                                         max = a.tiers[index].max;
                                         total = a.tiers[index].total;
@@ -894,10 +893,8 @@ module {
                                 func (tier: Types.FundingTier, i: Nat): Types.FundingTier {
                                     if(Nat32.fromNat(i) == funding.tier) {
                                         {
-                                            title = tier.title;
-                                            desc = tier.desc;
-                                            value = tier.value;
-                                            max = tier.max;
+                                            tier
+                                            with
                                             total = tier.total + funding.amount;
                                         };
                                     }
@@ -933,10 +930,8 @@ module {
                                 func (tier: Types.FundingTier, i: Nat): Types.FundingTier {
                                     if(Nat32.fromNat(i) == funding.tier) {
                                         {
-                                            title = tier.title;
-                                            desc = tier.desc;
-                                            value = tier.value;
-                                            max = tier.max;
+                                            tier
+                                            with
                                             total = if(tier.total >= funding.amount) tier.total - funding.amount else Nat32.fromNat(0);
                                         };
                                     }

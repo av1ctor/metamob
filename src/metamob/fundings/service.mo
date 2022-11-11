@@ -329,7 +329,7 @@ module {
                                             };
                                             case _ {
                                                 if(entity.state == Types.STATE_COMPLETED) {
-                                                    let amount = Nat64.fromNat(entity.value);
+                                                    let amount = Nat64.fromNat(entity.value - (LedgerUtils.icp_fee * 2));
                                                     switch(repo.delete(entity, caller._id)) {
                                                         case (#err(msg)) {
                                                             #err(msg);
