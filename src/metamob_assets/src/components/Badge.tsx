@@ -12,7 +12,7 @@ interface Props {
 const Badge = (props: Props) => {
     return (
         <small 
-            className={`tag ${props.isLarge? 'is-large': ''} ${props.isRect? '': 'is-rounded'} is-${props.color ?? 'success'} ${props.className}`}
+            className={`is-relative tag ${props.isLarge? 'is-large': ''} ${props.isRect? '': 'is-rounded'} is-${props.color ?? 'success'} ${props.className}`}
             title={props.title}
         >
             <span className="tag-children">

@@ -20,6 +20,7 @@ import UserVotes from "../users/user/Votes";
 import UserPlaces from "../users/user/Places";
 import UserReports from "../users/user/Reports";
 import UserChallenges from "../users/user/Challenges";
+import UserNotifications from "../users/user/Notifications";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -188,6 +189,7 @@ export const Home = () => {
                         <Route path="/user/places" element={<UserPlaces {...props} />} />
                         <Route path="/user/reports" element={<UserReports {...props} />} />
                         <Route path="/user/challenges" element={<UserChallenges {...props} />} />
+                        <Route path="/user/notifications" element={<UserNotifications {...props} />} />
                         <Route path="/c/:id" element={<Campaign {...props} />} />
                         <Route path="/p/:id" element={<Place {...props} />} />
                         <Route path="/u/:id" element={<PublicProfile {...props} />} />

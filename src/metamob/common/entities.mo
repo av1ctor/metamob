@@ -9,4 +9,39 @@ module {
     public let TYPE_FUNDINGS: Nat32 = 6;
     public let TYPE_PLACES: Nat32 = 7;
     public let TYPE_POAPS: Nat32 = 8;
+
+    public func toText(
+        t: EntityType
+    ): Text {
+        if(t == TYPE_CAMPAIGNS) {
+            "Campaign";
+        }
+        else if(t == TYPE_USERS) {
+            "User";
+        }
+        else if(t == TYPE_SIGNATURES) {
+            "Signature";
+        }
+        else if(t == TYPE_UPDATES) {
+            "Update";
+        }
+        else if(t == TYPE_VOTES) {
+            "Vote";
+        }
+        else if(t == TYPE_DONATIONS) {
+            "Donation";
+        }
+        else if(t == TYPE_FUNDINGS) {
+            "Fundraising";
+        }
+        else if(t == TYPE_PLACES) {
+            "Place";
+        }        
+        else if(t == TYPE_POAPS) {
+            "POAP";
+        }        
+        else {
+            "Unknown"
+        };
+    };
 }

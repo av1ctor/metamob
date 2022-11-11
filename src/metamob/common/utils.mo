@@ -13,6 +13,12 @@ import Time "mo:base/Time";
 import D "mo:base/Debug";
 
 module {
+    public func e8sToDecimal(
+        value: Nat64
+    ): Text {
+        Nat64.toText(value / 100000000) # "." # Nat64.toText(value % 100000000)
+    };
+
     public func toLower(s: Text): Text {
         Text.map(s, Prim.charToLower);
     };

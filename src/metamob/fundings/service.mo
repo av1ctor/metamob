@@ -1,3 +1,4 @@
+import Utils "../common/utils";
 import Account "../accounts/account";
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
@@ -23,6 +24,7 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
+import NotificationService "../notifications/service";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -32,6 +34,7 @@ module {
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,         
+        notificationService: NotificationService.Service,
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
@@ -164,6 +167,12 @@ module {
                                                         };
                                                     };
                                                 };
+
+                                                ignore notificationService.create({
+                                                   title = "Fundraising received";
+                                                   body = "Your campaign " # campaign.pubId # " received a fundraising amounting " # Utils.e8sToDecimal(value) # " ICP!";
+                                                }, campaign.createdBy);
+
                                                 res;
                                             };
                                         };

@@ -10,13 +10,13 @@
   ],
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "prebuild": "npm run copy:types",
+    "prebuild": "npm run generate",
     "dev:front": "npm run serve",
     "dev:back": "./scripts/deploy-backend.sh",
     "prod:back": "./scripts/deploy-backend-prod.sh",
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
-    "prestart": "npm run copy:types",
-    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --exclude='*.most' --delete src/declarations",
+    "prestart": "npm run generate",
+    "generate": "dfx generate metamob",
     "i18n:extract": "formatjs extract -- \"src/metamob_assets/src/**/*.ts*\" --ignore=\"**/*.d.ts\" --out-file \"src/metamob_assets/assets/lang/en.json\" --id-interpolation-pattern \"[sha512:contenthash:base64:6]\""
   },
   "devDependencies": {

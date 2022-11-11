@@ -1,3 +1,4 @@
+import Utils "../common/utils";
 import Account "../accounts/account";
 import Blob "mo:base/Blob";
 import CampaignService "../campaigns/service";
@@ -22,7 +23,9 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
+import NotificationService "../notifications/service";
 import Variant "mo:mo-table/variant";
+import D "mo:base/Debug";
 
 module {
     public class Service(
@@ -31,6 +34,7 @@ module {
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,         
+        notificationService: NotificationService.Service,
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
@@ -136,6 +140,12 @@ module {
                                                         };
                                                     };
                                                 };
+
+                                                ignore notificationService.create({
+                                                   title = "Donation received";
+                                                   body = "Your campaign " # campaign.pubId # " received a donation amounting " # Utils.e8sToDecimal(value) # " ICP!";
+                                                }, campaign.createdBy);
+
                                                 res;
                                             };
                                         };
