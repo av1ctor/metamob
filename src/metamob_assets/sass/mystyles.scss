@@ -259,7 +259,7 @@
 .place-children {
     display: flex;
     position: relative;
-    overflow-x: scroll;
+    overflow-x: auto;
     scroll-behavior: smooth;
     padding: 1rem;
     margin-bottom: 1rem;
