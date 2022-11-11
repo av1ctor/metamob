@@ -571,8 +571,8 @@ module {
                         };
                         case (#ok(campaign)) {
                             let balance = await ledgerUtils.getUserBalance(invoker, this);
-                            if(balance < value) {
-                                return #err("Insufficient funds");
+                            if(balance < value + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                                return #err("Insufficient balance");
                             };
                             
                             switch(await ledgerUtils

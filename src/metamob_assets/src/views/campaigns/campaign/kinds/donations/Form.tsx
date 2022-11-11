@@ -134,9 +134,10 @@ const DonationForm = (props: Props) => {
             }
             
             const value = decimalToIcp(form.value.toString());
+            const fees = LEDGER_TRANSFER_FEE * BigInt(2);
 
-            if(value + LEDGER_TRANSFER_FEE >= balance) {
-                throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
+            if(balance < value + fees) {
+                throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + fees)} ICP.`)
             }
 
             const donation = await createMut.mutateAsync({
@@ -150,7 +151,7 @@ const DonationForm = (props: Props) => {
             });
 
             try {
-                await depositIcp(auth.user, value, actors.main, actors.ledger);
+                await depositIcp(auth.user, value + fees, actors.main, actors.ledger);
             }
             catch(e) {
                 await deleteMut.mutateAsync({

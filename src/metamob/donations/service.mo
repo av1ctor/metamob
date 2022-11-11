@@ -104,9 +104,15 @@ module {
                                             return #err("Invalid donation state");
                                         };
 
+                                        let value = Nat64.fromNat(entity.value);
+                                        let balance = await ledgerUtils.getUserBalance(invoker, this);
+                                        if(balance < value + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                                            return #err("Insufficient balance");
+                                        };
+                                        
                                         switch(await ledgerUtils
-                                            .transferFromUserSubaccountToCampaignSubaccount(
-                                                campaign, caller._id, invoker, this)) {
+                                            .transferFromUserSubaccountToCampaignSubaccountEx(
+                                                campaign, caller._id, value, invoker, this)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

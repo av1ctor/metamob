@@ -130,8 +130,8 @@ const MintForm = (props: Props) => {
                 throw Error("Main canister undefined");
             }
             
-            if(!checkParticipation(props.campaign, auth.user)) {
-                throw Error("You didn't participate in the campaign");
+            if(!await checkParticipation(props.campaign, auth.user)) {
+                throw Error("Only users that participated in the campaign can mint a POAP");
             }
 
             if(props.poap.price + fees >= balance) {

@@ -36,7 +36,7 @@ const formSchema = yup.object().shape({
     symbol: yup.string().required().min(3).max(8),
     width: yup.number().required().min(50).max(4096),
     height: yup.number().required().min(50).max(4096),
-    price: yup.number().required().min(1),
+    price: yup.number().required().min(1_00000000),
     maxSupply: yup.number().optional(),
     body: yup.string().required().min(6).max(16384),
     options: yup.number().required(),
@@ -171,7 +171,7 @@ const EditForm = (props: Props) => {
 
         const file = files[0];
         if(file.size > 16384) {
-            props.onError("File is too big");
+            props.onError("File is too big. Max size: 16KB");
             return;
         }
         if(file.type !== 'image/svg+xml') {
@@ -230,12 +230,14 @@ const EditForm = (props: Props) => {
                 name: form.name,
                 symbol: form.symbol,
                 logo: form.logo,
-                width: form.width,
-                height: form.height,
-                price: form.price,
-                maxSupply: form.maxSupply.length > 0? [Number(form.maxSupply[0])]: [],
+                width: Number(form.width),
+                height: Number(form.height),
+                price: BigInt(form.price),
+                maxSupply: form.maxSupply.length > 0 && Number(form.maxSupply[0]) > 0? 
+                    [Number(form.maxSupply[0])]: 
+                    [],
                 body: form.body,
-                options: form.options,
+                options: Number(form.options),
             };
         };
         

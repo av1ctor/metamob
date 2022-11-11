@@ -226,7 +226,7 @@ module {
                             switch(entity.maxSupply) {
                                 case (?maxSupply) {
                                     if(entity.totalSupply >= maxSupply) {
-                                        return #err("All tokens minted");
+                                        return #err("All tokens have been minted");
                                     };
                                 };
                                 case _ {
@@ -402,7 +402,7 @@ module {
                     ("data", #BlobContent(_generateNFT(poap, id, rgbBgColor, caller))),
                     ("contentType", #TextContent("image/svg+xml")),
                     ("id", #NatContent(id)),
-                    ("campaingId", #TextContent(campaign.pubId)),
+                    ("campaignId", #TextContent(campaign.pubId)),
                     ("date", #IntContent(Time.now())),
                     ("bgColor", #TextContent(rgbBgColor)),
                 ];
