@@ -31,6 +31,7 @@ import DonationService "../donations/service";
 import UpdateService "../updates/service";
 import PlaceService "../places/service";
 import PoapService "../poap/service";
+import NotificationService "../notifications/service";
 import D "mo:base/Debug";
 
 module {
@@ -46,7 +47,8 @@ module {
         placeService: PlaceService.Service,
         poapService: PoapService.Service,
         reportService: ReportService.Service,
-        moderationService: ModerationService.Service
+        moderationService: ModerationService.Service,
+        notificationService: NotificationService.Service
     ) {
         let repo = Repository.Repository();
 
@@ -120,6 +122,19 @@ module {
                                         };
                                         case (#ok(challenge)) {
                                             ignore moderationRepo.challenge(moderation, challenge._id, caller._id);
+
+                                            ignore notificationService.create({
+                                                title = "Moderation challenged";
+                                                body = "Your Moderation with id " # moderation.pubId # " was challenged.";
+                                            }, moderation.createdBy);
+
+                                            for(judge in judges.vals()) {
+                                                ignore notificationService.create({
+                                                    title = "Challenge assigned";
+                                                    body = "The challenge " # challenge.pubId # " was assigned to you.";
+                                                }, judge);
+                                            };
+
                                             #ok(challenge);
                                         };
                                     };
@@ -284,7 +299,12 @@ module {
                                                                 this
                                                             );
 
-                                                            _punishModerator(moderation.createdBy);
+                                                            ignore notificationService.create({
+                                                                title = "Challenge accepted";
+                                                                body = "Your challenge with id " # e.pubId # " was accepted and the MMT you deposited was reimbursed!";
+                                                            }, challenger._id);
+
+                                                            _punishModerator(moderation.createdBy, e, "reverted");
                                                         };
                                                     };
                                                 }
@@ -297,6 +317,11 @@ module {
                                                                 Principal.fromText(challenger.principal), 
                                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT"))
                                                             );
+
+                                                            ignore notificationService.create({
+                                                                title = "Challenge refused";
+                                                                body = "Your challenge with id " # e.pubId # " was refused and as punishment the MMT you deposited is lost.";
+                                                            }, challenger._id);
                                                         };
                                                     };
                                                 };
@@ -317,7 +342,9 @@ module {
         };
 
         func _punishModerator(
-            userId: Nat32
+            userId: Nat32,
+            challenge: Types.Challenge,
+            reason: Text
         ) {
             switch(userService.findById(userId)) {
                 case (#err(_)) {
@@ -327,6 +354,19 @@ module {
                         Principal.fromText(moderator.principal), 
                         Nat64.toNat(daoService.config.getAsNat64("MODERATOR_PUNISHMENT"))
                     );
+
+                    if(reason == "reverted") {
+                        ignore notificationService.create({
+                            title = "Moderation reverted";
+                            body = "The challenge with id " # challenge.pubId # " was accepted, reverting one of your moderations. As punishment, you lost part of your staked MMT.";
+                        }, userId);
+                    }
+                    else {
+                        ignore notificationService.create({
+                            title = "Challenge expired";
+                            body = "The challenge with id " # challenge.pubId # " expired and you didn't vote in time. As punishment, you lost part of your staked MMT.";
+                        }, userId);
+                    };
                 };
             };
         };
@@ -532,7 +572,7 @@ module {
                         for(challenge in challenges.vals()) {
                             let toPunish = _selectNewJury(challenge, dueAt);
                             for(userId in toPunish.vals()) {
-                                _punishModerator(userId);
+                                _punishModerator(userId, challenge, "expired");
                             };
                         };
                     };

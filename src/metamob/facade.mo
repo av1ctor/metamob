@@ -43,6 +43,8 @@ import UserTypes "./users/types";
 import Variant "mo:mo-table/variant";
 import VoteService "./votes/service";
 import VoteTypes "./votes/types";
+import NotificationService "./notifications/service";
+import NotificationTypes "./notifications/types";
 import PoapService "./poap/service";
 import PoapTypes "./poap/types";
 
@@ -61,8 +63,11 @@ shared({caller = owner}) actor class Metamob(
     let daoService = DaoService.Service(
         mmtCanisterId
     );
+    let notificationService = NotificationService.Service(
+        userRepo
+    );
     let moderationService = ModerationService.Service(
-        daoService, userRepo, reportRepo
+        daoService, userRepo, reportRepo, notificationService
     );
     let userService = UserService.Service(
         userRepo, daoService, moderationService, reportRepo, ledgerUtils
@@ -80,7 +85,7 @@ shared({caller = owner}) actor class Metamob(
         userService
     );
     let campaignService = CampaignService.Service(
-        userService, placeService, moderationService, reportRepo, ledgerUtils
+        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
     );
     let signatureService = SignatureService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
@@ -89,10 +94,10 @@ shared({caller = owner}) actor class Metamob(
         userService, campaignService, placeService, moderationService, reportRepo
     );
     let donationService = DonationService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils
+        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
     );
     let fundingService = FundingService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, ledgerUtils
+        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
     );
     let updateService = UpdateService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
@@ -103,11 +108,11 @@ shared({caller = owner}) actor class Metamob(
     );
     let reportService = ReportService.Service(
         reportRepo, daoService, userService, campaignService, signatureService, 
-        voteService, fundingService, donationService, updateService, placeService, poapService
+        voteService, fundingService, donationService, updateService, placeService, poapService, notificationService
     );
     let challengeService = ChallengeService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, updateService, placeService, poapService, reportService, moderationService
+        donationService, updateService, placeService, poapService, reportService, moderationService, notificationService
     );
 
     //
@@ -1534,6 +1539,39 @@ shared({caller = owner}) actor class Metamob(
     };   
 
     //
+    // notifications facade
+    //
+    public query func notificationFindByPubId(
+        pubId: Text
+    ): async Result.Result<NotificationTypes.Notification, Text> {
+        notificationService.findByPubId(pubId);
+    };
+
+    public shared query(msg) func notificationFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[NotificationTypes.Notification], Text> {
+        notificationService.findByUser(sortBy, limit, msg.caller);
+    };
+
+    public shared query(msg) func notificationCountUnreadByUser(
+    ): async Result.Result<Nat32, Text> {
+        notificationService.countUnreadByUser(msg.caller);
+    };
+
+    public shared(msg) func notificationDelete(
+        id: Text
+    ): async Result.Result<(), Text> {
+        notificationService.delete(id, msg.caller);
+    };   
+
+    public shared(msg) func notificationMarkAsRead(
+        id: Text
+    ): async Result.Result<NotificationTypes.Notification, Text> {
+        notificationService.markAsRead(id, msg.caller);
+    };   
+
+    //
     // migration
     //
     stable var daoEntities: DaoTypes.BackupEntity = {
@@ -1556,6 +1594,7 @@ shared({caller = owner}) actor class Metamob(
     stable var placeEmailEntities: [[(Text, Variant.Variant)]] = [];
     stable var placeUserEntities: [[(Text, Variant.Variant)]] = [];
     stable var poapEntities: [[(Text, Variant.Variant)]] = [];
+    stable var notificationEntities: [[(Text, Variant.Variant)]] = [];
 
     system func preupgrade() {
         daoEntities := daoService.backup();
@@ -1574,6 +1613,7 @@ shared({caller = owner}) actor class Metamob(
         placeEmailEntities := placeEmailService.backup();
         placeUserEntities := placeUserService.backup();
         poapEntities := poapService.backup();
+        notificationEntities := notificationService.backup();
     };
 
     system func postupgrade() {
@@ -1628,6 +1668,9 @@ shared({caller = owner}) actor class Metamob(
 
         poapService.restore(poapEntities);
         poapEntities := [];
+
+        notificationService.restore(notificationEntities);
+        notificationEntities := [];
     };
 
     let interval: Nat = 60 * 1000_000_000; // 1 minute

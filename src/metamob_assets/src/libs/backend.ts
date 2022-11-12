@@ -1,14 +1,14 @@
 import { ActorSubclass, Identity } from "@dfinity/agent";
-import { createActor as metamobCreateActor, canisterId as metamobCanisterId, idlFactory as MetamobActor } from "../../../declarations/metamob";
-import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId, idlFactory as LedgerActor } from "../../../declarations/ledger";
-import { createActor as mmtCreateActor, canisterId as mmtCanisterId, idlFactory as MMTActor } from "../../../declarations/mmt";
+import { createActor as metamobCreateActor, canisterId as metamobCanisterId } from "../../../declarations/metamob";
+import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
+import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt";
 import { Variant } from "../../../declarations/metamob/metamob.did";
 
 export const LEDGER_TRANSFER_FEE = BigInt(10000);
 
 export const createMainActor = (
     identity: Identity
-): ActorSubclass<MetamobActor> => {
+): ActorSubclass<any> => {
     if(!metamobCanisterId) {
         throw Error('Metamob canister is undefined');
     }
@@ -18,7 +18,7 @@ export const createMainActor = (
 
 export const createLedgerActor = (
     identity: Identity
-): ActorSubclass<LedgerActor> => {
+): ActorSubclass<any> => {
     if(!ledgerCanisterId) {
         throw Error('Ledger canister id is undefined');
     }
@@ -28,7 +28,7 @@ export const createLedgerActor = (
 
 export const createMmtActor = (
     identity: Identity
-): ActorSubclass<MMTActor> => {
+): ActorSubclass<any> => {
     if(!mmtCanisterId) {
         throw Error('MMT canister id is undefined');
     }

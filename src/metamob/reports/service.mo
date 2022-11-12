@@ -26,6 +26,7 @@ import UpdateService "../updates/service";
 import PlaceService "../places/service";
 import DaoService "../dao/service";
 import PoapService "../poap/service";
+import NotificationService "../notifications/service";
 import D "mo:base/Debug";
 
 module {
@@ -40,7 +41,8 @@ module {
         donationService: DonationService.Service, 
         updateService: UpdateService.Service,
         placeService: PlaceService.Service,
-        poapService: PoapService.Service
+        poapService: PoapService.Service,
+        notificationService: NotificationService.Service
     ) {
         let campaignRepo = campaignService.getRepository();
         let userRepo = userService.getRepository();
@@ -72,14 +74,27 @@ module {
                                 #err(msg);
                             };
                             case (#ok(entityCreatedBy)) {
+                                let moderatorId = _chooseModerator([caller._id, entityCreatedBy]);
+                                
                                 let dueAt = Time.now() + daoService.config.getAsInt("REPORT_MODERATING_SPAN");
-                                repo.create(
-                                    req, 
-                                    entityCreatedBy, 
-                                    caller._id, 
-                                    _chooseModerator([caller._id, entityCreatedBy]),
-                                    dueAt
-                                );
+                                switch(repo.create(req, entityCreatedBy, caller._id, moderatorId, dueAt)) {
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                    case (#ok(report)) {
+                                        ignore notificationService.create({
+                                            title = "Report opened";
+                                            body = "The report " # report.pubId # " was opened against your " # EntityTypes.toText(req.entityType) # " with id " # req.entityPubId;
+                                        }, entityCreatedBy);
+
+                                        ignore notificationService.create({
+                                            title = "Report assigned";
+                                            body = "The report " # report.pubId # " was assigned to you.";
+                                        }, moderatorId);
+
+                                        #ok(report);
+                                    };
+                                };
                             };
                         };
                     };
@@ -201,18 +216,30 @@ module {
                                     case (#err(_)) {
                                     };
                                     case (#ok(reporter)) {
-                                        ignore await daoService.rewardUser(
-                                            Principal.fromText(reporter.principal), 
-                                            daoService.config.getAsNat64("REPORTER_REWARD")
-                                        );
+                                        let reportReward = daoService.config.getAsNat64("REPORTER_REWARD");
+                                        ignore await daoService.rewardUser(Principal.fromText(reporter.principal), reportReward);
 
-                                        ignore await daoService.rewardUser(
-                                            invoker, 
-                                            daoService.config.getAsNat64("MODERATOR_REWARD")
-                                        );
+                                        ignore notificationService.create({
+                                            title = "Reward received";
+                                            body = "You received " # Utils.e8sToDecimal(reportReward) # " MMT as reward for your report!";
+                                        }, e.createdBy);
                                     };
                                 };
+                            } 
+                            else {
+                                ignore notificationService.create({
+                                    title = "Report refused";
+                                    body = "Sorry. Your report " # e.pubId # " was not accepted. You will not receive a reward.";
+                                }, e.createdBy);
                             };
+
+                            let modReward = daoService.config.getAsNat64("MODERATOR_REWARD");
+                            ignore await daoService.rewardUser(invoker, modReward);
+
+                            ignore notificationService.create({
+                                title = "Reward received";
+                                body = "You received " # Utils.e8sToDecimal(modReward) # " MMT as reward for your moderation!";
+                            }, caller._id);
 
                             res;
                         };

@@ -338,7 +338,7 @@ const CreateForm = (props: Props) => {
                 break;
             case CampaignKind.VOTES:
             case CampaignKind.WEIGHTED_VOTES:
-                action = {invoke: {canisterId: '', method: '', args: []}};
+                action = {invoke: {canisterId: '', method: '', args: [] as any}};
                 info = {votes: {pro: BigInt(0), against: BigInt(0)}};
                 break;
             default:

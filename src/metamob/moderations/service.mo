@@ -17,6 +17,7 @@ import UserRepository "../users/repository";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import Utils "../common/utils";
+import NotificationService "../notifications/service";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -24,6 +25,7 @@ module {
         daoService: DaoService.Service,
         userRepo: UserRepository.Repository,
         reportRepo: ReportRepository.Repository,
+        notificationService: NotificationService.Service
     ) {
         let repo = Repository.Repository();
 
@@ -57,6 +59,11 @@ module {
                     #err(msg);
                 };
                 case (#ok(moderation)) {
+                    ignore notificationService.create({
+                        title = EntityTypes.toText(report.entityType) # " moderated";
+                        body = "Your " # EntityTypes.toText(report.entityType) # " with id " # report.entityPubId # " was moderated.";
+                    }, report.entityCreatedBy);
+
                     ignore reportRepo.moderate(report, moderation._id, caller._id);
                     #ok(moderation);
                 };

@@ -1,9 +1,13 @@
 import React, { useContext, useCallback, useRef } from "react";
 import { FormattedMessage } from "react-intl";
 import { Link, useNavigate } from "react-router-dom";
+import Badge from "../../components/Badge";
 import { LangIcon } from "../../components/LangIcon";
 import NavItem from "../../components/NavItem";
+import { useCountUnreadNotificationsByUser } from "../../hooks/notifications";
+import { Order } from "../../libs/common";
 import { Lang, languages, loadMessages } from "../../libs/intl";
+import { ActorContext } from "../../stores/actor";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import { IntlActionType, IntlContext } from "../../stores/intl";
 import Avatar from "../users/Avatar";
@@ -14,13 +18,16 @@ interface Props {
 };
 
 const Header = (props: Props) => {
-    const [intl, intlDispatch] = useContext(IntlContext);
+    const [actors, ] = useContext(ActorContext);
     const [auth, authDispatch] = useContext(AuthContext);
+    const [intl, intlDispatch] = useContext(IntlContext);
     
     const menuRef = useRef<HTMLDivElement>(null);
     const burgerRef = useRef<HTMLAnchorElement>(null);
 
     const navigate = useNavigate();
+
+    const notifications = useCountUnreadNotificationsByUser(actors.main);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=${window.location.hash.replace('#', '')}`);
@@ -125,6 +132,7 @@ const Header = (props: Props) => {
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
                                 <Avatar id={auth.user?._id || 0} />
+                                {notifications.data? <div className="notification-badge floating"><Badge>{notifications.data}</Badge></div>: undefined}
                             </a>
 
                             <div className="navbar-dropdown is-right">
@@ -179,6 +187,14 @@ const Header = (props: Props) => {
                                     redirect
                                 />
                                 <hr className="navbar-divider"/>
+                                <NavItem
+                                    title="Notifications"
+                                    icon="comment-dots"
+                                    href="/user/notifications"
+                                    redirect
+                                >
+                                    {notifications.data? <div className="notification-badge floating"><Badge>{notifications.data}</Badge></div>: undefined}
+                                </NavItem>
                                 <NavItem
                                     title="Profile"
                                     icon="user"

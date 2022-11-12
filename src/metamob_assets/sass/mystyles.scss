@@ -659,3 +659,22 @@ a:not(:first-child) {
     margin-top: 2rem;
     margin-bottom: 2rem;
 }
+
+.notification-badge {
+    transform: scale(.8);
+
+    &.floating {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+    }
+}
+
+.notifications {
+    .notification-title {
+        font-weight: bold;
+    }
+    .notification-body {
+        font-size: small;
+    }
+}
