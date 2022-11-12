@@ -143,7 +143,7 @@ module {
 
                                                 ignore notificationService.create({
                                                    title = "Donation received";
-                                                   body = "Your campaign " # campaign.pubId # " received a donation amounting " # Utils.e8sToDecimal(value) # " ICP!";
+                                                   body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a donation amounting **" # Utils.e8sToDecimal(value) # "** ICP!";
                                                 }, campaign.createdBy);
 
                                                 res;

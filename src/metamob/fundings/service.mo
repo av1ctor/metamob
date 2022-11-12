@@ -170,7 +170,7 @@ module {
 
                                                 ignore notificationService.create({
                                                    title = "Fundraising received";
-                                                   body = "Your campaign " # campaign.pubId # " received a fundraising amounting " # Utils.e8sToDecimal(value) # " ICP!";
+                                                   body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a fundraising amounting **" # Utils.e8sToDecimal(value) # "** ICP!";
                                                 }, campaign.createdBy);
 
                                                 res;

@@ -85,7 +85,7 @@ shared({caller = owner}) actor class Metamob(
         userService
     );
     let campaignService = CampaignService.Service(
-        userService, placeService, moderationService, reportRepo, ledgerUtils
+        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
     );
     let signatureService = SignatureService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
@@ -112,7 +112,7 @@ shared({caller = owner}) actor class Metamob(
     );
     let challengeService = ChallengeService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, updateService, placeService, poapService, reportService, moderationService
+        donationService, updateService, placeService, poapService, reportService, moderationService, notificationService
     );
 
     //

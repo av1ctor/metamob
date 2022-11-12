@@ -10,6 +10,7 @@ import { Order } from "../../../libs/common";
 import { Paginator } from "../../../components/Paginator";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
+import { Markdown } from "../../../components/Markdown";
 
 const sortByDate: Order[] = [
     {
@@ -127,7 +128,11 @@ const Notifications = (props: Props) => {
                             className="column is-6"
                         >
                             <div className="notification-title">{notif.title}</div>
-                            <div className="notification-body">{notif.body}</div>
+                            <div className="notification-body">
+                                <Markdown 
+                                    body={notif.body}
+                                />
+                            </div>
 
                             <p>
                                     <small>

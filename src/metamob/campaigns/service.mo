@@ -1,3 +1,4 @@
+import Utils "../common/utils";
 import Account "../accounts/account";
 import Array "mo:base/Array";
 import D "mo:base/Debug";
@@ -23,6 +24,7 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
+import NotificationService "../notifications/service";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -30,7 +32,8 @@ module {
         userService: UserService.Service,
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
-        reportRepo: ReportRepository.Repository, 
+        reportRepo: ReportRepository.Repository,
+        notificationService: NotificationService.Service, 
         ledgerUtils: LedgerUtils.LedgerUtils
     ) {
         let repo = Repository.Repository();
@@ -582,7 +585,14 @@ module {
                                     #err(msg);
                                 };
                                 case (#ok(_)) {
-                                    repo.boost(campaign, Nat64.toNat(value));
+                                    let res = repo.boost(campaign, Nat64.toNat(value));
+
+                                    ignore notificationService.create({
+                                        title = "Campaign promoted";
+                                        body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") was promoted with **" # Utils.e8sToDecimal(value) # " ICP**!";
+                                    }, campaign.createdBy);
+
+                                    res;
                                 };
                             };
                         };
@@ -723,6 +733,11 @@ module {
                             if(campaign.kind == Types.KIND_FUNDING) {
                                 await _refundFunders(campaign, this);
                             };
+                            
+                            ignore notificationService.create({
+                                title = "Campaign finished";
+                                body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") expired and was automatically finished.";
+                            }, campaign.createdBy);
                         };
                     };
                 };

@@ -666,7 +666,7 @@ a:not(:first-child) {
     &.floating {
         position: absolute;
         top: 2px;
-        right: 2px;
+        left: 2px;
     }
 }
 
