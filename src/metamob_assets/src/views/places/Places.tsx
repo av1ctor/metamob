@@ -10,7 +10,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
 import { GlobeMethods } from "react-globe.gl";
-import { encodeEx } from "../../libs/geohash";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
@@ -86,8 +85,8 @@ const Places = (props: Props) => {
         if(globe.current) {
             const center = globe.current.toGlobeCoords((size.w / 2)|0, (size.h / 2)|0);
             if(center) {
-                const topleft = globe.current.toGlobeCoords(0, 0) || {lat: (center?.lat||0) - -7.5, lng: (center?.lng||0) + -30.0};
-                const bottomright = globe.current.toGlobeCoords(size.w, size.h) || {lat: (center?.lat||0) + -7.5, lng: (center?.lng||0) + 30.0};
+                const topleft = globe.current.toGlobeCoords(0, 0) || {lat: (center?.lat||0.0) - -7.500001, lng: (center?.lng||0.0) + -30.000001};
+                const bottomright = globe.current.toGlobeCoords(size.w, size.h) || {lat: (center?.lat||0.0) + -7.500001, lng: (center?.lng||0.0) + 30.000001};
                 setFilters(filters => ([
                     ...filters.filter(f => f.key !== 'lat' && f.key !== 'lng'), 
                     {
@@ -174,7 +173,6 @@ const Places = (props: Props) => {
                             <div style={{height: 100}} />
                         </div>
                     }>
-                        <div><Button onClick={handleSearchMap}>Search here</Button></div>
                         <Globe
                             ref={globe}
                             width={size.w}
@@ -230,6 +228,18 @@ const Places = (props: Props) => {
 
             <div className="has-text-centered mt-4">
                 <div className="control">
+                    {mode === Modes.MAP &&
+                        <>
+                            <Button 
+                                color="warning"
+                                onClick={handleSearchMap}
+                            >
+                                <i className="la la-globe"/>&nbsp;<FormattedMessage id="Search here" defaultMessage="Search here" />
+                            </Button>
+                            &nbsp;
+                        </>
+                    }
+
                     <Button
                         disabled={!places.hasNextPage || places.isFetchingNextPage}
                         onClick={() => places.fetchNextPage()}

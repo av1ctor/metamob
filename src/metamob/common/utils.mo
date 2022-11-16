@@ -48,18 +48,6 @@ module {
         };
     };
 
-    public func dumpNatBuffer(
-        buf: Buffer.Buffer<Nat>
-    ) {
-        D.print(debug_show(buf.toArray()));
-    };
-
-    public func dumpTextBuffer(
-        buf: Buffer.Buffer<Text>
-    ) {
-        D.print(debug_show(buf.toArray()));
-    };
-
     public func genRandomSeed(
         owner: Text
     ): Nat64 {

@@ -16,7 +16,6 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
-import GeoHash "../common/geohash";
 import Variant "mo:mo-table/variant";
 
 module {

@@ -17,7 +17,6 @@ import Random "../common/random";
 import ULID "../common/ulid";
 import Utils "../common/utils";
 import FilterUtils "../common/filters";
-import GeoHash "../common/geohash";
 import Types "./types";
 import Schema "./schema";
 import CampaignRepository "../campaigns/repository";
@@ -28,7 +27,6 @@ module {
     ) {
         let places = Table.Table<Types.Place>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("places")));
-        let geoHash = GeoHash.GeoHash();
 
         public func create(
             req: Types.PlaceRequest,
@@ -175,7 +173,7 @@ module {
                 };
             };
 
-            #ok(res.toArray());
+            #ok(Buffer.toArray(res));
         };
 
         func _comparer(
@@ -261,7 +259,6 @@ module {
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
-                geohash = geoHash.encodeEx(req.lat, req.lng, 6);
                 moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;
@@ -289,7 +286,6 @@ module {
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
-                geohash = geoHash.encodeEx(req.lat, req.lng, 6);
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -313,7 +309,6 @@ module {
                 active = req.active;
                 lat = req.lat;
                 lng = req.lng;
-                geohash = geoHash.encodeEx(req.lat, req.lng, 6);
                 moderated = e.moderated | reason;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
@@ -369,7 +364,6 @@ module {
         res.put("active", #bool(e.active));
         res.put("lat", #float(e.lat));
         res.put("lng", #float(e.lng));
-        res.put("geohash", #text(e.geohash));
         res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
         res.put("createdBy", #nat32(e.createdBy));
@@ -416,7 +410,6 @@ module {
             active = Variant.getOptBool(map.get("active"));
             lat = Variant.getOptFloat(map.get("lat"));
             lng = Variant.getOptFloat(map.get("lng"));
-            geohash = Variant.getOptText(map.get("geohash"));
             moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));
             createdBy = Variant.getOptNat32(map.get("createdBy"));

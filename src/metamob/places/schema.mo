@@ -45,10 +45,6 @@ module {
                 options = [#sortable];
             },
             {
-                name = "geohash";
-                options = [#prefixed];
-            },
-            {
                 name = "icon";
                 options = [#max(512)];
             },
