@@ -272,7 +272,7 @@ module {
                         });
                     };
 
-                    ?buf.toArray();
+                    ?Buffer.toArray(buf);
                 };
             };
         };

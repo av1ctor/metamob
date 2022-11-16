@@ -173,7 +173,7 @@ module {
                 };
             };
 
-            #ok(res.toArray());
+            #ok(Buffer.toArray(res));
         };
 
         func _comparer(

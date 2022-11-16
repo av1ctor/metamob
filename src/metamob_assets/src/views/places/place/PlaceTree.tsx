@@ -13,9 +13,7 @@ const reversed = (arr: any[]) => {
 }
 
 const PlaceTree = (props: Props) => {
-    const places = props.id?
-        useFindPlaceTreeById(props.id):
-        undefined;
+    const places = useFindPlaceTreeById(props.id);
 
     return (
         places?.isSuccess && places?.data? 

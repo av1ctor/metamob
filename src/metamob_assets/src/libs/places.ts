@@ -86,7 +86,6 @@ export const findAll = async (
                 ])
         ]:
         [];
-
     const res = await metamob.placeFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 

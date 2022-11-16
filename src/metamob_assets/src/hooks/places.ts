@@ -13,7 +13,7 @@ export const useFindPlaceById = (
 };
 
 export const useFindPlaceTreeById = (
-    _id: number
+    _id?: number
 ): UseQueryResult<Place[], Error> => {
     return useQuery<Place[], Error>(
         ['places', 'tree', _id], 

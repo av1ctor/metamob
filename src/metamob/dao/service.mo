@@ -329,9 +329,9 @@ module {
             };
             
             {
-                config = conf.toArray();
-                staked = _staked.toArray();
-                deposited = _deposited.toArray();
+                config = Buffer.toArray(conf);
+                staked = Buffer.toArray(_staked);
+                deposited = Buffer.toArray(_deposited);
             };
         };
 
