@@ -47,12 +47,17 @@ export const valueToVariant = (
         case "string":
             return {text: value};
         case "number":
-            return {nat32: value};
+            return Number.isInteger(value)? {nat32: value}: {float: value};
         case "bigint":
             return {nat64: value};
         case "boolean":
             return {bool: value};
         default:
-            throw Error('Unsupported type');
+            if(Array.isArray(value) && value.length === 2) {
+                return {tuple: [valueToVariant(value[0]), valueToVariant(value[1])]};
+            }
+            else {
+                throw Error('Unsupported type');
+            }
     }    
 };

@@ -51,6 +51,7 @@ module {
         active: Bool;
         lat: Float;
         lng: Float;
+        geohash: Text;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
         createdBy: Nat32;

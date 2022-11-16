@@ -195,6 +195,7 @@ export const Home = () => {
                         <Route path="/u/:id" element={<PublicProfile {...props} />} />
                         <Route path="/admin" element={<Admin {...props} />} />
                         <Route path="/campaigns" element={<Campaigns {...props} />} />
+                        <Route path="/places/:mode" element={<Places {...props} />} />
                         <Route path="/places" element={<Places {...props} />} />
                         <Route path="/" element={<Front {...props} />} />
                     </Routes>

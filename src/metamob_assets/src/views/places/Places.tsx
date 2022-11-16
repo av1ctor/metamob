@@ -1,4 +1,4 @@
-import React, {lazy, Suspense, useState, useCallback, useEffect, Fragment, useMemo} from "react";
+import React, {lazy, Suspense, useState, useCallback, useEffect, Fragment, useMemo, useRef} from "react";
 import {Filter, Order} from "../../libs/common";
 import {useFindPlacesInf} from "../../hooks/places";
 import Button from "../../components/Button";
@@ -6,9 +6,11 @@ import { sortByKind } from "./Sort";
 import Item from "./Item";
 import { Bar } from "./Bar";
 import { Place } from "../../../../declarations/metamob/metamob.did";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
+import { GlobeMethods } from "react-globe.gl";
+import { encodeEx } from "../../libs/geohash";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
@@ -31,10 +33,8 @@ const calcHeight = () => {
     return Math.max(300, window.innerHeight * .7)|0;
 }
 
-
 const Places = (props: Props) => {
     const [size, setSize] = useState({w: calcWidth(), h: calcHeight()});
-    const [mode, setMode] = useState(Modes.LIST);
     const [altitude, setAltitude] = useState(2.5);
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -52,12 +52,27 @@ const Places = (props: Props) => {
             op: 'eq',
             value: true
         },
+        { 
+            key: 'lat',
+            op: 'between',
+            value: null
+        },
+        { 
+            key: 'lng',
+            op: 'between',
+            value: null
+        }
     ]);
     const [orderBy, setOrderBy] = useState<Order[]>(sortByKind);
 
-    const navigate = useNavigate();
+    const params = useParams();
+    const mode = params.mode && params.mode === 'map'? Modes.MAP: Modes.LIST;
 
-    const places = useFindPlacesInf(filters, orderBy, 12);
+    const globe = useRef<GlobeMethods>();
+
+    const navigate = useNavigate();
+    
+    const places = useFindPlacesInf(filters, orderBy, 20);
 
     const handleChangeFilters = useCallback((filters: Filter[]) => {
         setFilters(filters);
@@ -67,9 +82,32 @@ const Places = (props: Props) => {
         setOrderBy(orderBy);
     }, []);
 
+    const handleSearchMap = useCallback(() => {
+        if(globe.current) {
+            const center = globe.current.toGlobeCoords((size.w / 2)|0, (size.h / 2)|0);
+            if(center) {
+                const topleft = globe.current.toGlobeCoords(0, 0) || {lat: (center?.lat||0) - -7.5, lng: (center?.lng||0) + -30.0};
+                const bottomright = globe.current.toGlobeCoords(size.w, size.h) || {lat: (center?.lat||0) + -7.5, lng: (center?.lng||0) + 30.0};
+                setFilters(filters => ([
+                    ...filters.filter(f => f.key !== 'lat' && f.key !== 'lng'), 
+                    {
+                        key: 'lat', 
+                        op: 'between', 
+                        value: topleft.lat < bottomright.lat? [topleft.lat, bottomright.lat]: [bottomright.lat, topleft.lat]
+                    },
+                    {
+                        key: 'lng', 
+                        op: 'between', 
+                        value: topleft.lng < bottomright.lng? [topleft.lng, bottomright.lng]: [bottomright.lng, topleft.lng]
+                    }
+                ]));
+            }
+        }
+    }, [globe.current, size, altitude]);
+
     const handleSwitchMode = useCallback(() => {
-        setMode(mode => mode === Modes.LIST? Modes.MAP: Modes.LIST);
-    }, []);
+        navigate(`/places/${mode === Modes.LIST? 'map': 'list'}`)
+    }, [mode]);
 
     const handleRedirect = useCallback((place: Object, ...rest: any[]) => {
         navigate(`/p/${(place as Place).pubId}`);
@@ -77,7 +115,7 @@ const Places = (props: Props) => {
 
     const handleZoom = useCallback((pos: {lat: number, lng: number, altitude: number}) => {
         setAltitude(pos.altitude);
-    }, []);
+    }, [globe.current]);
 
     const getPlaceLabelName = useCallback((p: Place|any) => {
         return p.name;
@@ -119,6 +157,7 @@ const Places = (props: Props) => {
                 orderBy={orderBy}
                 mode={mode}
                 onSearch={handleChangeFilters}
+
                 onSort={handleChangeSort}
                 onSwitchMode={handleSwitchMode}
                 onSuccess={props.onSuccess}
@@ -135,7 +174,9 @@ const Places = (props: Props) => {
                             <div style={{height: 100}} />
                         </div>
                     }>
+                        <div><Button onClick={handleSearchMap}>Search here</Button></div>
                         <Globe
+                            ref={globe}
                             width={size.w}
                             height={size.h}
                             globeImageUrl="/earth-day.jpg"

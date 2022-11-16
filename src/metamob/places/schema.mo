@@ -38,11 +38,15 @@ module {
             },
             {
                 name = "lat";
-                options = [];
+                options = [#sortable];
             },
             {
                 name = "lng";
-                options = [];
+                options = [#sortable];
+            },
+            {
+                name = "geohash";
+                options = [#prefixed];
             },
             {
                 name = "icon";

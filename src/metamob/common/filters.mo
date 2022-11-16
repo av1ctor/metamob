@@ -25,6 +25,8 @@ module {
                             key = crit.0;
                             op = switch(crit.1) {
                                 case "contains" #contains; 
+                                case "startsWith" #startsWith;
+                                case "between" #between;
                                 case "neq" #neq;
                                 case "lt" #lt;
                                 case "lte" #lte;
