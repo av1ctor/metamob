@@ -47,14 +47,17 @@ import NotificationService "./notifications/service";
 import NotificationTypes "./notifications/types";
 import PoapService "./poap/service";
 import PoapTypes "./poap/types";
+import Logger "../logger/logger";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
-    mmtCanisterId: Text
+    mmtCanisterId: Text,
+    loggerCanisterId: Text
 ) = this {
 
     // helpers
     let ledgerUtils = LedgerUtils.LedgerUtils(ledgerCanisterId);
+    let logger = actor (loggerCanisterId) : Logger.Logger;
 
     // services
     let userRepo = UserRepository.Repository();
@@ -70,7 +73,7 @@ shared({caller = owner}) actor class Metamob(
         daoService, userRepo, reportRepo, notificationService
     );
     let userService = UserService.Service(
-        userRepo, daoService, moderationService, reportRepo, ledgerUtils
+        userRepo, daoService, moderationService, reportRepo, ledgerUtils, logger
     );
     let placeService = PlaceService.Service(
         userService, moderationService, reportRepo
@@ -85,7 +88,7 @@ shared({caller = owner}) actor class Metamob(
         userService
     );
     let campaignService = CampaignService.Service(
-        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
+        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
     );
     let signatureService = SignatureService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
@@ -322,7 +325,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func campaignCreate(
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        await campaignService.create(req, msg.caller);
+        await campaignService.create(req, msg.caller, this);
     };
 
     public shared(msg) func campaignUpdate(

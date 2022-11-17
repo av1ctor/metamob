@@ -17,6 +17,7 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Types "./types";
 import Utils "./utils";
+import Logger "../../logger/logger";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -25,7 +26,8 @@ module {
         daoService: DaoService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
-        ledgerUtils: LedgerUtils.LedgerUtils
+        ledgerUtils: LedgerUtils.LedgerUtils,
+        logger: Logger.Logger
     ) {
         var hasAdmin: Bool = false;
 

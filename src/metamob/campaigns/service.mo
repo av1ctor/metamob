@@ -25,6 +25,7 @@ import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import NotificationService "../notifications/service";
+import Logger "../../logger/logger";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -34,7 +35,8 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
         notificationService: NotificationService.Service, 
-        ledgerUtils: LedgerUtils.LedgerUtils
+        ledgerUtils: LedgerUtils.LedgerUtils, 
+        logger: Logger.Logger
     ) {
         let repo = Repository.Repository();
         let userRepo = userService.getRepository();
@@ -43,7 +45,8 @@ module {
 
         public func create(
             req: Types.CampaignRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -99,7 +102,15 @@ module {
                                     };
                                 };
                                 
-                                repo.create(req, caller._id);
+                                switch(repo.create(req, caller._id)) {
+                                    case (#ok(e)) {
+                                        ignore logger.info(this, "Campaign " # e.pubId # " created by " # caller.pubId);
+                                        #ok(e);
+                                    };
+                                    case (#err(msg)) {
+                                        #err(msg);
+                                    };
+                                };
                             };
                         };
                     };
@@ -173,6 +184,8 @@ module {
                                                             return #err(msg);
                                                         };
                                                         case(#ok(e)) {
+                                                            ignore logger.info(this, "Campaign " # e.pubId # " updated by " # caller.pubId);
+                                                            
                                                             if(e.kind != Types.KIND_FUNDING) {
                                                                 switch(await finishAndRunAction(
                                                                         e, Types.RESULT_OK, caller, this)) {

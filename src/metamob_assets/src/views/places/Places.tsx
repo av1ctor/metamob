@@ -156,7 +156,6 @@ const Places = (props: Props) => {
                 orderBy={orderBy}
                 mode={mode}
                 onSearch={handleChangeFilters}
-
                 onSort={handleChangeSort}
                 onSwitchMode={handleSwitchMode}
                 onSuccess={props.onSuccess}

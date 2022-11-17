@@ -78,7 +78,7 @@ module {
     ): [T] {
         let buf = arrayToBuffer<T>(src);
         buf.add(value);
-        buf.toArray()
+        Buffer.toArray(buf)
     };
 
     public func delFromArray<T>(
