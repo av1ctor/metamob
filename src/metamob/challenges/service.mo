@@ -32,6 +32,7 @@ import UpdateService "../updates/service";
 import PlaceService "../places/service";
 import PoapService "../poap/service";
 import NotificationService "../notifications/service";
+import Logger "../../logger/logger";
 import D "mo:base/Debug";
 
 module {
@@ -48,7 +49,8 @@ module {
         poapService: PoapService.Service,
         reportService: ReportService.Service,
         moderationService: ModerationService.Service,
-        notificationService: NotificationService.Service
+        notificationService: NotificationService.Service, 
+        logger: Logger.Logger
     ) {
         let repo = Repository.Repository();
 
@@ -123,6 +125,7 @@ module {
                                         case (#ok(challenge)) {
                                             ignore moderationRepo.challenge(moderation, challenge._id, caller._id);
 
+                                            ignore logger.info(this, "Moderation " # moderation.pubId # " was challenged");
                                             ignore notificationService.create({
                                                 title = "Moderation challenged";
                                                 body = "Your Moderation with id " # moderation.pubId # " was challenged.";
@@ -178,7 +181,7 @@ module {
                         };
 
                         if(judges.size() > 0) {
-                            return judges.toArray();
+                            return Buffer.toArray(judges);
                         };
                     };
                 };
@@ -190,8 +193,9 @@ module {
         public func update(
             id: Text, 
             req: Types.ChallengeRequest,
-            invoker: Principal
-        ): Result.Result<Types.Challenge, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Challenge, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -218,6 +222,7 @@ module {
                                     return #err("There are votes already cast");
                                 };
 
+                                ignore logger.info(this, "Challenge " # e.pubId # " was updated by " # caller.pubId);
                                 repo.update(e, req, caller._id);
                             };
                         };
@@ -269,7 +274,7 @@ module {
                                 reason = req.reason;
                             });
 
-                            let votes = buff.toArray();
+                            let votes = Buffer.toArray(buff);
 
                             if(votes.size() == e.judges.size()) {
                                 let result = _calcResult(votes);
@@ -299,12 +304,13 @@ module {
                                                                 this
                                                             );
 
+                                                            ignore logger.info(this, "Challenge " # e.pubId # " was accepted");
                                                             ignore notificationService.create({
                                                                 title = "Challenge accepted";
                                                                 body = "Your challenge with id " # e.pubId # " was accepted and the MMT you deposited was reimbursed!";
                                                             }, challenger._id);
 
-                                                            _punishModerator(moderation.createdBy, e, "reverted");
+                                                            await _punishModerator(moderation.createdBy, e, "reverted", this);
                                                         };
                                                     };
                                                 }
@@ -318,6 +324,7 @@ module {
                                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT"))
                                                             );
 
+                                                            ignore logger.info(this, "Challenge " # e.pubId # " was refused");
                                                             ignore notificationService.create({
                                                                 title = "Challenge refused";
                                                                 body = "Your challenge with id " # e.pubId # " was refused and as punishment the MMT you deposited is lost.";
@@ -344,8 +351,9 @@ module {
         func _punishModerator(
             userId: Nat32,
             challenge: Types.Challenge,
-            reason: Text
-        ) {
+            reason: Text,
+            this: actor {}
+        ): async () {
             switch(userService.findById(userId)) {
                 case (#err(_)) {
                 };
@@ -356,12 +364,14 @@ module {
                     );
 
                     if(reason == "reverted") {
+                        ignore logger.info(this, "Moderator " # moderator.pubId # " was punished because the challenge " # challenge.pubId # " was accepted");
                         ignore notificationService.create({
                             title = "Moderation reverted";
                             body = "The challenge with id " # challenge.pubId # " was accepted, reverting one of your moderations. As punishment, you lost part of your staked MMT.";
                         }, userId);
                     }
                     else {
+                        ignore logger.info(this, "Moderator " # moderator.pubId # " was punished because the challenge " # challenge.pubId # " expired");
                         ignore notificationService.create({
                             title = "Challenge expired";
                             body = "The challenge with id " # challenge.pubId # " expired and you didn't vote in time. As punishment, you lost part of your staked MMT.";
@@ -562,23 +572,24 @@ module {
         };
 
         public func verify(
-        ): () {
+            this: actor {}
+        ): async () {
             let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
 
             switch(repo.findDue(100)) {
                 case (#ok(challenges)) {
                     if(challenges.size() > 0) {
-                        D.print("Info: ChallengeService.verify: Selecting new jury for " # Nat.toText(challenges.size()) # " challenges");
+                        ignore logger.info(this, "ChallengeService.verify: Selecting new jury for " # Nat.toText(challenges.size()) # " challenges");
                         for(challenge in challenges.vals()) {
                             let toPunish = _selectNewJury(challenge, dueAt);
                             for(userId in toPunish.vals()) {
-                                _punishModerator(userId, challenge, "expired");
+                                await _punishModerator(userId, challenge, "expired", this);
                             };
                         };
                     };
                 };
                 case (#err(msg)) {
-                    D.print("Error: ChallengeService.verify: " # msg);
+                    ignore logger.err(this, "ChallengeService.verify: " # msg);
                 };
             };
         };

@@ -27,6 +27,7 @@ import PlaceService "../places/service";
 import DaoService "../dao/service";
 import PoapService "../poap/service";
 import NotificationService "../notifications/service";
+import Logger "../../logger/logger";
 import D "mo:base/Debug";
 
 module {
@@ -42,7 +43,8 @@ module {
         updateService: UpdateService.Service,
         placeService: PlaceService.Service,
         poapService: PoapService.Service,
-        notificationService: NotificationService.Service
+        notificationService: NotificationService.Service, 
+        logger: Logger.Logger
     ) {
         let campaignRepo = campaignService.getRepository();
         let userRepo = userService.getRepository();
@@ -129,8 +131,9 @@ module {
         public func update(
             id: Text, 
             req: Types.ReportRequest,
-            invoker: Principal
-        ): Result.Result<Types.Report, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Report, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -158,6 +161,8 @@ module {
                                             e.state != Types.STATE_ASSIGNED) {
                                             return #err("Invalid state");
                                         };
+                                        
+                                        ignore logger.info(this, "Report " # e.pubId # " updated by " # caller.pubId);
                                         repo.update(e, req, caller._id);
                                     };
                                 };
@@ -171,7 +176,8 @@ module {
         public func close(
             id: Text, 
             req: Types.ReportCloseRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Report, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -217,8 +223,9 @@ module {
                                     };
                                     case (#ok(reporter)) {
                                         let reportReward = daoService.config.getAsNat64("REPORTER_REWARD");
-                                        ignore await daoService.rewardUser(Principal.fromText(reporter.principal), reportReward);
+                                        ignore await daoService.rewardUser(Principal.fromText(reporter.principal), reportReward, this);
 
+                                        ignore logger.info(this, "User " # reporter.pubId # " received a reward because his report was accepted");
                                         ignore notificationService.create({
                                             title = "Reward received";
                                             body = "You received " # Utils.e8sToDecimal(reportReward) # " MMT as reward for your report!";
@@ -234,8 +241,9 @@ module {
                             };
 
                             let modReward = daoService.config.getAsNat64("MODERATOR_REWARD");
-                            ignore await daoService.rewardUser(invoker, modReward);
+                            ignore await daoService.rewardUser(invoker, modReward, this);
 
+                            ignore logger.info(this, "Moderator " # caller.pubId # " received a reward because he moderated a report");
                             ignore notificationService.create({
                                 title = "Reward received";
                                 body = "You received " # Utils.e8sToDecimal(modReward) # " MMT as reward for your moderation!";
@@ -336,13 +344,14 @@ module {
         };
 
         public func verify(
-        ): () {
+            this: actor {}
+        ): async () {
             let dueAt = Time.now() + daoService.config.getAsInt("REPORT_MODERATING_SPAN");
 
             switch(repo.findDue(100)) {
                 case (#ok(reports)) {
                     if(reports.size() > 0) {
-                        D.print("Info: ReportService.verify: Selecting new moderator for " # Nat.toText(reports.size()) # " reports");
+                        ignore logger.info(this, "ReportService.verify: Selecting new moderator for " # Nat.toText(reports.size()) # " reports");
                         for(report in reports.vals()) {
                             _selectNewModerator(report, dueAt);
                             _punishModerator(report.assignedTo);
@@ -350,7 +359,7 @@ module {
                     };
                 };
                 case (#err(msg)) {
-                    D.print("Error: ReportService.verify: " # msg);
+                    ignore logger.err(this, "ReportService.verify: " # msg);
                 };
             };
         };

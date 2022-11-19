@@ -10,10 +10,12 @@ import DIP20 "../interfaces/dip20";
 import Types "./types";
 import UserTypes "../users/types";
 import Config "./config";
+import Logger "../../logger/logger";
 
 module {
     public class Service(
-        mmtCanisterId: Text
+        mmtCanisterId: Text,
+        logger: Logger.Logger
     ) {
         public let config = Config.Config();
         public let mmt = actor (mmtCanisterId) : DIP20.Interface;
@@ -71,7 +73,8 @@ module {
 
         public func rewardUser(
             principal: Principal,
-            value: Nat64
+            value: Nat64, 
+            this: actor {}
         ): async Result.Result<(), Text> {
             try {
                 switch(await mmt.transfer(
@@ -79,7 +82,7 @@ module {
                     Nat64.toNat(value))
                 ) {
                     case (#Err(e)) {
-                        D.print("Error: daoService.rewardUser(" # debug_show(principal) # "):" # debug_show(e));
+                        ignore logger.err(this, "DaoService.rewardUser(" # debug_show(principal) # "):" # debug_show(e));
                         #err(debug_show(e));
                     };
                     case _ {
@@ -88,7 +91,7 @@ module {
                 };
             }
             catch(e) {
-                D.print("Error: daoService.rewardUser(" # debug_show(principal) # "):" # Error.message(e));
+                ignore logger.err(this, "DaoService.rewardUser(" # debug_show(principal) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -134,7 +137,7 @@ module {
                 #ok();
             }
             catch(e) {
-                D.print("Error: daoService.stake(" # debug_show(invoker) # "):" # Error.message(e));
+                ignore logger.err(this, "DaoService.stake(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -173,7 +176,7 @@ module {
                 #ok();
             }
             catch(e) {
-                D.print("Error: daoService.unstake(" # debug_show(invoker) # "):" # Error.message(e));
+                ignore logger.err(this, "DaoService.unstake(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -240,7 +243,7 @@ module {
                 #ok();
             }
             catch(e) {
-                D.print("Error: daoService.deposit(" # debug_show(invoker) # "):" # Error.message(e));
+                ignore logger.err(this, "DaoService.deposit(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -279,7 +282,7 @@ module {
                 #ok();
             }
             catch(e) {
-                D.print("Error: daoService.reimburse(" # debug_show(invoker) # "):" # Error.message(e));
+                ignore logger.err(this, "DaoService.reimburse(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };

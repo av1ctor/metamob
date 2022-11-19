@@ -7,10 +7,12 @@ import Repository "./repository";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
+import Logger "../../logger/logger";
 
 module {
     public class Service(
-        userService: UserService.Service
+        userService: UserService.Service, 
+        logger: Logger.Logger
     ) {
         let repo = Repository.Repository();
 
@@ -36,8 +38,9 @@ module {
         public func update(
             id: Text, 
             req: Types.CategoryRequest,
-            invoker: Principal
-        ): Result.Result<Types.Category, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Category, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -52,6 +55,7 @@ module {
                                 return #err(msg);
                             };
                             case (#ok(category)) {
+                                ignore logger.info(this, "Category " # category.pubId # " was updated by " # caller.pubId);
                                 repo.update(category, req, caller._id);
                             };
                         };
@@ -103,8 +107,9 @@ module {
 
         public func delete(
             id: Text,
-            invoker: Principal
-        ): Result.Result<(), Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -119,6 +124,7 @@ module {
                                 return #err(msg);
                             };
                             case (#ok(category)) {
+                                ignore logger.info(this, "Category " # category.pubId # " was deleted by " # caller.pubId);
                                 repo.delete(category);
                             };
                         };

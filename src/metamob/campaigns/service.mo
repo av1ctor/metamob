@@ -211,13 +211,13 @@ module {
                                         
                                         switch(res) {
                                             case(#ok(e)) {
-                                                ignore logger.info(this, "Campaign " # e.pubId # " updated by " # caller.pubId);
+                                                ignore logger.info(this, "Campaign " # campaign.pubId # " updated by " # caller.pubId);
+                                                #ok(e);
                                             };
-                                            case _ {
+                                            case (#err(msg)) {
+                                                #err(msg);
                                             };
                                         };
-
-                                        res;
                                     };
                                 };
                             };
@@ -231,8 +231,9 @@ module {
             id: Text, 
             req: Types.CampaignRequest,
             mod: ModerationTypes.ModerationRequest,
-            invoker: Principal
-        ): Result.Result<Types.Campaign, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -275,9 +276,8 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
-                                                repo.moderate(
-                                                    campaign, req, moderation, caller._id
-                                                );
+                                                ignore logger.info(this, "Campaign " # campaign.pubId # " moderated by " # caller.pubId);
+                                                repo.moderate(campaign, req, moderation, caller._id);
                                             };
                                         };
                                     };
@@ -387,6 +387,7 @@ module {
                 Account.defaultSubaccount()
             );
 
+            ignore logger.info(this, "Transfering " # Nat64.toText(balance) # " ICP from Campaign " # campaign.pubId  # " to " # action.receiver);
             await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
                 campaign, 
                 balance, 
@@ -502,19 +503,19 @@ module {
                                                     campaign, amount, Types.REFUND_TAX, to, app, 1
                                                 )) {
                                                     case (#err(msg)) {
-                                                        D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # msg);
+                                                        ignore logger.err(this, "CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # msg);
                                                     };
                                                     case _ {
                                                     };
                                                 };
                                             };
                                             case _ {
-                                                D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): user not found");
+                                                ignore logger.err(this, "CampaignService.refundFunders(" # Nat32.toText(e._id) # "): user not found");
                                             };
                                         };
                                     }
                                     catch(error: Error) {
-                                        D.print("Error: CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # Error.message(error));
+                                        ignore logger.err(this, "CampaignService.refundFunders(" # Nat32.toText(e._id) # "): " # Error.message(error));
                                     };
                                 };
                             };
@@ -605,14 +606,21 @@ module {
                                     #err(msg);
                                 };
                                 case (#ok(_)) {
-                                    let res = repo.boost(campaign, Nat64.toNat(value));
-
-                                    ignore notificationService.create({
-                                        title = "Campaign promoted";
-                                        body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") was promoted with **" # Utils.e8sToDecimal(value) # " ICP**!";
-                                    }, campaign.createdBy);
-
-                                    res;
+                                    switch(repo.boost(campaign, Nat64.toNat(value))) {
+                                        case (#ok(e)) {
+                                            ignore logger.info(this, "Campaign " # campaign.pubId # " promoted by with " # Utils.e8sToDecimal(value) # " ICP by " # caller.pubId);
+                                            
+                                            ignore notificationService.create({
+                                                title = "Campaign promoted";
+                                                body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") was promoted with **" # Utils.e8sToDecimal(value) # " ICP**!";
+                                            }, campaign.createdBy);
+                                            
+                                            #ok(e);
+                                        };
+                                        case (#err(msg)) {
+                                            #err(msg);
+                                        };
+                                    };
                                 };
                             };
                         };
@@ -693,7 +701,8 @@ module {
 
         public func delete(
             id: Text,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -718,6 +727,7 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
+                                        ignore logger.info(this, "Campaign " # campaign.pubId # " deleted by " # caller.pubId);
                                         repo.delete(campaign, caller._id);
                                     };
                                 };
@@ -745,7 +755,7 @@ module {
             switch(repo.findExpired(100)) {
                 case (#ok(campaigns)) {
                     if(campaigns.size() > 0) {
-                        D.print("Info: CampaignService.verify: Finishing " # Nat.toText(campaigns.size()) # " expired campaigns");
+                        ignore logger.info(this, "CampaignService.verify: Finishing " # Nat.toText(campaigns.size()) # " expired campaigns");
                         for(campaign in campaigns.vals()) {
                             // note: super admin should always have id = 1
                             ignore repo.finish(campaign, Types.RESULT_NOK, 1);
@@ -762,7 +772,7 @@ module {
                     };
                 };
                 case (#err(msg)) {
-                    D.print("Error: CampaignService.verify: " # msg);
+                    ignore logger.err(this, "CampaignService.verify: " # msg);
                 };
             };
         };

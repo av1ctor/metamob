@@ -206,15 +206,8 @@ module {
                                                     return #err("Invalid field: value");
                                                 };
                                                 
-                                                switch(repo.update(entity, req, caller._id)) {
-                                                    case(#ok(e)) {
-                                                        ignore logger.info(this, "Donation " # entity.pubId # " was updated by " # caller.pubId);
-                                                        #ok(e);
-                                                    };
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                };
+                                                ignore logger.info(this, "Donation " # entity.pubId # " was updated by " # caller.pubId);
+                                                repo.update(entity, req, caller._id);
                                             };
                                         };
                                     };
@@ -262,15 +255,8 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
-                                                switch(repo.moderate(entity, req, moderation, caller._id)) {
-                                                    case(#ok(e)) {
-                                                        ignore logger.info(this, "Donation " # entity.pubId # " was moderated by " # caller.pubId);
-                                                        #ok(e);
-                                                    };
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                };
+                                                ignore logger.info(this, "Donation " # entity.pubId # " was moderated by " # caller.pubId);
+                                                repo.moderate(entity, req, moderation, caller._id);
                                             };
                                         };
                                     };

@@ -40,6 +40,7 @@ import Table "mo:mo-table/table";
 import Variant "mo:mo-table/variant";
 import IC "../interfaces/IC";
 import Error "mo:base/Error";
+import Logger "../../logger/logger";
 import D "mo:base/Debug";
 import Wasm "./dip721_wasm";
 
@@ -55,7 +56,8 @@ module {
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository, 
-        ledgerUtils: LedgerUtils.LedgerUtils
+        ledgerUtils: LedgerUtils.LedgerUtils, 
+        logger: Logger.Logger
     ) {
         let ic: IC.ICActor = actor("aaaaa-aa");
         let repo = Repository.Repository();
@@ -146,7 +148,7 @@ module {
                 repo.create(req, Principal.toText(id.canister_id), caller._id);
             }
             catch(e) {
-                D.print("Error: poapService.create(" # debug_show(invoker) # "):" # Error.message(e));
+                ignore logger.err(this, "poapService.create(" # debug_show(invoker) # "):" # Error.message(e));
                 #err(Error.message(e));
             };
         };
@@ -154,7 +156,8 @@ module {
         public func update(
             id: Text, 
             req: Types.PoapRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Poap, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -188,7 +191,15 @@ module {
                                                     return #err("Invalid field: campaignId");
                                                 };
                                                 
-                                                repo.update(entity, req, caller._id);
+                                                switch(repo.update(entity, req, caller._id)) {
+                                                    case (#ok(e)) {
+                                                        ignore logger.info(this, "POAP " # entity.pubId # " updated by " # caller.pubId);
+                                                        #ok(e);
+                                                    };
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                };
                                             };
                                         };
                                     };
@@ -274,12 +285,12 @@ module {
                                                     };
                                                 };
 
-                                                return await _mintNFT(entity, campaign, caller);
+                                                return await _mintNFT(entity, campaign, caller, this);
                                             };
                                         };
                                     }
                                     catch(e) {
-                                        D.print("Error: poapService.mint(" # debug_show(invoker) # "):" # Error.message(e));
+                                        ignore logger.err(this, "poapService.mint(" # debug_show(invoker) # "):" # Error.message(e));
                                         return #err(Error.message(e));
                                     };
                                 };
@@ -392,7 +403,8 @@ module {
         func _mintNFT(
             poap: Types.Poap,
             campaign: CampaignTypes.Campaign,
-            caller: UserTypes.Profile
+            caller: UserTypes.Profile,
+            this: actor {}
         ): async Result.Result<Nat32, Text> {
             try {
                 let id = Nat32.toNat(poap.totalSupply);
@@ -421,7 +433,7 @@ module {
             }
             catch(e) {
                 _revertSupplyChange(poap._id);
-                D.print("Error: poapService._mintNft(" # caller.principal # "):" # Error.message(e));
+                ignore logger.err(this, "poapService._mintNft(" # caller.principal # "):" # Error.message(e));
                 return #err(Error.message(e));
             };
         };
@@ -430,8 +442,9 @@ module {
             id: Text, 
             req: Types.PoapRequest,
             mod: ModerationTypes.ModerationRequest,
-            invoker: Principal
-        ): Result.Result<Types.Poap, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Poap, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -470,9 +483,8 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
-                                                repo.moderate(
-                                                    poap, req, moderation, caller._id
-                                                );
+                                                ignore logger.info(this, "POAP " # poap.pubId # " moderated by " # caller.pubId);
+                                                repo.moderate(poap, req, moderation, caller._id);
                                             };
                                         };
                                     };
@@ -615,6 +627,7 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
+                                                ignore logger.info(this, "POAP " # entity.pubId # " was deleted by " # caller.pubId);
                                                 repo.delete(entity, caller._id);
                                             };
                                         };

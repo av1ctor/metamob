@@ -56,8 +56,9 @@ module {
 
         public func updateMe(
             req: Types.ProfileRequest,
-            invoker: Principal
-        ): Result.Result<Types.Profile, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -79,6 +80,7 @@ module {
                         };
                     };
                     
+                    ignore logger.info(this, "User " # caller.pubId # " updated");
                     repo.update(caller, req, caller._id);
                 };
             };
@@ -87,8 +89,9 @@ module {
         public func update(
             pubId: Text, 
             req: Types.ProfileRequest,
-            invoker: Principal
-        ): Result.Result<Types.Profile, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -112,6 +115,7 @@ module {
                         return #err("Forbidden: invalid fields");
                     };
 
+                    ignore logger.info(this, "User " # caller.pubId # " updated");
                     repo.update(caller, req, caller._id);
                 };
             };
@@ -121,8 +125,9 @@ module {
             pubId: Text, 
             req: Types.ProfileRequest,
             mod: ModerationTypes.ModerationRequest,
-            invoker: Principal
-        ): Result.Result<Types.Profile, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -157,6 +162,7 @@ module {
                                             #err(msg);
                                         };
                                         case (#ok(moderation)) {
+                                            ignore logger.info(this, "User " # entity.pubId # " moderated by " # caller.pubId);
                                             repo.moderate(entity, req, moderation, caller._id);
                                         };
                                     };
@@ -189,8 +195,9 @@ module {
         };
 
         public func signupAsModerator(
-            invoker: Principal
-        ): Result.Result<Types.Profile, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Profile, Text> {
             switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
@@ -214,6 +221,7 @@ module {
                         return #err("Your staked MMT's are not enough to become a moderator");
                     };
                     
+                    ignore logger.info(this, "User " # caller.pubId # " signed as moderator");
                     repo.update(
                         caller, 
                         {
@@ -371,7 +379,7 @@ module {
                         for(e in moderators.vals()) {
                             let staked = daoService.stakedBalanceOf(Principal.fromText(e.principal));
                             if(staked < minStaked) {
-                                D.print("Info: UserService.verify: removing moderator: " # Nat32.toText(e._id));
+                                ignore logger.info(this, "UserService.verify: removing moderator: " # Nat32.toText(e._id));
                                 ignore repo.update(
                                     e,
                                     {
@@ -390,7 +398,7 @@ module {
                     };
                 };
                 case (#err(msg)) {
-                    D.print("Error: UserService.verify: " # msg);
+                    ignore logger.err(this, "UserService.verify: " # msg);
                 };
             };
         };

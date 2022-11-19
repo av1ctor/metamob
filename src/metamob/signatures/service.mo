@@ -15,6 +15,7 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
+import Logger "../../logger/logger";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -23,7 +24,8 @@ module {
         campaignService: CampaignService.Service,
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
-        reportRepo: ReportRepository.Repository
+        reportRepo: ReportRepository.Repository,
+        logger: Logger.Logger
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
@@ -92,7 +94,8 @@ module {
         public func update(
             id: Text, 
             req: Types.SignatureRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -122,6 +125,7 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
+                                                ignore logger.info(this, "Signature " # entity.pubId # " was updated by " # caller.pubId);
                                                 repo.update(entity, req, caller._id);
                                             };
                                         };
@@ -138,8 +142,9 @@ module {
             id: Text, 
             req: Types.SignatureRequest,
             mod: ModerationTypes.ModerationRequest,
-            invoker: Principal
-        ): Result.Result<Types.Signature, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -165,6 +170,7 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
+                                                ignore logger.info(this, "Signature " # entity.pubId # " was moderated by " # caller.pubId);
                                                 repo.moderate(entity, req, moderation, caller._id);
                                             };
                                         };
@@ -279,7 +285,8 @@ module {
 
         public func delete(
             id: Text,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -309,6 +316,7 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
+                                                ignore logger.info(this, "Signature " # entity.pubId # " was deleted by " # caller.pubId);
                                                 repo.delete(entity, caller._id);
                                             };
                                         };

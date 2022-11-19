@@ -64,7 +64,7 @@ shared({caller = owner}) actor class Metamob(
     let reportRepo = ReportRepository.Repository();
 
     let daoService = DaoService.Service(
-        mmtCanisterId
+        mmtCanisterId, logger
     );
     let notificationService = NotificationService.Service(
         userRepo
@@ -85,16 +85,16 @@ shared({caller = owner}) actor class Metamob(
         userService, placeService
     );
     let categoryService = CategoryService.Service(
-        userService
+        userService, logger
     );
     let campaignService = CampaignService.Service(
         userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
     );
     let signatureService = SignatureService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo
+        userService, campaignService, placeService, moderationService, reportRepo, logger
     );
     let voteService = VoteService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo
+        userService, campaignService, placeService, moderationService, reportRepo, logger
     );
     let donationService = DonationService.Service(
         userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
@@ -103,19 +103,19 @@ shared({caller = owner}) actor class Metamob(
         userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
     );
     let updateService = UpdateService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo
+        userService, campaignService, placeService, moderationService, reportRepo, logger
     );
     let poapService = PoapService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, placeService, moderationService, reportRepo, ledgerUtils
+        donationService, placeService, moderationService, reportRepo, ledgerUtils, logger
     );
     let reportService = ReportService.Service(
-        reportRepo, daoService, userService, campaignService, signatureService, 
-        voteService, fundingService, donationService, updateService, placeService, poapService, notificationService
+        reportRepo, daoService, userService, campaignService, signatureService, voteService, 
+        fundingService, donationService, updateService, placeService, poapService, notificationService, logger
     );
     let challengeService = ChallengeService.Service(
-        daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, updateService, placeService, poapService, reportService, moderationService, notificationService
+        daoService, userService, campaignService, signatureService, voteService, fundingService, donationService, 
+        updateService, placeService, poapService, reportService, moderationService, notificationService, logger
     );
 
     //
@@ -174,14 +174,14 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func userUpdateMe(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(userService.updateMe(req, msg.caller));
+        _transformUserReponse(await userService.updateMe(req, msg.caller, this));
     };
 
     public shared(msg) func userUpdate(
         id: Text, 
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(userService.update(id, req, msg.caller));
+        _transformUserReponse(await userService.update(id, req, msg.caller, this));
     };
 
     public shared(msg) func userModerate(
@@ -189,12 +189,12 @@ shared({caller = owner}) actor class Metamob(
         req: UserTypes.ProfileRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(userService.moderate(id, req, mod, msg.caller));
+        _transformUserReponse(await userService.moderate(id, req, mod, msg.caller, this));
     };
 
     public shared(msg) func userSignupAsModerator(
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(userService.signupAsModerator(msg.caller));
+        _transformUserReponse(await userService.signupAsModerator(msg.caller, this));
     };
 
     public query func userFindById(
@@ -288,7 +288,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: CategoryTypes.CategoryRequest
     ): async Result.Result<CategoryTypes.Category, Text> {
-        categoryService.update(id, req, msg.caller);
+        await categoryService.update(id, req, msg.caller, this);
     };
 
     public query func categoryFindById(
@@ -316,7 +316,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func categoryDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        categoryService.delete(id, msg.caller);
+        await categoryService.delete(id, msg.caller, this);
     };
 
     //
@@ -340,7 +340,7 @@ shared({caller = owner}) actor class Metamob(
         req: CampaignTypes.CampaignRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
-        campaignService.moderate(pubId, req, mod, msg.caller);
+        await campaignService.moderate(pubId, req, mod, msg.caller, this);
     };
 
     public shared(msg) func campaignBoost(
@@ -397,7 +397,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func campaignDelete(
         pubId: Text
     ): async Result.Result<(), Text> {
-        await campaignService.delete(pubId, msg.caller);
+        await campaignService.delete(pubId, msg.caller, this);
     };
 
     //
@@ -413,7 +413,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: SignatureTypes.SignatureRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponse(await signatureService.update(id, req, msg.caller), false);
+        _transformSignatureResponse(await signatureService.update(id, req, msg.caller, this), false);
     };
 
     public shared(msg) func signatureModerate(
@@ -421,7 +421,7 @@ shared({caller = owner}) actor class Metamob(
         req: SignatureTypes.SignatureRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<SignatureTypes.SignatureResponse, Text> {
-        _transformSignatureResponse(signatureService.moderate(id, req, mod, msg.caller), false);
+        _transformSignatureResponse(await signatureService.moderate(id, req, mod, msg.caller, this), false);
     };
 
     public shared query(msg) func signatureFindById(
@@ -475,7 +475,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func signatureDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        await signatureService.delete(id, msg.caller);
+        await signatureService.delete(id, msg.caller, this);
     };
 
     func _redactSignature(
@@ -557,7 +557,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: VoteTypes.VoteRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponse(await voteService.update(id, req, msg.caller), false);
+        _transformVoteResponse(await voteService.update(id, req, msg.caller, this), false);
     };
 
     public shared(msg) func voteModerate(
@@ -565,7 +565,7 @@ shared({caller = owner}) actor class Metamob(
         req: VoteTypes.VoteRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<VoteTypes.VoteResponse, Text> {
-        _transformVoteResponse(voteService.moderate(id, req, mod, msg.caller), false);
+        _transformVoteResponse(await voteService.moderate(id, req, mod, msg.caller, this), false);
     };
 
     public shared query(msg) func voteFindById(
@@ -619,7 +619,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func voteDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        await voteService.delete(id, msg.caller);
+        await voteService.delete(id, msg.caller, this);
     };
 
     func _redactVote(
@@ -1024,7 +1024,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: UpdateTypes.UpdateRequest
     ): async Result.Result<UpdateTypes.Update, Text> {
-        await updateService.update(id, req, msg.caller);
+        await updateService.update(id, req, msg.caller, this);
     };
 
     public shared(msg) func updateModerate(
@@ -1032,7 +1032,7 @@ shared({caller = owner}) actor class Metamob(
         req: UpdateTypes.UpdateRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<UpdateTypes.Update, Text> {
-        updateService.moderate(id, req, mod, msg.caller);
+        await updateService.moderate(id, req, mod, msg.caller, this);
     };
 
     public shared query(msg) func updateFindById(
@@ -1079,7 +1079,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func updateDelete(
         id: Text
     ): async Result.Result<(), Text> {
-        await updateService.delete(id, msg.caller);
+        await updateService.delete(id, msg.caller, this);
     };   
     
     //
@@ -1095,14 +1095,14 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: ReportTypes.ReportRequest
     ): async Result.Result<ReportTypes.ReportResponse, Text> {
-        _transformReportResponse(reportService.update(id, req, msg.caller), false);
+        _transformReportResponse(await reportService.update(id, req, msg.caller, this), false);
     };
 
     public shared(msg) func reportClose(
         id: Text, 
         req: ReportTypes.ReportCloseRequest
     ): async Result.Result<ReportTypes.ReportResponse, Text> {
-        _transformReportResponse(await reportService.close(id, req, msg.caller), false);
+        _transformReportResponse(await reportService.close(id, req, msg.caller, this), false);
     };
 
     public shared query(msg) func reportFindById(
@@ -1319,7 +1319,7 @@ shared({caller = owner}) actor class Metamob(
         pubId: Text,
         req: ChallengeTypes.ChallengeRequest
     ): async Result.Result<ChallengeTypes.Challenge, Text> {
-        challengeService.update(pubId, req, msg.caller);
+        await challengeService.update(pubId, req, msg.caller, this);
     };
 
     public shared(msg) func challengeVote(
@@ -1483,7 +1483,7 @@ shared({caller = owner}) actor class Metamob(
         pubId: Text,
         req: PoapTypes.PoapRequest
     ): async Result.Result<PoapTypes.Poap, Text> {
-        await poapService.update(pubId, req, msg.caller);
+        await poapService.update(pubId, req, msg.caller, this);
     };
 
     public shared(msg) func poapModerate(
@@ -1491,7 +1491,7 @@ shared({caller = owner}) actor class Metamob(
         req: PoapTypes.PoapRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<PoapTypes.Poap, Text> {
-        poapService.moderate(id, req, mod, msg.caller);
+        await poapService.moderate(id, req, mod, msg.caller, this);
     };
 
     public shared query(msg) func poapFindById(
@@ -1690,8 +1690,8 @@ shared({caller = owner}) actor class Metamob(
             try {
                 await userService.verify(this);
                 await campaignService.verify(this);
-                reportService.verify();
-                challengeService.verify();
+                await reportService.verify(this);
+                await challengeService.verify(this);
             }
             catch(e) {
             };
