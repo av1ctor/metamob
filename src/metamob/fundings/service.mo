@@ -25,6 +25,7 @@ import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import NotificationService "../notifications/service";
+import Logger "../../logger/logger";
 import Variant "mo:mo-table/variant";
 
 module {
@@ -35,7 +36,8 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,         
         notificationService: NotificationService.Service,
-        ledgerUtils: LedgerUtils.LedgerUtils
+        ledgerUtils: LedgerUtils.LedgerUtils, 
+        logger: Logger.Logger
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
         let campaignRepo = campaignService.getRepository();
@@ -168,12 +170,20 @@ module {
                                                     };
                                                 };
 
-                                                ignore notificationService.create({
-                                                   title = "Fundraising received";
-                                                   body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a fundraising amounting **" # Utils.e8sToDecimal(value) # "** ICP!";
-                                                }, campaign.createdBy);
+                                                switch(res) {
+                                                    case(#ok(e)) {
+                                                        ignore notificationService.create({
+                                                        title = "Fundraising received";
+                                                        body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a fundraising amounting **" # Utils.e8sToDecimal(value) # "** ICP!";
+                                                        }, campaign.createdBy);
 
-                                                res;
+                                                        ignore logger.info(this, "Campaign " # campaign.pubId # " received a fundraising amounting " #  Utils.e8sToDecimal(value) # " ICP by " # caller.pubId);
+                                                        #ok(e);
+                                                    };
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                };
                                             };
                                         };
                                     };
@@ -188,7 +198,8 @@ module {
         public func update(
             id: Text, 
             req: Types.FundingRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Funding, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -223,7 +234,15 @@ module {
                                                     return #err("Invalid field: value");
                                                 };
                                                 
-                                                repo.update(entity, req, caller._id);
+                                                switch(repo.update(entity, req, caller._id)) {
+                                                    case(#ok(e)) {
+                                                        ignore logger.info(this, "Fundraising " # entity.pubId # " was updated by " # caller.pubId);
+                                                        #ok(e);
+                                                    };
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                };
                                             };
                                         };
                                     };
@@ -239,8 +258,9 @@ module {
             id: Text, 
             req: Types.FundingRequest,
             mod: ModerationTypes.ModerationRequest,
-            invoker: Principal
-        ): Result.Result<Types.Funding, Text> {
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Funding, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -271,7 +291,15 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(moderation)) {
-                                                repo.moderate(entity, req, moderation, caller._id);
+                                                switch(repo.moderate(entity, req, moderation, caller._id)) {
+                                                    case(#ok(e)) {
+                                                        ignore logger.info(this, "Fundraising " # entity.pubId # " was moderated by " # caller.pubId);
+                                                        #ok(e);
+                                                    };
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
+                                                };
                                             };
                                         };    
                                     };
@@ -337,7 +365,7 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
-                                                if(entity.state == Types.STATE_COMPLETED) {
+                                                let res = if(entity.state == Types.STATE_COMPLETED) {
                                                     let amount = Nat64.fromNat(entity.value - (LedgerUtils.icp_fee * 2));
                                                     switch(repo.delete(entity, caller._id)) {
                                                         case (#err(msg)) {
@@ -371,6 +399,16 @@ module {
                                                 }
                                                 else {
                                                     repo.delete(entity, caller._id);
+                                                };
+
+                                                switch(res) {
+                                                    case(#ok()) {
+                                                        ignore logger.info(this, "Fundrasing " # entity.pubId # " was deleted by " # caller.pubId);
+                                                        #ok();
+                                                    };
+                                                    case (#err(msg)) {
+                                                        #err(msg);
+                                                    };
                                                 };
                                             };
                                         };

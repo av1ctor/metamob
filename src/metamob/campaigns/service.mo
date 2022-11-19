@@ -184,8 +184,6 @@ module {
                                                             return #err(msg);
                                                         };
                                                         case(#ok(e)) {
-                                                            ignore logger.info(this, "Campaign " # e.pubId # " updated by " # caller.pubId);
-                                                            
                                                             if(e.kind != Types.KIND_FUNDING) {
                                                                 switch(await finishAndRunAction(
                                                                         e, Types.RESULT_OK, caller, this)) {
@@ -210,6 +208,15 @@ module {
                                                 };
                                             };
                                         };
+                                        
+                                        switch(res) {
+                                            case(#ok(e)) {
+                                                ignore logger.info(this, "Campaign " # e.pubId # " updated by " # caller.pubId);
+                                            };
+                                            case _ {
+                                            };
+                                        };
+
                                         res;
                                     };
                                 };

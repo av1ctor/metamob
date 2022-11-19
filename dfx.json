@@ -1,17 +1,5 @@
 {
   "canisters": {
-    "ledger": {
-      "type": "custom",
-      "wasm": "ledger.wasm",
-      "candid": "ledger.public.did",
-      "build": "",
-      "remote": {
-        "candid": "ledger.public.did",
-        "id": {
-          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-        }
-      }
-    },
     "metamob": {
       "main": "src/metamob/facade.mo",
       "type": "motoko"
@@ -26,14 +14,30 @@
       ],
       "type": "assets"
     },
+    "ledger": {
+      "type": "custom",
+      "wasm": "ledger.wasm",
+      "candid": "ledger.public.did",
+      "build": "",
+      "remote": {
+        "candid": "ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
+    },
     "mmt": {
       "main": "src/mmt/token.mo",
+      "type": "motoko"
+    },
+    "logger": {
+      "main": "src/logger/logger.mo",
       "type": "motoko"
     }
   },
   "defaults": {
     "build": {
-      "args": "",
+      "args": "--max-stable-pages=524288",
       "packtool": "vessel sources"
     },
     "replica": {

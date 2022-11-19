@@ -1,3 +1,5 @@
+import Array "mo:base/Array";
+import Option "mo:base/Option";
 import Buffer "mo:base/Buffer";
 import Text "mo:base/Text";
 import Principal "mo:base/Principal";
@@ -10,8 +12,10 @@ import List "mo:base/List";
 import Time "mo:base/Time";
 import Salloc "./salloc";
 import Types "./types";
+import D "mo:base/Debug";
 
 shared(creator) actor class Logger(
+    allowedCanisters: [Principal]
 ) = this {
 
     type SizedBlob = {
@@ -34,10 +38,11 @@ shared(creator) actor class Logger(
     let salloc = Salloc.Salloc();
     
     public query func find(
+        offset: Nat32,
         size: Nat32
     ): async [Types.Msg] {
         let res = Buffer.Buffer<Types.Msg>(Nat32.toNat(size));
-        var nodes = List.take(msgList, Nat32.toNat(size));
+        var nodes = List.take(List.drop(msgList, Nat32.toNat(offset)), Nat32.toNat(size));
         for(node in List.toIter(nodes)) {
             let msg = _loadMsg(node.offset);
             res.add(msg);
@@ -48,23 +53,41 @@ shared(creator) actor class Logger(
     
     public shared(msg) func err(
         act: actor {},
-        msg: Text
+        text: Text
     ): async () {
-        ignore _storeMsg(Types.MSG_KIND_ERROR, act, msg);
+        if(not _checkPermission(msg.caller)) {
+            D.print("Forbidden");
+            return;
+        };
+        ignore _storeMsg(Types.MSG_KIND_ERROR, act, text);
     };
 
     public shared(msg) func warn(
         act: actor {},
-        msg: Text
+        text: Text
     ): async () {
-        ignore _storeMsg(Types.MSG_KIND_WARN, act, msg);
+        if(not _checkPermission(msg.caller)) {
+            D.print("Forbidden");
+            return;
+        };
+        ignore _storeMsg(Types.MSG_KIND_WARN, act, text);
     };
 
     public shared(msg) func info(
         act: actor {},
-        msg: Text
+        text: Text
     ): async () {
-        ignore _storeMsg(Types.MSG_KIND_INFO, act, msg);
+        if(not _checkPermission(msg.caller)) {
+            D.print("Forbidden");
+            return;
+        };
+        ignore _storeMsg(Types.MSG_KIND_INFO, act, text);
+    };
+
+    func _checkPermission(
+        caller: Principal
+    ): Bool {
+        Option.isSome(Array.find<Principal>(allowedCanisters, func (p: Principal) = Principal.equal(p, caller)))
     };
 
     func _storeMsg(
@@ -76,7 +99,7 @@ shared(creator) actor class Logger(
         let blobMsg = Text.encodeUtf8(msg);
 
         let sm: StoredMsg = {
-            kind = Types.MSG_KIND_ERROR;
+            kind = kind;
             act = {
                 size = Nat32.fromNat(blobActor.size());
                 blob = blobActor;

@@ -97,10 +97,10 @@ shared({caller = owner}) actor class Metamob(
         userService, campaignService, placeService, moderationService, reportRepo
     );
     let donationService = DonationService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
+        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
     );
     let fundingService = FundingService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils
+        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
     );
     let updateService = UpdateService.Service(
         userService, campaignService, placeService, moderationService, reportRepo
@@ -711,7 +711,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponse(await donationService.update(id, req, msg.caller), false);
+        _transformDonationResponse(await donationService.update(id, req, msg.caller, this), false);
     };
 
     public shared(msg) func donationModerate(
@@ -719,7 +719,7 @@ shared({caller = owner}) actor class Metamob(
         req: DonationTypes.DonationRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponse(donationService.moderate(id, req, mod, msg.caller), false);
+        _transformDonationResponse(await donationService.moderate(id, req, mod, msg.caller, this), false);
     };
 
     public shared query(msg) func donationFindById(
@@ -865,7 +865,7 @@ shared({caller = owner}) actor class Metamob(
         id: Text, 
         req: FundingTypes.FundingRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponse(await fundingService.update(id, req, msg.caller), false);
+        _transformFundingResponse(await fundingService.update(id, req, msg.caller, this), false);
     };
 
     public shared(msg) func fundingModerate(
@@ -873,7 +873,7 @@ shared({caller = owner}) actor class Metamob(
         req: FundingTypes.FundingRequest,
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponse(fundingService.moderate(id, req, mod, msg.caller), false);
+        _transformFundingResponse(await fundingService.moderate(id, req, mod, msg.caller, this), false);
     };
 
     public shared query(msg) func fundingFindById(

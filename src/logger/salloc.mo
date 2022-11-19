@@ -1,9 +1,14 @@
+// Simple stable memory manager
+// Copyright 2022 by André Vicentini (https://github.com/av1ctor)
+// Released under the MIT license
+
 import Buffer "mo:base/Buffer";
 import Option "mo:base/Option";
 import Nat64 "mo:base/Nat64";
 import Nat32 "mo:base/Nat32";
 import Result "mo:base/Result";
 import SM "mo:base/ExperimentalStableMemory";
+import D "mo:base/Debug";
 
 module {
     public type Pointer = Nat64;
@@ -55,7 +60,7 @@ module {
                 case null {
                     switch(_mergeAndFindFreeBlock(size)) {
                         case null {
-                            let pages = ((size + STORED_BLOCK_SIZE) + PAGE_SIZE/2) / PAGE_SIZE;
+                            let pages = ((size + STORED_BLOCK_SIZE) / PAGE_SIZE) + (if((size + STORED_BLOCK_SIZE) % PAGE_SIZE > 0) 1 else 0);
                             let last = SM.grow(pages);
                             if(last == INVALID) {
                                 return #err("Stable memory full");
