@@ -66,6 +66,12 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### deploy the metamob token:
 - Run: ./scripts/deploy-mmt.sh
 
+### deploy the logger:
+- Run: ./scripts/deploy-logger.sh
+
+### deploy the file store:
+- Run: ./scripts/deploy-filestore.sh
+
 ### deploy metamob backend:
 - Run: npm run dev:back
 
