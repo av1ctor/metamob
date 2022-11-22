@@ -6,6 +6,7 @@ interface Props {
     name?: string;
     label?: string;
     value?: string;
+    accept?: string;
     children?: any;
     onDrop?: (files: FileList, id?: string, name?: string) => void;
 };
@@ -56,7 +57,7 @@ const FileDropArea = (props: Props) => {
                 <div className="message">
                     <input 
                         type="file"  
-                        accept=".svg,image/svg+xml"
+                        accept={props.accept}
                         onChange={handleFileSelected}
                     />
                     <br/>

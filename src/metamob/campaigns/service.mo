@@ -1,3 +1,5 @@
+import Iter "mo:base/Iter";
+import Text "mo:base/Text";
 import Utils "../common/utils";
 import Account "../accounts/account";
 import Array "mo:base/Array";
@@ -25,6 +27,7 @@ import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import NotificationService "../notifications/service";
+import FileStoreHelper "../common/filestore";
 import Logger "../../logger/logger";
 import Variant "mo:mo-table/variant";
 
@@ -35,7 +38,8 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
         notificationService: NotificationService.Service, 
-        ledgerUtils: LedgerUtils.LedgerUtils, 
+        ledgerUtils: LedgerUtils.LedgerUtils,
+        fileStoreHelper: FileStoreHelper.FileStoreHelper,
         logger: Logger.Logger
     ) {
         let repo = Repository.Repository();
@@ -43,10 +47,11 @@ module {
         let placeRepo = placeService.getRepository();
         var fundingRepo: ?FundingRepository.Repository = null;
 
-        public func create(
+        func _create(
             req: Types.CampaignRequest,
             invoker: Principal,
-            this: actor {}
+            this: actor {},
+            cb: (req: Types.CampaignRequest, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -102,15 +107,7 @@ module {
                                     };
                                 };
                                 
-                                switch(repo.create(req, caller._id)) {
-                                    case (#ok(e)) {
-                                        ignore logger.info(this, "Campaign " # e.pubId # " created by " # caller.pubId);
-                                        #ok(e);
-                                    };
-                                    case (#err(msg)) {
-                                        #err(msg);
-                                    };
-                                };
+                                await cb(req, caller);
                             };
                         };
                     };
@@ -118,11 +115,81 @@ module {
             };
         };
 
-        public func update(
-            id: Text, 
+        public func create(
             req: Types.CampaignRequest,
             invoker: Principal,
             this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            await _create(
+                req,
+                invoker,
+                this,
+                func(
+                    req: Types.CampaignRequest, 
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    switch(repo.create(req, caller._id)) {
+                        case (#ok(e)) {
+                            ignore logger.info(this, "Campaign " # e.pubId # " created by " # caller.pubId);
+                            #ok(e);
+                        };
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                    };
+                }
+            );
+        };
+
+        public func createWithFile(
+            req: Types.CampaignRequest,
+            file: FileStoreHelper.FileRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            switch(fileStoreHelper.checkFileRequest(file)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                };
+            };
+            
+            await _create(
+                req,
+                invoker,
+                this,
+                func(
+                    req: Types.CampaignRequest, 
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    switch(await fileStoreHelper.create(file)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(fileId)) {
+                            switch(repo.createWithCover(req, fileId, caller._id)) {
+                                case (#ok(e)) {
+                                    ignore logger.info(this, "Campaign " # e.pubId # " created by " # caller.pubId);
+                                    #ok(e);
+                                };
+                                case (#err(msg)) {
+                                    #err(msg);
+                                };
+                            };
+                        };
+                    };
+                    
+                }
+            );
+        };
+
+        func _update(
+            id: Text, 
+            req: Types.CampaignRequest,
+            invoker: Principal,
+            this: actor {},
+            cb: (campaign: Types.Campaign, req: Types.CampaignRequest, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -175,49 +242,7 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
-                                        let res = repo.update(campaign, req, caller._id);
-                                        if(campaign.goal != req.goal) {
-                                            if(req.goal > 0) {
-                                                if(campaign.total >= req.goal) {
-                                                    switch(res) {
-                                                        case (#err(msg)) {
-                                                            return #err(msg);
-                                                        };
-                                                        case(#ok(e)) {
-                                                            if(e.kind != Types.KIND_FUNDING) {
-                                                                switch(await finishAndRunAction(
-                                                                        e, Types.RESULT_OK, caller, this)) {
-                                                                    case (#err(msg)) {
-                                                                        return #err(msg);
-                                                                    };
-                                                                    case _ {
-                                                                    };
-                                                                };
-                                                            }
-                                                            else {
-                                                                switch(await startBuildingAndRunAction(e, caller, this)) {
-                                                                    case (#err(msg)) {
-                                                                        return #err(msg);
-                                                                    };
-                                                                    case _ {
-                                                                    };
-                                                                };
-                                                            };
-                                                        };
-                                                    };
-                                                };
-                                            };
-                                        };
-                                        
-                                        switch(res) {
-                                            case(#ok(e)) {
-                                                ignore logger.info(this, "Campaign " # campaign.pubId # " updated by " # caller.pubId);
-                                                #ok(e);
-                                            };
-                                            case (#err(msg)) {
-                                                #err(msg);
-                                            };
-                                        };
+                                        await cb(campaign, req, caller);
                                     };
                                 };
                             };
@@ -227,12 +252,139 @@ module {
             };
         };
 
-        public func moderate(
+        func _checkGoal(
+            req: Types.CampaignRequest,
+            campaign: Types.Campaign,
+            updated: Types.Campaign,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            if(campaign.total >= req.goal) {
+                if(updated.kind != Types.KIND_FUNDING) {
+                    switch(await finishAndRunAction(
+                            updated, Types.RESULT_OK, caller, this)) {
+                        case (#err(msg)) {
+                            return #err(msg);
+                        };
+                        case _ {
+                        };
+                    };
+                }
+                else {
+                    switch(await startBuildingAndRunAction(updated, caller, this)) {
+                        case (#err(msg)) {
+                            return #err(msg);
+                        };
+                        case _ {
+                        };
+                    };
+                };
+            };
+
+            #ok();
+        };
+
+        public func update(
+            id: Text, 
+            req: Types.CampaignRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            await _update(
+                id,
+                req,
+                invoker,
+                this,
+                func(
+                    campaign: Types.Campaign,
+                    req: Types.CampaignRequest, 
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    switch(repo.update(campaign, req, caller._id)) {
+                        case (#err(msg)) {
+                            return #err(msg);
+                        };
+                        case(#ok(e)) {
+                            if(campaign.goal != req.goal) {
+                                if(req.goal > 0) {
+                                    switch(await _checkGoal(req, campaign, e, caller, this)) {
+                                        case (#err(msg)) {
+                                            return #err(msg);
+                                        };
+                                        case _ {
+                                        };
+                                    };
+                                };
+                            };
+
+                            ignore logger.info(this, "Campaign " # campaign.pubId # " updated by " # caller.pubId);
+                            #ok(e);
+                        };
+                    };                    
+                }
+            );
+        };
+
+        public func updateWithFile(
+            id: Text, 
+            req: Types.CampaignRequest,
+            file: FileStoreHelper.FileRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            await _update(
+                id,
+                req,
+                invoker,
+                this,
+                func(
+                    campaign: Types.Campaign,
+                    req: Types.CampaignRequest, 
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    switch(await fileStoreHelper.create(file)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(fileId)) {
+                            switch(repo.updateWithCover(campaign, req, fileId, caller._id)) {
+                                case (#err(msg)) {
+                                    return #err(msg);
+                                };
+                                case(#ok(e)) {
+                                    if(fileStoreHelper.isId(campaign.cover)) {
+                                        ignore fileStoreHelper.delete(campaign.cover);
+                                    };
+
+                                    if(campaign.goal != req.goal) {
+                                        if(req.goal > 0) {
+                                            switch(await _checkGoal(req, campaign, e, caller, this)) {
+                                                case (#err(msg)) {
+                                                    return #err(msg);
+                                                };
+                                                case _ {
+                                                };
+                                            };
+                                        };
+                                    };
+
+                                    ignore logger.info(this, "Campaign " # campaign.pubId # " updated by " # caller.pubId);
+                                    #ok(e);
+                                };
+                            };                    
+                        };
+                    };
+                }
+            );
+        };
+
+        func _moderate(
             id: Text, 
             req: Types.CampaignRequest,
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
-            this: actor {}
+            this: actor {},
+            cb: (campaign: Types.Campaign, req: Types.CampaignRequest, mod: ModerationTypes.Moderation, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -277,7 +429,7 @@ module {
                                             };
                                             case (#ok(moderation)) {
                                                 ignore logger.info(this, "Campaign " # campaign.pubId # " moderated by " # caller.pubId);
-                                                repo.moderate(campaign, req, moderation, caller._id);
+                                                await cb(campaign, req, moderation, caller);
                                             };
                                         };
                                     };
@@ -289,9 +441,65 @@ module {
             };
         };
 
+        public func moderate(
+            id: Text, 
+            req: Types.CampaignRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            await _moderate(
+                id,
+                req,
+                mod,
+                invoker,
+                this,
+                func(
+                    campaign: Types.Campaign,
+                    req: Types.CampaignRequest, 
+                    mod: ModerationTypes.Moderation,
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    repo.moderate(campaign, req, mod, caller._id);
+                }
+            );
+        };
+
+        public func moderateWithFile(
+            id: Text, 
+            req: Types.CampaignRequest,
+            file: FileStoreHelper.FileRequest,
+            mod: ModerationTypes.ModerationRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Campaign, Text> {
+            await _moderate(
+                id,
+                req,
+                mod,
+                invoker,
+                this,
+                func(
+                    campaign: Types.Campaign,
+                    req: Types.CampaignRequest, 
+                    mod: ModerationTypes.Moderation,
+                    caller: UserTypes.Profile
+                ): async Result.Result<Types.Campaign, Text> {
+                    switch(await fileStoreHelper.create(file)) {
+                        case (#err(msg)) {
+                            #err(msg);
+                        };
+                        case (#ok(fileId)) {
+                            repo.moderateWithCover(campaign, req, fileId, mod, caller._id);
+                        };
+                    };
+                }
+            );
+        };
+
         public func revertModeration(
             mod: ModerationTypes.Moderation
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             switch(repo.findById(mod.entityId)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -302,6 +510,10 @@ module {
                             #err(msg);
                         };
                         case _ {
+                            if(fileStoreHelper.isId(entity.cover)) {
+                                ignore fileStoreHelper.delete(entity.cover);
+                            };
+
                             #ok()
                         };
                     };
@@ -728,6 +940,9 @@ module {
                                     };
                                     case _ {
                                         ignore logger.info(this, "Campaign " # campaign.pubId # " deleted by " # caller.pubId);
+                                        if(fileStoreHelper.isId(campaign.cover)) {
+                                            ignore fileStoreHelper.delete(campaign.cover);
+                                        };
                                         repo.delete(campaign, caller._id);
                                     };
                                 };

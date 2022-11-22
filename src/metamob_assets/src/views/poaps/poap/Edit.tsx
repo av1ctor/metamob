@@ -350,6 +350,7 @@ const EditForm = (props: Props) => {
                 <FileDropArea
                     label="Logo"
                     name="logo"
+                    accept=".svg,image/svg+xml"
                     onDrop={handleDrop} 
                 >
                     {form.logo && 
@@ -392,6 +393,7 @@ const EditForm = (props: Props) => {
                 <FileDropArea
                     label="Body"
                     name="body"
+                    accept=".svg,image/svg+xml"
                     onDrop={handleDrop} 
                 >
                     {form.body && 

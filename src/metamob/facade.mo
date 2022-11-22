@@ -47,17 +47,31 @@ import NotificationService "./notifications/service";
 import NotificationTypes "./notifications/types";
 import PoapService "./poap/service";
 import PoapTypes "./poap/types";
+import FileStoreHelper "./common/filestore";
 import Logger "../logger/logger";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
     mmtCanisterId: Text,
+    fileStoreCanisterId: Text,
     loggerCanisterId: Text
 ) = this {
+
+    public type FileRequest = FileStoreHelper.FileRequest;
 
     // helpers
     let ledgerUtils = LedgerUtils.LedgerUtils(ledgerCanisterId);
     let logger = actor (loggerCanisterId) : Logger.Logger;
+    let fileStoreHelper = FileStoreHelper.FileStoreHelper(
+        fileStoreCanisterId, 
+        1_048_576 /* 1MB */,
+        [
+            "image/gif",
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml"
+        ]
+    );
 
     // services
     let userRepo = UserRepository.Repository();
@@ -88,7 +102,7 @@ shared({caller = owner}) actor class Metamob(
         userService, logger
     );
     let campaignService = CampaignService.Service(
-        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
+        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, fileStoreHelper, logger
     );
     let signatureService = SignatureService.Service(
         userService, campaignService, placeService, moderationService, reportRepo, logger
@@ -328,11 +342,26 @@ shared({caller = owner}) actor class Metamob(
         await campaignService.create(req, msg.caller, this);
     };
 
+    public shared(msg) func campaignCreateWithFile(
+        req: CampaignTypes.CampaignRequest,
+        file: FileStoreHelper.FileRequest
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        await campaignService.createWithFile(req, file, msg.caller, this);
+    };
+
     public shared(msg) func campaignUpdate(
         pubId: Text, 
         req: CampaignTypes.CampaignRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
         await campaignService.update(pubId, req, msg.caller, this);
+    };
+
+    public shared(msg) func campaignUpdateWithFile(
+        pubId: Text, 
+        req: CampaignTypes.CampaignRequest,
+        file: FileStoreHelper.FileRequest
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        await campaignService.updateWithFile(pubId, req, file, msg.caller, this);
     };
 
     public shared(msg) func campaignModerate(
@@ -341,6 +370,15 @@ shared({caller = owner}) actor class Metamob(
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
         await campaignService.moderate(pubId, req, mod, msg.caller, this);
+    };
+
+    public shared(msg) func campaignModerateWithFile(
+        pubId: Text, 
+        req: CampaignTypes.CampaignRequest,
+        file: FileStoreHelper.FileRequest,
+        mod: ModerationTypes.ModerationRequest
+    ): async Result.Result<CampaignTypes.Campaign, Text> {
+        await campaignService.moderateWithFile(pubId, req, file, mod, msg.caller, this);
     };
 
     public shared(msg) func campaignBoost(

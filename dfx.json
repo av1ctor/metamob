@@ -33,6 +33,10 @@
     "logger": {
       "main": "src/logger/logger.mo",
       "type": "motoko"
+    },
+    "filestore": {
+      "main": "src/filestore/main.mo",
+      "type": "motoko"
     }
   },
   "defaults": {

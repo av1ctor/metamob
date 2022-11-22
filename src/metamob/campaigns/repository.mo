@@ -52,12 +52,45 @@ module {
             };
         };
 
+        public func createWithCover(
+            req: Types.CampaignRequest,
+            coverId: Text,
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _createEntityWithCover(req, coverId, callerId);
+            switch(campaigns.insert(e._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
         public func update(
             campaign: Types.Campaign, 
             req: Types.CampaignRequest,
             callerId: Nat32
         ): Result.Result<Types.Campaign, Text> {
             let e = _updateEntity(campaign, req, callerId);
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func updateWithCover(
+            campaign: Types.Campaign, 
+            req: Types.CampaignRequest,
+            coverId: Text,
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = _updateEntityWithCover(campaign, req, coverId, callerId);
             switch(campaigns.replace(campaign._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -137,6 +170,30 @@ module {
         ): Result.Result<Types.Campaign, Text> {
             let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
                 _updateEntityWhenModeratedAndRedacted(campaign, req, moderation.reason, callerId);
+            } 
+            else {
+                _updateEntityWhenModeratedAndFlagged(campaign, moderation.reason, callerId);
+            };
+
+            switch(campaigns.replace(campaign._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func moderateWithCover(
+            campaign: Types.Campaign,
+            req: Types.CampaignRequest, 
+            coverId: Text,
+            moderation: ModerationTypes.Moderation,
+            callerId: Nat32
+        ): Result.Result<Types.Campaign, Text> {
+            let e = if(moderation.action == ModerationTypes.ACTION_REDACTED) {
+                _updateEntityWhenModeratedAndRedactedWithCover(campaign, req, coverId, moderation.reason, callerId);
             } 
             else {
                 _updateEntityWhenModeratedAndFlagged(campaign, moderation.reason, callerId);
@@ -739,6 +796,18 @@ module {
             }
         };
 
+        func _createEntityWithCover(
+            req: Types.CampaignRequest,
+            cover: Text,
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _createEntity(req, callerId)
+                with
+                cover = cover;
+            }
+        };
+
         func _updateEntity(
             e: Types.Campaign, 
             req: Types.CampaignRequest,
@@ -765,6 +834,19 @@ module {
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
+        };
+
+        func _updateEntityWithCover(
+            e: Types.Campaign, 
+            req: Types.CampaignRequest,
+            cover: Text,
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _updateEntity(e, req, callerId)
+                with
+                cover = cover;
+            }
         };
 
         func _deleteEntity(
@@ -1045,6 +1127,20 @@ module {
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
+        };
+
+        func _updateEntityWhenModeratedAndRedactedWithCover(
+            e: Types.Campaign, 
+            req: Types.CampaignRequest,
+            cover: Text,
+            reason: ModerationTypes.ModerationReason,
+            callerId: Nat32
+        ): Types.Campaign {
+            {
+                _updateEntityWhenModeratedAndRedacted(e, req, reason, callerId)
+                with
+                cover = cover;
+            }
         };
 
         func _updateEntityWhenModeratedAndFlagged(

@@ -383,9 +383,9 @@ module {
 
         func _revertModeration(
             moderation: ModerationTypes.Moderation
-        ): Result.Result<(), Text> {
+        ): async Result.Result<(), Text> {
             if(moderation.entityType == EntityTypes.TYPE_CAMPAIGNS) {
-                campaignService.revertModeration(moderation);
+                await campaignService.revertModeration(moderation);
             }
             else if(moderation.entityType == EntityTypes.TYPE_DONATIONS) {
                 donationService.revertModeration(moderation);
@@ -605,10 +605,10 @@ module {
                 };
             };
             
-            let judges = _chooseJudges(toExclude.toArray());
+            let judges = _chooseJudges(Buffer.toArray(toExclude));
             ignore repo.updateJudges(challenge, judges, dueAt);
 
-            toExclude.toArray();
+            Buffer.toArray(toExclude);
         };
 
         public func getRepository(

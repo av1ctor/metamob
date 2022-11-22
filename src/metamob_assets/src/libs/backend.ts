@@ -6,6 +6,15 @@ import { Variant } from "../../../declarations/metamob/metamob.did";
 
 export const LEDGER_TRANSFER_FEE = BigInt(10000);
 
+export const MAX_FILE_SIZE = 1_048_576;
+
+export const allowedFileTypes = [
+    "image/gif",
+    "image/jpeg",
+    "image/png",
+    "image/svg+xml"
+];
+
 export const createMainActor = (
     identity: Identity
 ): ActorSubclass<any> => {

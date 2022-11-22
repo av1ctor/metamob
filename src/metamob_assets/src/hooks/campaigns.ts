@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, useInfiniteQuery, UseInfiniteQueryResult} from 'react-query'
-import {CampaignRequest, Campaign, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {CampaignRequest, Campaign, Metamob, ModerationRequest, FileRequest} from "../../../declarations/metamob/metamob.did";
 import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 
@@ -84,12 +84,14 @@ export const useFindCampaignsByUserId = (
 export const useCreateCampaign = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, req: CampaignRequest}) => {
+        async (options: {main?: Metamob, req: CampaignRequest, cover?: FileRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }            
             
-            const res = await options.main.campaignCreate(options.req);
+            const res = options.cover?
+                await options.main.campaignCreateWithFile(options.req, options.cover):
+                await options.main.campaignCreate(options.req);
             
             if('err' in res) {
                 throw new Error(res.err);
@@ -107,12 +109,14 @@ export const useCreateCampaign = () => {
 export const useUpdateCampaign = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: CampaignRequest}) => {
+        async (options: {main?: Metamob, pubId: string, req: CampaignRequest, cover?: FileRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.campaignUpdate(options.pubId, options.req);
+            const res = options.cover?
+                await options.main.campaignUpdateWithFile(options.pubId, options.req, options.cover):
+                await options.main.campaignUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -129,12 +133,15 @@ export const useUpdateCampaign = () => {
 export const useModerateCampaign = () => {
     const queryClient = useQueryClient();
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: CampaignRequest, mod: ModerationRequest}) => {
+        async (options: {main?: Metamob, pubId: string, req: CampaignRequest, mod: ModerationRequest, cover?: FileRequest}) => {
             if(!options.main) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.campaignModerate(options.pubId, options.req, options.mod);
+            const res = options.cover?
+                await options.main.campaignModerateWithFile(options.pubId, options.req, options.cover, options.mod):
+                await options.main.campaignModerate(options.pubId, options.req, options.mod);
+                
             if('err' in res) {
                 throw new Error(res.err);
             }

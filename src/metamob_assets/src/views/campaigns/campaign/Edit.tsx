@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo} from "../../../../../declarations/metamob/metamob.did";
+import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -21,6 +21,8 @@ import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { FormattedMessage, useIntl } from "react-intl";
+import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
+import FileDropArea from "../../../components/FileDropArea";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -56,7 +58,7 @@ const formSchema = yup.object().shape({
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
     body: yup.string().min(100).max(4096),
-    cover: yup.string().min(7).max(256),
+    cover: yup.string().max(256),
     duration: yup.number().min(1).max(365),
     categoryId: yup.number().required().min(1),
     placeId: yup.number().required().min(1),
@@ -146,6 +148,12 @@ const EditForm = (props: Props) => {
         state: [props.campaign.state],
         info: cloneInfo(props.campaign.info),
     });
+    const [files, setFiles] = useState<{cover: FileRequest}>({
+        cover: {
+            contentType: '',
+            data: Buffer.from([])
+        }
+    });
     const [modForm, setModForm] = useModerationForm(props.reportId);
     
     const updateMut = useUpdateCampaign();
@@ -167,6 +175,17 @@ const EditForm = (props: Props) => {
             e.target.checked:
             e.target.value;
         setForm(form => setField(form, field, [value]));
+    }, []);
+
+    const changeCover = useCallback((e: any) => {
+        changeForm(e);
+        setFiles(files => ({
+            ...files,
+            cover: {
+                contentType: '',
+                data: Buffer.from([])
+            }
+        }));
     }, []);
 
     const changeModForm = useSetModerationFormField(setModForm);
@@ -198,6 +217,44 @@ const EditForm = (props: Props) => {
                     tiers
                 }
             }
+        }));
+    }, []);
+
+    const handleFileSelected = useCallback(async (list: FileList, id?: string, name?: string) => {
+        const field = id || name || '';
+        
+        if(list.length !== 1) {
+            props.onError("Drag and drop only one file at time");
+            return;
+        }
+
+        const file = list[0];
+        if(file.size === 0) {
+            props.onError("File can't be empty");
+            return;
+        }
+        if(file.size > MAX_FILE_SIZE) {
+            props.onError("File is too big. Max size: 1MB");
+            return;
+        }
+        if(allowedFileTypes.indexOf(file.type) === -1) {
+            props.onError("Invalid file type");
+            return;
+        }
+
+        const data = await file.arrayBuffer();
+        
+        setFiles(files => ({
+            ...files, 
+            [field]: {
+                contentType: file.type,
+                data: Buffer.from(data)
+            }
+        }));
+
+        setForm(form => ({
+            ...form,
+            cover: ''
         }));
     }, []);
 
@@ -269,7 +326,13 @@ const EditForm = (props: Props) => {
                     main: actors.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq(),
-                    mod: transformModerationForm(modForm)
+                    mod: transformModerationForm(modForm),
+                    cover: !form.cover?
+                    {
+                        contentType: files.cover.contentType,
+                        data: Array.from(files.cover.data) as any
+                    }:
+                    undefined
                 });
     
                 props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign moderated!'}));
@@ -278,7 +341,13 @@ const EditForm = (props: Props) => {
                 await updateMut.mutateAsync({
                     main: actors.main,
                     pubId: props.campaign.pubId, 
-                    req: transformReq()
+                    req: transformReq(),
+                    cover: !form.cover?
+                        {
+                            contentType: files.cover.contentType,
+                            data: Array.from(files.cover.data) as any
+                        }:
+                        undefined
                 });
     
                 props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign updated!'}));
@@ -292,7 +361,7 @@ const EditForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, modForm, actors.main, props.onClose]);
+    }, [form, files, modForm, actors.main, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -352,12 +421,26 @@ const EditForm = (props: Props) => {
                     onChange={changeForm}
                 />
                 <TextField 
-                    label="Cover image" 
+                    label="Cover URL" 
                     name="cover"
                     value={form.cover}
                     required={true}
-                    onChange={changeForm}
+                    onChange={changeCover}
                 />
+                <FileDropArea
+                    label="Cover image"
+                    name="cover"
+                    onDrop={handleFileSelected} 
+                >
+                    {!form.cover && files.cover.contentType &&
+                        <div className="cover-preview">
+                            <img 
+                                src={`data:${files.cover.contentType};base64,` + Buffer.from(files.cover.data).toString('base64')} 
+                            />
+                        </div>
+                    }
+                </FileDropArea>
+                
                 {Number(form.kind) === CampaignKind.FUNDINGS &&
                     <>
                         <Tiers

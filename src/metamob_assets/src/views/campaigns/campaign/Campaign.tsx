@@ -35,6 +35,7 @@ import Boost from "./Boost";
 import Share from "./Share";
 import Result from "./Result";
 import Poaps from "../../poaps/Poaps";
+import Cover from "./Cover";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -126,7 +127,7 @@ const Campaign = (props: Props) => {
                 <div className="columns">
                     <div className="column is-two-thirds overflow-hidden">
                         <div className="image campaign-cover mb-2">
-                            {campaign? <img src={campaign.cover} />: <Skeleton height={450} />}
+                            {campaign? <Cover cover={campaign.cover} />: <Skeleton height={450} />}
                         </div>
                         {campaign? 
                             <>

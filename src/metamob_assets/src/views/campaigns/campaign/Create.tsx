@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier} from "../../../../../declarations/metamob/metamob.did";
+import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest} from "../../../../../declarations/metamob/metamob.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
@@ -20,6 +20,8 @@ import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { ModerationReason } from "../../../libs/moderations";
 import { FormattedMessage } from "react-intl";
+import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
+import FileDropArea from "../../../components/FileDropArea";
 
 interface Props {
     mutation: any;
@@ -130,7 +132,7 @@ const formSchema = [
         body: yup.string().min(100).max(4096),
     }),
     yup.object().shape({
-        cover: yup.string().min(7).max(256),
+        cover: yup.string().max(256),
     }),
     yup.object().shape({
         kind: yup.number().required(),
@@ -224,6 +226,12 @@ const CreateForm = (props: Props) => {
         info: {signatures: {}},
         action: {nop: null},
     });
+    const [files, setFiles] = useState<{cover: FileRequest}>({
+        cover: {
+            contentType: '',
+            data: Buffer.from([])
+        }
+    })
     const [step, setStep] = useState(0);
 
     const place = useFindPlaceById(props.place?._id || 0);
@@ -267,7 +275,13 @@ const CreateForm = (props: Props) => {
                     tags: form.tags,
                     info: transformInfo(form.info),
                     action: form.action,
-                }
+                },
+                cover: !form.cover?
+                    {
+                        contentType: files.cover.contentType,
+                        data: Array.from(files.cover.data) as any
+                    }:
+                    undefined
             });
 
             props.onSuccess('Campaign created!');
@@ -279,7 +293,7 @@ const CreateForm = (props: Props) => {
         finally {
             props.toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, files, actors.main, props.onClose]);
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);
@@ -287,6 +301,17 @@ const CreateForm = (props: Props) => {
             e.target.checked:
             e.target.value;
         setForm(form => setField(form, field, value));
+    }, []);
+
+    const changeCover = useCallback((e: any) => {
+        changeForm(e);
+        setFiles(files => ({
+            ...files,
+            cover: {
+                contentType: '',
+                data: Buffer.from([])
+            }
+        }));
     }, []);
 
     const changeTiersItem = useCallback((field: string, value: any, index: number) => {
@@ -365,6 +390,44 @@ const CreateForm = (props: Props) => {
         }
     }, []);
 
+    const handleFileSelected = useCallback(async (list: FileList, id?: string, name?: string) => {
+        const field = id || name || '';
+        
+        if(list.length !== 1) {
+            props.onError("Drag and drop only one file at time");
+            return;
+        }
+
+        const file = list[0];
+        if(file.size === 0) {
+            props.onError("File can't be empty");
+            return;
+        }
+        if(file.size > MAX_FILE_SIZE) {
+            props.onError("File is too big. Max size: 1MB");
+            return;
+        }
+        if(allowedFileTypes.indexOf(file.type) === -1) {
+            props.onError("Invalid file type");
+            return;
+        }
+
+        const data = await file.arrayBuffer();
+        
+        setFiles(files => ({
+            ...files, 
+            [field]: {
+                contentType: file.type,
+                data: Buffer.from(data)
+            }
+        }));
+
+        setForm(form => ({
+            ...form,
+            cover: ''
+        }));
+    }, []);
+
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
@@ -391,7 +454,7 @@ const CreateForm = (props: Props) => {
             placeId: props.place?._id || 0
         }));
     }, [props.place]);
-    
+
     return (
         <>
             <Steps
@@ -429,13 +492,28 @@ const CreateForm = (props: Props) => {
                     />
                 }
                 {step === 2 &&
-                    <TextField 
-                        label="Cover image" 
-                        name="cover"
-                        value={form.cover || ''}
-                        required={true}
-                        onChange={changeForm}
-                    />
+                    <>
+                        <TextField 
+                            label="Cover URL" 
+                            name="cover"
+                            value={form.cover || ''}
+                            required={true}
+                            onChange={changeCover}
+                        />
+                        <FileDropArea
+                            label="Cover image"
+                            name="cover"
+                            onDrop={handleFileSelected} 
+                        >
+                            {!form.cover && files.cover.contentType &&
+                                <div className="cover-preview">
+                                    <img 
+                                        src={`data:${files.cover.contentType};base64,` + Buffer.from(files.cover.data).toString('base64')} 
+                                    />
+                                </div>
+                            }
+                        </FileDropArea>
+                    </>
                 }
                 {step === 3 &&
                     <>
@@ -586,6 +664,7 @@ const CreateForm = (props: Props) => {
                     <div>
                         <Item
                             campaign={toCampaign(form, auth.user)}
+                            cover={files.cover}
                             isPreview
                         />
                         <div className="field is-grouped mt-5">

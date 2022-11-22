@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from 'react-router-dom';
-import { Campaign } from "../../../../declarations/metamob/metamob.did";
+import { Campaign, FileRequest } from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import Avatar from "../users/Avatar";
 import Category from "../categories/category/Category";
@@ -15,10 +15,12 @@ import Badge from "../../components/Badge";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
+import Cover from "./campaign/Cover";
 
 interface Props {
     campaign: Campaign;
     isPreview?: boolean;
+    cover?: FileRequest;
     showBody?: boolean;
 };
 
@@ -57,7 +59,10 @@ const Item = (props: Props) => {
             </>}
             img={
                 <Link to={`/c/${campaign.pubId}`}>
-                    <img src={campaign.cover}/>
+                    <Cover 
+                        cover={campaign.cover? campaign.cover: props.cover} 
+                        isPreview={props.isPreview} 
+                    />
                 </Link>
             }
         >
