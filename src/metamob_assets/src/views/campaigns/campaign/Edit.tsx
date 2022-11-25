@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useContext, useEffect} from "react";
 import * as yup from 'yup';
 import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest} from "../../../../../declarations/metamob/metamob.did";
+import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -23,6 +23,8 @@ import CreateModerationForm, { transformModerationForm, useModerationForm, useSe
 import { FormattedMessage, useIntl } from "react-intl";
 import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
 import FileDropArea from "../../../components/FileDropArea";
+import VariantField from "../../../components/VariantField";
+import ArrayField from "../../../components/ArrayField";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -45,10 +47,10 @@ const invokeActionSchema = yup.object().shape({
         if(!val) {
             return true;
         }
-        return val.length === 58;
+        return val.length === 27;
     }),
     method: yup.string().optional().max(128),
-    args: yup.array(yup.number()).optional(),
+    args: yup.array(yup.mixed()).optional(),
 });
 
 const formSchema = yup.object().shape({
@@ -379,6 +381,44 @@ const EditForm = (props: Props) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
+
+    const handleRenderArg = useCallback((
+        entry: MapEntry, 
+        index: number, 
+        onChange?: (value: any, index: number) => void
+    ) => {
+        return (
+            <>
+                <TextField
+                    label="Key"
+                    value={entry.key}
+                    required
+                    onChange={onChange? 
+                        (e) => onChange({key: e.target.value, value: entry.value}, index)
+                    : 
+                        undefined
+                    }
+                />
+                <VariantField 
+                    label="Value"
+                    value={entry.value}
+                    required
+                    onChange={onChange? 
+                        (e) => onChange({key: entry.key, value: e.target.value}, index)
+                    : 
+                        undefined
+                    }
+                />
+            </>
+        );
+    }, []);
+
+    const handleGenArg = useCallback((): MapEntry => {
+        return {
+            key: '', 
+            value: {text: ''}
+        };
+    }, []);
     
     useEffect(() => {
         setForm({
@@ -512,32 +552,29 @@ const EditForm = (props: Props) => {
                 {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
                     <>
                         <label className="label"><FormattedMessage defaultMessage="Action (invoke method)"/></label>
-                        <div className="p-2 border">
-                            <TextField 
-                                label="Canister Id" 
-                                name="action.invoke.canisterId"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.canisterId || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                            <TextField 
-                                label="Method name" 
-                                name="action.invoke.method"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.method || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                            <TextField 
-                                label="Arguments" 
-                                name="action.invoke.args"
-                                value={'invoke' in form.action? 
-                                    form.action.invoke.args.toString() || '':
-                                    ''}
-                                onChange={changeForm}
-                            />
-                        </div>
+                        {'invoke' in form.action && 
+                            <div className="p-2 border">
+                                <TextField 
+                                    label="Canister Id" 
+                                    name="action.invoke.canisterId"
+                                    value={form.action.invoke.canisterId || ''}
+                                    onChange={changeForm}
+                                />
+                                <TextField 
+                                    label="Method name" 
+                                    value={form.action.invoke.method || ''}
+                                    onChange={changeForm}
+                                />
+                                <ArrayField
+                                    label="Arguments" 
+                                    name="action.invoke.args"
+                                    value={form.action.invoke.args}
+                                    onChange={changeForm}
+                                    onRenderItem={handleRenderArg}
+                                    onGetEmptyItem={handleGenArg}
+                                />
+                            </div>
+                        }
                     </>
                 }
                 {auth.user && isModerator(auth.user) &&

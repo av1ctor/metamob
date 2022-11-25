@@ -103,6 +103,8 @@
 .campaign-cover {
     img {
         width: 100%;
+        max-height: 600px;
+        overflow: hidden;
     }
 }
 
@@ -684,4 +686,15 @@ a:not(:first-child) {
     .notification-body {
         font-size: small;
     }
+}
+
+.array-field-container {
+    .array-field {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.is-fullwidth {
+    width: 100%;
 }

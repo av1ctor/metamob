@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest} from "../../../../../declarations/metamob/metamob.did";
+import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest, Variant, MapEntry} from "../../../../../declarations/metamob/metamob.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import { ActorContext } from "../../../stores/actor";
@@ -22,6 +22,8 @@ import { ModerationReason } from "../../../libs/moderations";
 import { FormattedMessage } from "react-intl";
 import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
 import FileDropArea from "../../../components/FileDropArea";
+import ArrayField from "../../../components/ArrayField";
+import VariantField from "../../../components/VariantField";
 
 interface Props {
     mutation: any;
@@ -63,8 +65,6 @@ const toCampaign = (
         updatedAt: [],
         updatedBy: [],
         publishedAt: [now],
-        deletedAt: [],
-        deletedBy: [],
         expiredAt: [],
     }
 };
@@ -117,10 +117,10 @@ const invokeActionSchema = yup.object().shape({
         if(!val) {
             return true;
         }
-        return val.length === 58;
+        return val.length === 27;
     }),
-    method: yup.string().optional().max(128),
-    args: yup.array(yup.number()).optional(),
+    method: yup.string().min(1).max(128),
+    args: yup.array(yup.mixed()).required(),
 });
 
 const formSchema = [
@@ -448,6 +448,44 @@ const CreateForm = (props: Props) => {
         setStep(step => step + 1);
     }, [validate]);
 
+    const handleRenderArg = useCallback((
+        entry: MapEntry, 
+        index: number, 
+        onChange?: (value: any, index: number) => void
+    ) => {
+        return (
+            <>
+                <TextField
+                    label="Key"
+                    value={entry.key}
+                    required
+                    onChange={onChange? 
+                        (e) => onChange({key: e.target.value, value: entry.value}, index)
+                    : 
+                        undefined
+                    }
+                />
+                <VariantField 
+                    label="Value"
+                    value={entry.value}
+                    required
+                    onChange={onChange? 
+                        (e) => onChange({key: entry.key, value: e.target.value}, index)
+                    : 
+                        undefined
+                    }
+                />
+            </>
+        );
+    }, []);
+
+    const handleGenArg = useCallback((): MapEntry => {
+        return {
+            key: '', 
+            value: {text: ''}
+        };
+    }, []);
+
     useEffect(() => {
         setForm(form => ({
             ...form,
@@ -603,32 +641,30 @@ const CreateForm = (props: Props) => {
                         {(Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
                             <>
                                 <label className="label"><FormattedMessage defaultMessage="Action (invoke method)"/></label>
-                                <div className="p-2 border">
-                                    <TextField 
-                                        label="Canister Id" 
-                                        name="action.invoke.canisterId"
-                                        value={'invoke' in form.action? 
-                                            form.action.invoke.canisterId || '':
-                                            ''}
-                                        onChange={changeForm}
-                                    />
-                                    <TextField 
-                                        label="Method name" 
-                                        name="action.invoke.method"
-                                        value={'invoke' in form.action? 
-                                            form.action.invoke.method || '':
-                                            ''}
-                                        onChange={changeForm}
-                                    />
-                                    <TextField 
-                                        label="Arguments" 
-                                        name="action.invoke.args"
-                                        value={'invoke' in form.action? 
-                                            form.action.invoke.args.toString() || '':
-                                            ''}
-                                        disabled
-                                    />
-                                </div>
+                                {'invoke' in form.action && 
+                                    <div className="p-2 border">
+                                        <TextField 
+                                            label="Canister Id" 
+                                            name="action.invoke.canisterId"
+                                            value={form.action.invoke.canisterId || ''}
+                                            onChange={changeForm}
+                                        />
+                                        <TextField 
+                                            label="Method name" 
+                                            name="action.invoke.method"
+                                            value={form.action.invoke.method || ''}
+                                            onChange={changeForm}
+                                        />
+                                        <ArrayField
+                                            label="Arguments" 
+                                            name="action.invoke.args"
+                                            value={form.action.invoke.args}
+                                            onChange={changeForm}
+                                            onRenderItem={handleRenderArg}
+                                            onGetEmptyItem={handleGenArg}
+                                        />
+                                    </div>
+                                }
                             </>
                         }
                     </>

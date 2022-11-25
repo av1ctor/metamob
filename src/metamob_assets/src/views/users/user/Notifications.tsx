@@ -115,7 +115,7 @@ const Notifications = (props: Props) => {
     return (
         <>
             <div className="page-title has-text-info-dark">
-                <FormattedMessage defaultMessage="Notifications" />
+                <FormattedMessage id="Notifications" defaultMessage="Notifications" />
             </div>
 
             <div>

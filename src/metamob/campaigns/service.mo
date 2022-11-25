@@ -599,15 +599,22 @@ module {
                 Account.defaultSubaccount()
             );
 
-            ignore logger.info(this, "Transfering " # Nat64.toText(balance) # " ICP from Campaign " # campaign.pubId  # " to " # action.receiver);
-            await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
-                campaign, 
-                balance, 
-                tax,
-                to, 
-                app,
-                caller._id
-            );
+            try {
+                ignore await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
+                    campaign, 
+                    balance, 
+                    tax,
+                    to, 
+                    app,
+                    caller._id
+                );
+                ignore logger.info(this, "Transfered " # Nat64.toText(balance) # " ICP from Campaign " # campaign.pubId  # " to " # action.receiver);
+                #ok();
+            }
+            catch(e) { 
+                ignore logger.err(this, "Transfer of " # Nat64.toText(balance) # " ICP from Campaign " # campaign.pubId  # " to " # action.receiver # " failed: " # Error.message(e));
+                #err(Error.message(e)) 
+            };
         };
 
         func _invokeMethod(
@@ -624,11 +631,13 @@ module {
                 ignore await ExpICP.call(
                     Principal.fromText(action.canisterId), 
                     action.method, 
-                    action.args
+                    to_candid(action.args)
                 );
+                ignore logger.info(this, "Method " # action.canisterId # "." # action.method # "(" # debug_show(action.args) # ") invoked by campaign " # campaign.pubId);
                 #ok();
             }
             catch(e) { 
+                ignore logger.err(this, "Method " # action.canisterId # "." # action.method # "() invocation failed: " # Error.message(e));
                 #err(Error.message(e)) 
             };
         };
@@ -931,7 +940,9 @@ module {
                             };
                             case (#ok(campaign)) {
                                 if(not canChange(caller, campaign, [Types.STATE_CREATED])) {
-                                    return #err("Forbidden");
+                                    if(campaign.state != Types.STATE_PUBLISHED or campaign.interactions > 0 or campaign.total > 0 or campaign.boosting > 0) {
+                                        return #err("Invalid campaign state");
+                                    };
                                 };
 
                                 switch(await placeService.checkAccess(caller, campaign.placeId)) {
@@ -1004,7 +1015,7 @@ module {
                 return false;
             };
 
-            if(caller.banned == UserTypes.BANNED_AS_USER) {
+            if((caller.banned & UserTypes.BANNED_AS_USER) > 0) {
                 return false;
             };
 
@@ -1016,11 +1027,6 @@ module {
             entity: Types.Campaign,
             states: [Types.CampaignState]
         ): Bool {
-            // deleted?
-            if(Option.isSome(entity.deletedAt)) {
-                return false;
-            };
-
             // any valid state?
             if(Option.isNull(
                 Array.find(
@@ -1044,11 +1050,6 @@ module {
             entity: Types.Campaign,
             mod: ModerationTypes.ModerationRequest
         ): ?ReportTypes.Report {
-            // deleted?
-            if(Option.isSome(entity.deletedAt)) {
-                return null;
-            };
-
             // not a moderator?
             if(not UserUtils.isModerator(caller)) {
                 return null;

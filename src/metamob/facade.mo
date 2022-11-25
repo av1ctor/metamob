@@ -78,7 +78,7 @@ shared({caller = owner}) actor class Metamob(
     let reportRepo = ReportRepository.Repository();
 
     let daoService = DaoService.Service(
-        mmtCanisterId, logger
+        mmtCanisterId, userRepo, logger
     );
     let notificationService = NotificationService.Service(
         userRepo
@@ -167,6 +167,31 @@ shared({caller = owner}) actor class Metamob(
     public shared query(msg) func daoDepositedBalance(
     ): async Nat64 {
         Nat64.fromNat(daoService.depositedBalanceOf(msg.caller));
+    };
+
+    public shared(msg) func daoSetParameter(
+        params: [Variant.MapEntry]
+    ): async Result.Result<(), Text> {
+        if(params.size() != 1) {
+            return #err("Wrong number or parameters");
+        };
+
+        await daoService.configSet(params[0].key, params[0].value, msg.caller, this);
+    };
+
+    public shared(msg) func daoSetParameters(
+        params: [Variant.MapEntry]
+    ): async Result.Result<(), Text> {
+        await daoService.configSetMulti(params, msg.caller, this);
+    };
+
+    public shared(msg) func daoTransferFromTreasury(
+        params: [Variant.MapEntry]
+    ): async Result.Result<(), Text> {
+        let map = Variant.mapToHashMap(params);
+        let value = Variant.getOptNat64(map.get("value"));
+        let to = Variant.getOptText(map.get("to"));
+        await daoService.transferFromTreasury(value, Principal.fromText(to), msg.caller, this);
     };
 
     /*public shared(msg) func daoReward(

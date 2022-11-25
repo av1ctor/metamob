@@ -5,7 +5,6 @@ import Badge from "../../components/Badge";
 import { LangIcon } from "../../components/LangIcon";
 import NavItem from "../../components/NavItem";
 import { useCountUnreadNotificationsByUser } from "../../hooks/notifications";
-import { Order } from "../../libs/common";
 import { Lang, languages, loadMessages } from "../../libs/intl";
 import { ActorContext } from "../../stores/actor";
 import { AuthActionType, AuthContext } from "../../stores/auth";

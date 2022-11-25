@@ -1,3 +1,4 @@
+import Utils "../common/utils";
 import Nat64 "mo:base/Nat64";
 import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
@@ -9,12 +10,15 @@ import Variant "mo:mo-table/variant";
 import DIP20 "../interfaces/dip20";
 import Types "./types";
 import UserTypes "../users/types";
+import UserRepository "../users/repository";
+import UserUtils "../users/utils";
 import Config "./config";
 import Logger "../../logger/logger";
 
 module {
     public class Service(
         mmtCanisterId: Text,
+        userRepo: UserRepository.Repository,
         logger: Logger.Logger
     ) {
         public let config = Config.Config();
@@ -37,13 +41,88 @@ module {
         config.set("POAP_MINTING_MIN_PRICE",        #nat64(   1_00000000)); // 1 ICP
         config.set("POAP_MINTING_TAX",              #nat64(30));            // 30%
 
+        func _setConfigVar(
+            key: Text,
+            value: Variant.Variant,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(config.get(key)) {
+                case (?oldValue) {
+                    if(Variant.isTypeOfEqual(oldValue, value)) {
+                        config.set(key, value);
+                        ignore logger.info(this, "DaoService.configSet: " # debug_show(invoker) # " changed " # key # " to " # debug_show(value));
+                    }
+                    else {
+                        return #err("Incompatible type");
+                    };
+                };
+                case null {
+                    return #err("Key not found");
+                };
+            };
+
+            #ok();
+        };
+
         public func configSet(
             key: Text,
             value: Variant.Variant,
-            invoker: Principal
-        ) {
-            //TODO: validate invoker
-            config.set(key, value);
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    if(not Principal.equal(invoker, Principal.fromActor(this))) {
+                        return #err(msg);
+                    };
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    };
+                };
+            };
+
+            switch(await _setConfigVar(key, value, invoker, this)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case _ {
+                    #ok();
+                };
+            };
+        };
+
+        public func configSetMulti(
+            params: [Variant.MapEntry],
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    if(not Principal.equal(invoker, Principal.fromActor(this))) {
+                        return #err(msg);
+                    };
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    };
+                };
+            };
+
+            for(param in params.vals()) {
+                switch(await _setConfigVar(param.key, param.value, invoker, this)) {
+                    case (#err(msg)) {
+                        return #err(msg);
+                    };
+                    case _ {
+                    };
+                };
+            };
+
+            #ok();
         };
 
         public func configGet(
@@ -69,6 +148,43 @@ module {
             key: Text
         ): Int {
             config.getAsInt(key);
+        };
+
+        public func transferFromTreasury(
+            value: Nat64, 
+            to: Principal,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<(), Text> {
+            switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    if(not Principal.equal(invoker, Principal.fromActor(this))) {
+                        return #err(msg);
+                    };
+                };
+                case (#ok(caller)) {
+                    if(not hasAuth(caller)) {
+                        return #err("Forbidden");
+                    };
+                };
+            };
+           
+            try {
+                switch(await mmt.transfer(to, Nat64.toNat(value))) {
+                    case (#Err(e)) {
+                        ignore logger.err(this, "DaoService.transferFromTreasury(" # debug_show(to) # "):" # debug_show(e));
+                        #err(debug_show(e));
+                    };
+                    case _ {
+                        ignore logger.info(this, "DaoService.transferFromTreasury: " # debug_show(to) # " received " # Utils.e8sToDecimal(value) # " MMT");
+                        #ok();
+                    };
+                };
+            }
+            catch(e) {
+                ignore logger.err(this, "DaoService.transferFromTreasury(" # debug_show(to) # "):" # Error.message(e));
+                #err(Error.message(e));
+            };
         };
 
         public func rewardUser(
@@ -350,6 +466,28 @@ module {
             for(entry in e.deposited.vals()) {
                 deposited.put(entry.0, entry.1);
             };
+        };
+
+        func hasAuth(
+            caller: UserTypes.Profile
+        ): Bool {
+            if(not caller.active) {
+                return false;
+            };
+
+            if((caller.banned & UserTypes.BANNED_AS_USER) > 0) {
+                return false;
+            };
+
+            if(not UserUtils.isAdmin(caller)) {
+                return false;
+            };
+
+            if((caller.banned & UserTypes.BANNED_AS_ADMIN) > 0) {
+                return false;
+            };
+
+            return true;
         };
     };
 };

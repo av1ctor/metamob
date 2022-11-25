@@ -99,14 +99,6 @@ module {
             {
                 name = "updatedBy";
                 options = [#nullable];
-            },
-            {
-                name = "deletedAt";
-                options = [#nullable, #sortable];
-            },
-            {
-                name = "deletedBy";
-                options = [#nullable];
             }
         ];
     };

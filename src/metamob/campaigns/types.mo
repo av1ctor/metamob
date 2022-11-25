@@ -1,3 +1,4 @@
+import Variant "mo:mo-table/variant";
 import ModerationTypes "../moderations/types";
 
 module {
@@ -67,7 +68,7 @@ module {
     public type CampaignInvokeMethodAction = {
         canisterId: Text;
         method: Text;
-        args: Blob;
+        args: [Variant.MapEntry];
     };
 
     public type CampaignAction = {
@@ -104,8 +105,6 @@ module {
         createdBy: Nat32;
         updatedAt: ?Int;
         updatedBy: ?Nat32;
-        deletedAt: ?Int;
-        deletedBy: ?Nat32;
     };
 
     public type CampaignRequest = {

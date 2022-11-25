@@ -216,7 +216,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(caller)) {
-                    if(not caller.active or caller.banned == UserTypes.BANNED_AS_USER) {
+                    if(not caller.active or ((caller.banned & UserTypes.BANNED_AS_USER) > 0)) {
                         return #err("Forbidden: not active");
                     };
 
@@ -352,7 +352,7 @@ module {
                 return false;
             };
 
-            if(caller.banned == UserTypes.BANNED_AS_USER) {
+            if((caller.banned & UserTypes.BANNED_AS_USER) > 0) {
                 return false;
             };
 

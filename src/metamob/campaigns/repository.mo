@@ -229,13 +229,12 @@ module {
             campaign: Types.Campaign,
             callerId: Nat32
         ): Result.Result<(), Text> {
-            let e = _deleteEntity(campaign, callerId);
-            switch(campaigns.replace(campaign._id, e)) {
+            switch(campaigns.delete(campaign._id)) {
                 case (#err(msg)) {
-                    return #err(msg);
+                    #err(msg);
                 };
                 case _ {
-                    return #ok();
+                    #ok();
                 };
             };
         };
@@ -253,9 +252,6 @@ module {
                             #err("Not found");
                         };
                         case (?e) {
-                            if(Option.isSome(e.deletedAt)) {
-                                return #err("Not found");
-                            };
                             #ok(e);
                         };
                     };
@@ -280,9 +276,6 @@ module {
                             #err("Not found");
                         };
                         case (?e) {
-                            if(Option.isSome(e.deletedAt)) {
-                                return #err("Not found");
-                            };                            
                             #ok(e);
                         };
                     };
@@ -300,11 +293,6 @@ module {
                 };
                 case (?criterias) {
                     let buf = Buffer.Buffer<Table.Criteria>(criterias.size() + 1);
-                    buf.add({       
-                        key = "deletedAt";
-                        op = #eq;
-                        value = #nil;
-                    });
 
                     for(crit in criterias.vals()) {
                         buf.add({
@@ -394,11 +382,6 @@ module {
                     key = "categoryId";
                     op = #eq;
                     value = #nat32(categoryId);
-                },
-                {       
-                    key = "deletedAt";
-                    op = #eq;
-                    value = #nil;
                 }                    
             ];
             
@@ -420,11 +403,6 @@ module {
                     key = "placeId";
                     op = #eq;
                     value = #nat32(placeId);
-                },
-                {       
-                    key = "deletedAt";
-                    op = #eq;
-                    value = #nil;
                 }                    
             ];
             
@@ -446,11 +424,6 @@ module {
                     key = "tagId";
                     op = #eq;
                     value = #text(tagId);
-                },
-                {       
-                    key = "deletedAt";
-                    op = #eq;
-                    value = #nil;
                 }
             ];
             
@@ -472,11 +445,6 @@ module {
                     key = "createdBy";
                     op = #eq;
                     value = #nat32(userId);
-                },
-                {       
-                    key = "deletedAt";
-                    op = #eq;
-                    value = #nil;
                 }
             ];
             
@@ -791,8 +759,6 @@ module {
                 createdBy = callerId;
                 updatedAt = null;
                 updatedBy = null;
-                deletedAt = null;
-                deletedBy = null;
             }
         };
 
@@ -847,23 +813,6 @@ module {
                 with
                 cover = cover;
             }
-        };
-
-        func _deleteEntity(
-            e: Types.Campaign, 
-            callerId: Nat32
-        ): Types.Campaign {
-            {
-                e
-                with
-                title = "";
-                target = "";
-                cover = "";
-                body = "";
-                state = Types.STATE_DELETED;
-                deletedAt = ?Time.now();
-                deletedBy = ?callerId;
-            }  
         };
 
         func _updateEntityWhenSignatureInserted(
@@ -1227,7 +1176,7 @@ module {
                     {key = "type"; value = #nat32(Types.ACTION_INVOKE_METHOD);},
                     {key = "canisterId"; value = #text(action.canisterId);},
                     {key = "method"; value = #text(action.method);},
-                    {key = "args"; value = #blob(action.args);}
+                    {key = "args"; value = #map(action.args);}
                 ]));
             };            
         };
@@ -1238,8 +1187,6 @@ module {
         res.put("createdBy", #nat32(e.createdBy));
         res.put("updatedAt", switch(e.updatedAt) {case null #nil; case (?updatedAt) #int(updatedAt);});
         res.put("updatedBy", switch(e.updatedBy) {case null #nil; case (?updatedBy) #nat32(updatedBy);});
-        res.put("deletedAt", switch(e.deletedAt) {case null #nil; case (?deletedAt) #int(deletedAt);});
-        res.put("deletedBy", switch(e.deletedBy) {case null #nil; case (?deletedBy) #nat32(deletedBy);});
 
         res;
     };
@@ -1312,7 +1259,7 @@ module {
                 #invoke({
                     canisterId = Variant.getOptText(action.get("canisterId"));
                     method = Variant.getOptText(action.get("method"));
-                    args = Variant.getOptBlob(action.get("args"));
+                    args = Variant.getOptMap(action.get("args"));
                 });
             }
             else {
@@ -1324,8 +1271,6 @@ module {
             createdBy = Variant.getOptNat32(map.get("createdBy"));
             updatedAt = Variant.getOptIntOpt(map.get("updatedAt"));
             updatedBy = Variant.getOptNat32Opt(map.get("updatedBy"));
-            deletedAt = Variant.getOptIntOpt(map.get("deletedAt"));
-            deletedBy = Variant.getOptNat32Opt(map.get("deletedBy"));
         }
     };
 };
