@@ -1,4 +1,4 @@
-import { Variant } from "../../../declarations/metamob/metamob.did";
+import { MapEntry, Variant } from "../../../declarations/metamob/metamob.did";
 
 export enum VariantType {
     ARRAY,
@@ -191,4 +191,16 @@ export const stringToVariant = (
             }
             return {tuple: [{text: tokens[0]}, {text: tokens[1]}]};
     }
+};
+
+export const mapEntryToString = (
+    value: MapEntry
+): string => {
+    return `{"${value.key}": ${variantToString(value.value)}}`;
+};
+
+export const arrayOfMapEntryToString = (
+    arr: MapEntry[]
+): string => {
+    return `[${arr.map(e => mapEntryToString(e)).join(', ')}]`;
 };

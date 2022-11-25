@@ -5,6 +5,7 @@ import { Campaign } from "../../../../../../../declarations/metamob/metamob.did"
 import DonationForm from "./Form";
 import { icpToDecimal } from "../../../../../libs/icp";
 import { FormattedMessage } from "react-intl";
+import Action from "../Action";
 
 interface Props {
     campaign: Campaign;
@@ -22,6 +23,7 @@ export const DonationFrame = (props: Props) => {
         <>
             <progress className="progress mb-0 pb-0 is-success" value={Number(donated / 100000000n)} max={Number(campaign.goal / 100000000n)}>{donated.toString()}</progress>
             <div><small><b>{icpToDecimal(donated, 2)} ICP</b> <FormattedMessage defaultMessage="donated"/>. <FormattedMessage defaultMessage="More"/> <b>{icpToDecimal(campaign.goal - donated, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></small></div>
+            <Action campaign={campaign} />
             <br/>
             {campaign.state === CampaignState.PUBLISHED &&
                 <Box>
