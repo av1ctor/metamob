@@ -4,6 +4,10 @@ import Badge from "../../../components/Badge";
 import { useFindLogs } from "../../../hooks/logs";
 import { kindToColor, kindToText } from "../../../libs/logs";
 import { Paginator } from "../../../components/Paginator";
+import { limitText } from "../../../libs/utils";
+import { Msg } from "../../../../../declarations/logger/logger.did";
+import Modal from "../../../components/Modal";
+import View from "./View";
 
 interface Props {
     onSuccess: (message: string) => void;
@@ -12,12 +16,28 @@ interface Props {
 }
 
 const Logs = (props: Props) => {
+    const [log, setLog] = useState<Msg>();
     const [limit, setLimit] = useState({
         offset: 0,
         size: 10
     });
+    const [modals, setModals] = useState({
+        view: false
+    });
 
     const logs = useFindLogs(limit.offset, limit.size);
+
+    const toggleView = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            view: !modals.view
+        }));
+    }, []);
+
+    const handleView = useCallback((log: Msg) => {
+        setLog(log);
+        toggleView();
+    }, []);
 
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({
@@ -68,6 +88,7 @@ const Logs = (props: Props) => {
                                 <div 
                                     className="columns" 
                                     key={index}
+                                    onClick={() => handleView(log)}
                                 >
                                     <div className="column is-1">
                                         <Badge color={kindToColor(log.kind)}>{kindToText(log.kind)}</Badge>
@@ -76,7 +97,7 @@ const Logs = (props: Props) => {
                                         {log.act.toString()}
                                     </div>
                                     <div className="column">
-                                        {log.msg}
+                                        {limitText(log.msg, 80)}
                                     </div>
                                     <div className="column is-1">
                                         <TimeFromNow date={log.date}/>
@@ -93,6 +114,22 @@ const Logs = (props: Props) => {
                     onNext={handleNextPage}
                 />
             </div>
+
+            <Modal
+                header={<span>View log</span>}
+                isOpen={modals.view}
+                onClose={toggleView}
+            >
+                {log &&
+                    <View
+                        log={log}
+                        onClose={toggleView}
+                        onSuccess={props.onSuccess}
+                        onError={props.onError}
+                        toggleLoading={props.toggleLoading}
+                    />
+                }
+            </Modal>
         </>
     );
 };

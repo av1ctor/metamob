@@ -30,7 +30,7 @@ const Campaigns = (props: Props) => {
         size: 10
     });
     const [modals, setModals] = useState({
-        edit: false,
+        view: false,
         editUser: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
@@ -74,10 +74,10 @@ const Campaigns = (props: Props) => {
         );
     }, []);
     
-    const toggleEdit = useCallback(() => {
+    const toggleView = useCallback(() => {
         setModals(modals => ({
             ...modals,
-            edit: !modals.edit
+            view: !modals.view
         }));
     }, []);
 
@@ -88,9 +88,9 @@ const Campaigns = (props: Props) => {
         }));
     }, []);
 
-    const handleEditCampaign = useCallback((report: Campaign) => {
-        setCampaign(report);
-        toggleEdit();
+    const handleView = useCallback((campaign: Campaign) => {
+        setCampaign(campaign);
+        toggleView();
     }, []);
 
     const handleEditUser = useCallback((user: Profile) => {
@@ -172,7 +172,7 @@ const Campaigns = (props: Props) => {
                                 <div 
                                     className="columns" 
                                     key={index}
-                                    onClick={() => handleEditCampaign(item)}
+                                    onClick={() => handleView(item)}
                                 >
                                     <div className="column is-2 is-size-7">
                                         {item.pubId}
@@ -200,14 +200,14 @@ const Campaigns = (props: Props) => {
             </div>
 
             <Modal
-                header={<span>Edit campaign</span>}
-                isOpen={modals.edit}
-                onClose={toggleEdit}
+                header={<span>View campaign</span>}
+                isOpen={modals.view}
+                onClose={toggleView}
             >
                 {campaign &&
                     <View
                         campaign={campaign}
-                        onClose={toggleEdit}
+                        onClose={toggleView}
                         onSuccess={props.onSuccess}
                         onError={props.onError}
                         toggleLoading={props.toggleLoading}
