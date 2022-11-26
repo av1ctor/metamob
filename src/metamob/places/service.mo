@@ -221,11 +221,12 @@ module {
 
         private func _checkDip20(
             caller: UserTypes.Profile,
-            res: Types.PlaceDip20Auth
+            auth: Types.PlaceDip20Auth,
+            kind: Types.ACCESS_TYPE,
         ): async Result.Result<(), Text> {
-            let balance = await DIP20.balanceOf(res.canisterId, Principal.fromText(caller.principal));
-            if(balance < res.minValue) {
-                #err("Forbidden: not enough DIP20 balance");
+            let balance = await DIP20.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
+            if(balance < (if(kind == Types.ACCESS_TYPE_CREATE) auth.createMin else auth.cooperateMin)) {
+                #err("Forbidden: DIP20 balance too low");
             }
             else {
                 #ok();
@@ -234,11 +235,12 @@ module {
 
         private func _checkDip721(
             caller: UserTypes.Profile,
-            res: Types.PlaceDip20Auth
+            auth: Types.PlaceDip20Auth,
+            kind: Types.ACCESS_TYPE,
         ): async Result.Result<(), Text> {
-            let balance = await DIP721.balanceOf(res.canisterId, Principal.fromText(caller.principal));
-            if(balance < res.minValue) {
-                #err("Forbidden: not enough DIP721 balance");
+            let balance = await DIP721.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
+            if(balance < (if(kind == Types.ACCESS_TYPE_CREATE) auth.createMin else auth.cooperateMin)) {
+                #err("Forbidden: DIP721 balance too low");
             }
             else {
                 #ok();
@@ -271,11 +273,34 @@ module {
             };
         };
 
+        func _checkAuth(
+            auth: Types.PlaceAuth,
+            kind: Types.ACCESS_TYPE,
+            _id: Nat32,
+            caller: UserTypes.Profile
+        ): async Result.Result<(), Text> {
+            switch(auth) {
+                case (#none_) {
+                    #ok();
+                };
+                case (#email) {
+                    _checkEmail(caller, _id);
+                };
+                case (#dip20(auth)) {
+                    await _checkDip20(caller, auth, kind);
+                };
+                case (#dip721(auth)) {
+                    await _checkDip721(caller, auth, kind);
+                };
+            };
+        };
+
         public func checkAccessEx(
             caller: UserTypes.Profile,
             _id: Nat32,
+            kind: Types.ACCESS_TYPE,
             checkTerms: Bool
-        ): async Result.Result<(), Text> {
+        ): async Result.Result<Types.Place, Text> {
             switch(repo.findById(_id)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -286,7 +311,7 @@ module {
                     }
                     else {
                         if(UserUtils.isModerator(caller)) {
-                            return #ok();
+                            return #ok(place);
                         };
 
                         if(checkTerms and Option.isSome(place.terms)) {
@@ -299,18 +324,12 @@ module {
                             };
                         };
 
-                        switch(place.auth) {
-                            case (#none_) {
-                                #ok();
+                        switch(await _checkAuth(place.auth, kind, _id, caller)) {
+                            case (#err(msg)) {
+                                #err(msg);
                             };
-                            case (#email) {
-                                _checkEmail(caller, _id);
-                            };
-                            case (#dip20(res)) {
-                                await _checkDip20(caller, res);
-                            };
-                            case (#dip721(res)) {
-                                await _checkDip721(caller, res);
+                            case _ {
+                                #ok(place);
                             };
                         };
                     };
@@ -320,9 +339,10 @@ module {
 
         public func checkAccess(
             caller: UserTypes.Profile,
-            _id: Nat32
-        ): async Result.Result<(), Text> {
-            await checkAccessEx(caller, _id, true);
+            _id: Nat32,
+            kind: Types.ACCESS_TYPE
+        ): async Result.Result<Types.Place, Text> {
+            await checkAccessEx(caller, _id, kind, true);
         };
 
         public func backup(

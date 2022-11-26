@@ -20,14 +20,20 @@ module {
     public let RESTRICTION_DIP20: Nat32 = 2;
     public let RESTRICTION_DIP721: Nat32 = 3;
 
+    public type ACCESS_TYPE = Nat32;
+    public let ACCESS_TYPE_CREATE: Nat32 = 0;
+    public let ACCESS_TYPE_COOPERATE: Nat32 = 1;
+
     public type PlaceDip20Auth = {
         canisterId: Text;
-        minValue: Nat;
+        createMin: Nat;
+        cooperateMin: Nat;
     };
 
     public type PlaceDip721Auth = {
         canisterId: Text;
-        minValue: Nat;
+        createMin: Nat;
+        cooperateMin: Nat;
     };
     
     public type PlaceAuth = {

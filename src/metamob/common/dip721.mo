@@ -37,4 +37,11 @@ module {
         let dip721 = actor (canisterId) : Dip721.Interface;
         await dip721.mint(to, id, properties);
     };
+
+    public func totalSupply(
+        canisterId: Text
+    ): async Nat {
+        let dip721 = actor (canisterId) : Dip721.Interface;
+        await dip721.totalSupply();
+    };
 };

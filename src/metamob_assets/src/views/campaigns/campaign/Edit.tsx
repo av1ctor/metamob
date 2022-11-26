@@ -55,7 +55,7 @@ const invokeActionSchema = yup.object().shape({
 
 const formSchema = yup.object().shape({
     kind: yup.number().required(),
-    goal: yup.number().required().min(1),
+    goal: yup.number().optional().default(0),
     state: yup.array(yup.number().min(1)).required(),
     title: yup.string().min(10).max(128),
     target: yup.string().min(3).max(64),
@@ -428,6 +428,9 @@ const EditForm = (props: Props) => {
         });
     }, [props.campaign]);
 
+    const goalDisabled = (Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
+        (place.data? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
+
     return (
         <>
             <form onSubmit={handleUpdate}>
@@ -498,18 +501,26 @@ const EditForm = (props: Props) => {
                     required={true}
                     onChange={changeForm}
                 />
-                <TextField 
-                    label={campaignKindToGoal(form.kind)}
-                    name="goal"
-                    value={typeof form.goal === 'string'? 
-                        form.goal: 
-                        Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS?
-                            icpToDecimal(form.goal):
-                            form.goal.toString()
-                    }
-                    required={true}
-                    onChange={changeForm}
-                />
+                {!goalDisabled?
+                    <TextField 
+                        label={campaignKindToGoal(form.kind)}
+                        name="goal"
+                        value={typeof form.goal === 'string'? 
+                            form.goal: 
+                            Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS?
+                                icpToDecimal(form.goal):
+                                form.goal.toString()
+                        }
+                        required={true}
+                        onChange={changeForm}
+                    />
+                :
+                    <TextField 
+                        label={campaignKindToGoal(form.kind)}
+                        value="50% + 1"
+                        disabled
+                    />
+                }
                 <SelectField
                     label="Category"
                     name="categoryId"

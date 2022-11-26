@@ -849,15 +849,15 @@ module {
                 info = switch(e.info) {
                     case (#votes(info)) {
                         #votes({
-                            pro = if(vote.pro) info.pro + 1 else info.pro;
-                            against = if(not vote.pro) info.against + 1 else info.against;
+                            pro = if(vote.pro) info.pro + vote.weight else info.pro;
+                            against = if(not vote.pro) info.against + vote.weight else info.against;
                         });
                     };
                     case _ {
                         e.info;
                     };
                 };
-                total = e.total + 1;
+                total = e.total + vote.weight;
                 interactions = e.interactions + 1;
             }  
         };   
@@ -872,15 +872,15 @@ module {
                 info = switch(e.info) {
                     case (#votes(info)) {
                         #votes({
-                            pro = if(vote.pro) info.pro - 1 else info.pro;
-                            against = if(not vote.pro) info.against - 1 else info.against;
+                            pro = if(vote.pro) (if(info.pro > vote.weight) info.pro - vote.weight else 0) else info.pro;
+                            against = if(not vote.pro) (if(info.against > vote.weight) info.against - vote.weight else 0) else info.against;
                         });
                     };
                     case _ {
                         e.info;
                     };
                 };
-                total = if(e.total > 0) e.total - 1 else 0;
+                total = if(e.total > vote.weight) e.total - vote.weight else 0;
                 interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             }  
         };

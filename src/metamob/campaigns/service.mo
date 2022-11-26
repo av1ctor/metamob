@@ -3,6 +3,8 @@ import Text "mo:base/Text";
 import Utils "../common/utils";
 import Account "../accounts/account";
 import Array "mo:base/Array";
+import DIP20 "../common/dip20";
+import DIP721 "../common/dip721";
 import D "mo:base/Debug";
 import EntityTypes "../common/entities";
 import Error "mo:base/Error";
@@ -51,7 +53,10 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal,
             this: actor {},
-            cb: (req: Types.CampaignRequest, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
+            cb: (
+                req: Types.CampaignRequest, 
+                caller: UserTypes.Profile
+            ) -> async Result.Result<Types.Campaign, Text>
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -66,11 +71,11 @@ module {
                             return #err("Invalid field: state");
                         };
                         
-                        switch(await placeService.checkAccess(caller, req.placeId)) {
+                        switch(await placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
-                            case _ {
+                            case (#ok(place)) {
                                 switch(_validateInfo(req.kind, req.info)) {
                                     case (#err(msg)) {
                                         return #err(msg);
@@ -106,12 +111,36 @@ module {
                                     case(#nop) {
                                     };
                                 };
+
+                                let goal = await _calcGoal(req, place);
                                 
-                                await cb(req, caller);
+                                await cb({req with goal = goal;}, caller);
                             };
                         };
                     };
                 };
+            };
+        };
+
+        func _calcGoal(
+            req: Types.CampaignRequest,
+            place: PlaceTypes.Place
+        ): async Nat {
+            if(req.kind == Types.KIND_VOTES or req.kind == Types.KIND_WEIGHTED_VOTES) {
+                switch(place.auth) {
+                    case (#dip20(dip)) {
+                        (await DIP20.totalSupply(dip.canisterId)) / 2 + 1;
+                    };
+                    case (#dip721(dip)) {
+                        (await DIP721.totalSupply(dip.canisterId)) / 2 + 1;
+                    };
+                    case _ {
+                        req.goal;
+                    };
+                };
+            } 
+            else {
+                req.goal;
             };
         };
 
@@ -189,7 +218,12 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal,
             this: actor {},
-            cb: (campaign: Types.Campaign, req: Types.CampaignRequest, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
+            cb: (
+                campaign: Types.Campaign, 
+                place: PlaceTypes.Place,
+                req: Types.CampaignRequest, 
+                caller: UserTypes.Profile
+            ) -> async Result.Result<Types.Campaign, Text>
         ): async Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -237,12 +271,12 @@ module {
                                     };
                                 };
 
-                                switch(await placeService.checkAccess(caller, req.placeId)) {
+                                switch(await placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
-                                        await cb(campaign, req, caller);
+                                    case (#ok(place)) {
+                                        await cb(campaign, place, req, caller);
                                     };
                                 };
                             };
@@ -255,6 +289,7 @@ module {
         func _checkGoal(
             req: Types.CampaignRequest,
             campaign: Types.Campaign,
+            place: PlaceTypes.Place,
             updated: Types.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
@@ -297,6 +332,7 @@ module {
                 this,
                 func(
                     campaign: Types.Campaign,
+                    place: PlaceTypes.Place,
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
                 ): async Result.Result<Types.Campaign, Text> {
@@ -307,7 +343,7 @@ module {
                         case(#ok(e)) {
                             if(campaign.goal != req.goal) {
                                 if(req.goal > 0) {
-                                    switch(await _checkGoal(req, campaign, e, caller, this)) {
+                                    switch(await _checkGoal(req, campaign, place, e, caller, this)) {
                                         case (#err(msg)) {
                                             return #err(msg);
                                         };
@@ -339,6 +375,7 @@ module {
                 this,
                 func(
                     campaign: Types.Campaign,
+                    place: PlaceTypes.Place,
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
                 ): async Result.Result<Types.Campaign, Text> {
@@ -358,7 +395,7 @@ module {
 
                                     if(campaign.goal != req.goal) {
                                         if(req.goal > 0) {
-                                            switch(await _checkGoal(req, campaign, e, caller, this)) {
+                                            switch(await _checkGoal(req, campaign, place, e, caller, this)) {
                                                 case (#err(msg)) {
                                                     return #err(msg);
                                                 };
@@ -780,7 +817,7 @@ module {
                     return #err("Forbidden");
                 };
 
-                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                     case (#err(msg)) {
                         #err(msg);
                     };
@@ -945,7 +982,7 @@ module {
                                     };
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };

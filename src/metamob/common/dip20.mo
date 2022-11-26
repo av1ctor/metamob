@@ -38,4 +38,11 @@ module {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.approve(spender, value);
     };
+
+    public func totalSupply(
+        canisterId: Text
+    ): async Nat {
+        let dip20 = actor (canisterId) : Dip20.Interface;
+        await dip20.totalSupply();
+    };
 };

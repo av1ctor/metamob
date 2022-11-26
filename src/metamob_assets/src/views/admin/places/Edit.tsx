@@ -89,13 +89,15 @@ const EditForm = (props: Props) => {
             case PlaceAuthNum.DIP20:
                 value = {dip20: {
                     canisterId: '',
-                    minValue: BigInt(0),
+                    createMin: BigInt(0),
+                    cooperateMin: BigInt(0),
                 }};
                 break;
             case PlaceAuthNum.DIP721:
                 value = {dip721: {
                     canisterId: '',
-                    minValue: BigInt(0),
+                    createMin: BigInt(0),
+                    cooperateMin: BigInt(0),
                 }};
                 break;
         }
@@ -296,9 +298,16 @@ const EditForm = (props: Props) => {
                         onChange={changeForm}
                     />
                     <TextField 
-                        label="Min value"
-                        name="auth.dip20.minValue"
-                        value={String(form.auth.dip20.minValue)}
+                        label="Create min value"
+                        name="auth.dip20.createMin"
+                        value={String(form.auth.dip20.createMin)}
+                        required={true}
+                        onChange={changeForm}
+                    />
+                    <TextField 
+                        label="Cooperate min value"
+                        name="auth.dip20.cooperateMin"
+                        value={String(form.auth.dip20.cooperateMin)}
                         required={true}
                         onChange={changeForm}
                     />
@@ -314,9 +323,16 @@ const EditForm = (props: Props) => {
                         onChange={changeForm}
                     />
                     <TextField 
-                        label="Min value"
-                        name="auth.dip721.minValue"
-                        value={String(form.auth.dip721.minValue)}
+                        label="Create min value"
+                        name="auth.dip721.createMin"
+                        value={String(form.auth.dip721.createMin)}
+                        required={true}
+                        onChange={changeForm}
+                    />
+                    <TextField 
+                        label="Cooperate min value"
+                        name="auth.dip721.cooperateMin"
+                        value={String(form.auth.dip721.cooperateMin)}
                         required={true}
                         onChange={changeForm}
                     />

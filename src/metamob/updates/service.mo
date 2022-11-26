@@ -53,7 +53,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -92,7 +92,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -151,7 +151,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -335,7 +335,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

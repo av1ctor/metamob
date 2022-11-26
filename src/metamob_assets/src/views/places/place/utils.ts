@@ -10,7 +10,8 @@ export const transformAuth = (
         return {
             dip20: {
                 canisterId: auth.dip20.canisterId,
-                minValue: BigInt(auth.dip20.minValue),
+                createMin: BigInt(auth.dip20.createMin),
+                cooperateMin: BigInt(auth.dip20.cooperateMin),
             }
         };
     }
@@ -18,7 +19,8 @@ export const transformAuth = (
         return {
             dip721: {
                 canisterId: auth.dip721.canisterId,
-                minValue: BigInt(auth.dip721.minValue),
+                createMin: BigInt(auth.dip721.createMin),
+                cooperateMin: BigInt(auth.dip721.cooperateMin),
             }
         };
     }
@@ -39,7 +41,10 @@ export const validateAuth = (
         if(!value.dip20['canisterId']) {
             return false;
         }
-        if(!value.dip20['minValue']) {
+        if(!value.dip20['createMin']) {
+            return false;
+        }
+        if(!value.dip20['cooperateMin']) {
             return false;
         }
         return true;
@@ -48,7 +53,10 @@ export const validateAuth = (
         if(!value.dip721['canisterId']) {
             return false;
         }
-        if(String(value.dip721['minValue']) === '') {
+        if(!value.dip721['createMin']) {
+            return false;
+        }
+        if(!value.dip721['cooperateMin']) {
             return false;
         }
         return true;

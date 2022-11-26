@@ -348,12 +348,14 @@ module {
             case (#dip20(dip)) {
                 res.put("auth", #nat32(Types.RESTRICTION_DIP20));
                 res.put("auth_canisterId", #text(dip.canisterId));
-                res.put("auth_minValue", #nat(dip.minValue));
+                res.put("auth_createMin", #nat(dip.createMin));
+                res.put("auth_cooperateMin", #nat(dip.cooperateMin));
             };
             case (#dip721(dip)) {
                 res.put("auth", #nat32(Types.RESTRICTION_DIP721));
                 res.put("auth_canisterId", #text(dip.canisterId));
-                res.put("auth_minValue", #nat(dip.minValue));
+                res.put("auth_createMin", #nat(dip.createMin));
+                res.put("auth_cooperateMin", #nat(dip.cooperateMin));
             };
         };
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
@@ -377,7 +379,6 @@ module {
         map: HashMap.HashMap<Text, Variant.Variant>
     ): Types.Place {
         let auth = Variant.getOptNat32(map.get("auth"));
-
         {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
@@ -393,13 +394,15 @@ module {
                 else if(auth == Types.RESTRICTION_DIP20) {
                     #dip20({
                         canisterId = Variant.getOptText(map.get("auth_canisterId"));
-                        minValue = Variant.getOptNat(map.get("auth_minValue"));
+                        createMin = Variant.getOptNat(map.get("auth_createMin"));
+                        cooperateMin = Variant.getOptNat(map.get("auth_cooperateMin"));
                     });
                 }
                 else /*if(auth == Types.RESTRICTION_DIP721)*/ {
                     #dip721({
                         canisterId = Variant.getOptText(map.get("auth_canisterId"));
-                        minValue = Variant.getOptNat(map.get("auth_minValue"));
+                        createMin = Variant.getOptNat(map.get("auth_createMin"));
+                        cooperateMin = Variant.getOptNat(map.get("auth_cooperateMin"));
                     });
                 };
             name = Variant.getOptText(map.get("name"));

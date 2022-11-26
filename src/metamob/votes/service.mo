@@ -1,5 +1,7 @@
 import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
+import DIP20 "../common/dip20";
+import DIP721 "../common/dip721";
 import EntityTypes "../common/entities";
 import ModerationTypes "../moderations/types";
 import ModerationService "../moderations/service";
@@ -50,18 +52,19 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
-                                    case _ {
+                                    case (#ok(place)) {
                                         switch(repo.findByCampaignAndUserEx(req.campaignId, caller._id, false)) {
                                             case (#ok(response)) {
                                                 #err("Duplicated");
                                             };
                                             case _ {
-                                                let res = repo.create(req, caller._id);
-                                                switch(await _checkIfFinished(campaign, req, caller, this)) {
+                                                let weight = await _getWeight(place, invoker);
+                                                let res = repo.create(req, weight, caller._id);
+                                                switch(await _checkIfFinished(campaign, place, req.pro, caller, this)) {
                                                     case (#err(msg)) {
                                                         return #err(msg);
                                                     };
@@ -77,6 +80,23 @@ module {
                         };           
 
                     };
+                };
+            };
+        };
+
+        func _getWeight(
+            place: PlaceTypes.Place,
+            invoker: Principal
+        ): async Nat {
+            switch(place.auth) {
+                case (#dip20(dip)) {
+                    await DIP20.balanceOf(dip.canisterId, invoker);
+                };
+                case (#dip721(dip)) {
+                    await DIP721.balanceOf(dip.canisterId, invoker);
+                };
+                case _ {
+                    1;
                 };
             };
         };
@@ -110,7 +130,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -202,14 +222,16 @@ module {
 
         func _checkIfFinished(
             campaign: CampaignTypes.Campaign,
-            req: Types.VoteRequest,
+            place: PlaceTypes.Place,
+            pro: Bool,
             caller: UserTypes.Profile, 
             this: actor {}
         ): async Result.Result<(), Text> {
             if(campaign.goal != 0) {
+                // reload because the campaign was updated
                 switch(campaignRepo.findById(campaign._id)) {
                     case (#ok(campaign)) {
-                        if(req.pro) {
+                        if(pro) {
                             let votes = switch(campaign.info) {case (#votes(info)) info.pro; case _ 0;};
                             if(votes >= campaign.goal) {
                                 switch(await campaignService.finishAndRunAction(
@@ -352,7 +374,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId)) {
+                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

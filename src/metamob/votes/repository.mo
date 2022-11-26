@@ -38,9 +38,10 @@ module {
 
         public func create(
             req: Types.VoteRequest,
+            weight: Nat,
             callerId: Nat32
         ): Result.Result<Types.Vote, Text> {
-            let e = _createEntity(req, callerId);
+            let e = _createEntity(req, weight, callerId);
             switch(votes.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -380,6 +381,7 @@ module {
 
         func _createEntity(
             req: Types.VoteRequest,
+            weight: Nat,
             callerId: Nat32
         ): Types.Vote {
             {
@@ -389,7 +391,7 @@ module {
                 campaignId = req.campaignId;
                 body = req.body;
                 pro = req.pro;
-                weight = 1;
+                weight = weight;
                 moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
                 createdBy = callerId;

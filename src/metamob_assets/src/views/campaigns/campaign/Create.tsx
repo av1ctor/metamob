@@ -151,7 +151,7 @@ const formSchema = [
         }),
     }),
     yup.object().shape({
-        goal: yup.number().required().min(1),
+        goal: yup.number().optional().default(0),
         duration: yup.number().min(1).max(365),
         categoryId: yup.number().required().min(1),
         placeId: yup.number().required().min(1),
@@ -493,6 +493,9 @@ const CreateForm = (props: Props) => {
         }));
     }, [props.place]);
 
+    const goalDisabled = (Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
+        (place.data? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
+
     return (
         <>
             <Steps
@@ -591,13 +594,21 @@ const CreateForm = (props: Props) => {
                             required={true}
                             onChange={changeForm}
                         />
-                        <TextField 
-                            label={campaignKindToGoal(form.kind)}
-                            name="goal"
-                            value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
-                            required={true}
-                            onChange={changeForm}
-                        />
+                        {!goalDisabled?
+                            <TextField 
+                                label={campaignKindToGoal(form.kind)}
+                                name="goal"
+                                value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
+                                required={true}
+                                onChange={changeForm}
+                            />
+                        :
+                            <TextField 
+                                label={campaignKindToGoal(form.kind)}
+                                value="50% + 1"
+                                disabled
+                            />
+                        }
                         <SelectField 
                             label="Category"
                             name="categoryId"

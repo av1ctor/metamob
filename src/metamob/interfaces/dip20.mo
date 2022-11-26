@@ -23,5 +23,6 @@ module {
         allowance: (principal: Principal, spender: Principal) -> async Nat;
         approve: (spender: Principal, value: Nat) -> async TxReceipt;
         getTokenFee: () -> async Nat;
+        totalSupply: query () -> async Nat;
     };
 };
