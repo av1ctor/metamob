@@ -7,6 +7,7 @@ import Container from "../../../components/Container";
 import SelectField from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateReport } from "../../../hooks/reports";
+import { useUI } from "../../../hooks/ui";
 import { EntityType } from "../../../libs/common";
 import { kinds } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
@@ -16,9 +17,6 @@ interface Props {
     entityType: EntityType;
     entityPubId: string;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -32,6 +30,8 @@ const formSchema = yup.object().shape({
 const CreateForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ReportRequest>({
         entityId: props.entityId,
@@ -58,12 +58,12 @@ const CreateForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await mutation.mutateAsync({
                 main: actors.main,
@@ -76,14 +76,14 @@ const CreateForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess(intl.formatMessage({defaultMessage: 'Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!'}));
+            showSuccess(intl.formatMessage({defaultMessage: 'Thanks, your report was created. If it is accepted, you will receive 1 MMT as reward!'}));
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 

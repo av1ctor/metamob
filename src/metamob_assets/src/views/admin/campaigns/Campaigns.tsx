@@ -17,9 +17,6 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Campaigns = (props: Props) => {
@@ -208,9 +205,9 @@ const Campaigns = (props: Props) => {
                     <View
                         campaign={campaign}
                         onClose={toggleView}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -224,9 +221,9 @@ const Campaigns = (props: Props) => {
                     <EditUserForm
                         user={user}
                         onClose={toggleEditUser}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

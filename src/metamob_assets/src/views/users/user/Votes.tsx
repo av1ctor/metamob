@@ -4,6 +4,7 @@ import { VoteResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
+import { useUI } from "../../../hooks/ui";
 import { useFindUserVotes } from "../../../hooks/votes";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
@@ -13,9 +14,6 @@ import DeleteForm from "../../votes/vote/Delete";
 import EditForm from "../../votes/vote/Edit";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -26,6 +24,8 @@ const orderBy = [{
 const Votes = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -70,9 +70,9 @@ const Votes = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(votes.status === "loading");
+        toggleLoading(votes.status === "loading");
         if(votes.status === "error") {
-            props.onError(votes.error.message);
+            showError(votes.error.message);
         }
     }, [votes.status]);
     
@@ -151,9 +151,9 @@ const Votes = (props: Props) => {
                     <EditForm
                         vote={vote} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -167,9 +167,9 @@ const Votes = (props: Props) => {
                     <DeleteForm
                         vote={vote} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal> 

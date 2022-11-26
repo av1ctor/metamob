@@ -9,9 +9,6 @@ import Email from "./results/Email";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 enum Action {
@@ -82,9 +79,6 @@ const Result = (props: Props) => {
                             <Email
                                 campaign={campaign}
                                 onClose={toggleShow}
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
-                                toggleLoading={props.toggleLoading}
                             />
                         }
                     </Modal>

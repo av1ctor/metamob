@@ -10,11 +10,9 @@ import { Paginator } from "../../../../components/Paginator";
 import { ChallengeState } from "../../../../libs/challenges";
 import ModerateForm from "../../../challenges/challenge/Moderate";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -25,6 +23,8 @@ const orderBy = [{
 const ToModerate = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {showError, toggleLoading} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -65,9 +65,9 @@ const ToModerate = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(challenges.status === "loading");
+        toggleLoading(challenges.status === "loading");
         if(challenges.status === "error") {
-            props.onError(challenges.error.message);
+            showError(challenges.error.message);
         }
     }, [challenges.status]);
 
@@ -88,8 +88,8 @@ const ToModerate = (props: Props) => {
                         >
                             <BaseItem 
                                 challenge={challenge} 
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
+                                
+                                
                             >
                                 <p>
                                     <small>
@@ -137,9 +137,9 @@ const ToModerate = (props: Props) => {
                         challenge={challenge}
                         onModerate={toggleModerate}
                         onClose={toggleModerate}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

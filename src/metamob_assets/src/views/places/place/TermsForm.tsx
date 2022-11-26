@@ -6,15 +6,13 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import { Markdown } from "../../../components/Markdown";
 import { useCreatePlaceUser } from "../../../hooks/places-users";
+import { useUI } from "../../../hooks/ui";
 import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     place: Place;
     placeUser?: PlaceUser;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -25,6 +23,8 @@ const formSchema = yup.object().shape({
 const TermsForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState<PlaceUserRequest>({
         placeId: props.place._id,
@@ -59,12 +59,12 @@ const TermsForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await createMut.mutateAsync({
                 main: actors.main,
@@ -73,14 +73,14 @@ const TermsForm = (props: Props) => {
                     termsAccepted: form.termsAccepted
                 }
             });
-            props.onSuccess(`Place terms ${form.termsAccepted? 'accepted': 'refused'}!`);
+            showSuccess(`Place terms ${form.termsAccepted? 'accepted': 'refused'}!`);
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 

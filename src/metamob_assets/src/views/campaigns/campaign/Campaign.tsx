@@ -36,11 +36,9 @@ import Share from "./Share";
 import Result from "./Result";
 import Poaps from "../../poaps/Poaps";
 import Cover from "./Cover";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Campaign = (props: Props) => {
@@ -48,6 +46,8 @@ const Campaign = (props: Props) => {
     const [auth] = useContext(AuthContext);
     const [categories] = useContext(CategoryContext);
     const intl = useIntl();
+
+    const {toggleLoading, showSuccess, showError} = useUI();
     
     const [modals, setModals] = useState({
         edit: false,
@@ -87,9 +87,9 @@ const Campaign = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(campaignReq.status === "loading");
+        toggleLoading(campaignReq.status === "loading");
         if(campaignReq.status === "error") {
-            props.onError(campaignReq.error.message);
+            showError(campaignReq.error.message);
         }
     }, [campaignReq.status]);
 
@@ -158,33 +158,33 @@ const Campaign = (props: Props) => {
                                 {campaign.kind === CampaignKind.SIGNATURES &&
                                     <SignFrame
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 }
                                 {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
                                     <VoteFrame 
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 }
                                 {campaign.kind === CampaignKind.FUNDINGS &&
                                     <FundingFrame
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 }
                                 {campaign.kind === CampaignKind.DONATIONS &&
                                     <DonationFrame
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 }
                                 {campaign.state === CampaignState.PUBLISHED? 
@@ -192,17 +192,17 @@ const Campaign = (props: Props) => {
                                         <Box>
                                             <Boost 
                                                 campaign={campaign} 
-                                                onSuccess={props.onSuccess}
-                                                onError={props.onError}
-                                                toggleLoading={props.toggleLoading}
+                                                
+                                                
+                                                
                                             />
                                         </Box>
                                         <Box>
                                             <Poaps
                                                 campaign={campaign}
-                                                onSuccess={props.onSuccess}
-                                                onError={props.onError}
-                                                toggleLoading={props.toggleLoading}
+                                                
+                                                
+                                                
                                             />
                                         </Box>
                                         <Box>
@@ -214,9 +214,9 @@ const Campaign = (props: Props) => {
                                 :
                                     <Result
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 }
                             </>:
@@ -319,42 +319,42 @@ const Campaign = (props: Props) => {
                         {campaign.kind === CampaignKind.SIGNATURES?
                             <Signatures 
                                 campaign={campaign} 
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
-                                toggleLoading={props.toggleLoading}
+                                
+                                
+                                
                             />
                         :
                             (campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES)?
                                 <Votes 
                                     campaign={campaign} 
-                                    onSuccess={props.onSuccess}
-                                    onError={props.onError}
-                                    toggleLoading={props.toggleLoading}
+                                    
+                                    
+                                    
                                 />
                             :
                                 campaign.kind === CampaignKind.DONATIONS?
                                     <Donations 
                                         campaign={campaign} 
-                                        onSuccess={props.onSuccess}
-                                        onError={props.onError}
-                                        toggleLoading={props.toggleLoading}
+                                        
+                                        
+                                        
                                     />
                                 :
                                     campaign.kind === CampaignKind.FUNDINGS?
                                         <Fundings 
                                             campaign={campaign} 
-                                            onSuccess={props.onSuccess}
-                                            onError={props.onError}
-                                            toggleLoading={props.toggleLoading}
+                                            
+                                            
+                                            
                                         />
                                     :
                                         <div></div>
                         }
                         <Updates
                             campaign={campaign} 
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
+                            
+                            
+                            
                         />
                     </Tabs>
 
@@ -367,9 +367,9 @@ const Campaign = (props: Props) => {
                             campaign={campaign} 
                             categories={categories.categories} 
                             onClose={toggleEdit}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
+                            
+                            
+                            
                         />
                     </Modal>
 
@@ -381,9 +381,9 @@ const Campaign = (props: Props) => {
                         <DeleteForm 
                             campaign={campaign} 
                             onClose={toggleDelete}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
+                            
+                            
+                            
                         />
                     </Modal>
 
@@ -397,9 +397,9 @@ const Campaign = (props: Props) => {
                             entityPubId={campaign.pubId}
                             entityType={EntityType.CAMPAIGNS}
                             onClose={toggleReport}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
+                            
+                            
+                            
                         />
                     </Modal>
 
@@ -409,9 +409,9 @@ const Campaign = (props: Props) => {
                         entityId={campaign._id}
                         moderated={campaign.moderated}
                         onClose={toggleModerations}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 </>
             }

@@ -5,6 +5,7 @@ import Badge from "../../../components/Badge";
 import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import { useDeletePlaceEmail, useFindPlacesEmails } from "../../../hooks/places-emails";
+import { useUI } from "../../../hooks/ui";
 import { ActorContext } from "../../../stores/actor";
 import Create from "./Create";
 
@@ -20,13 +21,13 @@ const limit = {
 
 interface Props {
     place: Place;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const PlaceEmails = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [modals, setModals] = useState({
         create: false,
@@ -43,43 +44,30 @@ const PlaceEmails = (props: Props) => {
         }));
     }, []);
 
-    const toggleDelete = useCallback(() => {
-        setModals(modals => ({
-            ...modals,
-            delete: !modals.delete
-        }));
-    }, []);
-
-    const handleCreated = useCallback((message: string) => {
-        toggleCreate();
-        props.onSuccess(message);
-        emails.refetch();
-    }, [props.onSuccess]);
-
     const handleDelete = useCallback(async (_id: number) => {
         try
         {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await deleteMut.mutateAsync({
                 main: actors.main,
                 _id: _id
             });
-            props.onSuccess("E-mail deleted!")
+            showSuccess("E-mail deleted!")
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
         
     }, []);
     
     useEffect(() => {
-        props.toggleLoading(emails.status === "loading");
+        toggleLoading(emails.status === "loading");
         if(emails.status === "error") {
-            props.onError(emails.error.message);
+            showError(emails.error.message);
         }
     }, [emails.status]);
 
@@ -138,9 +126,6 @@ const PlaceEmails = (props: Props) => {
                 <Create
                     place={props.place}
                     onClose={toggleCreate}
-                    onSuccess={handleCreated}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             </Modal>
         </>

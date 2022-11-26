@@ -27,48 +27,11 @@ import Footer from "./Footer";
 import User from "../users/user/User";
 import Admin from "../admin/Admin";
 import Front from "./Front";
+import PublicProfile from "../users/user/PublicProfile";
 import { Limit, Order } from "../../libs/common";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import PublicProfile from "../users/user/PublicProfile";
-
-const showError = (e: any) => {
-    if(e) {
-        const text = typeof e === 'string'? 
-            e
-        :
-            e.constructor === Array?
-                e.map((s, i) => `${1+i}. ${s};`) .join('\n')
-            :
-                typeof e === 'object'?
-                    'data' in e?
-                        e.data.message
-                    :
-                        e.message
-                :
-                    '';
-        
-        toast({
-            message: `Error${e.constructor === Array? 's:\n': ': '}${text}`,
-            type: 'is-danger',
-            duration: 5000,
-            dismissible: true,
-            pauseOnHover: true,
-            position: 'top-center'
-        });
-    }
-};
-
-const showSuccess = (text: string) => {
-    toast({
-        message: text,
-        type: 'is-success',
-        duration: 5000,
-        dismissible: true,
-        pauseOnHover: true,
-        position: 'top-center'
-    });
-}
+import { useUI } from "../../hooks/ui";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -85,14 +48,10 @@ export const Home = () => {
     const [, actorDispatch] = useContext(ActorContext);
     const [, categoriesDispatch] = useContext(CategoryContext);
 
-    const [loading, setLoading] = useState(false);
+    const {isLoading: loading} = useUI();
 
     const categories = useFindCategories([], orderBy, limit);
     
-    const toggleLoading = useCallback((to: boolean) => {
-        setLoading(to);
-    }, []);
-
     const loadAuthenticatedUser = async (
         main: Metamob
     ): Promise<ProfileResponse|undefined> => {
@@ -164,40 +123,31 @@ export const Home = () => {
         }
     }, [categories.status]);
 
-    const props = {
-        onSuccess: showSuccess,
-        onError: showError,
-        toggleLoading: toggleLoading
-    };
-
     return (
         <div className="home">
-            <Header 
-                onSuccess={showSuccess}
-                onError={showError}
-            />
+            <Header />
             <section className="section">
                 <div className="container">
                     <Routes>
-                        <Route path="/user/login" element={<Logon {...props} />} />
-                        <Route path="/user/profile" element={<User {...props} />} />
-                        <Route path="/user/campaigns" element={<UserCampaigns {...props} />} />
-                        <Route path="/user/donations" element={<UserDonations {...props} />} />
-                        <Route path="/user/fundings" element={<UserFundings {...props} />} />
-                        <Route path="/user/signatures" element={<UserSignatures {...props} />} />
-                        <Route path="/user/votes" element={<UserVotes {...props} />} />
-                        <Route path="/user/places" element={<UserPlaces {...props} />} />
-                        <Route path="/user/reports" element={<UserReports {...props} />} />
-                        <Route path="/user/challenges" element={<UserChallenges {...props} />} />
-                        <Route path="/user/notifications" element={<UserNotifications {...props} />} />
-                        <Route path="/c/:id" element={<Campaign {...props} />} />
-                        <Route path="/p/:id" element={<Place {...props} />} />
-                        <Route path="/u/:id" element={<PublicProfile {...props} />} />
-                        <Route path="/admin" element={<Admin {...props} />} />
-                        <Route path="/campaigns" element={<Campaigns {...props} />} />
-                        <Route path="/places/:mode" element={<Places {...props} />} />
-                        <Route path="/places" element={<Places {...props} />} />
-                        <Route path="/" element={<Front {...props} />} />
+                        <Route path="/user/login" element={<Logon />} />
+                        <Route path="/user/profile" element={<User />} />
+                        <Route path="/user/campaigns" element={<UserCampaigns />} />
+                        <Route path="/user/donations" element={<UserDonations />} />
+                        <Route path="/user/fundings" element={<UserFundings />} />
+                        <Route path="/user/signatures" element={<UserSignatures />} />
+                        <Route path="/user/votes" element={<UserVotes />} />
+                        <Route path="/user/places" element={<UserPlaces />} />
+                        <Route path="/user/reports" element={<UserReports />} />
+                        <Route path="/user/challenges" element={<UserChallenges />} />
+                        <Route path="/user/notifications" element={<UserNotifications />} />
+                        <Route path="/c/:id" element={<Campaign />} />
+                        <Route path="/p/:id" element={<Place />} />
+                        <Route path="/u/:id" element={<PublicProfile />} />
+                        <Route path="/admin" element={<Admin />} />
+                        <Route path="/campaigns" element={<Campaigns />} />
+                        <Route path="/places/:mode" element={<Places />} />
+                        <Route path="/places" element={<Places />} />
+                        <Route path="/" element={<Front />} />
                     </Routes>
                 </div>
             </section>

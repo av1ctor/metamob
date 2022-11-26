@@ -18,11 +18,9 @@ import StakeForm from "./Stake";
 import UnstakeForm from "./Unstake";
 import TransferForm from "./Transfer";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -35,6 +33,8 @@ const formSchema = yup.object().shape({
 const User = (props: Props) => {
     const [auth, authDispatch] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [principal, setPrincipal] = useState('');
     const [accountId, setAccountId] = useState('');
@@ -84,12 +84,12 @@ const User = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 return;
@@ -100,17 +100,17 @@ const User = (props: Props) => {
             if('ok' in res) {
                 const user = res.ok;
                 authDispatch({type: AuthActionType.SET_USER, payload: user});
-                props.onSuccess('User updated!');
+                showSuccess('User updated!');
             }
             else {
-                props.onError(res.err);
+                showError(res.err);
             }
         }
         catch(e: any) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form]);
 
@@ -131,7 +131,7 @@ const User = (props: Props) => {
                 }
             });
         }).catch(e => {
-            props.onError(e);
+            showError(e);
         });
     }, [auth.identity, actors]);
 
@@ -175,7 +175,7 @@ const User = (props: Props) => {
         switch(profile.status) {
             case 'success':
                 if(!auth.identity) {
-                    props.onError("Identity undefined");
+                    showError("Identity undefined");
                     return
                 }
                 updateBalances();
@@ -197,10 +197,10 @@ const User = (props: Props) => {
                 break;
 
             case 'error':
-                props.onError(profile.error.message);
+                showError(profile.error.message);
                 break;
         }
-        props.toggleLoading(profile.status === 'loading');
+        toggleLoading(profile.status === 'loading');
     }, [profile.status]);
 
     if(!auth.user) {
@@ -366,9 +366,9 @@ const User = (props: Props) => {
                 <StakeForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleStake}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
 
@@ -380,9 +380,9 @@ const User = (props: Props) => {
                 <UnstakeForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleWithdraw}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
 
@@ -394,9 +394,9 @@ const User = (props: Props) => {
                 <TransferForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleTransfer}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

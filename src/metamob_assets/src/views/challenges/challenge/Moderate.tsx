@@ -13,14 +13,12 @@ import EntityViewWrapper from "./EntityViewWrapper";
 import EntityView from "./EntityView";
 import { variantUnbox } from "../../../libs/utils";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     challenge: Challenge;
     onModerate: (challenge: Challenge) => void;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -30,6 +28,8 @@ const formSchema = yup.object().shape({
 
 const ModerateForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ChallengeVoteRequest>({
         reason: '',
@@ -74,12 +74,12 @@ const ModerateForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await closeMut.mutateAsync({
                 main: actors.main,
@@ -89,14 +89,14 @@ const ModerateForm = (props: Props) => {
                     pro: form.pro,
                 }
             });
-            props.onSuccess('Your vote was cast!');
+            showSuccess('Your vote was cast!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 

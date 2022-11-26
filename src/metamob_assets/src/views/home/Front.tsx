@@ -4,20 +4,20 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import { useCreateCampaign } from "../../hooks/campaigns";
+import { useUI } from "../../hooks/ui";
 import { AuthContext } from "../../stores/auth";
 import { CategoryContext } from "../../stores/category";
 import CreateForm from "../campaigns/campaign/Create";
 import HotCampaigns from "../campaigns/Hot";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Front = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         create: false,
@@ -82,9 +82,9 @@ const Front = (props: Props) => {
                 </div>
                 <div className="column is-6 hor-campaigns">
                     <HotCampaigns 
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 </div>
             </div>
@@ -150,9 +150,9 @@ const Front = (props: Props) => {
                     categories={categoryState.categories}
                     mutation={createCampaignMut}
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

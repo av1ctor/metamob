@@ -6,6 +6,7 @@ import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCloseReport } from "../../../hooks/reports";
+import { useUI } from "../../../hooks/ui";
 import { kinds, ReportResult } from "../../../libs/reports";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
@@ -15,9 +16,7 @@ interface Props {
     report: ReportResponse;
     onModerate: (report: ReportResponse) => void;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const formSchema = yup.object().shape({
@@ -34,6 +33,8 @@ const results: Option[] = [
 
 const ModerateForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ReportCloseRequest>({
         resolution: props.report.resolution,
@@ -64,12 +65,12 @@ const ModerateForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await closeMut.mutateAsync({
                 main: actors.main,
@@ -79,14 +80,14 @@ const ModerateForm = (props: Props) => {
                     result: Number(form.result),
                 }
             });
-            props.onSuccess('Report updated!');
+            showSuccess('Report updated!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 
@@ -141,8 +142,8 @@ const ModerateForm = (props: Props) => {
             <EntityPreview 
                 report={report} 
                 onModerate={props.onModerate}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
+                
+                
             />
             
             <TextAreaField

@@ -9,11 +9,9 @@ import Categories from "./categories/Categories";
 import Places from "./places/Places";
 import Poaps from "./poaps/Poaps";
 import Logs from "./logs/Logs";
+import { useUI } from "../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const Admin = (props: Props) => {
@@ -23,12 +21,6 @@ const Admin = (props: Props) => {
         return <span>Forbidden</span>;
     }
 
-    const subProps = {
-        onSuccess: props.onSuccess,
-        onError: props.onError,
-        toggleLoading: props.toggleLoading,
-    }
-    
     return (
         <>
             <div className="page-title has-text-info-dark">
@@ -36,31 +28,31 @@ const Admin = (props: Props) => {
             </div>         
             
             <Box>
-                <Campaigns {...subProps} />
+                <Campaigns />
             </Box>
 
             <Box>
-                <Reports {...subProps} />
+                <Reports />
             </Box>
 
             <Box>
-                <Users {...subProps} />
+                <Users />
             </Box>
 
             <Box>
-                <Places {...subProps} />
+                <Places />
             </Box>
 
             <Box>
-                <Categories {...subProps} />
+                <Categories />
             </Box>
 
             <Box>
-                <Poaps {...subProps} />
+                <Poaps />
             </Box>
 
             <Box>
-                <Logs {...subProps} />
+                <Logs />
             </Box>
 
         </>

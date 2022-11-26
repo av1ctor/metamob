@@ -4,6 +4,7 @@ import AutocompleteField from "../../components/AutocompleteField";
 import Button from "../../components/Button";
 import SelectField, {Option} from "../../components/SelectField";
 import TextField from "../../components/TextField";
+import { useUI } from "../../hooks/ui";
 import {Filter} from "../../libs/common";
 import { search } from "../../libs/places";
 
@@ -11,12 +12,13 @@ interface Props {
     filters: Filter[];
     categories: Category[];
     onSearch: (filters: Filter[]) => unknown
-    onError: (message: any) => void;
 };
 
 const SearchForm = (props: Props) => {
     const [form, setForm] = useState(props.filters);
     const [placeName, setPlaceName] = useState('');
+
+    const {showError} = useUI();
 
     const changeTitleFilter = useCallback((e: any) => {
         const value = e.target.value;
@@ -47,7 +49,7 @@ const SearchForm = (props: Props) => {
             return search(value);
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
             return [];
         }
     }, []);

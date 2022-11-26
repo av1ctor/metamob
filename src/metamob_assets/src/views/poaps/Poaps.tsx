@@ -16,9 +16,6 @@ import MintForm from "./poap/Mint";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy: Order[] = [{
@@ -149,9 +146,9 @@ const Poaps = (props: Props) => {
                     campaignId={campaign._id}    
                     poap={undefined} 
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
 
@@ -165,9 +162,9 @@ const Poaps = (props: Props) => {
                         campaignId={campaign._id}
                         poap={poap} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -181,9 +178,9 @@ const Poaps = (props: Props) => {
                     <DeleteForm
                         poap={poap} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>            
@@ -199,9 +196,9 @@ const Poaps = (props: Props) => {
                         entityPubId={poap.pubId}
                         entityType={EntityType.POAPS}
                         onClose={toggleReport}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -216,9 +213,9 @@ const Poaps = (props: Props) => {
                         poap={poap} 
                         campaign={campaign}
                         onClose={toggleMint}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>     
@@ -230,9 +227,9 @@ const Poaps = (props: Props) => {
                     entityId={poap._id}
                     moderated={poap.moderated}
                     onClose={toggleModerations}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             }
         </>

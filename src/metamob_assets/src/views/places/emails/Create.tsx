@@ -7,13 +7,11 @@ import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {Place, PlaceEmailRequest, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { ActorContext } from "../../../stores/actor";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     place: Place;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
     onClose: () => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -22,6 +20,8 @@ const formSchema = yup.object().shape({
 
 const Create = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState<PlaceEmailRequest>({
         placeId: props.place._id,
@@ -50,12 +50,12 @@ const Create = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 throw Error('Main actor undefined');
@@ -69,17 +69,17 @@ const Create = (props: Props) => {
             const res = await actors.main.placeEmailCreate(req);
             
             if('ok' in res) {
-                props.onSuccess('E-mail created!');
+                showSuccess('E-mail created!');
             }
             else {
-                props.onError(res.err);
+                showError(res.err);
             }
         }
         catch(e: any) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form]);
 

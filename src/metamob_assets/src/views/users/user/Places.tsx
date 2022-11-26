@@ -13,11 +13,9 @@ import Button from "../../../components/Button";
 import { Paginator } from "../../../components/Paginator";
 import { PlaceIcon } from "../../places/place/PlaceIcon";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -28,6 +26,8 @@ const orderBy = [{
 const Places = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -94,9 +94,9 @@ const Places = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(places.status === "loading");
+        toggleLoading(places.status === "loading");
         if(places.status === "error") {
-            props.onError(places.error.message);
+            showError(places.error.message);
         }
     }, [places.status]);
     
@@ -192,10 +192,10 @@ const Places = (props: Props) => {
                 onClose={toggleCreate}
             >
                 <CreateForm 
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
+                    
+                    
                     onClose={toggleCreate}
-                    toggleLoading={props.toggleLoading}
+                    
                 />
             </Modal>            
             
@@ -209,9 +209,9 @@ const Places = (props: Props) => {
                         place={place} 
                         onEditEmails={toggleEditEmails}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -231,9 +231,9 @@ const Places = (props: Props) => {
                 {place && 
                     <PlaceEmails
                         place={place}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal> 

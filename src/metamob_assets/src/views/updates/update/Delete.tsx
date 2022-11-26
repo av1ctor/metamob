@@ -4,17 +4,18 @@ import {Update} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     update: Update;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 };
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteUpdate();
 
@@ -22,21 +23,21 @@ const DeleteForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await deleteMut.mutateAsync({
                 main: actors.main,
                 pubId: props.update.pubId, 
             });
             
-            props.onSuccess('Update deleted!');
+            showSuccess('Update deleted!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [props.onClose]);
 

@@ -5,18 +5,18 @@ import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext)
     const intl = useIntl();
+    
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteCampaign();
 
@@ -24,21 +24,21 @@ const DeleteForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await deleteMut.mutateAsync({
                 main: actors.main,
                 pubId: props.campaign.pubId, 
             });
 
-            props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign deleted!'}));
+            showSuccess(intl.formatMessage({defaultMessage: 'Campaign deleted!'}));
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [actors.main, props.onClose]);
 

@@ -15,12 +15,10 @@ import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/back
 import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
 import { Identity } from "@dfinity/agent";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -32,6 +30,8 @@ const formSchema = yup.object().shape({
 const DonationForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, actorDispatch] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [balance, setBalance] = useState(BigInt(0));
 
@@ -117,13 +117,13 @@ const DonationForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
             setIsLoading(true);
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 throw Error("Main canister undefined");
@@ -169,14 +169,14 @@ const DonationForm = (props: Props) => {
             });
 
             updateState();
-            props.onSuccess('Your donation has been sent!');
+            showSuccess('Your donation has been sent!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
             setIsLoading(false);
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, auth, actors.main, balance, updateState]);
 

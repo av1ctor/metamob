@@ -11,6 +11,7 @@ import { Paginator } from "../../../components/Paginator";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { Markdown } from "../../../components/Markdown";
+import { useUI } from "../../../hooks/ui";
 
 const sortByDate: Order[] = [
     {
@@ -20,14 +21,13 @@ const sortByDate: Order[] = [
 ];
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const Notifications = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -43,15 +43,15 @@ const Notifications = (props: Props) => {
 
     const handleMark = useCallback(async (notif: Notification) => {
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
             await markMut.mutateAsync({main: actors.main, pubId: notif.pubId});
-            props.onSuccess("Notification marked as read!");
+            showSuccess("Notification marked as read!");
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [actors.main]);
 
@@ -61,21 +61,21 @@ const Notifications = (props: Props) => {
         }
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
             
             await deleteMut.mutateAsync({
                 main: actors.main, 
                 pubId: notification.pubId
             });
             
-            props.onSuccess("Notification deleted!");
+            showSuccess("Notification deleted!");
             handleCloseDelete();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [actors.main, notification]);
 

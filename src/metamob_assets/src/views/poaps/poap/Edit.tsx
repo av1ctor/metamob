@@ -18,15 +18,13 @@ import { Identity } from "@dfinity/agent";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { getConfigAsNat64 } from "../../../libs/dao";
 import { formatPoapBody, POAP_DEPLOYING_PRICE } from "../../../libs/poap";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     campaignId: number,
     poap?: Poap;
     reportId?: number | null;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -75,6 +73,8 @@ const EditForm = (props: Props) => {
     const [actors, actorsDispatch] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<PoapRequest>(() => loadForm(props.campaignId, props.poap));
     const [balance, setBalance] = useState(BigInt(0));
@@ -165,17 +165,17 @@ const EditForm = (props: Props) => {
         const field = id || name || '';
         
         if(files.length !== 1) {
-            props.onError("Drag and drop only one file at time");
+            showError("Drag and drop only one file at time");
             return;
         }
 
         const file = files[0];
         if(file.size > 16384) {
-            props.onError("File is too big. Max size: 16KB");
+            showError("File is too big. Max size: 16KB");
             return;
         }
         if(file.type !== 'image/svg+xml') {
-            props.onError("Only SVG images are supported");
+            showError("Only SVG images are supported");
             return;
         }
         
@@ -210,7 +210,7 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -219,7 +219,7 @@ const EditForm = (props: Props) => {
         if(isModeration) {
             const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
-                props.onError(errors);
+                showError(errors);
                 return;
             }
         }
@@ -242,7 +242,7 @@ const EditForm = (props: Props) => {
         };
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!auth.user) {
                 throw Error("Not logged in");
@@ -256,7 +256,7 @@ const EditForm = (props: Props) => {
                         req: transformReq(),
                         mod: transformModerationForm(modForm)
                     });
-                    props.onSuccess(intl.formatMessage({defaultMessage: 'Poap moderated!'}));
+                    showSuccess(intl.formatMessage({defaultMessage: 'Poap moderated!'}));
                 }
             }
             else {
@@ -276,7 +276,7 @@ const EditForm = (props: Props) => {
                             main: actors.main,
                             req: transformReq(),
                         });
-                        props.onSuccess(intl.formatMessage({defaultMessage: 'Poap created!'}));
+                        showSuccess(intl.formatMessage({defaultMessage: 'Poap created!'}));
                     }
                     catch(e) {
                         throw e;
@@ -288,17 +288,17 @@ const EditForm = (props: Props) => {
                         pubId: props.poap.pubId, 
                         req: transformReq(),
                     });
-                    props.onSuccess(intl.formatMessage({defaultMessage: 'Poap updated!'}));
+                    showSuccess(intl.formatMessage({defaultMessage: 'Poap updated!'}));
                 }
             }
 
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, modForm, props.poap, balance, poapDeployingPrice, updateState, props.onClose]);
 

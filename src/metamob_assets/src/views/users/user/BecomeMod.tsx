@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import TextField from "../../../components/TextField";
+import { useUI } from "../../../hooks/ui";
 import { useSignupAsModerator, useStake } from "../../../hooks/users";
 import { getConfigAsNat64, getDepositedBalance, getStakedBalance } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
@@ -13,9 +14,6 @@ import { AuthActionType, AuthContext } from "../../../stores/auth";
 
 interface Props {
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -25,6 +23,8 @@ const formSchema = yup.object().shape({
 const BecomeModForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, authDispatch] = useContext(AuthContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [minToBeStaked, setMinStaked] = useState(BigInt(0));
 
@@ -61,12 +61,12 @@ const BecomeModForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const profile = await signupMut.mutateAsync({
                 main: actors.main,
@@ -77,14 +77,14 @@ const BecomeModForm = (props: Props) => {
                 payload: profile
             });
             
-            props.onSuccess('Congratulations! You are now a moderator!');
+            showSuccess('Congratulations! You are now a moderator!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 
@@ -92,7 +92,7 @@ const BecomeModForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const value = minToBeStaked - auth.balances.staked;
 
@@ -102,13 +102,13 @@ const BecomeModForm = (props: Props) => {
                 value: value
             });
             updateBalances();
-            props.onSuccess('Value staked!');
+            showSuccess('Value staked!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [auth, minToBeStaked]);
 
@@ -136,7 +136,7 @@ const BecomeModForm = (props: Props) => {
             });
             setMinStaked(res[4]);
         }).catch(e => {
-            props.onError(e);
+            showError(e);
         });
     };
 

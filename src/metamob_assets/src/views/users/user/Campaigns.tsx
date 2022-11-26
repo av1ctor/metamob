@@ -2,14 +2,12 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { Paginator } from "../../../components/Paginator";
 import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
+import { useUI } from "../../../hooks/ui";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import Item from "../../campaigns/Item";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -20,6 +18,8 @@ const orderBy = [{
 const Campaigns = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -43,9 +43,9 @@ const Campaigns = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(campaigns.status === "loading");
+        toggleLoading(campaigns.status === "loading");
         if(campaigns.status === "error") {
-            props.onError(campaigns.error.message);
+            showError(campaigns.error.message);
         }
     }, [campaigns.status]);
     

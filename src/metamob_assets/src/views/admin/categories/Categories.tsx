@@ -16,9 +16,7 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const Categories = (props: Props) => {
@@ -182,8 +180,8 @@ const Categories = (props: Props) => {
             >
                 <CreateForm
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
+                    
+                    
                 />
             </Modal>
             
@@ -196,9 +194,9 @@ const Categories = (props: Props) => {
                     <EditForm
                         category={category}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

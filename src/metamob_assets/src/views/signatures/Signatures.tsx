@@ -13,9 +13,6 @@ import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy: Order[] = [{
@@ -109,9 +106,9 @@ const Signatures = (props: Props) => {
                     <EditForm
                         signature={signature} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -125,9 +122,9 @@ const Signatures = (props: Props) => {
                     <DeleteForm
                         signature={signature} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>            
@@ -143,9 +140,9 @@ const Signatures = (props: Props) => {
                         entityPubId={signature.pubId}
                         entityType={EntityType.SIGNATURES}
                         onClose={toggleReport}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -157,9 +154,9 @@ const Signatures = (props: Props) => {
                     entityId={signature._id}
                     moderated={signature.moderated}
                     onClose={toggleModerations}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             }
         </>

@@ -3,6 +3,7 @@ import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
+import { useUI } from "../../../hooks/ui";
 import { useStake } from "../../../hooks/users";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { ActorContext } from "../../../stores/actor";
@@ -11,9 +12,6 @@ import { AuthContext } from "../../../stores/auth";
 interface Props {
     onUpdateBalances: () => Promise<void>;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -23,6 +21,8 @@ const formSchema = yup.object().shape({
 const StakeForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState({
         value: "0.0",
@@ -56,12 +56,12 @@ const StakeForm = (props: Props) => {
         
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const value = decimalToIcp(form.value);
             if(value < 10000) {
@@ -78,13 +78,13 @@ const StakeForm = (props: Props) => {
             });
 
             props.onUpdateBalances();
-            props.onSuccess('Value staked!');
+            showSuccess('Value staked!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors, auth]);
 

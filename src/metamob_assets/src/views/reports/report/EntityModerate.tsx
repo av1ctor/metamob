@@ -14,9 +14,6 @@ import { EntityType } from "../../../libs/common";
 interface Props {
     report: ReportResponse;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const EntityModerate = (props: Props) => {
@@ -29,9 +26,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -41,9 +35,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
         
@@ -53,9 +44,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -65,9 +53,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -77,9 +62,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -89,9 +71,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -101,9 +80,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -113,9 +89,6 @@ const EntityModerate = (props: Props) => {
                     id={report.entityId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 
@@ -125,9 +98,6 @@ const EntityModerate = (props: Props) => {
                     pubId={report.entityPubId}
                     reportId={report._id}
                     onClose={props.onClose}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             );
 

@@ -11,9 +11,6 @@ import { copyToClipboard } from "../../../../libs/utils";
 interface Props {
     campaign: Campaign;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const Email = (props: Props): React.ReactElement => {

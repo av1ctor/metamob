@@ -18,12 +18,10 @@ import NumberField from "../../../../../components/NumberField";
 import CustomSelectField from "../../../../../components/CustomSelectField";
 import Badge from "../../../../../components/Badge";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -36,6 +34,8 @@ const formSchema = yup.object().shape({
 const FundingForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, actorDispatch] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [balance, setBalance] = useState(BigInt(0));
 
@@ -123,13 +123,13 @@ const FundingForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
             setIsLoading(true);
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 throw Error("Main canister undefined");
@@ -182,14 +182,14 @@ const FundingForm = (props: Props) => {
             });
 
             updateState();
-            props.onSuccess('Your funding has been sent!');
+            showSuccess('Your funding has been sent!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
             setIsLoading(false);
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, auth, actors.main, balance, props.campaign, updateState]);
 

@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateChallenge } from "../../../hooks/challenges";
+import { useUI } from "../../../hooks/ui";
 import { useApprove } from "../../../hooks/users";
 import { getConfigAsNat64, getDepositedBalance, getStakedBalance } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
@@ -17,9 +18,6 @@ import { AuthActionType, AuthContext } from "../../../stores/auth";
 interface Props {
     moderationId: number;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -30,6 +28,8 @@ const formSchema = yup.object().shape({
 const CreateForm = (props: Props) => {
     const [auth, authDispatch] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+    
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ChallengeRequest>({
         moderationId: props.moderationId,
@@ -55,12 +55,12 @@ const CreateForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await approveMut.mutateAsync({
                 main: actors.main,
@@ -76,14 +76,14 @@ const CreateForm = (props: Props) => {
                 }
             });
 
-            props.onSuccess('Challenge created!');
+            showSuccess('Challenge created!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors, minDeposit, props.onClose]);
 
@@ -118,7 +118,7 @@ const CreateForm = (props: Props) => {
             });
             setMinDeposit(res[4]);
         }).catch(e => {
-            props.onError(e);
+            showError(e);
         });
     };
 

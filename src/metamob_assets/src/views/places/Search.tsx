@@ -8,7 +8,6 @@ import { kinds } from "../../libs/places";
 interface Props {
     filters: Filter[];
     onSearch: (filters: Filter[]) => unknown
-    onError: (message: any) => void;
 };
 
 const SearchForm = (props: Props) => {

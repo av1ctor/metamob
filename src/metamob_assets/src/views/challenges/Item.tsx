@@ -16,8 +16,6 @@ interface BaseItemProps {
     user?: ProfileResponse;
     children?: any;
     onModerate?: (challenge: Challenge) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -72,8 +70,6 @@ interface ItemProps {
     onModerate?: (challenge: Challenge) => void;
     onDelete: (challenge: Challenge) => void;
     onChallenge: (challenge: Challenge) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -91,8 +87,6 @@ export const Item = (props: ItemProps) => {
             user={user.data}
             challenge={challenge}
             onModerate={props.onModerate}
-            onSuccess={props.onSuccess}
-            onError={props.onError}
         >
             <p>
                 <small>

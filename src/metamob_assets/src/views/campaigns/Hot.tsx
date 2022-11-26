@@ -7,9 +7,6 @@ import Item from "./Item";
 import { sortByHot } from "./Sort";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const HotCampaigns = (props: Props) => {

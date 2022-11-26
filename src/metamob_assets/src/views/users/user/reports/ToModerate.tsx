@@ -12,11 +12,9 @@ import { ReportState } from "../../../../libs/reports";
 import EntityModerate from "../../../reports/report/EntityModerate";
 import { entityTypeToText } from "../../../../libs/common";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -27,6 +25,8 @@ const orderBy = [{
 const ToModerate = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {showError, toggleLoading} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -80,9 +80,9 @@ const ToModerate = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(reports.status === "loading");
+        toggleLoading(reports.status === "loading");
         if(reports.status === "error") {
-            props.onError(reports.error.message);
+            showError(reports.error.message);
         }
     }, [reports.status]);
 
@@ -103,8 +103,8 @@ const ToModerate = (props: Props) => {
                         >
                             <BaseItem 
                                 report={report} 
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
+                                
+                                
                             >
                                 <p>
                                     <small>
@@ -152,9 +152,9 @@ const ToModerate = (props: Props) => {
                         report={report} 
                         onModerate={handleModerate}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -168,9 +168,9 @@ const ToModerate = (props: Props) => {
                     <EntityModerate
                         report={report}
                         onClose={toggleModerate}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

@@ -9,11 +9,10 @@ import { AvatarPicker } from "../../../components/AvatarPicker";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
 import { ActorContext } from "../../../stores/actor";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+    onSuccess: (msg: string) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -26,6 +25,8 @@ const formSchema = yup.object().shape({
 const Create = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, authDispatch] = useContext(AuthContext);
+
+    const {showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
@@ -66,12 +67,12 @@ const Create = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 throw Error('Main actor undefined');
@@ -81,18 +82,21 @@ const Create = (props: Props) => {
 
             if('ok' in res) {
                 const user = res.ok;
-                authDispatch({type: AuthActionType.SET_USER, payload: user});
+                authDispatch({
+                    type: AuthActionType.SET_USER, 
+                    payload: user
+                });
                 props.onSuccess('User created!');
             }
             else {
-                props.onError(res.err);
+                showError(res.err);
             }
         }
         catch(e: any) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form]);
 

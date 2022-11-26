@@ -5,6 +5,7 @@ import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserSignatures } from "../../../hooks/signatures";
+import { useUI } from "../../../hooks/ui";
 import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
@@ -13,9 +14,6 @@ import DeleteForm from "../../signatures/signature/Delete";
 import EditForm from "../../signatures/signature/Edit";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -26,6 +24,8 @@ const orderBy = [{
 const Signatures = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -70,9 +70,9 @@ const Signatures = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(signatures.status === "loading");
+        toggleLoading(signatures.status === "loading");
         if(signatures.status === "error") {
-            props.onError(signatures.error.message);
+            showError(signatures.error.message);
         }
     }, [signatures.status]);
 
@@ -151,9 +151,9 @@ const Signatures = (props: Props) => {
                     <EditForm
                         signature={signature} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -167,9 +167,9 @@ const Signatures = (props: Props) => {
                     <DeleteForm
                         signature={signature} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal> 

@@ -9,9 +9,6 @@ import Action from "../Action";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 export const DonationFrame = (props: Props) => {
@@ -32,9 +29,6 @@ export const DonationFrame = (props: Props) => {
                     </div>
                     <DonationForm 
                         campaign={campaign}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 </Box>
             }

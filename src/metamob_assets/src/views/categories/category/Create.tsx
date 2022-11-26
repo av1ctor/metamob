@@ -6,10 +6,9 @@ import ColorField from "../../../components/ColorField";
 import {CategoryRequest} from "../../../../../declarations/metamob/metamob.did";
 import { ActorContext } from "../../../stores/actor";
 import { useCreateCategory } from "../../../hooks/categories";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
     onClose: () => void;
 };
 
@@ -21,6 +20,8 @@ const formSchema = yup.object().shape({
 
 const Create = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError} = useUI();
     
     const [form, setForm] = useState<CategoryRequest>({
         name: '',
@@ -52,7 +53,7 @@ const Create = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -66,11 +67,11 @@ const Create = (props: Props) => {
                 }
             });
             
-            props.onSuccess('Category created!');
+            showSuccess('Category created!');
             props.onClose();
         }
         catch(e: any) {
-            props.onError(e);
+            showError(e);
         }
     }, [actors.main, form]);
 

@@ -8,15 +8,15 @@ import BecomeModForm from "./BecomeMod";
 import MyReports from "./reports/MyReports";
 import AgainstMe from "./reports/AgainstMe";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const Reports = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         becomeMod: false,
@@ -36,25 +36,25 @@ const Reports = (props: Props) => {
     return (
         <>
             <MyReports
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
 
             <div className="mt-4">
                 <AgainstMe
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </div>
 
             <div className="mt-4">
                 {isModerator(auth.user)?
                     <ToModerate
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 :
                     <div className="container border mt-6 p-4">
@@ -81,9 +81,9 @@ const Reports = (props: Props) => {
             >
                 <BecomeModForm
                     onClose={toggleBecomeMod}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

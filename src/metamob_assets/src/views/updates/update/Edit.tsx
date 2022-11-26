@@ -9,14 +9,13 @@ import MarkdownField from "../../../components/MarkdownField";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     update: Update;
     reportId?: number | null;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 };
 
 const formSchema = yup.object().shape({
@@ -26,6 +25,8 @@ const formSchema = yup.object().shape({
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<UpdateRequest>({
         campaignId: props.update.campaignId,
@@ -61,7 +62,7 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -70,7 +71,7 @@ const EditForm = (props: Props) => {
         if(isModeration) {
             const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
-                props.onError(errors);
+                showError(errors);
                 return;
             }
         }
@@ -83,7 +84,7 @@ const EditForm = (props: Props) => {
         };
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
@@ -93,7 +94,7 @@ const EditForm = (props: Props) => {
                     mod: transformModerationForm(modForm)
                 });
                 
-                props.onSuccess('Update moderated!');
+                showSuccess('Update moderated!');
             }
             else {
                 await updateMut.mutateAsync({
@@ -102,16 +103,16 @@ const EditForm = (props: Props) => {
                     req: transformReq()
                 });
 
-                props.onSuccess('Update updated!');
+                showSuccess('Update updated!');
             }
             
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, modForm, props.onClose]);
 

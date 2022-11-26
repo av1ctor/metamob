@@ -10,9 +10,7 @@ import Modal from "../../../components/Modal";
 import View from "./View";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const Logs = (props: Props) => {
@@ -124,9 +122,9 @@ const Logs = (props: Props) => {
                     <View
                         log={log}
                         onClose={toggleView}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

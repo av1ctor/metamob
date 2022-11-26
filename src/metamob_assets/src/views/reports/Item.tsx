@@ -18,8 +18,6 @@ interface BaseItemProps {
     user?: ProfileResponse;
     children?: any;
     onModerate?: (report: ReportResponse) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 };
 
 export const BaseItem = (props: BaseItemProps) => {
@@ -63,8 +61,8 @@ export const BaseItem = (props: BaseItemProps) => {
                             <EntityPreview
                                 report={report}
                                 partial
-                                onSuccess={props.onSuccess}
-                                onError={props.onError}
+                                
+                                
                             />
                         </div>
                     </div>
@@ -84,8 +82,6 @@ interface ItemProps {
     onModerate?: (report: ReportResponse) => void;
     onDelete: (report: ReportResponse) => void;
     onReport: (report: ReportResponse) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 };
 
 export const Item = (props: ItemProps) => {
@@ -106,8 +102,6 @@ export const Item = (props: ItemProps) => {
             user={user.data}
             report={report}
             onModerate={props.onModerate}
-            onSuccess={props.onSuccess}
-            onError={props.onError}
         >
             <p>
                 <small>

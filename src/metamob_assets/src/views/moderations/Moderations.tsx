@@ -12,9 +12,6 @@ interface Props {
     entityType: EntityType;
     entityId: number;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const orderBy = [{key: '_id', dir: 'desc'}];
@@ -85,9 +82,6 @@ const Moderations = (props: Props) => {
                         <CreateForm
                             moderationId={moderation._id}
                             onClose={toggleChallenge}
-                            onSuccess={props.onSuccess}
-                            onError={props.onError}
-                            toggleLoading={props.toggleLoading}
                         />
                 </Modal> 
             }

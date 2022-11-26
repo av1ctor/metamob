@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
+import { useUI } from "../../../hooks/ui";
 import { useModerateUser, useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
 import { Banned, isModerator } from "../../../libs/users";
@@ -56,14 +57,14 @@ interface Props {
     user: Profile;
     reportId?: number | null;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ProfileRequest>({
         name: props.user.name,
@@ -140,7 +141,7 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -149,7 +150,7 @@ const EditForm = (props: Props) => {
         if(isModeration) {
             const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
-                props.onError(errors);
+                showError(errors);
                 return;
             }
         }
@@ -159,7 +160,7 @@ const EditForm = (props: Props) => {
         };
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
@@ -168,7 +169,7 @@ const EditForm = (props: Props) => {
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
                 });
-                props.onSuccess('User moderated!');
+                showSuccess('User moderated!');
             }
             else {
                 await updateMut.mutateAsync({
@@ -176,16 +177,16 @@ const EditForm = (props: Props) => {
                     pubId: props.user.pubId, 
                     req: transformReq()
                 });
-                props.onSuccess('User updated!');
+                showSuccess('User updated!');
             }
 
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, modForm, actors.main, props.onClose]);
 

@@ -12,14 +12,12 @@ import { depositIcp, getIcpBalance } from "../../../libs/users";
 import { ActorActionType, ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 const MIN_ICP_VALUE = BigInt(10000 * 10);
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -29,6 +27,8 @@ const formSchema = yup.object().shape({
 const Boost = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, actorDispatch] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState({
         value: BigInt(1),
@@ -84,13 +84,13 @@ const Boost = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
             setIsLoading(true);
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!actors.main) {
                 throw Error("Main actor undefined");
@@ -121,14 +121,14 @@ const Boost = (props: Props) => {
                 value
             });
 
-            props.onSuccess('Campaign promoted!');
+            showSuccess('Campaign promoted!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
             setIsLoading(false);
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, auth, actors.main, props.campaign]);
 

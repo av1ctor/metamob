@@ -11,16 +11,14 @@ import SelectField, { Option } from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useCreatePlace } from "../../../hooks/places";
+import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceKind, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
 import { transformAuth, validateAuth } from "./utils";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
     onClose: () => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -58,6 +56,8 @@ const emptyForm = (): PlaceRequest => {
 const Create = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<PlaceRequest>(emptyForm());
 
@@ -122,12 +122,12 @@ const Create = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await mutation.mutateAsync({
                 main: actors.main,
@@ -151,14 +151,14 @@ const Create = (props: Props) => {
             });
 
             setForm(emptyForm());
-            props.onSuccess(intl.formatMessage({defaultMessage: 'Place created!'}));
+            showSuccess(intl.formatMessage({defaultMessage: 'Place created!'}));
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, props.onClose]);
 
@@ -169,7 +169,7 @@ const Create = (props: Props) => {
             return search(value);
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
             return [];
         }
     }, []);

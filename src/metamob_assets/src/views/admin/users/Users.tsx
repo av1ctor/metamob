@@ -17,9 +17,6 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Users = (props: Props) => {
@@ -187,9 +184,9 @@ const Users = (props: Props) => {
                     <EditForm
                         user={user}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>            

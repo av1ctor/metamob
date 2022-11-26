@@ -10,13 +10,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
 import { GlobeMethods } from "react-globe.gl";
+import { useUI } from "../../hooks/ui";
 
 const Globe = lazy(() => import("react-globe.gl"));
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 export enum Modes {
@@ -33,6 +31,8 @@ const calcHeight = () => {
 }
 
 const Places = (props: Props) => {
+    const {toggleLoading, showSuccess, showError} = useUI();
+    
     const [size, setSize] = useState({w: calcWidth(), h: calcHeight()});
     const [altitude, setAltitude] = useState(2.5);
     const [filters, setFilters] = useState<Filter[]>([
@@ -131,9 +131,9 @@ const Places = (props: Props) => {
     const getPlaceLabelColor = useCallback(() => '#fffffff0', []);
 
     useEffect(() => {
-        props.toggleLoading(places.status === "loading");
+        toggleLoading(places.status === "loading");
         if(places.status === "error") {
-            props.onError(places.error.message);
+            showError(places.error.message);
         }
     }, [places.status]);
 
@@ -158,9 +158,9 @@ const Places = (props: Props) => {
                 onSearch={handleChangeFilters}
                 onSort={handleChangeSort}
                 onSwitchMode={handleSwitchMode}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
 
             {mode === Modes.MAP?

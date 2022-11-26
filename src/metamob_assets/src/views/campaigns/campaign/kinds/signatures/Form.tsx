@@ -9,13 +9,11 @@ import TextAreaField from "../../../../../components/TextAreaField";
 import { ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
     signature?: SignatureResponse;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -26,6 +24,8 @@ const formSchema = yup.object().shape({
 const SignForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState<SignatureRequest>({
         campaignId: props.campaign._id,
@@ -63,12 +63,12 @@ const SignForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await createMut.mutateAsync({
                 main: actors.main,
@@ -79,13 +79,13 @@ const SignForm = (props: Props) => {
                 },
                 campaignPubId: props.campaign.pubId
             });
-            props.onSuccess('Campaign signed!');
+            showSuccess('Campaign signed!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, auth, actors.main]);
 

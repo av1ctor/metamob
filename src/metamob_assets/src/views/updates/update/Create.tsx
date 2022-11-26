@@ -11,13 +11,11 @@ import Container from "../../../components/Container";
 import CheckboxField from "../../../components/CheckboxField";
 import SwitchField from "../../../components/SwitchField";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -27,6 +25,9 @@ const formSchema = yup.object().shape({
 const Create = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
+
     const [result, setResult] = useState(CampaignResult.NONE);
 
     const [form, setForm] = useState<UpdateRequest>({
@@ -58,12 +59,12 @@ const Create = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await createMut.mutateAsync({
                 main: actors.main,
@@ -79,14 +80,14 @@ const Create = (props: Props) => {
                 body: ''
             });
 
-            props.onSuccess('Campaign updated!');
+            showSuccess('Campaign updated!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, result, props.onClose]);
 

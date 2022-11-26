@@ -6,15 +6,13 @@ import ColorField from "../../../components/ColorField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useUpdateCategory } from "../../../hooks/categories";
+import { useUI } from "../../../hooks/ui";
 import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 
 interface Props {
     category: Category;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const formSchema = yup.object().shape({
@@ -25,6 +23,8 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<CategoryRequest>({
         name: props.category.name,
@@ -56,12 +56,12 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await updateMut.mutateAsync({
                 main: actors.main,
@@ -72,14 +72,14 @@ const EditForm = (props: Props) => {
                     color: form.color,
                 }
             });
-            props.onSuccess('Category updated!');
+            showSuccess('Category updated!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 

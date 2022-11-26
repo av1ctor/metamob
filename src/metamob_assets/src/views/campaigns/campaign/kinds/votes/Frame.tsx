@@ -10,9 +10,6 @@ import Action from "../Action";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 export const VoteFrame = (props: Props) => {
@@ -42,9 +39,6 @@ export const VoteFrame = (props: Props) => {
                     <VoteForm 
                         campaign={campaign}
                         vote={userVote?.data} 
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 </Box>
             }

@@ -7,14 +7,14 @@ import Button from "../../components/Button";
 import { sortByHot } from "./Sort";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Campaigns = (props: Props) => {
+    const {toggleLoading, showSuccess, showError} = useUI();
+    
     const [filters, setFilters] = useState<Filter[]>([
         {
             key: 'title',
@@ -45,9 +45,9 @@ const Campaigns = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(campaigns.status === "loading");
+        toggleLoading(campaigns.status === "loading");
         if(campaigns.status === "error") {
-            props.onError(campaigns.error.message);
+            showError(campaigns.error.message);
         }
     }, [campaigns.status]);
 
@@ -60,9 +60,9 @@ const Campaigns = (props: Props) => {
                         orderBy={orderBy}
                         onSearch={handleChangeFilters}
                         onSort={handleChangeSort}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                     <div>
                         <div className="columns is-desktop is-multiline is-align-items-center">

@@ -11,11 +11,9 @@ import DeleteForm from "../../donations/donation/Delete";
 import EditForm from "../../donations/donation/Edit";
 import { Paginator } from "../../../components/Paginator";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy = [{
@@ -26,6 +24,8 @@ const orderBy = [{
 const Donations = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -70,9 +70,9 @@ const Donations = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        props.toggleLoading(donations.status === "loading");
+        toggleLoading(donations.status === "loading");
         if(donations.status === "error") {
-            props.onError(donations.error.message);
+            showError(donations.error.message);
         }
     }, [donations.status]);
 
@@ -151,9 +151,9 @@ const Donations = (props: Props) => {
                     <EditForm
                         donation={donation} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -167,9 +167,9 @@ const Donations = (props: Props) => {
                     <DeleteForm
                         donation={donation} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal> 

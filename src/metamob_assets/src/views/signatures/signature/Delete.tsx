@@ -6,18 +6,17 @@ import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import { useFindCampaignById } from "../../../hooks/campaigns";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     signature: SignatureResponse;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
-
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteSignature();
     const campaign = useFindCampaignById(props.signature.campaignId);
@@ -26,7 +25,7 @@ const DeleteForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!campaign.data) {
                 throw new Error("Campaign not found");
@@ -38,14 +37,14 @@ const DeleteForm = (props: Props) => {
                 campaignPubId: campaign.data.pubId,
             });
             
-            props.onSuccess('Signature deleted!');
+            showSuccess('Signature deleted!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [props.onClose]);
 

@@ -17,9 +17,6 @@ interface Props {
     onSearch: (e: Filter[]) => void;
     onSort: (orderBy: Order[]) => void;
     onSwitchMode: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 export const Bar = (props: Props) => {
@@ -60,7 +57,6 @@ export const Bar = (props: Props) => {
                         <SearchForm 
                             filters={props.filters}
                             onSearch={props.onSearch} 
-                            onError={props.onError}
                         />
                     </div>
                 </div>
@@ -98,9 +94,9 @@ export const Bar = (props: Props) => {
             >
                 <CreateForm
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

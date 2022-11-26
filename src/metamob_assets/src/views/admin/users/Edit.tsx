@@ -6,6 +6,7 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
+import { useUI } from "../../../hooks/ui";
 import { useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
 import { Banned } from "../../../libs/users";
@@ -33,9 +34,7 @@ function rolesToString(
 interface Props {
     user: Profile;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const formSchema = yup.object().shape({
@@ -60,6 +59,8 @@ const roles: Option[] = [
 
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ProfileRequest>({
         name: props.user.name,
@@ -131,26 +132,26 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await updateMut.mutateAsync({
                 main: actors.main,
                 pubId: props.user.pubId, 
                 req: form
             });
-            props.onSuccess('User updated!');
+            showSuccess('User updated!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 

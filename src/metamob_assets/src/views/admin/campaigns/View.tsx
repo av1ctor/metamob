@@ -6,9 +6,6 @@ import { PreviewWrapper as Preview } from "../../campaigns/campaign/PreviewWrapp
 interface Props {
     campaign: Campaign;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const View = (props: Props) => {

@@ -12,14 +12,12 @@ import { isModerator } from "../../../libs/users";
 import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     donation: DonationResponse;
     reportId?: number | null;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -32,6 +30,8 @@ const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<DonationRequest>({
         campaignId: props.donation.campaignId,
@@ -73,7 +73,7 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -82,7 +82,7 @@ const EditForm = (props: Props) => {
         if(isModeration) {
             const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
-                props.onError(errors);
+                showError(errors);
                 return;
             }
         }
@@ -97,7 +97,7 @@ const EditForm = (props: Props) => {
         };
         
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
@@ -106,7 +106,7 @@ const EditForm = (props: Props) => {
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
                 });
-                props.onSuccess(intl.formatMessage({defaultMessage: 'Donation moderated!'}));
+                showSuccess(intl.formatMessage({defaultMessage: 'Donation moderated!'}));
             }
             else {
                 await updateMut.mutateAsync({
@@ -114,16 +114,16 @@ const EditForm = (props: Props) => {
                     pubId: props.donation.pubId, 
                     req: transformReq(),
                 });
-                props.onSuccess(intl.formatMessage({defaultMessage: 'Donation updated!'}));
+                showSuccess(intl.formatMessage({defaultMessage: 'Donation updated!'}));
             }
 
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, modForm, props.onClose]);
 

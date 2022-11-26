@@ -24,15 +24,13 @@ import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
 import FileDropArea from "../../../components/FileDropArea";
 import ArrayField from "../../../components/ArrayField";
 import VariantField from "../../../components/VariantField";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     mutation: any;
     categories: Category[];
     place?: Place;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const toCampaign = (
@@ -210,6 +208,8 @@ export const transformInfo = (
 const CreateForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<CampaignRequest>({
         kind: CampaignKind.SIGNATURES,
@@ -251,7 +251,7 @@ const CreateForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const kind = Number(form.kind);
 
@@ -284,14 +284,14 @@ const CreateForm = (props: Props) => {
                     undefined
             });
 
-            props.onSuccess('Campaign created!');
+            showSuccess('Campaign created!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, files, actors.main, props.onClose]);
 
@@ -385,7 +385,7 @@ const CreateForm = (props: Props) => {
             return search(value);
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
             return [];
         }
     }, []);
@@ -394,21 +394,21 @@ const CreateForm = (props: Props) => {
         const field = id || name || '';
         
         if(list.length !== 1) {
-            props.onError("Drag and drop only one file at time");
+            showError("Drag and drop only one file at time");
             return;
         }
 
         const file = list[0];
         if(file.size === 0) {
-            props.onError("File can't be empty");
+            showError("File can't be empty");
             return;
         }
         if(file.size > MAX_FILE_SIZE) {
-            props.onError("File is too big. Max size: 1MB");
+            showError("File is too big. Max size: 1MB");
             return;
         }
         if(allowedFileTypes.indexOf(file.type) === -1) {
-            props.onError("Invalid file type");
+            showError("Invalid file type");
             return;
         }
 
@@ -442,7 +442,7 @@ const CreateForm = (props: Props) => {
         e.preventDefault();
         const errors = validate();
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
         setStep(step => step + 1);

@@ -14,9 +14,7 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const Poaps = (props: Props) => {
@@ -176,9 +174,9 @@ const Poaps = (props: Props) => {
                         campaignId={poap.campaignId}
                         poap={poap}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>

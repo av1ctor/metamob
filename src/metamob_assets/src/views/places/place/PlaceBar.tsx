@@ -18,9 +18,6 @@ import PlaceTree from "./PlaceTree";
 
 interface Props {
     place?: Place;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
     onTogglePlaces: () => void;
 }
 
@@ -169,9 +166,9 @@ export const PlaceBar = (props: Props) => {
                     <EditForm
                         place={place}
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -186,9 +183,9 @@ export const PlaceBar = (props: Props) => {
                         place={place}
                         placeUser={placeUser.data}
                         onClose={toggleTerms}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -204,9 +201,9 @@ export const PlaceBar = (props: Props) => {
                         entityPubId={place.pubId}
                         entityType={EntityType.PLACES}
                         onClose={toggleReport}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -218,9 +215,9 @@ export const PlaceBar = (props: Props) => {
                     entityId={place._id}
                     moderated={place.moderated}
                     onClose={toggleModerations}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             }
         </>

@@ -18,9 +18,6 @@ interface Props {
     place?: Place;
     onSearch: (e: Filter[]) => void;
     onSort: (orderBy: Order[]) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 export const Bar = (props: Props) => {
@@ -65,7 +62,6 @@ export const Bar = (props: Props) => {
                             filters={props.filters}
                             categories={categoryState.categories}
                             onSearch={props.onSearch} 
-                            onError={props.onError}
                         />
                     </div>
                 </div>
@@ -97,9 +93,9 @@ export const Bar = (props: Props) => {
                     mutation={createCampaignMut}
                     place={props.place}
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

@@ -12,15 +12,15 @@ import { ScrollToTop } from "../../components/ScrollToTop";
 import Skeleton from "react-loading-skeleton";
 import { FormattedMessage } from "react-intl";
 import Children from "./place/Children";
+import { useUI } from "../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Place = (props: Props) => {
     const {id} = useParams();
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [placeId, setPlaceId] = useState<number>();
     const [filters, setFilters] = useState<Filter[]>([
@@ -61,12 +61,12 @@ const Place = (props: Props) => {
     }, [place.status, id]);
 
     useEffect(() => {
-        props.toggleLoading(place.status === 'loading' || campaigns.status === "loading");
+        toggleLoading(place.status === 'loading' || campaigns.status === "loading");
         if(place.status === "error") {
-            props.onError(place.error.message);
+            showError(place.error.message);
         }
         if(campaigns.status === "error") {
-            props.onError(campaigns.error.message);
+            showError(campaigns.error.message);
         }
     }, [place.status, campaigns.status]);
 
@@ -75,17 +75,17 @@ const Place = (props: Props) => {
             <ScrollToTop />
             <PlaceBar
                 place={place.data}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
                 onTogglePlaces={handleTogglePlaces}
             />
             <Children
                 visible={placesVisible}
                 place={place.data}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
             <Bar
                 place={place.data}
@@ -93,9 +93,9 @@ const Place = (props: Props) => {
                 orderBy={orderBy}
                 onSearch={handleChangeFilters}
                 onSort={handleChangeSort}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
             <div>
                 <div className="columns is-desktop is-multiline is-align-items-center">

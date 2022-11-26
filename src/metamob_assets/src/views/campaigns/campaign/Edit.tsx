@@ -25,6 +25,7 @@ import { allowedFileTypes, MAX_FILE_SIZE } from "../../../libs/backend";
 import FileDropArea from "../../../components/FileDropArea";
 import VariantField from "../../../components/VariantField";
 import ArrayField from "../../../components/ArrayField";
+import { useUI } from "../../../hooks/ui";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -135,15 +136,14 @@ interface Props {
     categories: Category[];
     reportId?: number | null;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext)
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<CampaignRequest>({
         ...props.campaign,
@@ -226,21 +226,21 @@ const EditForm = (props: Props) => {
         const field = id || name || '';
         
         if(list.length !== 1) {
-            props.onError("Drag and drop only one file at time");
+            showError("Drag and drop only one file at time");
             return;
         }
 
         const file = list[0];
         if(file.size === 0) {
-            props.onError("File can't be empty");
+            showError("File can't be empty");
             return;
         }
         if(file.size > MAX_FILE_SIZE) {
-            props.onError("File is too big. Max size: 1MB");
+            showError("File is too big. Max size: 1MB");
             return;
         }
         if(allowedFileTypes.indexOf(file.type) === -1) {
-            props.onError("Invalid file type");
+            showError("Invalid file type");
             return;
         }
 
@@ -280,7 +280,7 @@ const EditForm = (props: Props) => {
 
         const errors = validate(formt);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
@@ -289,7 +289,7 @@ const EditForm = (props: Props) => {
         if(isModeration) {
             const errors = validateModerationForm(modForm);
             if(errors.length > 0) {
-                props.onError(errors);
+                showError(errors);
                 return;
             }
         }
@@ -321,7 +321,7 @@ const EditForm = (props: Props) => {
         };
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
@@ -337,7 +337,7 @@ const EditForm = (props: Props) => {
                     undefined
                 });
     
-                props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign moderated!'}));
+                showSuccess(intl.formatMessage({defaultMessage: 'Campaign moderated!'}));
             }
             else {
                 await updateMut.mutateAsync({
@@ -352,16 +352,16 @@ const EditForm = (props: Props) => {
                         undefined
                 });
     
-                props.onSuccess(intl.formatMessage({defaultMessage: 'Campaign updated!'}));
+                showSuccess(intl.formatMessage({defaultMessage: 'Campaign updated!'}));
             }
             
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, files, modForm, actors.main, props.onClose]);
 
@@ -372,7 +372,7 @@ const EditForm = (props: Props) => {
             return search(value);
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
             return [];
         }
     }, []);

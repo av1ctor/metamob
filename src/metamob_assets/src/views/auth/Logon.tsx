@@ -10,11 +10,9 @@ import { loginUser } from "../../libs/users";
 import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import { ActorActionType, ActorContext } from "../../stores/actor";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const steps: Step[] = [
@@ -36,6 +34,8 @@ const Logon = (props: Props) => {
     const [auth, authDispatch] = useContext(AuthContext);
     const [, actorDispatch] = useContext(ActorContext);
 
+    const {toggleLoading, showSuccess, showError} = useUI();
+
     const [step, setStep] = useState(0);
 
     const navigate = useNavigate();
@@ -50,7 +50,7 @@ const Logon = (props: Props) => {
         main: Metamob        
     ): Promise<ProfileResponse|undefined> => {
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const res = await main.userFindMe();
             if('ok' in res) {
@@ -58,10 +58,10 @@ const Logon = (props: Props) => {
             }
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
 
         return undefined;
@@ -69,11 +69,11 @@ const Logon = (props: Props) => {
 
     const handleAuthenticated = useCallback(async () => {
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             const identity = auth.client?.getIdentity();
             if(!identity) {
-                props.onError('IC Identity should not be null');
+                showError('IC Identity should not be null');
                 return;
             }
 
@@ -81,7 +81,7 @@ const Logon = (props: Props) => {
                 type: AuthActionType.SET_IDENTITY, 
                 payload: identity
             });
-            props.onSuccess('User authenticated!');
+            showSuccess('User authenticated!');
 
             const main = createMainActor(identity);
             actorDispatch({
@@ -114,21 +114,21 @@ const Logon = (props: Props) => {
             }
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [auth.client]);
 
     const handleRegistered = useCallback(async (msg: string) => {
-        props.onSuccess(msg);
+        showSuccess(msg);
         setStep(step => step + 1);
     }, []);
 
     const handleAuthenticate = useCallback(async () => {
         if(auth.client) {
-            loginUser(auth.client, handleAuthenticated, props.onError);
+            loginUser(auth.client, handleAuthenticated, showError);
         }
     }, [auth.client, handleAuthenticated]);
 
@@ -137,7 +137,7 @@ const Logon = (props: Props) => {
     }, [navigate]);
 
     if(!auth.client) {
-        props.onError('No IC client found');
+        showError('No IC client found');
         navigate(getReturnUrl());
         return null;
     }
@@ -160,8 +160,6 @@ const Logon = (props: Props) => {
                 {step === 1 && 
                     <UserCreateForm
                         onSuccess={handleRegistered} 
-                        onError={props.onError} 
-                        toggleLoading={props.toggleLoading}
                     />
                 }
                 {step === 2 && 

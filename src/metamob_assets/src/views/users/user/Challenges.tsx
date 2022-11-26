@@ -7,15 +7,15 @@ import MyChallenges from "./challenges/MyChallenges";
 import BecomeModForm from "./BecomeMod";
 import ToModerate from "./challenges/ToModerate";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const Challenges = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
+
+    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         becomeMod: false,
@@ -35,17 +35,17 @@ const Challenges = (props: Props) => {
     return (
         <>
             <MyChallenges
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
 
             <div className="mt-4">
                 {isModerator(auth.user)?
                     <ToModerate
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 :
                     <div className="container border mt-6 p-4">
@@ -72,9 +72,9 @@ const Challenges = (props: Props) => {
             >
                 <BecomeModForm
                     onClose={toggleBecomeMod}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
         </>

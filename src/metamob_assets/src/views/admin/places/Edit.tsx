@@ -11,6 +11,7 @@ import SelectField, {Option} from "../../../components/SelectField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
+import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { ActorContext } from "../../../stores/actor";
@@ -20,9 +21,7 @@ import Avatar from "../../users/Avatar";
 interface Props {
     place: Place;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const formSchema = yup.object().shape({
@@ -43,6 +42,8 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.place.name,
@@ -123,12 +124,12 @@ const EditForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await updateMut.mutateAsync({
                 main: actors.main,
@@ -151,14 +152,14 @@ const EditForm = (props: Props) => {
                     lng: Number(form.lng),
                 }
             });
-            props.onSuccess('Place updated!');
+            showSuccess('Place updated!');
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, actors.main, props.onClose]);
 
@@ -169,7 +170,7 @@ const EditForm = (props: Props) => {
             return search(value);
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
             return [];
         }
     }, []);

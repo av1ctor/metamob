@@ -13,9 +13,6 @@ import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy: Order[] = [{
@@ -109,9 +106,6 @@ const Votes = (props: Props) => {
                     <EditForm
                         vote={vote} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -125,9 +119,6 @@ const Votes = (props: Props) => {
                     <DeleteForm
                         vote={vote} 
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>            
@@ -143,9 +134,6 @@ const Votes = (props: Props) => {
                         entityPubId={vote.pubId}
                         entityType={EntityType.VOTES}
                         onClose={toggleReport}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 }
             </Modal>
@@ -157,9 +145,6 @@ const Votes = (props: Props) => {
                     entityId={vote._id}
                     moderated={vote.moderated}
                     onClose={toggleModerations}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
                 />
             }
         </>

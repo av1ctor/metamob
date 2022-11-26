@@ -12,18 +12,18 @@ import { EntityType } from "../../../libs/common";
 import ModerationModal from "../../moderations/Modal";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     pubId?: string;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const PublicProfile = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
 
     const {id} = useParams();
+
+    const {toggleLoading, showSuccess, showError} = useUI();
     
     const req = useFindUserByPubId(props.pubId || id);
     
@@ -38,11 +38,11 @@ const PublicProfile = (props: Props) => {
                 setProfile(req.data);
                 break;
             case 'error':
-                props.onError(req.error.message);
+                showError(req.error.message);
                 break;
         }
 
-        props.toggleLoading(req.status === 'loading');
+        toggleLoading(req.status === 'loading');
     }, [req.status]);
 
     const toggleReport = useCallback(() => {
@@ -134,9 +134,9 @@ const PublicProfile = (props: Props) => {
                     entityPubId={profile.pubId}
                     entityType={EntityType.USERS}
                     onClose={toggleReport}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
 
@@ -146,9 +146,9 @@ const PublicProfile = (props: Props) => {
                 entityId={profile._id}
                 moderated={profile.moderated}
                 onClose={toggleModerations}
-                onSuccess={props.onSuccess}
-                onError={props.onError}
-                toggleLoading={props.toggleLoading}
+                
+                
+                
             />
         </>
     )

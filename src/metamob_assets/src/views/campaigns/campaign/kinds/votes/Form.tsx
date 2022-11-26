@@ -8,13 +8,11 @@ import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
 import { ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
+import { useUI } from "../../../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
     vote?: VoteResponse;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const formSchema = yup.object().shape({
@@ -26,6 +24,8 @@ const formSchema = yup.object().shape({
 const VoteForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [actors, ] = useContext(ActorContext);
+
+    const {showSuccess, showError, toggleLoading} = useUI();
 
     const [form, setForm] = useState<VoteRequest>({
         campaignId: props.campaign._id,
@@ -64,12 +64,12 @@ const VoteForm = (props: Props) => {
 
         const errors = validate(form);
         if(errors.length > 0) {
-            props.onError(errors);
+            showError(errors);
             return;
         }
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             await createMut.mutateAsync({
                 main: actors.main,
@@ -81,13 +81,13 @@ const VoteForm = (props: Props) => {
                 },
                 campaignPubId: props.campaign.pubId
             });
-            props.onSuccess('Your vote has been cast!');
+            showSuccess('Your vote has been cast!');
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [form, auth, actors.main]);
 

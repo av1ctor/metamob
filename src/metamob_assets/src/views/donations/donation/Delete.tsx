@@ -6,19 +6,18 @@ import Button from "../../../components/Button";
 import { ActorContext } from "../../../stores/actor";
 import { useFindCampaignById } from "../../../hooks/campaigns";
 import { FormattedMessage, useIntl } from "react-intl";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     donation: DonationResponse;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
-
 
 const DeleteForm = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteDonation();
     const campaign = useFindCampaignById(props.donation.campaignId);
@@ -27,7 +26,7 @@ const DeleteForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!campaign.data) {
                 throw new Error("Campaign not found");
@@ -39,14 +38,14 @@ const DeleteForm = (props: Props) => {
                 campaignPubId: campaign.data.pubId,
             });
             
-            props.onSuccess(intl.formatMessage({defaultMessage: 'Donation deleted!'}));
+            showSuccess(intl.formatMessage({defaultMessage: 'Donation deleted!'}));
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [props.onClose, campaign.data]);
 

@@ -24,9 +24,7 @@ const calcMaxSignatures = (
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 export const SignFrame = (props: Props) => {
@@ -56,9 +54,6 @@ export const SignFrame = (props: Props) => {
                     <SignForm 
                         campaign={campaign}
                         signature={userSignature?.data} 
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
                     />
                 </Box>
             }

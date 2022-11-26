@@ -9,9 +9,6 @@ import Child from "./Child";
 interface Props {
     place?: Place;
     visible: boolean;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 }
 
 const Children = (props: Props) => {

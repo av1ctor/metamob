@@ -18,20 +18,20 @@ import { findByCampaignAndUser as findSignatureByCampaignAndUser } from "../../.
 import { findByCampaignAndUser as findDonationByCampaignAndUser } from "../../../libs/donations";
 import { findByCampaignAndUser as findVoteByCampaignAndUser } from "../../../libs/votes";
 import { findByCampaignAndUser as findFundingByCampaignAndUser } from "../../../libs/fundings";
+import { useUI } from "../../../hooks/ui";
 
 interface Props {
     campaign: Campaign;
     poap: Poap;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const MintForm = (props: Props) => {
     const [actors, actorsDispatch] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
+
+    const {showSuccess, showError, toggleLoading} = useUI();
     
     const [balance, setBalance] = useState(BigInt(0));
 
@@ -120,7 +120,7 @@ const MintForm = (props: Props) => {
         e.preventDefault();
 
         try {
-            props.toggleLoading(true);
+            toggleLoading(true);
 
             if(!auth.user) {
                 throw Error("Not logged in");
@@ -145,7 +145,7 @@ const MintForm = (props: Props) => {
                     main: actors.main,
                     pubId: props.poap.pubId
                 });
-                props.onSuccess(intl.formatMessage({defaultMessage: 'Poap minted!'}));
+                showSuccess(intl.formatMessage({defaultMessage: 'Poap minted!'}));
             }
             catch(e) {
                 throw e;
@@ -153,10 +153,10 @@ const MintForm = (props: Props) => {
             props.onClose();
         }
         catch(e) {
-            props.onError(e);
+            showError(e);
         }
         finally {
-            props.toggleLoading(false);
+            toggleLoading(false);
         }
     }, [props.poap, props.campaign, balance, updateState, props.onClose]);
 

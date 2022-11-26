@@ -16,9 +16,6 @@ import { FormattedMessage } from "react-intl";
 
 interface Props {
     campaign: Campaign;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
 };
 
 const orderBy: Order[] = [{
@@ -140,9 +137,9 @@ const Updates = (props: Props) => {
                 <CreateForm
                     campaign={props.campaign}
                     onClose={toggleCreate}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             </Modal>
 
@@ -155,9 +152,9 @@ const Updates = (props: Props) => {
                     <EditForm
                         update={update} 
                         onClose={toggleEdit}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>
@@ -171,9 +168,9 @@ const Updates = (props: Props) => {
                     <DeleteForm
                         update={update}
                         onClose={toggleDelete}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>            
@@ -189,9 +186,9 @@ const Updates = (props: Props) => {
                         entityPubId={update.pubId}
                         entityType={EntityType.UPDATES}
                         onClose={toggleReport}
-                        onSuccess={props.onSuccess}
-                        onError={props.onError}
-                        toggleLoading={props.toggleLoading}
+                        
+                        
+                        
                     />
                 }
             </Modal>            
@@ -203,9 +200,9 @@ const Updates = (props: Props) => {
                     entityId={update._id}
                     moderated={update.moderated}
                     onClose={toggleModerations}
-                    onSuccess={props.onSuccess}
-                    onError={props.onError}
-                    toggleLoading={props.toggleLoading}
+                    
+                    
+                    
                 />
             }
         </>

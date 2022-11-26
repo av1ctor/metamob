@@ -8,9 +8,7 @@ import { kindToText } from "../../../libs/logs";
 interface Props {
     log: Msg;
     onClose: () => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
-    toggleLoading: (to: boolean) => void;
+
 }
 
 const View = (props: Props) => {

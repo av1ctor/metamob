@@ -16,8 +16,6 @@ interface Props {
     report: ReportResponse;
     partial?: boolean;
     onModerate?: (report: ReportResponse) => void;
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 }
 
 const EntityPreview = (props: Props) => {

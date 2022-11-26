@@ -5,6 +5,7 @@ import Badge from "../../components/Badge";
 import { LangIcon } from "../../components/LangIcon";
 import NavItem from "../../components/NavItem";
 import { useCountUnreadNotificationsByUser } from "../../hooks/notifications";
+import { useUI } from "../../hooks/ui";
 import { Lang, languages, loadMessages } from "../../libs/intl";
 import { ActorContext } from "../../stores/actor";
 import { AuthActionType, AuthContext } from "../../stores/auth";
@@ -12,14 +13,14 @@ import { IntlActionType, IntlContext } from "../../stores/intl";
 import Avatar from "../users/Avatar";
 
 interface Props {
-    onSuccess: (message: string) => void;
-    onError: (message: any) => void;
 };
 
 const Header = (props: Props) => {
     const [actors, ] = useContext(ActorContext);
     const [auth, authDispatch] = useContext(AuthContext);
     const [intl, intlDispatch] = useContext(IntlContext);
+
+    const {showSuccess} = useUI();
     
     const menuRef = useRef<HTMLDivElement>(null);
     const burgerRef = useRef<HTMLAnchorElement>(null);
@@ -38,7 +39,7 @@ const Header = (props: Props) => {
             type: AuthActionType.LOGOUT,
             payload: undefined
         });
-        props.onSuccess('Logged out!');
+        showSuccess('Logged out!');
     }, []);
 
     const handleToggleMenu = useCallback(() => {
