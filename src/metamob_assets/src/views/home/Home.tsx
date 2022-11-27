@@ -1,7 +1,6 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import {Routes, Route} from "react-router-dom";
 import { AuthClient } from "@dfinity/auth-client"
-import { toast } from 'bulma-toast';
 import { Metamob, ProfileResponse } from "../../../../declarations/metamob/metamob.did";
 import {AuthActionType, AuthContext} from "../../stores/auth";
 import { ActorActionType, ActorContext } from "../../stores/actor";
@@ -29,9 +28,9 @@ import Admin from "../admin/Admin";
 import Front from "./Front";
 import PublicProfile from "../users/user/PublicProfile";
 import { Limit, Order } from "../../libs/common";
+import { useUI } from "../../hooks/ui";
 
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { useUI } from "../../hooks/ui";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -48,7 +47,7 @@ export const Home = () => {
     const [, actorDispatch] = useContext(ActorContext);
     const [, categoriesDispatch] = useContext(CategoryContext);
 
-    const {isLoading: loading} = useUI();
+    const {isLoading} = useUI();
 
     const categories = useFindCategories([], orderBy, limit);
     
@@ -153,7 +152,7 @@ export const Home = () => {
             </section>
             <Footer />
 
-            <div className={`loading ${loading? 'visible': 'hidden'}`}>
+            <div className={`loading ${isLoading? 'visible': 'hidden'}`}>
                 <img src="/loading.svg" />
             </div>
         </div>            

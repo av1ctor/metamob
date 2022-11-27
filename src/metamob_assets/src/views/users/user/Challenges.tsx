@@ -72,9 +72,6 @@ const Challenges = (props: Props) => {
             >
                 <BecomeModForm
                     onClose={toggleBecomeMod}
-                    
-                    
-                    
                 />
             </Modal>
         </>

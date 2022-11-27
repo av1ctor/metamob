@@ -188,9 +188,6 @@ const Places = (props: Props) => {
             >
                 <CreateForm
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
 

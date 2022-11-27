@@ -154,9 +154,6 @@ const Signatures = (props: Props) => {
                     entityId={signature._id}
                     moderated={signature.moderated}
                     onClose={toggleModerations}
-                    
-                    
-                    
                 />
             }
         </>

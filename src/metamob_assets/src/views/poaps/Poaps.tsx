@@ -146,9 +146,6 @@ const Poaps = (props: Props) => {
                     campaignId={campaign._id}    
                     poap={undefined} 
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
 
@@ -227,9 +224,6 @@ const Poaps = (props: Props) => {
                     entityId={poap._id}
                     moderated={poap.moderated}
                     onClose={toggleModerations}
-                    
-                    
-                    
                 />
             }
         </>

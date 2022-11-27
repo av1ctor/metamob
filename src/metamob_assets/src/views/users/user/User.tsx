@@ -366,9 +366,6 @@ const User = (props: Props) => {
                 <StakeForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleStake}
-                    
-                    
-                    
                 />
             </Modal>
 
@@ -380,9 +377,6 @@ const User = (props: Props) => {
                 <UnstakeForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleWithdraw}
-                    
-                    
-                    
                 />
             </Modal>
 
@@ -394,9 +388,6 @@ const User = (props: Props) => {
                 <TransferForm
                     onUpdateBalances={updateBalances}
                     onClose={toggleTransfer}
-                    
-                    
-                    
                 />
             </Modal>
         </>

@@ -94,9 +94,6 @@ export const Bar = (props: Props) => {
             >
                 <CreateForm
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
         </>

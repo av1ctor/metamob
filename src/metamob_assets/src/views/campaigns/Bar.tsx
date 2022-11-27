@@ -93,9 +93,6 @@ export const Bar = (props: Props) => {
                     mutation={createCampaignMut}
                     place={props.place}
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
         </>

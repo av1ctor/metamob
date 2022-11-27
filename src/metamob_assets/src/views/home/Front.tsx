@@ -4,7 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import { useCreateCampaign } from "../../hooks/campaigns";
-import { useUI } from "../../hooks/ui";
 import { AuthContext } from "../../stores/auth";
 import { CategoryContext } from "../../stores/category";
 import CreateForm from "../campaigns/campaign/Create";
@@ -16,8 +15,6 @@ interface Props {
 const Front = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
     const [categoryState, ] = useContext(CategoryContext);
-
-    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         create: false,
@@ -81,11 +78,7 @@ const Front = (props: Props) => {
                     </div>
                 </div>
                 <div className="column is-6 hor-campaigns">
-                    <HotCampaigns 
-                        
-                        
-                        
-                    />
+                    <HotCampaigns />
                 </div>
             </div>
             <br/>
@@ -150,9 +143,6 @@ const Front = (props: Props) => {
                     categories={categoryState.categories}
                     mutation={createCampaignMut}
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
         </>

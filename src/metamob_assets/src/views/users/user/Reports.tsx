@@ -43,9 +43,6 @@ const Reports = (props: Props) => {
 
             <div className="mt-4">
                 <AgainstMe
-                    
-                    
-                    
                 />
             </div>
 
@@ -81,9 +78,6 @@ const Reports = (props: Props) => {
             >
                 <BecomeModForm
                     onClose={toggleBecomeMod}
-                    
-                    
-                    
                 />
             </Modal>
         </>

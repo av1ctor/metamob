@@ -137,9 +137,6 @@ const Updates = (props: Props) => {
                 <CreateForm
                     campaign={props.campaign}
                     onClose={toggleCreate}
-                    
-                    
-                    
                 />
             </Modal>
 
@@ -200,9 +197,6 @@ const Updates = (props: Props) => {
                     entityId={update._id}
                     moderated={update.moderated}
                     onClose={toggleModerations}
-                    
-                    
-                    
                 />
             }
         </>

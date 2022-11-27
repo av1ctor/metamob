@@ -134,9 +134,6 @@ const PublicProfile = (props: Props) => {
                     entityPubId={profile.pubId}
                     entityType={EntityType.USERS}
                     onClose={toggleReport}
-                    
-                    
-                    
                 />
             </Modal>
 

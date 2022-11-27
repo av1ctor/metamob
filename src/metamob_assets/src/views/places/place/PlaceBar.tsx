@@ -215,9 +215,6 @@ export const PlaceBar = (props: Props) => {
                     entityId={place._id}
                     moderated={place.moderated}
                     onClose={toggleModerations}
-                    
-                    
-                    
                 />
             }
         </>
