@@ -6,7 +6,6 @@ import TextField from "../../../components/TextField";
 import { useUI } from "../../../hooks/ui";
 import { useTransfer } from "../../../hooks/users";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
 interface Props {
@@ -20,7 +19,6 @@ const formSchema = yup.object().shape({
 });
 
 const TransferForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -74,7 +72,6 @@ const TransferForm = (props: Props) => {
             }
 
             await transferMut.mutateAsync({
-                mmt: actors.mmt,
                 to: form.to,
                 value: value
             });
@@ -88,7 +85,7 @@ const TransferForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors, auth]);
+    }, [form, auth]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

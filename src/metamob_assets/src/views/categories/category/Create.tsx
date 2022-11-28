@@ -1,10 +1,9 @@
-import React, {useCallback, useContext, useState} from "react";
+import React, {useCallback, useState} from "react";
 import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import ColorField from "../../../components/ColorField";
 import {CategoryRequest} from "../../../../../declarations/metamob/metamob.did";
-import { ActorContext } from "../../../stores/actor";
 import { useCreateCategory } from "../../../hooks/categories";
 import { useUI } from "../../../hooks/ui";
 
@@ -19,8 +18,6 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError} = useUI();
     
     const [form, setForm] = useState<CategoryRequest>({
@@ -59,7 +56,6 @@ const Create = (props: Props) => {
 
         try {
             await mutation.mutateAsync({
-                main: actors.main,
                 req: {
                     name: form.name,
                     description: form.description,
@@ -73,7 +69,7 @@ const Create = (props: Props) => {
         catch(e: any) {
             showError(e);
         }
-    }, [actors.main, form]);
+    }, [form]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

@@ -41,14 +41,14 @@ export const findById = async (
 };
 
 export const findByIdEx = async (
-    main: Metamob,
+    metamob: Metamob,
     _id?: number
 ): Promise<Profile> => {
     if(!_id) {
         return anonymous as Profile;
     }
     
-    const res = await main.userFindByIdEx(_id);
+    const res = await metamob.userFindByIdEx(_id);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -73,9 +73,9 @@ export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Profile[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }    
 
@@ -91,7 +91,7 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await main.userFind(
+    const res = await metamob.userFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
@@ -105,7 +105,7 @@ export const findAll = async (
 
 export const search = async (
     value: string,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<{name: string, value: number}[]> => {
     const users = await findAll(
         [
@@ -117,7 +117,7 @@ export const search = async (
         ],
         undefined,
         undefined,
-        main
+        metamob
     );
 
     return users.map(u => ({
@@ -174,9 +174,9 @@ export const isModerator = (
 }
 
 export const getAccountId = async (
-    main: Metamob
+    metamob: Metamob
 ): Promise<Uint8Array> => {
-    const res = await main.userGetAccountId();
+    const res = await metamob.userGetAccountId();
     return Uint8Array.from(res);
 }
 
@@ -200,10 +200,10 @@ export const getIcpBalance = async (
 export const depositIcp = async (
     user: ProfileResponse,
     amount: bigint,
-    main: Metamob,
+    metamob: Metamob,
     ledger: Ledger
 ): Promise<bigint> => {
-    const userSubAccount = await getAccountId(main);
+    const userSubAccount = await getAccountId(metamob);
 
     const res = await ledger.transfer({
         to: Array.from(userSubAccount),

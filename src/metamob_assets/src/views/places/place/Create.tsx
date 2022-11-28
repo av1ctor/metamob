@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
@@ -14,7 +14,6 @@ import { useCreatePlace } from "../../../hooks/places";
 import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceKind, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
-import { ActorContext } from "../../../stores/actor";
 import { transformAuth, validateAuth } from "./utils";
 
 interface Props {
@@ -54,7 +53,6 @@ const emptyForm = (): PlaceRequest => {
 };
 
 const Create = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -130,7 +128,6 @@ const Create = (props: Props) => {
             toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actors.main,
                 req: {
                     name: form.name,
                     description: form.description,

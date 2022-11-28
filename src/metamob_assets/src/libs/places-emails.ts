@@ -5,13 +5,13 @@ export const findAll = async (
     placeId: number,
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<PlaceEmail[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
      }
  
-    const res = await main?.placeEmailFindByPlace(
+    const res = await metamob?.placeEmailFindByPlace(
         placeId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);

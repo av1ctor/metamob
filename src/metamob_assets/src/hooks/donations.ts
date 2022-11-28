@@ -2,14 +2,16 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryR
 import {DonationRequest, Metamob, DonationResponse, Donation, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/donations';
+import { useActors } from './actors';
 
 export const useFindDonationById = (
-    _id: number, 
-    main?: Metamob
+    _id: number
 ): UseQueryResult<Donation, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Donation, Error>(
         ['donations', _id], 
-        () => findById(_id, main)
+        () => findById(_id, metamob)
     );
 };
 
@@ -65,25 +67,28 @@ export const useFindDonationByCampaignAndUser = (
 export const useFindUserDonations = (
     orderBy: Order[], 
     limit: Limit,
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<DonationResponse[], Error> => {
+    const {metamob} = useActors();
+
    return useQuery<DonationResponse[], Error>(
         ['donations', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByUser(orderBy, limit, main),
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 
 };
 
 export const useCreateDonation = () => {
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, req: DonationRequest}) => {
-            if(!options.main) {
+        async (options: {req: DonationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.donationCreate(options.req);
+            const res = await metamob.donationCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -98,13 +103,15 @@ export const useCreateDonation = () => {
 
 export const useCompleteDonation = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.donationComplete(options.pubId);
+            const res = await metamob.donationComplete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -121,13 +128,15 @@ export const useCompleteDonation = () => {
 
 export const useUpdateDonation = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: DonationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: DonationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.donationUpdate(options.pubId, options.req);
+            const res = await metamob.donationUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -143,13 +152,15 @@ export const useUpdateDonation = () => {
 
 export const useModerateDonation = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: DonationRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: DonationRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.donationModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.donationModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -165,13 +176,15 @@ export const useModerateDonation = () => {
 
 export const useDeleteDonation = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.donationDelete(options.pubId);
+            const res = await metamob.donationDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

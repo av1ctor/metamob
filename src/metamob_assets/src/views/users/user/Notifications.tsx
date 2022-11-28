@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useState } from "react";
 import Modal from "../../../components/Modal";
 import { AuthContext } from "../../../stores/auth";
 import { FormattedMessage } from "react-intl";
-import { ActorContext } from "../../../stores/actor";
 import { useDeleteNotification, useFindNotificationsByUser, useMarkAsReadNotification } from "../../../hooks/notifications";
 import { Notification } from "../../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../../components/TimeFromNow";
@@ -24,7 +23,6 @@ interface Props {
 };
 
 const Notifications = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {toggleLoading, showSuccess, showError} = useUI();
@@ -37,14 +35,14 @@ const Notifications = (props: Props) => {
     });
     const [notification, setNotification] = useState<Notification>();
 
-    const notifications = useFindNotificationsByUser(sortByDate, limit, actors.main);
+    const notifications = useFindNotificationsByUser(sortByDate, limit);
     const markMut = useMarkAsReadNotification();
     const deleteMut = useDeleteNotification();
 
     const handleMark = useCallback(async (notif: Notification) => {
         try {
             toggleLoading(true);
-            await markMut.mutateAsync({main: actors.main, pubId: notif.pubId});
+            await markMut.mutateAsync({pubId: notif.pubId});
             showSuccess("Notification marked as read!");
         }
         catch(e) {
@@ -53,7 +51,7 @@ const Notifications = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [actors.main]);
+    }, []);
 
     const handleDelete = useCallback(async () => {
         if(!notification) {
@@ -63,10 +61,7 @@ const Notifications = (props: Props) => {
         try {
             toggleLoading(true);
             
-            await deleteMut.mutateAsync({
-                main: actors.main, 
-                pubId: notification.pubId
-            });
+            await deleteMut.mutateAsync({pubId: notification.pubId});
             
             showSuccess("Notification deleted!");
             handleCloseDelete();
@@ -77,7 +72,7 @@ const Notifications = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [actors.main, notification]);
+    }, [notification]);
 
     const toggleDelete = useCallback((notif?: Notification) => {
         setModals(modals => ({

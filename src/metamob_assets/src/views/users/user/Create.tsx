@@ -8,8 +8,8 @@ import {ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
-import { ActorContext } from "../../../stores/actor";
 import { useUI } from "../../../hooks/ui";
+import { useActors } from "../../../hooks/actors";
 
 interface Props {
     onSuccess: (msg: string) => void;
@@ -23,7 +23,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
+    const {metamob} = useActors();
     const [auth, authDispatch] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
@@ -74,11 +74,11 @@ const Create = (props: Props) => {
         try {
             toggleLoading(true);
 
-            if(!actors.main) {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await actors.main.userCreate(form);
+            const res = await metamob.userCreate(form);
 
             if('ok' in res) {
                 const user = res.ok;
@@ -98,7 +98,7 @@ const Create = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form]);
+    }, [form, metamob]);
 
     if(!auth.client || !auth.identity) {
         return null;

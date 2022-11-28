@@ -6,7 +6,6 @@ import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useUI } from "../../../hooks/ui";
 import { useFindUserVotes } from "../../../hooks/votes";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../votes/Item";
@@ -22,10 +21,9 @@ const orderBy = [{
 }];
 
 const Votes = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -37,7 +35,7 @@ const Votes = (props: Props) => {
     });
     const [vote, setVote] = useState<VoteResponse>();
 
-    const votes = useFindUserVotes(orderBy, limit, auth.user?._id, actors.main);
+    const votes = useFindUserVotes(orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((vote: VoteResponse | undefined = undefined) => {
         setModals(modals => ({

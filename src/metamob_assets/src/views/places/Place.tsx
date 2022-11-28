@@ -20,7 +20,7 @@ interface Props {
 const Place = (props: Props) => {
     const {id} = useParams();
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
 
     const [placeId, setPlaceId] = useState<number>();
     const [filters, setFilters] = useState<Filter[]>([

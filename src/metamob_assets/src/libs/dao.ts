@@ -8,24 +8,24 @@ export const getConfigAsNat64 = async (
 };
 
 export const getStakedBalance = async (
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<bigint> => {
-    if(!main) {
+    if(!metamob) {
         return BigInt(0);
     }
 
-    return await main.daoStakedBalance();
+    return await metamob.daoStakedBalance();
 };
 
 export const stake = async (
     value: bigint,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<undefined> => {
-    if(!main) {
+    if(!metamob) {
         return;
     }
 
-    const res = await main.daoStake(value);
+    const res = await metamob.daoStake(value);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -35,13 +35,13 @@ export const stake = async (
 
 export const unstake = async (
     value: bigint,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<undefined> => {
-    if(!main) {
+    if(!metamob) {
         return;
     }
 
-    const res = await main.daoUnStake(value);
+    const res = await metamob.daoUnStake(value);
     if('err' in res) {
         throw new Error(res.err);
     }
@@ -50,11 +50,11 @@ export const unstake = async (
 };
 
 export const getDepositedBalance = async (
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<bigint> => {
-    if(!main) {
+    if(!metamob) {
         return BigInt(0);
     }
 
-    return await main.daoDepositedBalance();
+    return await metamob.daoDepositedBalance();
 };

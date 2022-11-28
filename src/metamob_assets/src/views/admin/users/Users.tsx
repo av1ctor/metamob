@@ -1,7 +1,6 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
 import { Filter, Order } from "../../../libs/common";
-import { ActorContext } from "../../../stores/actor";
 import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindUsers } from "../../../hooks/users";
 import EditForm from "./Edit";
@@ -20,8 +19,6 @@ interface Props {
 }
 
 const Users = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-    
     const [user, setUser] = useState<Profile>();
     const [limit, setLimit] = useState({
         offset: 0,
@@ -83,7 +80,7 @@ const Users = (props: Props) => {
         }));
     }, []);
 
-    const users = useFindUsers(filters, orderBy, limit, actors.main);
+    const users = useFindUsers(filters, orderBy, limit);
 
     return (
         <>

@@ -3,7 +3,6 @@ import { DonationResponse } from "../../../../../declarations/metamob/metamob.di
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserDonations } from "../../../hooks/donations";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../donations/Item";
@@ -22,7 +21,6 @@ const orderBy = [{
 }];
 
 const Donations = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {toggleLoading, showError} = useUI();
@@ -37,7 +35,7 @@ const Donations = (props: Props) => {
     });
     const [donation, setDonation] = useState<DonationResponse>();
 
-    const donations = useFindUserDonations(orderBy, limit, auth.user?._id, actors.main);
+    const donations = useFindUserDonations(orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((donation: DonationResponse | undefined = undefined) => {
         setModals(modals => ({

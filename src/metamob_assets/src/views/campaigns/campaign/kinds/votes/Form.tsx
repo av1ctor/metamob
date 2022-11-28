@@ -6,7 +6,6 @@ import {VoteRequest, Campaign, VoteResponse} from "../../../../../../../declarat
 import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
-import { ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import { useUI } from "../../../../../hooks/ui";
 
@@ -23,7 +22,6 @@ const formSchema = yup.object().shape({
 
 const VoteForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -72,7 +70,6 @@ const VoteForm = (props: Props) => {
             toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -89,7 +86,7 @@ const VoteForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, auth, actors.main]);
+    }, [form, auth]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);

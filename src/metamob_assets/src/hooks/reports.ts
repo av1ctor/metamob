@@ -2,26 +2,29 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query
 import {ReportRequest, ReportResponse, Metamob, ReportCloseRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findByReportedUser, findByUser } from '../libs/reports';
+import { useActors } from './actors';
 
 export const useFindReportById = (
-    pubId: string, 
-    main?: Metamob
+    pubId: string
 ): UseQueryResult<ReportResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<ReportResponse, Error>(
         ['reports', pubId], 
-        () => findById(pubId, main)
+        () => findById(pubId, metamob)
     );
 };
 
 export const useFindReports = (
     filters: Filter[], 
     orderBy: Order[], 
-    limit: Limit, 
-    main?: Metamob
+    limit: Limit
 ): UseQueryResult<ReportResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<ReportResponse[], Error>(
         ['reports', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit, main),
+        () => findAll(filters, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -29,9 +32,10 @@ export const useFindReports = (
 export const useFindReportsAssigned = (
     userId: number,
     orderBy: Order[], 
-    limit: Limit, 
-    main?: Metamob
+    limit: Limit
 ): UseQueryResult<ReportResponse[], Error> => {
+    const {metamob} = useActors();
+
     const filters: Filter[] = [
         {
             key: 'assignedTo',
@@ -42,7 +46,7 @@ export const useFindReportsAssigned = (
     
     return useQuery<ReportResponse[], Error>(
         ['reports', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit, main),
+        () => findAll(filters, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -50,12 +54,13 @@ export const useFindReportsAssigned = (
 export const useFindUserReports = (
     orderBy: Order[], 
     limit: Limit, 
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<ReportResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<ReportResponse[], Error>(
         ['reports', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByUser(orderBy, limit, main),
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -63,25 +68,28 @@ export const useFindUserReports = (
 export const useFindAgainstUserReports = (
     orderBy: Order[], 
     limit: Limit, 
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<ReportResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<ReportResponse[], Error>(
         ['reports-against', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByReportedUser(orderBy, limit, main),
+        () => findByReportedUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
 
 export const useCreateReport = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: ReportRequest}) => {
-            if(!options.main) {
+        async (options: {req: ReportRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.reportCreate(options.req);
+            const res = await metamob.reportCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -97,13 +105,15 @@ export const useCreateReport = () => {
 
 export const useUpdateReport = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: ReportRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: ReportRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.reportUpdate(options.pubId, options.req);
+            const res = await metamob.reportUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -119,13 +129,15 @@ export const useUpdateReport = () => {
 
 export const useCloseReport = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: ReportCloseRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: ReportCloseRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.reportClose(options.pubId, options.req);
+            const res = await metamob.reportClose(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }

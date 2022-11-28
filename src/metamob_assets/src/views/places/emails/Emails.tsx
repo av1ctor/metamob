@@ -1,12 +1,10 @@
 import React, {useState, useCallback, useEffect, useContext} from "react";
 import { FormattedMessage } from "react-intl";
 import { Place } from "../../../../../declarations/metamob/metamob.did";
-import Badge from "../../../components/Badge";
 import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import { useDeletePlaceEmail, useFindPlacesEmails } from "../../../hooks/places-emails";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 import Create from "./Create";
 
 const orderBy = [{
@@ -25,8 +23,6 @@ interface Props {
 }
 
 const PlaceEmails = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
 
     const [modals, setModals] = useState({
@@ -34,7 +30,7 @@ const PlaceEmails = (props: Props) => {
         delete: false,
     });
 
-    const emails = useFindPlacesEmails(props.place._id, orderBy, limit, actors.main);
+    const emails = useFindPlacesEmails(props.place._id, orderBy, limit);
     const deleteMut = useDeletePlaceEmail();
 
     const toggleCreate = useCallback(() => {
@@ -49,10 +45,7 @@ const PlaceEmails = (props: Props) => {
         {
             toggleLoading(true);
 
-            await deleteMut.mutateAsync({
-                main: actors.main,
-                _id: _id
-            });
+            await deleteMut.mutateAsync({_id: _id});
             showSuccess("E-mail deleted!")
         }
         catch(e) {

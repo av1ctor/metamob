@@ -1,4 +1,4 @@
-import React, {useState, ChangeEvent, useContext, useCallback, useEffect} from "react";
+import React, {useState, useContext, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCreateSignature} from "../../../../../hooks/signatures";
@@ -6,7 +6,6 @@ import {SignatureRequest, Campaign, SignatureResponse} from "../../../../../../.
 import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
-import { ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../../hooks/ui";
@@ -23,7 +22,6 @@ const formSchema = yup.object().shape({
 
 const SignForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -71,7 +69,6 @@ const SignForm = (props: Props) => {
             toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -87,7 +84,7 @@ const SignForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, auth, actors.main]);
+    }, [form, auth]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);

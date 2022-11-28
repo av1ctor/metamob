@@ -2,6 +2,7 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryR
 import {Place, PlaceRequest, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findByPubId, findByUser, findTreeById } from '../libs/places';
+import { useActors } from './actors';
 
 export const useFindPlaceById = (
     _id: number
@@ -33,12 +34,13 @@ export const useFindPlaceByPubId = (
 export const useFindUserPlaces = (
     userId: number, 
     orderBy: Order[], 
-    limit: Limit,
-    main?: Metamob
+    limit: Limit
 ): UseQueryResult<Place[], Error> => {
-   return useQuery<Place[], Error>(
+    const {metamob} = useActors();
+
+    return useQuery<Place[], Error>(
         ['places', userId, ...orderBy, limit.offset, limit.size], 
-        () => userId === 0? []: findByUser(userId, orderBy, limit, main),
+        () => userId === 0? []: findByUser(userId, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -84,13 +86,15 @@ export const useFindChildrenPlacesInf = (
 export const useCreatePlace = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: PlaceRequest}) => {
-            if(!options.main) {
+        async (options: {req: PlaceRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.placeCreate(options.req);
+            const res = await metamob.placeCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -107,13 +111,15 @@ export const useCreatePlace = (
 export const useUpdatePlace = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: PlaceRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: PlaceRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.placeUpdate(options.pubId, options.req);
+            const res = await metamob.placeUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -130,13 +136,15 @@ export const useUpdatePlace = (
 export const useModeratePlace = (
     ) => {
         const queryClient = useQueryClient();
+        const {metamob} = useActors();
+        
         return useMutation(
-            async (options: {main?: Metamob, pubId: string, req: PlaceRequest, mod: ModerationRequest}) => {
-                if(!options.main) {
+            async (options: {pubId: string, req: PlaceRequest, mod: ModerationRequest}) => {
+                if(!metamob) {
                     throw Error('Main actor undefined');
                 }
     
-                const res = await options.main.placeModerate(options.pubId, options.req, options.mod);
+                const res = await metamob.placeModerate(options.pubId, options.req, options.mod);
                 if('err' in res) {
                     throw new Error(res.err);
                 }

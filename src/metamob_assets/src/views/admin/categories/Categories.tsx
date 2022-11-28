@@ -16,7 +16,6 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-
 }
 
 const Categories = (props: Props) => {

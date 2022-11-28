@@ -1,9 +1,8 @@
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import {useDeleteDonation} from "../../../hooks/donations";
 import {DonationResponse} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import { useFindCampaignById } from "../../../hooks/campaigns";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useUI } from "../../../hooks/ui";
@@ -14,7 +13,6 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -33,7 +31,6 @@ const DeleteForm = (props: Props) => {
             }
 
             await deleteMut.mutateAsync({
-                main: actors.main,
                 pubId: props.donation.pubId, 
                 campaignPubId: campaign.data.pubId,
             });

@@ -5,13 +5,13 @@ import { Limit, Order } from "./common";
 export const findByUser = async (
     orderBy: Order[], 
     limit: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Notification[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
     
-    const res = await main.notificationFindByUser(
+    const res = await metamob.notificationFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []
     );
@@ -27,13 +27,13 @@ export const findByUser = async (
 }
 
 export const countUnreadByUser = async (
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<number> => {
-    if(!main) {
+    if(!metamob) {
         return 0;
     }
     
-    const res = await main.notificationCountUnreadByUser();
+    const res = await metamob.notificationCountUnreadByUser();
     
     if('err' in res) {
         if(res.err === 'Not found') {

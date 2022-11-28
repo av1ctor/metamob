@@ -3,7 +3,6 @@ import { Challenge } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindJudgeChallenges } from "../../../../hooks/challenges";
-import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../challenges/Item";
 import { Paginator } from "../../../../components/Paginator";
@@ -21,7 +20,6 @@ const orderBy = [{
 }];
 
 const ToModerate = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
@@ -36,7 +34,7 @@ const ToModerate = (props: Props) => {
     const [challenge, setChallenge] = useState<Challenge>();
 
     const challenges = useFindJudgeChallenges(
-        orderBy, limit, auth.user?._id, actors.main);
+        orderBy, limit, auth.user?._id);
     
     const toggleModerate = useCallback(() => {
         setModals(modals => ({

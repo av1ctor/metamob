@@ -8,7 +8,6 @@ import { kindToText } from "../../../libs/logs";
 interface Props {
     log: Msg;
     onClose: () => void;
-
 }
 
 const View = (props: Props) => {

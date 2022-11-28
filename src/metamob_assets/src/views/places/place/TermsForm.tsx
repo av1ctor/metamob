@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { Place, PlaceUser, PlaceUserRequest } from "../../../../../declarations/metamob/metamob.did";
@@ -7,7 +7,6 @@ import CheckboxField from "../../../components/CheckboxField";
 import { Markdown } from "../../../components/Markdown";
 import { useCreatePlaceUser } from "../../../hooks/places-users";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     place: Place;
@@ -21,7 +20,6 @@ const formSchema = yup.object().shape({
 });
 
 const TermsForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -67,7 +65,6 @@ const TermsForm = (props: Props) => {
             toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     placeId: form.placeId,
                     termsAccepted: form.termsAccepted
@@ -82,7 +79,7 @@ const TermsForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

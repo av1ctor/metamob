@@ -116,7 +116,6 @@ const Boost = (props: Props) => {
             await depositIcp(auth.user, value, actors.main, ledger);
 
             await boostMut.mutateAsync({
-                main: actors.main,
                 pubId: props.campaign.pubId, 
                 value
             });

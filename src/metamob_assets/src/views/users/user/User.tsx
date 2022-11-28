@@ -6,7 +6,7 @@ import TextField from "../../../components/TextField";
 import {Profile, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { ActorContext } from "../../../stores/actor";
 import { AvatarPicker } from "../../../components/AvatarPicker";
-import { useFindUserById } from "../../../hooks/users";
+import { useFindUserById, useUpdateMe } from "../../../hooks/users";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
 import { getMmtBalance } from "../../../libs/mmt";
@@ -53,7 +53,8 @@ const User = (props: Props) => {
         transfer: false,
     });
 
-    const profile = useFindUserById(auth.user?._id || 0, actors.main);
+    const profile = useFindUserById(auth.user?._id || 0);
+    const updateMut = useUpdateMe();
 
     const changeForm = useCallback((e: any) => {
         setForm(form => ({
@@ -91,20 +92,9 @@ const User = (props: Props) => {
         try {
             toggleLoading(true);
 
-            if(!actors.main) {
-                return;
-            }
-            
-            const res = await actors.main.userUpdateMe(form);
-            
-            if('ok' in res) {
-                const user = res.ok;
-                authDispatch({type: AuthActionType.SET_USER, payload: user});
-                showSuccess('User updated!');
-            }
-            else {
-                showError(res.err);
-            }
+            const res = await updateMut.mutateAsync({req: form});
+            authDispatch({type: AuthActionType.SET_USER, payload: res});
+            showSuccess('Profile updated!');
         }
         catch(e: any) {
             showError(e);

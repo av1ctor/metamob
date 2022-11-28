@@ -13,7 +13,6 @@ import TextField from "../../../components/TextField";
 import { useFindPlaceById, useModeratePlace, useUpdatePlace } from "../../../hooks/places";
 import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
-import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 import { transformAuth, validateAuth } from "./utils";
 import { AuthContext } from "../../../stores/auth";
@@ -46,7 +45,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -175,7 +173,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.place.pubId,
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -184,7 +181,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.place.pubId,
                     req: transformReq(),
                 });
@@ -199,7 +195,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, modForm, actors.main, props.onClose]);
+    }, [form, modForm, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string

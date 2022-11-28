@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useFindPoapById } from "../../../hooks/poap";
-import { ActorContext } from "../../../stores/actor";
 import { Preview } from "./Preview";
 
 interface Props {
@@ -9,9 +8,7 @@ interface Props {
 }
 
 export const PreviewWrapper = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-    
-    const req = useFindPoapById(props.id, actors.main);
+    const req = useFindPoapById(props.id);
     
     if(req.status === 'loading' || !req.data) {
         return <div>Loading...</div>;

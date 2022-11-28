@@ -10,7 +10,6 @@ import { useUI } from "../../../hooks/ui";
 import { useModerateUser, useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
 import { Banned, isModerator } from "../../../libs/users";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
@@ -61,7 +60,6 @@ interface Props {
 }
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -164,7 +162,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.user.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -173,7 +170,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.user.pubId, 
                     req: transformReq()
                 });
@@ -188,7 +184,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, modForm, actors.main, props.onClose]);
+    }, [form, modForm, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

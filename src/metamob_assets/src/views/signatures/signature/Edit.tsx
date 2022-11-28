@@ -5,7 +5,6 @@ import {SignatureResponse, SignatureRequest} from "../../../../../declarations/m
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import CheckboxField from "../../../components/CheckboxField";
 import { isModerator } from "../../../libs/users";
 import { AuthContext } from "../../../stores/auth";
@@ -25,7 +24,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -96,7 +94,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.signature.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -105,7 +102,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.signature.pubId, 
                     req: transformReq()
                 });

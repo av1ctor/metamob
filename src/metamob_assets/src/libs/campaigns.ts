@@ -195,13 +195,13 @@ export const findByUser = async (
     userId?: number, 
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Campaign[]> => {
-    if(!main || !userId) {
+    if(!metamob || !userId) {
         return [];
     }
 
-    const res = await main.campaignFindByUser(
+    const res = await metamob.campaignFindByUser(
         userId, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);

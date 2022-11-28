@@ -69,13 +69,13 @@ export const findByCampaign = async (
 export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Poap[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }   
 
-    const res = await main.poapFindByUser(
+    const res = await metamob.poapFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -88,13 +88,13 @@ export const findByUser = async (
 
 export const findById = async (
     _id?: number, 
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Poap> => {
-    if(!main || !_id) {
+    if(!metamob || !_id) {
         return {} as Poap;
     }
         
-    const res = await main.poapFindById(_id);
+    const res = await metamob.poapFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }

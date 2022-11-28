@@ -3,7 +3,6 @@ import {useDeleteUpdate} from "../../../hooks/updates";
 import {Update} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import { useUI } from "../../../hooks/ui";
 
 interface Props {
@@ -13,8 +12,6 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteUpdate();
@@ -25,10 +22,7 @@ const DeleteForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            await deleteMut.mutateAsync({
-                main: actors.main,
-                pubId: props.update.pubId, 
-            });
+            await deleteMut.mutateAsync({pubId: props.update.pubId});
             
             showSuccess('Update deleted!');
             props.onClose();

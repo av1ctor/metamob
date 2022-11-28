@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import { Challenge, ChallengeRequest } from "../../../../../declarations/metamob/metamob.did";
@@ -7,7 +7,6 @@ import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import { useUpdateChallenge } from "../../../hooks/challenges";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     challenge: Challenge;
@@ -20,8 +19,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
 
     const {challenge} = props;
@@ -56,7 +53,6 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actors.main,
                 pubId: props.challenge.pubId,
                 req: {
                     moderationId: form.moderationId,
@@ -73,7 +69,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

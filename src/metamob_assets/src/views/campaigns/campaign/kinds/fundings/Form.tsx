@@ -152,7 +152,6 @@ const FundingForm = (props: Props) => {
             }
 
             const funding = await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
@@ -168,7 +167,6 @@ const FundingForm = (props: Props) => {
             }
             catch(e) {
                 await deleteMut.mutateAsync({
-                    main: actors.main,
                     pubId: funding.pubId,
                     campaignPubId: props.campaign.pubId,
                 });
@@ -176,7 +174,6 @@ const FundingForm = (props: Props) => {
             }
 
             await completeMut.mutateAsync({
-                main: actors.main,
                 pubId: funding.pubId,
                 campaignPubId: props.campaign.pubId,
             });

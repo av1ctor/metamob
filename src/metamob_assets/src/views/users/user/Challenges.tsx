@@ -7,15 +7,12 @@ import MyChallenges from "./challenges/MyChallenges";
 import BecomeModForm from "./BecomeMod";
 import ToModerate from "./challenges/ToModerate";
 import { FormattedMessage } from "react-intl";
-import { useUI } from "../../../hooks/ui";
 
 interface Props {
 };
 
 const Challenges = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-
-    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         becomeMod: false,

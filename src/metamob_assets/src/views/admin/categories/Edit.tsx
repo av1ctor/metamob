@@ -7,7 +7,6 @@ import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useUpdateCategory } from "../../../hooks/categories";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 
 interface Props {
@@ -22,8 +21,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<CategoryRequest>({
@@ -64,7 +61,6 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             await updateMut.mutateAsync({
-                main: actors.main,
                 pubId: props.category.pubId,
                 req: {
                     name: form.name,
@@ -81,7 +77,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

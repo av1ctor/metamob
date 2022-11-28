@@ -1,6 +1,7 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
 import {Metamob, PlaceUser, PlaceUserRequest} from "../../../declarations/metamob/metamob.did";
 import { findByPlaceAndUser } from '../libs/places-users';
+import { useActors } from './actors';
 
 export const useFindByPlaceAndUser = (
     placeId?: number, 
@@ -15,13 +16,15 @@ export const useFindByPlaceAndUser = (
 export const useCreatePlaceUser = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, req: PlaceUserRequest}) => {
-            if(!options.main) {
+        async (options: {req: PlaceUserRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.placeUserCreate(options.req);
+            const res = await metamob.placeUserCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -38,13 +41,15 @@ export const useCreatePlaceUser = (
 export const useUpdatePlaceUser = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: PlaceUserRequest}) => {
-            if(!options.main) {
+        async (options: {req: PlaceUserRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.placeUserUpdate(options.req);
+            const res = await metamob.placeUserUpdate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -61,13 +66,15 @@ export const useUpdatePlaceUser = (
 export const useDeletePlaceUser = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, _id: number}) => {
-            if(!options.main) {
+        async (options: {_id: number}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.placeUserDelete(options._id);
+            const res = await metamob.placeUserDelete(options._id);
             if('err' in res) {
                 throw new Error(res.err);
             }

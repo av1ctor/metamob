@@ -2,14 +2,16 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryR
 import {PoapRequest, Metamob, Poap, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findById, findByPubId, findByUser } from '../libs/poap';
+import { useActors } from './actors';
 
 export const useFindPoapById = (
-    _id: number, 
-    main?: Metamob
+    _id: number
 ): UseQueryResult<Poap, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Poap, Error>(
         ['poaps', _id], 
-        () => findById(_id, main)
+        () => findById(_id, metamob)
     );
 };
 
@@ -54,12 +56,13 @@ export const useFindPoapsByCampaign = (
 export const useFindUserPoaps = (
     orderBy: Order[], 
     limit: Limit,
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<Poap[], Error> => {
-   return useQuery<Poap[], Error>(
+    const {metamob} = useActors();
+
+    return useQuery<Poap[], Error>(
         ['poaps', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByUser(orderBy, limit, main),
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 
@@ -67,13 +70,15 @@ export const useFindUserPoaps = (
 
 export const useCreatePoap = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: PoapRequest}) => {
-            if(!options.main) {
+        async (options: {req: PoapRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.poapCreate(options.req);
+            const res = await metamob.poapCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -89,13 +94,15 @@ export const useCreatePoap = () => {
 
 export const useUpdatePoap = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: PoapRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: PoapRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.poapUpdate(options.pubId, options.req);
+            const res = await metamob.poapUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -111,13 +118,15 @@ export const useUpdatePoap = () => {
 
 export const useModeratePoap = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: PoapRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: PoapRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.poapModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.poapModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -133,13 +142,15 @@ export const useModeratePoap = () => {
 
 export const useMintPoap = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.poapMint(options.pubId);
+            const res = await metamob.poapMint(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -155,13 +166,15 @@ export const useMintPoap = () => {
 
 export const useDeletePoap = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.poapDelete(options.pubId);
+            const res = await metamob.poapDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

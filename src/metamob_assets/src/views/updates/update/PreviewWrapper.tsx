@@ -1,7 +1,5 @@
 import React from "react";
-import { useContext } from "react";
 import { useFindUpdateById } from "../../../hooks/updates";
-import { ActorContext } from "../../../stores/actor";
 import { Preview } from "./Preview";
 
 interface Props {
@@ -10,9 +8,7 @@ interface Props {
 }
 
 export const PreviewWrapper = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-    
-    const req = useFindUpdateById(props.id, actors.main);
+    const req = useFindUpdateById(props.id);
 
     if(req.status === 'loading' || !req.data) {
         return <div>Loading...</div>;

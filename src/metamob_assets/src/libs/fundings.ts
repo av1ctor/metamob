@@ -83,13 +83,13 @@ export const findByCampaignAndUser = async (
 export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<FundingResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }   
 
-    const res = await main.fundingFindByUser(
+    const res = await metamob.fundingFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -102,13 +102,13 @@ export const findByUser = async (
 
 export const findById = async (
     _id?: number, 
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Funding> => {
-    if(!main || !_id) {
+    if(!metamob || !_id) {
         return {} as Funding;
     }
         
-    const res = await main.fundingFindById(_id);
+    const res = await metamob.fundingFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }

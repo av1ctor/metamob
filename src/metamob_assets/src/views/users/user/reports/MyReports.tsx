@@ -3,7 +3,6 @@ import { ReportResponse } from "../../../../../../declarations/metamob/metamob.d
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindUserReports } from "../../../../hooks/reports";
-import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import EditForm from "../../../reports/report/Edit";
@@ -21,7 +20,6 @@ const orderBy = [{
 }];
 
 const MyReports = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
@@ -35,7 +33,7 @@ const MyReports = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindUserReports(orderBy, limit, auth.user?._id, actors.main);
+    const reports = useFindUserReports(orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({

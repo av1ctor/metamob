@@ -10,7 +10,6 @@ import Modal from "../../../components/Modal";
 import View from "./View";
 
 interface Props {
-
 }
 
 const Logs = (props: Props) => {

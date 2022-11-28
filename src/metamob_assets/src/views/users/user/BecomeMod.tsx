@@ -68,9 +68,7 @@ const BecomeModForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            const profile = await signupMut.mutateAsync({
-                main: actors.main,
-            });
+            const profile = await signupMut.mutateAsync();
             
             authDispatch({
                 type: AuthActionType.SET_USER,
@@ -86,7 +84,7 @@ const BecomeModForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleStake = useCallback(async (e: any) => {
         e.preventDefault();
@@ -96,11 +94,7 @@ const BecomeModForm = (props: Props) => {
 
             const value = minToBeStaked - auth.balances.staked;
 
-            await stakeMut.mutateAsync({
-                main: actors.main,
-                mmt: actors.mmt,
-                value: value
-            });
+            await stakeMut.mutateAsync({value: value});
             updateBalances();
             showSuccess('Value staked!');
         }

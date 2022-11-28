@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Profile, ReportResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
@@ -6,7 +6,6 @@ import { useFindReports } from "../../../hooks/reports";
 import { Filter, Order } from "../../../libs/common";
 import { ReportState, reportStateToText } from "../../../libs/reports";
 import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
-import { ActorContext } from "../../../stores/actor";
 import ModerateForm from "../../reports/report/Moderate";
 import EditUserForm from "../../../views/users/user/Edit";
 import Badge from "../../../components/Badge";
@@ -29,8 +28,6 @@ interface Props {
 }
 
 const Reports = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-    
     const [user, setUser] = useState<Profile>();
     const [report, setReport] = useState<ReportResponse>();
     const [limit, setLimit] = useState({
@@ -94,11 +91,6 @@ const Reports = (props: Props) => {
         toggleModerate();
     }, []);
 
-    const handleEditUser = useCallback((item: Profile) => {
-        setUser(item);
-        toggleEditUser();
-    }, []);
-
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({
             ...limit,
@@ -113,7 +105,7 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    const reports = useFindReports(filters, orderBy, limit, actors.main);
+    const reports = useFindReports(filters, orderBy, limit);
 
     return (
         <>
@@ -204,9 +196,6 @@ const Reports = (props: Props) => {
                         report={report}
                         onModerate={handleModerate}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>            
@@ -220,9 +209,6 @@ const Reports = (props: Props) => {
                     <EntityModerate
                         report={report}
                         onClose={toggleModerate}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -236,9 +222,6 @@ const Reports = (props: Props) => {
                     <EditUserForm
                         user={user}
                         onClose={toggleEditUser}
-                        
-                        
-                        
                     />
                 }
             </Modal>

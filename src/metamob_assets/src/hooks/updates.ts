@@ -3,14 +3,16 @@ import {UpdateRequest, Update, Metamob, ModerationRequest} from "../../../declar
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findById, findByPubId } from '../libs/updates';
+import { useActors } from './actors';
 
 export const useFindUpdateById = (
-    _id: number, 
-    main?: Metamob
+    _id: number
 ): UseQueryResult<Update, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Update, Error>(
         ['updates', _id],  
-        () => findById(_id, main)
+        () => findById(_id, metamob)
     );
 };
 
@@ -56,15 +58,17 @@ export const useFindUpdatesByCampaign = (
 
 export const useCreateUpdate = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: UpdateRequest, result?: CampaignResult}) => {
-            if(!options.main) {
+        async (options: {req: UpdateRequest, result?: CampaignResult}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
             const res = options.result === undefined || options.result === CampaignResult.NONE?
-                await options.main.updateCreate(options.req):
-                await options.main.updateCreateAndFinishCampaign(options.req, options.result);
+                await metamob.updateCreate(options.req):
+                await metamob.updateCreateAndFinishCampaign(options.req, options.result);
             
             if('err' in res) {
                 throw new Error(res.err);
@@ -81,13 +85,15 @@ export const useCreateUpdate = () => {
 
 export const useUpdateUpdate = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: UpdateRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: UpdateRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.updateUpdate(options.pubId, options.req);
+            const res = await metamob.updateUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -103,13 +109,15 @@ export const useUpdateUpdate = () => {
 
 export const useModerateUpdate = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: UpdateRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: UpdateRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.updateModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.updateModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -125,13 +133,15 @@ export const useModerateUpdate = () => {
 
 export const useDeleteUpdate = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.updateDelete(options.pubId);
+            const res = await metamob.updateDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

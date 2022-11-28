@@ -8,15 +8,12 @@ import BecomeModForm from "./BecomeMod";
 import MyReports from "./reports/MyReports";
 import AgainstMe from "./reports/AgainstMe";
 import { FormattedMessage } from "react-intl";
-import { useUI } from "../../../hooks/ui";
 
 interface Props {
 };
 
 const Reports = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-
-    const {toggleLoading, showSuccess, showError} = useUI();
 
     const [modals, setModals] = useState({
         becomeMod: false,

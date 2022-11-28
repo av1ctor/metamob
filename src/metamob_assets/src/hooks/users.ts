@@ -1,15 +1,16 @@
 import { Principal } from '@dfinity/principal';
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from 'react-query'
-import {Metamob, ProfileResponse, Profile, ProfileRequest, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {ProfileResponse, Profile, ProfileRequest, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {canisterId as metamobCanisterId} from "../../../declarations/metamob";
-import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx, findByPubId } from '../libs/users';
+import { useActors } from './actors';
 
 export const useFindUserById = (
-    id?: number | [] | [number], 
-    main?: Metamob
+    id?: number | [] | [number]
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
+    const {metamob} = useActors();
+    
     const _id = Array.isArray(id)?
         id.length > 0?
             id[0]
@@ -18,8 +19,8 @@ export const useFindUserById = (
     :
         id;
     return useQuery<ProfileResponse|Profile, Error>(
-        ['users', main? 'full': 'redacted', _id],
-        () => main? findByIdEx(main, _id): findById(_id)
+        ['users', metamob? 'full': 'redacted', _id],
+        () => metamob? findByIdEx(metamob, _id): findById(_id)
     );
 };
 
@@ -35,25 +36,52 @@ export const useFindUserByPubId = (
 export const useFindUsers = (
     filters: Filter[], 
     orderBy: Order[], 
-    limit: Limit, 
-    main?: Metamob
+    limit: Limit
 ): UseQueryResult<Profile[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Profile[], Error>(
         ['users', ...filters, ...orderBy, limit.offset, limit.size],
-        () => findAll(filters, orderBy, limit, main),
+        () => findAll(filters, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
+    );
+};
+
+export const useUpdateMe = () => {
+    const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
+    return useMutation(
+        async (options: {req: ProfileRequest}) => {
+            if(!metamob) {
+                throw Error('Main actor undefined');
+            }
+            
+            const res = await metamob.userUpdateMe(options.req);
+            if('err' in res) {
+                throw new Error(res.err);
+            }
+            return res.ok;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(['users']);
+            }   
+        }
     );
 };
 
 export const useUpdateUser = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: ProfileRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: ProfileRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.userUpdate(options.pubId, options.req);
+            const res = await metamob.userUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -69,13 +97,15 @@ export const useUpdateUser = () => {
 
 export const useModerateUser = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: ProfileRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: ProfileRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.userModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.userModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -91,13 +121,15 @@ export const useModerateUser = () => {
 
 export const useSignupAsModerator = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob}) => {
-            if(!options.main) {
+        async () => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.userSignupAsModerator();
+            const res = await metamob.userSignupAsModerator();
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -112,17 +144,19 @@ export const useSignupAsModerator = () => {
 };
 
 export const useApprove = () => {
+    const {metamob, mmt} = useActors();
+
     return useMutation(
-        async (options: {value: bigint, mmt?: MMT, main?: Metamob}) => {
-            if(!options.main || !metamobCanisterId) {
+        async (options: {value: bigint}) => {
+            if(!metamob || !metamobCanisterId) {
                 throw Error('Main actor undefined');
             }
 
-            if(!options.mmt) {
+            if(!mmt) {
                 throw Error('MMT actor undefined');
             }
             
-            const res = await options.mmt.approve(
+            const res = await mmt.approve(
                 Principal.fromText(metamobCanisterId), options.value);
             if(res && 'Err' in res) {
                 throw new Error(JSON.stringify(res.Err));
@@ -139,23 +173,25 @@ export const useApprove = () => {
 
 export const useStake = () => {
     const queryClient = useQueryClient();
+    const {metamob, mmt} = useActors();
+
     return useMutation(
-        async (options: {value: bigint, mmt?: MMT, main?: Metamob}) => {
-            if(!options.main || !metamobCanisterId) {
+        async (options: {value: bigint}) => {
+            if(!metamob || !metamobCanisterId) {
                 throw Error('Main actor undefined');
             }
 
-            if(!options.mmt) {
+            if(!mmt) {
                 throw Error('MMT actor undefined');
             }
             
-            const res = await options.mmt.approve(
+            const res = await mmt.approve(
                 Principal.fromText(metamobCanisterId), options.value);
             if(res && 'Err' in res) {
                 throw new Error(JSON.stringify(res.Err));
             }
 
-            const res2 = await options.main.daoStake(options.value);
+            const res2 = await metamob.daoStake(options.value);
             if('err' in res2) {
                 throw new Error(res2.err);
             }
@@ -172,13 +208,15 @@ export const useStake = () => {
 
 export const useUnstake = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {value: bigint, main?: Metamob}) => {
-            if(!options.main) {
+        async (options: {value: bigint}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.daoUnStake(options.value);
+            const res = await metamob.daoUnStake(options.value);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -195,13 +233,15 @@ export const useUnstake = () => {
 
 export const useTransfer = () => {
     const queryClient = useQueryClient();
+    const {metamob, mmt} = useActors();
+
     return useMutation(
-        async (options: {to: string, value: bigint, mmt?: MMT}) => {
-            if(!options.mmt) {
+        async (options: {to: string, value: bigint}) => {
+            if(!mmt) {
                 throw Error('MMT actor undefined');
             }
 
-            const res = await options.mmt.transfer( 
+            const res = await mmt.transfer( 
                 Principal.fromText(options.to), options.value);
             if(res && 'Err' in res) {
                 throw new Error(JSON.stringify(res.Err));

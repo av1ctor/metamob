@@ -2,6 +2,7 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query
 import {Metamob, Notification} from "../../../declarations/metamob/metamob.did";
 import { Limit, Order } from '../libs/common';
 import { findByUser, findByPubId, countUnreadByUser } from '../libs/notifications';
+import { useActors } from './actors';
 
 export const useFindNotificationByPubId = (
     pubId: string
@@ -14,34 +15,37 @@ export const useFindNotificationByPubId = (
 
 export const useFindNotificationsByUser = (
     orderBy: Order[], 
-    limit: Limit,
-    main?: Metamob
+    limit: Limit
 ): UseQueryResult<Notification[], Error> => {
-   return useQuery<Notification[], Error>(
-        main? ['notifications', ...orderBy, limit.offset, limit.size]: ['notifications-empty'], 
-        () => findByUser(orderBy, limit, main),
+    const {metamob} = useActors();
+    
+    return useQuery<Notification[], Error>(
+        metamob? ['notifications', ...orderBy, limit.offset, limit.size]: ['notifications-empty'], 
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
 
 export const useCountUnreadNotificationsByUser = (
-    main?: Metamob
 ): UseQueryResult<number, Error> => {
-   return useQuery<number, Error>(
-        main? ['notifications-unread']: ['notifications-unread-empty'], 
-        () => countUnreadByUser(main)
+    const {metamob} = useActors();
+    return useQuery<number, Error>(
+        metamob? ['notifications-unread']: ['notifications-unread-empty'], 
+        () => countUnreadByUser(metamob)
     );
 };
 
 export const useMarkAsReadNotification = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.notificationMarkAsRead(options.pubId);
+            const res = await metamob.notificationMarkAsRead(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -58,13 +62,15 @@ export const useMarkAsReadNotification = () => {
 
 export const useDeleteNotification = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.notificationDelete(options.pubId);
+            const res = await metamob.notificationDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

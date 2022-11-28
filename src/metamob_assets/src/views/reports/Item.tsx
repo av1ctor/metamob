@@ -3,7 +3,7 @@ import {Campaign, ProfileResponse, ReportResponse} from "../../../../declaration
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { reportResultToColor, reportResultToText, ReportState, reportStateToColor, reportStateToText } from "../../libs/reports";
+import { reportResultToColor, reportResultToText, reportStateToColor, reportStateToText } from "../../libs/reports";
 import { isModerator } from "../../libs/users";
 import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";

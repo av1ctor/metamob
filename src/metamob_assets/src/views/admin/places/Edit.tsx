@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
 import AutocompleteField from "../../../components/AutocompleteField";
@@ -14,14 +14,12 @@ import { useFindPlaceById, useUpdatePlace } from "../../../hooks/places";
 import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
-import { ActorContext } from "../../../stores/actor";
 import { transformAuth, validateAuth } from "../../places/place/utils";
 import Avatar from "../../users/Avatar";
 
 interface Props {
     place: Place;
     onClose: () => void;
-
 }
 
 const formSchema = yup.object().shape({
@@ -41,8 +39,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<PlaceRequest>({
@@ -132,7 +128,6 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             await updateMut.mutateAsync({
-                main: actors.main,
                 pubId: props.place.pubId,
                 req: {
                     name: form.name,
@@ -161,7 +156,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string

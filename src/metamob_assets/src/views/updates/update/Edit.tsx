@@ -4,7 +4,6 @@ import {useModerateUpdate, useUpdateUpdate} from "../../../hooks/updates";
 import {Update, UpdateRequest} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { AuthContext } from "../../../stores/auth";
@@ -23,7 +22,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -88,7 +86,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.update.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -98,7 +95,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.update.pubId, 
                     req: transformReq()
                 });

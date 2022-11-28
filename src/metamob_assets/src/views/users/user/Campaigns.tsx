@@ -3,7 +3,6 @@ import { FormattedMessage } from "react-intl";
 import { Paginator } from "../../../components/Paginator";
 import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import Item from "../../campaigns/Item";
 
@@ -16,7 +15,6 @@ const orderBy = [{
 }];
 
 const Campaigns = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {toggleLoading, showError} = useUI();
@@ -26,7 +24,7 @@ const Campaigns = (props: Props) => {
         size: 3
     });
 
-    const campaigns = useFindCampaignsByUserId(auth.user?._id || 0, orderBy, limit, actors.main);
+    const campaigns = useFindCampaignsByUserId(auth.user?._id || 0, orderBy, limit);
 
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({

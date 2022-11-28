@@ -3,7 +3,6 @@ import { Challenge } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindUserChallenges } from "../../../../hooks/challenges";
-import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../challenges/Item";
 import EditForm from "../../../challenges/challenge/Edit";
@@ -21,7 +20,6 @@ const orderBy = [{
 }];
 
 const MyChallenges = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
@@ -36,7 +34,7 @@ const MyChallenges = (props: Props) => {
     const [challenge, setChallenge] = useState<Challenge>();
 
     const challenges = useFindUserChallenges(
-        orderBy, limit, auth.user?._id, actors.main);
+        orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((challenge: Challenge | undefined = undefined) => {
         setModals(modals => ({

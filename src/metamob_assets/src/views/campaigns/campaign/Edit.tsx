@@ -7,7 +7,6 @@ import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
-import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { useFindPlaceById } from "../../../hooks/places";
 import { search } from "../../../libs/places";
@@ -139,7 +138,6 @@ interface Props {
 };
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext)
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
 
@@ -325,7 +323,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm),
@@ -341,7 +338,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.campaign.pubId, 
                     req: transformReq(),
                     cover: !form.cover?
@@ -363,7 +359,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, files, modForm, actors.main, props.onClose]);
+    }, [form, files, modForm, props.onClose]);
 
     const handleSearchPlace = useCallback(async (
         value: string

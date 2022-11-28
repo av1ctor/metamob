@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { ReportResponse, ReportRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
@@ -8,7 +8,6 @@ import TextAreaField from "../../../components/TextAreaField";
 import { useUpdateReport } from "../../../hooks/reports";
 import { useUI } from "../../../hooks/ui";
 import { kinds } from "../../../libs/reports";
-import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     report: ReportResponse;
@@ -23,8 +22,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
 
     const {report} = props;
@@ -62,7 +59,6 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actors.main,
                 pubId: props.report.pubId,
                 req: {
                     entityId: form.entityId,
@@ -82,7 +78,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

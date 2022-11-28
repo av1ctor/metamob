@@ -4,7 +4,6 @@ import {useCreateUpdate} from "../../../hooks/updates";
 import {UpdateRequest, Campaign} from "../../../../../declarations/metamob/metamob.did";
 import { AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import MarkdownField from "../../../components/MarkdownField";
 import { CampaignResult } from "../../../libs/campaigns";
 import Container from "../../../components/Container";
@@ -24,7 +23,6 @@ const formSchema = yup.object().shape({
 
 const Create = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -67,7 +65,6 @@ const Create = (props: Props) => {
             toggleLoading(true);
 
             await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,

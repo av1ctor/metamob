@@ -62,14 +62,9 @@ const CreateForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            await approveMut.mutateAsync({
-                main: actors.main,
-                mmt: actors.mmt,
-                value: minDeposit
-            })
+            await approveMut.mutateAsync({value: minDeposit});
 
             await createMut.mutateAsync({
-                main: actors.main,
                 req: {
                     moderationId: form.moderationId,
                     description: form.description,
@@ -85,7 +80,7 @@ const CreateForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors, minDeposit, props.onClose]);
+    }, [form, minDeposit, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { ProfileRequest, Profile, Role } from "../../../../../declarations/metamob/metamob.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
@@ -10,7 +10,6 @@ import { useUI } from "../../../hooks/ui";
 import { useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
 import { Banned } from "../../../libs/users";
-import { ActorContext } from "../../../stores/actor";
 
 function rolesToString(
     roles: Role[] | undefined
@@ -58,8 +57,6 @@ const roles: Option[] = [
 ];
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ProfileRequest>({
@@ -140,7 +137,6 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             await updateMut.mutateAsync({
-                main: actors.main,
                 pubId: props.user.pubId, 
                 req: form
             });
@@ -153,7 +149,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

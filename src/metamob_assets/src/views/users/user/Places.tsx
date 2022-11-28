@@ -4,7 +4,6 @@ import { Place } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserPlaces } from "../../../hooks/places";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import PlaceEmails from "../../places/emails/Emails";
 import EditForm from "../../places/place/Edit";
@@ -24,10 +23,9 @@ const orderBy = [{
 }];
 
 const Places = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -41,7 +39,7 @@ const Places = (props: Props) => {
     });
     const [place, setPlace] = useState<Place>();
 
-    const places = useFindUserPlaces(auth.user?._id || 0, orderBy, limit, actors.main);
+    const places = useFindUserPlaces(auth.user?._id || 0, orderBy, limit);
 
     const navigate = useNavigate();
 

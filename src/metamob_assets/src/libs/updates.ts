@@ -55,13 +55,13 @@ export const findByCampaign = async (
 
 export const findById = async (
     _id?: number, 
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Update> => {
-    if(!main || !_id) {
+    if(!metamob || !_id) {
         return {} as Update;
     }
     
-    const res = await main.updateFindById(_id);
+    const res = await metamob.updateFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }

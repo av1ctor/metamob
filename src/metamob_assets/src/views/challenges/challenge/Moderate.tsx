@@ -1,12 +1,11 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as yup from 'yup';
-import { Challenge, ChallengeVoteRequest, ModerationResponse } from "../../../../../declarations/metamob/metamob.did";
+import { Challenge, ChallengeVoteRequest } from "../../../../../declarations/metamob/metamob.did";
 import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import TextAreaField from "../../../components/TextAreaField";
 import TextField from "../../../components/TextField";
 import { useGetChallengedModeration, useVoteChallenge } from "../../../hooks/challenges";
-import { ActorContext } from "../../../stores/actor";
 import Item from "../../moderations/Item";
 import Avatar from "../../users/Avatar";
 import EntityViewWrapper from "./EntityViewWrapper";
@@ -27,8 +26,6 @@ const formSchema = yup.object().shape({
 });
 
 const ModerateForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ChallengeVoteRequest>({
@@ -37,7 +34,7 @@ const ModerateForm = (props: Props) => {
     });
 
     const closeMut = useVoteChallenge();
-    const moderation = useGetChallengedModeration(props.challenge._id, actors.main);
+    const moderation = useGetChallengedModeration(props.challenge._id);
 
     const entity = useMemo(() => {
         if(!moderation.data) {
@@ -82,7 +79,6 @@ const ModerateForm = (props: Props) => {
             toggleLoading(true);
 
             await closeMut.mutateAsync({
-                main: actors.main,
                 pubId: props.challenge.pubId, 
                 req: {
                     reason: form.reason,
@@ -98,7 +94,7 @@ const ModerateForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

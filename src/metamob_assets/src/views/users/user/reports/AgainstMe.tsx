@@ -3,7 +3,6 @@ import { ReportResponse } from "../../../../../../declarations/metamob/metamob.d
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindAgainstUserReports } from "../../../../hooks/reports";
-import { ActorContext } from "../../../../stores/actor";
 import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import { Paginator } from "../../../../components/Paginator";
@@ -21,7 +20,6 @@ const orderBy = [{
 }];
 
 const AgainstMe = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
@@ -35,7 +33,7 @@ const AgainstMe = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindAgainstUserReports(orderBy, limit, auth.user?._id, actors.main);
+    const reports = useFindAgainstUserReports(orderBy, limit, auth.user?._id);
     
     const toggleChallenge = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({

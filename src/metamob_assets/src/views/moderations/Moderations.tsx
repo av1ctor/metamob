@@ -1,10 +1,9 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { EntityType, ModerationResponse } from "../../../../declarations/metamob/metamob.did";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import { useFindModerationsByEntity } from "../../hooks/moderations";
-import { ActorContext } from "../../stores/actor";
 import CreateForm from "../challenges/challenge/Create";
 import Item from "./Item";
 
@@ -18,20 +17,12 @@ const orderBy = [{key: '_id', dir: 'desc'}];
 const limit = {offset: 0, size: 5};
 
 const Moderations = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const [modals, setModals] = useState({
         challenge: false,
     });
     const [moderation, setModeration] = useState<ModerationResponse>();
     
-    const moderations = useFindModerationsByEntity(
-        props.entityType, 
-        props.entityId, 
-        orderBy, 
-        limit,
-        actors.main
-    );
+    const moderations = useFindModerationsByEntity(props.entityType, props.entityId, orderBy, limit);
 
     const toggleChallenge = useCallback(() => {
         setModals(modals => ({

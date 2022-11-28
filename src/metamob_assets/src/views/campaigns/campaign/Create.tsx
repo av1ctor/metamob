@@ -6,7 +6,6 @@ import SelectField, { Option } from "../../../components/SelectField";
 import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest, Variant, MapEntry} from "../../../../../declarations/metamob/metamob.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
-import { ActorContext } from "../../../stores/actor";
 import TagsField from "../../../components/TagsField";
 import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
@@ -207,7 +206,6 @@ export const transformInfo = (
 
 const CreateForm = (props: Props) => {
     const [auth, ] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
     
@@ -256,7 +254,6 @@ const CreateForm = (props: Props) => {
             const kind = Number(form.kind);
 
             await props.mutation.mutateAsync({
-                main: actors.main,
                 req: {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
@@ -293,7 +290,7 @@ const CreateForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, files, actors.main, props.onClose]);
+    }, [form, files, props.onClose]);
 
     const changeForm = useCallback((e: any) => {
         const field = (e.target.id || e.target.name);

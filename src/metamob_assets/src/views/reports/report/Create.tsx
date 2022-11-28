@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormattedMessage, useIntl } from "react-intl";
 import * as yup from 'yup';
 import { ReportRequest } from "../../../../../declarations/metamob/metamob.did";
@@ -10,7 +10,6 @@ import { useCreateReport } from "../../../hooks/reports";
 import { useUI } from "../../../hooks/ui";
 import { EntityType } from "../../../libs/common";
 import { kinds } from "../../../libs/reports";
-import { ActorContext } from "../../../stores/actor";
 
 interface Props {
     entityId: number;
@@ -28,7 +27,6 @@ const formSchema = yup.object().shape({
 });
 
 const CreateForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -66,7 +64,6 @@ const CreateForm = (props: Props) => {
             toggleLoading(true);
 
             await mutation.mutateAsync({
-                main: actors.main,
                 req: {
                     entityId: form.entityId,
                     entityType: form.entityType,
@@ -85,7 +82,7 @@ const CreateForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

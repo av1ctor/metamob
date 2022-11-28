@@ -76,13 +76,13 @@ export const challengeResultToColor = (
 
 export const findById = async (
     _id: number,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Challenge> => {
-    if(!main) {
+    if(!metamob) {
         return {} as Challenge;
     }
 
-    const res = await main.challengeFindById(_id);
+    const res = await metamob.challengeFindById(_id);
     
     if('err' in res) {
         throw new Error(res.err);
@@ -93,13 +93,13 @@ export const findById = async (
 
 export const findByPubId = async (
     pubId: string,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Challenge> => {
-    if(!main) {
+    if(!metamob) {
         return {} as Challenge;
     }
 
-    const res = await main.challengeFindByPubId(pubId);
+    const res = await metamob.challengeFindByPubId(pubId);
     
     if('err' in res) {
         throw new Error(res.err);
@@ -111,13 +111,13 @@ export const findByPubId = async (
 export const findByJudge = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Challenge[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
-    const res = await main.challengeFindByJudge(
+    const res = await metamob.challengeFindByJudge(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -131,13 +131,13 @@ export const findByJudge = async (
 export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Challenge[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
-    const res = await main.challengeFindByUser(
+    const res = await metamob.challengeFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -150,13 +150,13 @@ export const findByUser = async (
 
 export const getModeration = async (
     _id: number,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Moderation> => {
-    if(!main) {
+    if(!metamob) {
         return {} as Moderation;
     }
 
-    const res = await main.challengeGetModeration(_id);
+    const res = await metamob.challengeGetModeration(_id);
     
     if('err' in res) {
         throw new Error(res.err);

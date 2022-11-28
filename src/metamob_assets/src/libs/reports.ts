@@ -108,9 +108,9 @@ export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<ReportResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
@@ -126,7 +126,7 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await main.reportFind(
+    const res = await metamob.reportFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
@@ -141,13 +141,13 @@ export const findAll = async (
 export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<ReportResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
-    const res = await main.reportFindByUser(
+    const res = await metamob.reportFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -161,13 +161,13 @@ export const findByUser = async (
 export const findByReportedUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<ReportResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
-    const res = await main.reportFindByReportedUser(
+    const res = await metamob.reportFindByReportedUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -180,13 +180,13 @@ export const findByReportedUser = async (
 
 export const findById = async (
     pubId?: string,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<ReportResponse> => {
-    if(!main || !pubId) {
+    if(!metamob || !pubId) {
         return {} as ReportResponse;
     }
 
-    const res = await main.reportFindById(pubId);
+    const res = await metamob.reportFindById(pubId);
     if('err' in res) {
         throw new Error(res.err);
     }

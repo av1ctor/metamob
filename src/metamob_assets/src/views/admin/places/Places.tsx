@@ -17,7 +17,6 @@ const orderBy: Order[] = [{
 }];
 
 interface Props {
-
 }
 
 const Places = (props: Props) => {

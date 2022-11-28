@@ -141,13 +141,13 @@ export const findByEntity = async (
     entityId: number,
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<ModerationResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }
 
-    const res = await main.moderationFindByEntity(
+    const res = await metamob.moderationFindByEntity(
         entityType,
         entityId,
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 

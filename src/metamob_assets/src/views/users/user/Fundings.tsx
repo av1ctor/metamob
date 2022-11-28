@@ -3,7 +3,6 @@ import { FundingResponse } from "../../../../../declarations/metamob/metamob.did
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserFundings } from "../../../hooks/fundings";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../fundings/Item";
@@ -22,7 +21,6 @@ const orderBy = [{
 }];
 
 const Fundings = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {toggleLoading, showError} = useUI();
@@ -37,7 +35,7 @@ const Fundings = (props: Props) => {
     });
     const [funding, setFunding] = useState<FundingResponse>();
 
-    const fundings = useFindUserFundings(orderBy, limit, auth.user?._id, actors.main);
+    const fundings = useFindUserFundings(orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((funding: FundingResponse | undefined = undefined) => {
         setModals(modals => ({

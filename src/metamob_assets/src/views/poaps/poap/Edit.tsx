@@ -251,7 +251,6 @@ const EditForm = (props: Props) => {
             if(isModeration) {
                 if(props.poap) {
                     await moderateMut.mutateAsync({
-                        main: actors.main,
                         pubId: props.poap.pubId, 
                         req: transformReq(),
                         mod: transformModerationForm(modForm)
@@ -273,7 +272,6 @@ const EditForm = (props: Props) => {
                     
                     try {
                         await createMut.mutateAsync({
-                            main: actors.main,
                             req: transformReq(),
                         });
                         showSuccess(intl.formatMessage({defaultMessage: 'Poap created!'}));
@@ -284,7 +282,6 @@ const EditForm = (props: Props) => {
                 }
                 else {
                     await updateMut.mutateAsync({
-                        main: actors.main,
                         pubId: props.poap.pubId, 
                         req: transformReq(),
                     });

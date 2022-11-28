@@ -1,9 +1,8 @@
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import {useDeleteCampaign} from "../../../hooks/campaigns";
 import {Campaign} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import { FormattedMessage, useIntl } from "react-intl";
 import { useUI } from "../../../hooks/ui";
 
@@ -13,7 +12,6 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext)
     const intl = useIntl();
     
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -27,7 +25,6 @@ const DeleteForm = (props: Props) => {
             toggleLoading(true);
 
             await deleteMut.mutateAsync({
-                main: actors.main,
                 pubId: props.campaign.pubId, 
             });
 
@@ -40,7 +37,7 @@ const DeleteForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [actors.main, props.onClose]);
+    }, [props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

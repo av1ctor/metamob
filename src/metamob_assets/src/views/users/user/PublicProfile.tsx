@@ -23,7 +23,7 @@ const PublicProfile = (props: Props) => {
 
     const {id} = useParams();
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
     
     const req = useFindUserByPubId(props.pubId || id);
     

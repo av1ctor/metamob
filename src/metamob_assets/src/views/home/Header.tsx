@@ -7,7 +7,6 @@ import NavItem from "../../components/NavItem";
 import { useCountUnreadNotificationsByUser } from "../../hooks/notifications";
 import { useUI } from "../../hooks/ui";
 import { Lang, languages, loadMessages } from "../../libs/intl";
-import { ActorContext } from "../../stores/actor";
 import { AuthActionType, AuthContext } from "../../stores/auth";
 import { IntlActionType, IntlContext } from "../../stores/intl";
 import Avatar from "../users/Avatar";
@@ -16,7 +15,6 @@ interface Props {
 };
 
 const Header = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, authDispatch] = useContext(AuthContext);
     const [intl, intlDispatch] = useContext(IntlContext);
 
@@ -27,7 +25,7 @@ const Header = (props: Props) => {
 
     const navigate = useNavigate();
 
-    const notifications = useCountUnreadNotificationsByUser(actors.main);
+    const notifications = useCountUnreadNotificationsByUser();
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=${window.location.hash.replace('#', '')}`);

@@ -6,7 +6,6 @@ import TextField from "../../../components/TextField";
 import { useUI } from "../../../hooks/ui";
 import { useStake } from "../../../hooks/users";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
 interface Props {
@@ -19,7 +18,6 @@ const formSchema = yup.object().shape({
 });
 
 const StakeForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -71,11 +69,7 @@ const StakeForm = (props: Props) => {
                 throw Error("Value too high");
             }
 
-            await stakeMut.mutateAsync({
-                main: actors.main,
-                mmt: actors.mmt,
-                value: value
-            });
+            await stakeMut.mutateAsync({value: value});
 
             props.onUpdateBalances();
             showSuccess('Value staked!');
@@ -86,7 +80,7 @@ const StakeForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors, auth]);
+    }, [form, auth]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

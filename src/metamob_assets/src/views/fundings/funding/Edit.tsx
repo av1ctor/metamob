@@ -5,7 +5,6 @@ import {FundingResponse, FundingRequest} from "../../../../../declarations/metam
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import CheckboxField from "../../../components/CheckboxField";
 import TextField from "../../../components/TextField";
 import { AuthContext } from "../../../stores/auth";
@@ -28,7 +27,6 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
     const intl = useIntl();
 
@@ -106,7 +104,6 @@ const EditForm = (props: Props) => {
 
             if(isModeration) {
                 await moderateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.funding.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
@@ -115,7 +112,6 @@ const EditForm = (props: Props) => {
             }
             else {
                 await updateMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.funding.pubId, 
                     req: transformReq(),
                 });

@@ -6,7 +6,6 @@ import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserSignatures } from "../../../hooks/signatures";
 import { useUI } from "../../../hooks/ui";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../signatures/Item";
@@ -22,10 +21,9 @@ const orderBy = [{
 }];
 
 const Signatures = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
 
     const [limit, setLimit] = useState({
         offset: 0,
@@ -37,7 +35,7 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<SignatureResponse>();
 
-    const signatures = useFindUserSignatures(orderBy, limit, auth.user?._id, actors.main);
+    const signatures = useFindUserSignatures(orderBy, limit, auth.user?._id);
     
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals(modals => ({

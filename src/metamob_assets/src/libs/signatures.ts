@@ -78,13 +78,13 @@ export const findByCampaignAndUser = async (
 export const findByUser = async (
     orderBy?: Order[], 
     limit?: Limit,
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<SignatureResponse[]> => {
-    if(!main) {
+    if(!metamob) {
         return [];
     }   
 
-    const res = await main.signatureFindByUser(
+    const res = await metamob.signatureFindByUser(
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
@@ -97,13 +97,13 @@ export const findByUser = async (
 
 export const findById = async (
     _id?: number, 
-    main?: Metamob
+    metamob?: Metamob
 ): Promise<Signature> => {
-    if(!main || !_id) {
+    if(!metamob || !_id) {
         return {} as Signature;
     }
         
-    const res = await main.signatureFindById(_id);
+    const res = await metamob.signatureFindById(_id);
     if('err' in res) {
         throw new Error(res.err);
     }

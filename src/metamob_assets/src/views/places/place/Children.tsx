@@ -12,7 +12,7 @@ interface Props {
 }
 
 const Children = (props: Props) => {
-    const [filters, setFilters] = useState<Filter[]>([
+    const [filters, ] = useState<Filter[]>([
         {
             key: 'name',
             op: 'contains',

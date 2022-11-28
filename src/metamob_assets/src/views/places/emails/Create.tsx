@@ -1,11 +1,9 @@
 import React, { useCallback, useContext, useState } from "react"
 import * as yup from 'yup';
-import {metamob} from "../../../../../declarations/metamob";
-import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
-import {Place, PlaceEmailRequest, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
+import {Place, PlaceEmailRequest} from "../../../../../declarations/metamob/metamob.did";
 import { ActorContext } from "../../../stores/actor";
 import { useUI } from "../../../hooks/ui";
 

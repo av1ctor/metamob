@@ -2,14 +2,16 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryR
 import {SignatureRequest, Metamob, SignatureResponse, Signature, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/signatures';
+import { useActors } from './actors';
 
 export const useFindSignatureById = (
-    _id: number, 
-    main?: Metamob
+    _id: number
 ): UseQueryResult<Signature, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Signature, Error>(
         ['signatures', _id], 
-        () => findById(_id, main)
+        () => findById(_id, metamob)
     );
 };
 
@@ -66,12 +68,13 @@ export const useFindSignatureByCampaignAndUser = (
 export const useFindUserSignatures = (
     orderBy: Order[], 
     limit: Limit,
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<SignatureResponse[], Error> => {
-   return useQuery<SignatureResponse[], Error>(
+    const {metamob} = useActors();
+
+    return useQuery<SignatureResponse[], Error>(
         ['signatures', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByUser(orderBy, limit, main),
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 
@@ -79,13 +82,15 @@ export const useFindUserSignatures = (
 
 export const useCreateSignature = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: SignatureRequest, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {req: SignatureRequest, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.signatureCreate(options.req);
+            const res = await metamob.signatureCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -102,13 +107,15 @@ export const useCreateSignature = () => {
 
 export const useUpdateSignature = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: SignatureRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: SignatureRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.signatureUpdate(options.pubId, options.req);
+            const res = await metamob.signatureUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -124,13 +131,15 @@ export const useUpdateSignature = () => {
 
 export const useModerateSignature = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: SignatureRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: SignatureRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.signatureModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.signatureModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -146,13 +155,15 @@ export const useModerateSignature = () => {
 
 export const useDeleteSignature = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.signatureDelete(options.pubId);
+            const res = await metamob.signatureDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

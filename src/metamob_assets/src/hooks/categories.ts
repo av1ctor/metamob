@@ -2,6 +2,7 @@ import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query
 import {Category, CategoryRequest, Metamob} from "../../../declarations/metamob/metamob.did";
 import { findAll, findById } from '../libs/categories';
 import {Filter, Limit, Order} from "../libs/common";
+import { useActors } from './actors';
 
 export const useFindCategoryById = (
     queryKey: any[], 
@@ -28,13 +29,15 @@ export const useFindCategories = (
 export const useCreateCategory = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: CategoryRequest}) => {
-            if(!options.main) {
+        async (options: {req: CategoryRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.categoryCreate(options.req);
+            const res = await metamob.categoryCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -51,13 +54,15 @@ export const useCreateCategory = (
 export const useUpdateCategory = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+    
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: CategoryRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: CategoryRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.categoryUpdate(options.pubId, options.req);
+            const res = await metamob.categoryUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -74,13 +79,15 @@ export const useUpdateCategory = (
 export const useDeleteCategory = (
 ) => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: Category}) => {
-            if(!options.main) {
+        async (options: {req: Category}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
-            const res = await options.main.categoryDelete(options.req.pubId);
+            const res = await metamob.categoryDelete(options.req.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

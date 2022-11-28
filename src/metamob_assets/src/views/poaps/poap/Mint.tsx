@@ -142,7 +142,6 @@ const MintForm = (props: Props) => {
             
             try {
                 await mintMut.mutateAsync({
-                    main: actors.main,
                     pubId: props.poap.pubId
                 });
                 showSuccess(intl.formatMessage({defaultMessage: 'Poap minted!'}));

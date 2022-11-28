@@ -8,7 +8,6 @@ import TextField from "../../../components/TextField";
 import { useCloseReport } from "../../../hooks/reports";
 import { useUI } from "../../../hooks/ui";
 import { kinds, ReportResult } from "../../../libs/reports";
-import { ActorContext } from "../../../stores/actor";
 import Avatar from "../../users/Avatar";
 import EntityPreview from "./EntityPreview";
 
@@ -32,8 +31,6 @@ const results: Option[] = [
 ];
 
 const ModerateForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<ReportCloseRequest>({
@@ -73,7 +70,6 @@ const ModerateForm = (props: Props) => {
             toggleLoading(true);
 
             await closeMut.mutateAsync({
-                main: actors.main,
                 pubId: props.report.pubId, 
                 req: {
                     resolution: form.resolution,
@@ -89,7 +85,7 @@ const ModerateForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors.main, props.onClose]);
+    }, [form, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

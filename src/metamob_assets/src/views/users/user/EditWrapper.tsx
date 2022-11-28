@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Profile } from "../../../../../declarations/metamob/metamob.did";
 import { useFindUserById } from "../../../hooks/users";
-import { ActorContext } from "../../../stores/actor";
 import EditForm from "./Edit";
 
 interface Props {
@@ -11,9 +10,7 @@ interface Props {
 };
 
 const EditFormWrapper = (props: Props) => {
-    const [actors] = useContext(ActorContext);
-    
-    const user = useFindUserById(props.id, actors.main);
+    const user = useFindUserById(props.id);
 
     if(user.status !== 'success' || !user.data) {
         return null;

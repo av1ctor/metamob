@@ -1,15 +1,17 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {VoteRequest, Metamob, VoteResponse, Vote, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {VoteRequest, VoteResponse, Vote, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/votes';
+import { useActors } from './actors';
 
 export const useFindVoteById = (
-    _id: number, 
-    main?: Metamob
+    _id: number
 ): UseQueryResult<Vote, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Vote, Error>(
         ['votes', _id], 
-        () => findById(_id, main)
+        () => findById(_id, metamob)
     );
 };
 
@@ -65,12 +67,13 @@ export const useFindVoteByCampaignAndUser = (
 export const useFindUserVotes = (
     orderBy: Order[], 
     limit: Limit,
-    userId?: number,
-    main?: Metamob
+    userId?: number
 ): UseQueryResult<VoteResponse[], Error> => {
-   return useQuery<VoteResponse[], Error>(
+    const {metamob} = useActors();
+
+    return useQuery<VoteResponse[], Error>(
         ['votes', userId, ...orderBy, limit.offset, limit.size], 
-        () => findByUser(orderBy, limit, main),
+        () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 
@@ -78,13 +81,15 @@ export const useFindUserVotes = (
 
 export const useCreateVote = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, req: VoteRequest, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {req: VoteRequest, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.voteCreate(options.req);
+            const res = await metamob.voteCreate(options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -101,13 +106,15 @@ export const useCreateVote = () => {
 
 export const useUpdateVote = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: VoteRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: VoteRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.voteUpdate(options.pubId, options.req);
+            const res = await metamob.voteUpdate(options.pubId, options.req);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -123,13 +130,15 @@ export const useUpdateVote = () => {
 
 export const useModerateVote = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, req: VoteRequest, mod: ModerationRequest}) => {
-            if(!options.main) {
+        async (options: {pubId: string, req: VoteRequest, mod: ModerationRequest}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
             
-            const res = await options.main.voteModerate(options.pubId, options.req, options.mod);
+            const res = await metamob.voteModerate(options.pubId, options.req, options.mod);
             if('err' in res) {
                 throw new Error(res.err);
             }
@@ -145,13 +154,15 @@ export const useModerateVote = () => {
 
 export const useDeleteVote = () => {
     const queryClient = useQueryClient();
+    const {metamob} = useActors();
+
     return useMutation(
-        async (options: {main?: Metamob, pubId: string, campaignPubId: string}) => {
-            if(!options.main) {
+        async (options: {pubId: string, campaignPubId: string}) => {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
                 
-            const res = await options.main.voteDelete(options.pubId);
+            const res = await metamob.voteDelete(options.pubId);
             if('err' in res) {
                 throw new Error(res.err);
             }

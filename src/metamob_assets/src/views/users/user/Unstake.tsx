@@ -5,10 +5,7 @@ import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { useUI } from "../../../hooks/ui";
 import { useUnstake } from "../../../hooks/users";
-import { getStakedBalance } from "../../../libs/dao";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { getMmtBalance } from "../../../libs/mmt";
-import { ActorContext } from "../../../stores/actor";
 import { AuthContext } from "../../../stores/auth";
 
 interface Props {
@@ -21,7 +18,6 @@ const formSchema = yup.object().shape({
 });
 
 const UnstakeForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
     const [auth, ] = useContext(AuthContext);
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -73,10 +69,7 @@ const UnstakeForm = (props: Props) => {
                 throw Error("Value too high");
             }
 
-            await unstakeMut.mutateAsync({
-                main: actors.main,
-                value: value
-            });
+            await unstakeMut.mutateAsync({value: value});
 
             props.onUpdateBalances();
             showSuccess('Value withdrew!');
@@ -87,7 +80,7 @@ const UnstakeForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, actors, auth]);
+    }, [form, auth]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();

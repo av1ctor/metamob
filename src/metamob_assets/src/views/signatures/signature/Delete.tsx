@@ -1,9 +1,8 @@
-import React, {useCallback, useContext} from "react";
+import React, {useCallback} from "react";
 import {useDeleteSignature} from "../../../hooks/signatures";
 import {SignatureResponse} from "../../../../../declarations/metamob/metamob.did";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorContext } from "../../../stores/actor";
 import { useFindCampaignById } from "../../../hooks/campaigns";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
@@ -14,8 +13,6 @@ interface Props {
 };
 
 const DeleteForm = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
-
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const deleteMut = useDeleteSignature();
@@ -32,7 +29,6 @@ const DeleteForm = (props: Props) => {
             }
 
             await deleteMut.mutateAsync({
-                main: actors.main,
                 pubId: props.signature.pubId, 
                 campaignPubId: campaign.data.pubId,
             });
