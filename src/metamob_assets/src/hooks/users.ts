@@ -7,6 +7,22 @@ import { useActors } from './actors';
 export const useFindUserById = (
     id?: number | [] | [number]
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
+    const _id = Array.isArray(id)?
+        id.length > 0?
+            id[0]
+        :
+            undefined
+    :
+        id;
+    return useQuery<ProfileResponse|Profile, Error>(
+        ['users', 'redacted', _id],
+        () => findById(_id)
+    );
+};
+
+export const useFindUserByIdEx = (
+    id?: number | [] | [number]
+): UseQueryResult<ProfileResponse|Profile, Error> => {
     const {metamob} = useActors();
     
     const _id = Array.isArray(id)?

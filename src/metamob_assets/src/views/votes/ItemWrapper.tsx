@@ -14,7 +14,7 @@ interface BaseItemProps {
 
 export const BaseItemWrapper = (props: BaseItemProps) => {
     const req = useFindVoteByPubId(props.pubId);
-    const creatorReq = useFindUserById(req.data?.createdBy);
+    const author = useFindUserById(req.data?.createdBy);
 
     if(req.status === 'loading' || !req.data) {
         return <div>Loading...</div>;
@@ -23,7 +23,7 @@ export const BaseItemWrapper = (props: BaseItemProps) => {
     return (
         <BaseItem
             vote={req.data}
-            user={props.user || creatorReq.data}
+            user={props.user || author.data}
             onShowModerations={props.onShowModerations}
         >
             {props.children}

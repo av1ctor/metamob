@@ -4,7 +4,7 @@ import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import {Profile, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
-import { useFindUserById, useUpdateMe } from "../../../hooks/users";
+import { useFindUserByIdEx, useUpdateMe } from "../../../hooks/users";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
 import { icpToDecimal } from "../../../libs/icp";
@@ -48,7 +48,7 @@ const User = (props: Props) => {
         transfer: false,
     });
 
-    const profile = useFindUserById(user?._id || 0);
+    const profile = useFindUserByIdEx(user?._id || 0);
     const updateMut = useUpdateMe();
 
     const changeForm = useCallback((e: any) => {

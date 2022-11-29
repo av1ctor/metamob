@@ -14,7 +14,7 @@ interface Props {
 
 const steps: Step[] = [
     {
-        title: 'II Authentication',
+        title: 'Authentication',
         icon: 'key',
     },
     {
@@ -42,10 +42,6 @@ const Logon = (props: Props) => {
         return (returnTo && returnTo[1]) || '/';
     }
 
-    const handleAuthenticated = useCallback(() => {
-        setStep(step => step + 1)
-    }, []);
-
     const handleRegistered = useCallback(async (msg: string) => {
         showSuccess(msg);
         setStep(step => step + 1);
@@ -53,7 +49,28 @@ const Logon = (props: Props) => {
 
     const handleAuthenticateII = useCallback(async () => {
         try {
-            await login(ICProviderType.InternetIdentity, handleAuthenticated, showError);
+            const res = await login(ICProviderType.InternetIdentity);
+            if(res.err) {
+                showError(res.err);
+            }
+            else {
+                setStep(step => step + 1);
+            }
+        }
+        catch(e) {
+            showError(e);
+        }
+    }, [login]);
+
+    const handleAuthenticatePlug = useCallback(async () => {
+        try {
+            const res = await login(ICProviderType.Plug);
+            if(res.err) {
+                showError(res.err);
+            }
+            else {
+                setStep(step => step + 1);
+            }
         }
         catch(e) {
             showError(e);
@@ -85,10 +102,19 @@ const Logon = (props: Props) => {
             />
             <Container>
                 {step === 0 && 
-                    <Button 
-                        onClick={handleAuthenticateII}>
-                        <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate" defaultMessage="Authenticate"/>
-                    </Button>
+                    <div className="block has-text-centered">
+                        <div className="buttons is-inline-block">
+                            <Button 
+                                onClick={handleAuthenticateII}>
+                                <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate with II" defaultMessage="Authenticate with II"/>
+                            </Button>
+                            <Button 
+                                color="info"
+                                onClick={handleAuthenticatePlug}>
+                                <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate with Plug" defaultMessage="Authenticate with Plug"/>
+                            </Button>
+                        </div>
+                    </div>
                 }
                 {step === 1 && 
                     <UserCreateForm

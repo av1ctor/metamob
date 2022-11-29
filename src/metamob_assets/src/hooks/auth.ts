@@ -8,7 +8,9 @@ import { Metamob, ProfileResponse } from "../../../declarations/metamob/metamob.
 import { AuthActionType, AuthContext } from "../stores/auth";
 import { Principal } from "@dfinity/principal";
 import { accountIdentifierFromBytes, principalToAccountDefaultIdentifier } from "../libs/icp";
-import InternetIdentityProvider from "../libs/iiprovider";
+import InternetIdentityProvider from "../providers/iiprovider";
+import PlugProvider from "../providers/plugprovider";
+import { Result } from "../interfaces/result";
 
 interface AuthResponse {
     isAuthenticated: boolean;
@@ -16,7 +18,7 @@ interface AuthResponse {
     user?: ProfileResponse;
     principal?: Principal;
     accountId?: string,
-    login: (providerType: ICProviderType, onSuccess?: () => void, onError?: (msg: string | undefined) => void) => Promise<void>;
+    login: (providerType: ICProviderType) => Promise<Result<any, string>>;
     logout: () => Promise<void>;
     update: (profile: ProfileResponse) => void;
 }
@@ -198,10 +200,8 @@ export const useAuth = (
     };
 
     const login = async (
-        providerType: ICProviderType, 
-        onSuccess?: () => void, 
-        onError?: (msg: string | undefined) => void
-    ): Promise<void> => {
+        providerType: ICProviderType
+    ): Promise<Result<any, string>> => {
         
         //
         let provider: ICProvider | undefined = undefined;
@@ -209,16 +209,13 @@ export const useAuth = (
             case ICProviderType.InternetIdentity:
                 provider = new InternetIdentityProvider();
                 break;
+            case ICProviderType.Plug:
+                provider = new PlugProvider();
+                break;
         }
 
         if(!provider) {
-            if(onError) {
-                onError("Unknown provider");
-                return;
-            }
-            else {
-                throw new Error("Unknown provider");
-            }
+            return {err: "Unknown provider"};
         }
 
         // wait provider to initialize
@@ -233,31 +230,27 @@ export const useAuth = (
                 payload: ICProviderState.Disconnected
             });
 
-            if(onError) {
-                onError("IC Provider initialization failed");
-            }
-            else {
-                throw new Error("IC Provider initialization failed");
-            }
+            return {err: "IC Provider initialization failed"};
         }
 
         // do the logon
-        provider?.login(() => {
-            window.localStorage.setItem('providerType', ICProviderType[providerType]);
+        const res = await provider?.login();
+        if(res.err) {
+            return res;
+        }
 
-            authDisp({
-                type: AuthActionType.SET_PROVIDER,
-                payload: provider
-            });
-            authDisp({
-                type: AuthActionType.SET_STATE,
-                payload: ICProviderState.Initialized
-            });
+        window.localStorage.setItem('providerType', ICProviderType[providerType]);
 
-            if(onSuccess) {
-                onSuccess();
-            }
-        }, onError);
+        authDisp({
+            type: AuthActionType.SET_PROVIDER,
+            payload: provider
+        });
+        authDisp({
+            type: AuthActionType.SET_STATE,
+            payload: ICProviderState.Initialized
+        });
+
+        return {ok: null};
     };
 
     const logout = async () => {

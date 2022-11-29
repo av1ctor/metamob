@@ -1,5 +1,6 @@
 import { ICProvider, ICProviderType } from "../interfaces/icprovider";
-import InternetIdentityProvider from "./iiprovider";
+import InternetIdentityProvider from "../providers/iiprovider";
+import PlugProvider from "../providers/plugprovider";
 
 export class IcProviderBuider {
     providersList: ICProviderType[] = [];
@@ -40,6 +41,8 @@ export class IcProviderBuider {
         switch(providerType) {
             case ICProviderType.InternetIdentity:
                 return new InternetIdentityProvider();
+            case ICProviderType.Plug:
+                return new PlugProvider();
             default:
                 return;
         }

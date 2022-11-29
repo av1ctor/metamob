@@ -75,18 +75,18 @@ export const Item = (props: ItemProps) => {
     
     const {vote} = props;
 
-    const creatorReq = useFindUserById(vote.createdBy);
+    const author = useFindUserById(vote.createdBy);
 
-    const creator = vote.createdBy && vote.createdBy.length > 0?
+    const authorId = vote.createdBy && vote.createdBy.length > 0?
         vote.createdBy[0] || 0:
         0;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
-        user && (user._id === creator && creator !== 0));
+        user && (user._id === authorId && authorId !== 0));
 
     return (
         <BaseItem
-            user={creatorReq.data}
+            user={author.data}
             vote={vote}
             onShowModerations={props.onShowModerations}
         >

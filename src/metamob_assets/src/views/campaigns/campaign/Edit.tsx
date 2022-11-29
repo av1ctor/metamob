@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useEffect} from "react";
 import * as yup from 'yup';
 import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry} from "../../../../../declarations/metamob/metamob.did";
+import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry, CampaignInvokeMethodAction} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -90,7 +90,10 @@ const formSchema = yup.object().shape({
         }
         else if('invoke' in val) {
             try {
-                invokeActionSchema.validateSync(val.invoke, {abortEarly: false});
+                const invoke = val.invoke as CampaignInvokeMethodAction;
+                if(invoke.canisterId) {
+                    invokeActionSchema.validateSync(invoke, {abortEarly: false});
+                }
                 return true;
             }
             catch(e: any) {
@@ -314,7 +317,13 @@ const EditForm = (props: Props) => {
                 duration: Number(formt.duration),
                 tags: formt.tags,
                 info: formt.info,
-                action: formt.action,
+                action: 'invoke' in form.action?
+                        !form.action.invoke.canisterId?
+                            {nop: null}
+                        :
+                        form.action
+                    :
+                        form.action,
             };
         };
 
@@ -425,7 +434,7 @@ const EditForm = (props: Props) => {
     }, [props.campaign]);
 
     const goalDisabled = (Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
-        (place.data? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
+        (place.data && place.data.auth? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
 
     return (
         <>

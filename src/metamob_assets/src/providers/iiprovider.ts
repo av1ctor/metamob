@@ -21,9 +21,14 @@ class InternetIdentityProvider implements ICProvider {
     public async connect(
         options?: any
     ): Promise<Result<any, string>> {
-        this.identity = this.client?.getIdentity();
-        if(!this.identity) {
-            return {err: 'IC Identity should not be null'};
+        try {
+            this.identity = this.client?.getIdentity();
+            if(!this.identity) {
+                return {err: 'IC Identity should not be null'};
+            }
+        }
+        catch(e: any) {
+            return {err: e.toString()};
         }
 
         return {ok: null}
@@ -55,20 +60,24 @@ class InternetIdentityProvider implements ICProvider {
     }
 
     public async login(
-        onSuccess?: () => void, 
-        onError?: (msg: string|undefined) => void
-    ): Promise<void> {
+    ): Promise<Result<any, string>> {
         const width = 500;
         const height = screen.height;
         const left = ((screen.width/2)-(width/2))|0;
         const top = ((screen.height/2)-(height/2))|0; 
         
-        this.client?.login({
-            identityProvider: config.II_URL,
-            maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
-            windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
-            onSuccess: onSuccess,
-            onError: onError,
+        return new Promise((resolve) => {
+            this.client?.login({
+                identityProvider: config.II_URL,
+                maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
+                windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
+                onSuccess: () => {
+                    resolve({ok: null});
+                },
+                onError: (msg: string|undefined) => {
+                    resolve({err: msg});
+                 }
+            });
         });
     }
 

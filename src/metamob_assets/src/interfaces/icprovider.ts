@@ -23,6 +23,6 @@ export interface ICProvider {
     isAuthenticated: () => Promise<boolean>;
     createActor: (id?: string) => Promise<any>;
     getPrincipal: () => Principal | undefined;
-    login: (onSuccess?: () => void, onError?: (msg: string|undefined) => void) => Promise<void>;
+    login: () => Promise<Result<any, string>>;
     logout: () => Promise<void>;
 };

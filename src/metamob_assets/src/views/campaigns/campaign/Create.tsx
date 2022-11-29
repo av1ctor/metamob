@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
-import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest, Variant, MapEntry} from "../../../../../declarations/metamob/metamob.did";
+import {Category, CampaignRequest, Place, Campaign, ProfileResponse, CampaignInfo, CampaignAction, FundingTier, FileRequest, Variant, MapEntry, CampaignInvokeMethodAction} from "../../../../../declarations/metamob/metamob.did";
 import NumberField from "../../../components/NumberField";
 import MarkdownField from "../../../components/MarkdownField";
 import TagsField from "../../../components/TagsField";
@@ -116,8 +116,8 @@ const invokeActionSchema = yup.object().shape({
         }
         return val.length === 27;
     }),
-    method: yup.string().min(1).max(128),
-    args: yup.array(yup.mixed()).required(),
+    method: yup.string().optional().max(128),
+    args: yup.array(yup.mixed()).optional(),
 });
 
 const formSchema = [
@@ -165,7 +165,10 @@ const formSchema = [
             }
             else if('invoke' in val) {
                 try {
-                    invokeActionSchema.validateSync(val.invoke, {abortEarly: false});
+                    const invoke = val.invoke as CampaignInvokeMethodAction;
+                    if(invoke.canisterId) {
+                        invokeActionSchema.validateSync(invoke, {abortEarly: false});
+                    }
                     return true;
                 }
                 catch(e: any) {
@@ -271,7 +274,13 @@ const CreateForm = (props: Props) => {
                     placeId: Number(form.placeId),
                     tags: form.tags,
                     info: transformInfo(form.info),
-                    action: form.action,
+                    action: 'invoke' in form.action?
+                        !form.action.invoke.canisterId?
+                            {nop: null}
+                        :
+                        form.action
+                    :
+                        form.action,
                 },
                 cover: !form.cover?
                     {
@@ -491,7 +500,7 @@ const CreateForm = (props: Props) => {
     }, [props.place]);
 
     const goalDisabled = (Number(form.kind) === CampaignKind.VOTES || Number(form.kind) === CampaignKind.WEIGHTED_VOTES) &&
-        (place.data? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
+        (place.data && place.data.auth? 'dip20' in place.data.auth || 'dip721' in place.data.auth: false);
 
     return (
         <>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Profile } from "../../../../../declarations/metamob/metamob.did";
-import { useFindUserById } from "../../../hooks/users";
+import { useFindUserByIdEx } from "../../../hooks/users";
 import EditForm from "./Edit";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 };
 
 const EditFormWrapper = (props: Props) => {
-    const user = useFindUserById(props.id);
+    const user = useFindUserByIdEx(props.id);
 
     if(user.status !== 'success' || !user.data) {
         return null;
