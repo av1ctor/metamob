@@ -16,11 +16,11 @@
     },
     "ledger": {
       "type": "custom",
-      "wasm": "ledger.wasm",
-      "candid": "ledger.public.did",
+      "wasm": "canisters-dev/ledger.wasm",
+      "candid": "canisters-dev/ledger.public.did",
       "build": "",
       "remote": {
-        "candid": "ledger.public.did",
+        "candid": "canisters-dev/ledger.public.did",
         "id": {
           "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
