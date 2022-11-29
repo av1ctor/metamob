@@ -3,6 +3,7 @@ import {Notification} from "../../../declarations/metamob/metamob.did";
 import { Limit, Order } from '../libs/common';
 import { findByUser, findByPubId, countUnreadByUser } from '../libs/notifications';
 import { useActors } from './actors';
+import { useAuth } from './auth';
 
 export const useFindNotificationByPubId = (
     pubId: string
@@ -17,10 +18,13 @@ export const useFindNotificationsByUser = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Notification[], Error> => {
+    const {user} = useAuth();
     const {metamob} = useActors();
     
     return useQuery<Notification[], Error>(
-        metamob? ['notifications', ...orderBy, limit.offset, limit.size]: ['notifications-empty'], 
+        metamob? 
+            ['notifications', user?._id, ...orderBy, limit.offset, limit.size]: 
+            ['notifications-empty'], 
         () => findByUser(orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
@@ -28,15 +32,19 @@ export const useFindNotificationsByUser = (
 
 export const useCountUnreadNotificationsByUser = (
 ): UseQueryResult<number, Error> => {
+    const {user} = useAuth();
     const {metamob} = useActors();
     return useQuery<number, Error>(
-        metamob? ['notifications-unread']: ['notifications-unread-empty'], 
+        metamob? 
+            ['notifications-unread', user?._id]: 
+            ['notifications-unread-empty'], 
         () => countUnreadByUser(metamob)
     );
 };
 
 export const useMarkAsReadNotification = () => {
     const queryClient = useQueryClient();
+    const {user} = useAuth();
     const {metamob} = useActors();
 
     return useMutation(
@@ -53,7 +61,7 @@ export const useMarkAsReadNotification = () => {
         },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(['notifications']);
+                queryClient.invalidateQueries(['notifications', user?._id]);
                 queryClient.invalidateQueries(['notifications-unread']);
             }   
         }
@@ -62,6 +70,7 @@ export const useMarkAsReadNotification = () => {
 
 export const useDeleteNotification = () => {
     const queryClient = useQueryClient();
+    const {user} = useAuth();
     const {metamob} = useActors();
     
     return useMutation(
@@ -78,7 +87,7 @@ export const useDeleteNotification = () => {
         },
         {
             onSuccess: (data, variables) => {
-                queryClient.invalidateQueries(['notifications']);
+                queryClient.invalidateQueries(['notifications', user?._id]);
                 queryClient.invalidateQueries(['notifications-unread']);
             }   
         }

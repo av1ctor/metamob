@@ -25,4 +25,5 @@ export interface ICProvider {
     getPrincipal: () => Principal | undefined;
     login: () => Promise<Result<any, string>>;
     logout: () => Promise<void>;
+    transferICP: (to: Array<number>, amount: bigint, memo: bigint) => Promise<Result<bigint, string>>;
 };

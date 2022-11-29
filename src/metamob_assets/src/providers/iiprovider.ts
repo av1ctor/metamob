@@ -2,15 +2,19 @@ import { ActorSubclass, Identity } from "@dfinity/agent";
 import { createActor as metamobCreateActor, canisterId as metamobCanisterId } from "../../../declarations/metamob";
 import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
 import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt";
+import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { AuthClient } from "@dfinity/auth-client";
 import { ICProvider } from "../interfaces/icprovider";
 import { Result } from "../interfaces/result";
 import { config } from "../config";
 import { Principal } from "@dfinity/principal";
+import { LEDGER_TRANSFER_FEE } from "../libs/backend";
+import { transferErrorToText } from "../libs/icp";
 
 class InternetIdentityProvider implements ICProvider {
     client?: AuthClient;
     identity?: Identity;
+    ledger?: Ledger;
     
     public async initialize(
     ): Promise<boolean> {
@@ -81,6 +85,31 @@ class InternetIdentityProvider implements ICProvider {
         });
     }
 
+    public async transferICP(
+        to: Array<number>,
+        amount: bigint,
+        memo: bigint,
+    ): Promise<Result<bigint, string>> {
+        if(!this.ledger) {
+            return {err: 'Ledger undefined'};
+        }
+        
+        const res = await this.ledger?.transfer({
+            to: to,
+            amount: {e8s: amount},
+            fee: {e8s: LEDGER_TRANSFER_FEE},
+            memo: memo,
+            from_subaccount: [],
+            created_at_time: []
+        });
+    
+        if('Err' in res) {
+            return {err: `Transfer failed: ${transferErrorToText(res.Err)}`};
+        }
+
+        return {ok: res.Ok};
+    }
+
     public async logout(
     ): Promise<void> {
         await this.client?.logout();
@@ -101,7 +130,9 @@ class InternetIdentityProvider implements ICProvider {
             throw Error('Ledger canister id is undefined');
         }
     
-        return ledgerCreateActor(ledgerCanisterId, {agentOptions: {identity: this.identity}})
+        this.ledger = ledgerCreateActor(ledgerCanisterId, {agentOptions: {identity: this.identity}});
+        
+        return this.ledger;
     }
     
     private _createMmtActor(

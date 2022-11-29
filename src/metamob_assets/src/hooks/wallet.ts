@@ -2,14 +2,12 @@ import { useContext, useEffect } from "react";
 import { canisterId as metamobCanisterId } from "../../../declarations/metamob";
 import { idlFactory as Ledger } from "../../../declarations/ledger";
 import { ActorContext } from "../stores/actor";
-import { Metamob, ProfileResponse } from "../../../declarations/metamob/metamob.did";
 import { AuthContext } from "../stores/auth";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 import { Principal } from "@dfinity/principal";
-import { principalToAccountDefaultIdentifier, transferErrorToText } from "../libs/icp";
+import { principalToAccountDefaultIdentifier } from "../libs/icp";
 import { getDepositedBalance, getStakedBalance } from "../libs/dao";
 import { getAccountId } from "../libs/users";
-import { LEDGER_TRANSFER_FEE } from "../libs/backend";
 import { WalletActionType, WalletContext } from "../stores/wallet";
 
 interface BalanceResponse {
@@ -166,7 +164,11 @@ export const useWallet = (
             return false;
         }
 
-        await _depositIcp(auth.user, value, actors.metamob, actors.ledger);
+        const to = await getAccountId(actors.metamob);
+        const res = await auth.provider?.transferICP(Array.from(to), value, BigInt(auth.user._id));
+        if(res?.err) {
+            throw new Error(res.err);
+        }
 
         const icps = await _getIcpBalance(auth.principal, actors.ledger);
         disp({
@@ -227,29 +229,6 @@ const _getMmtBalance = async (
     return await mmt.balanceOf(principal);
 };
 
-const _depositIcp = async (
-    user: ProfileResponse,
-    amount: bigint,
-    metamob: Metamob,
-    ledger: Ledger
-): Promise<bigint> => {
-    const userSubAccount = await getAccountId(metamob);
-
-    const res = await ledger.transfer({
-        to: Array.from(userSubAccount),
-        amount: {e8s: amount},
-        fee: {e8s: LEDGER_TRANSFER_FEE},
-        memo: BigInt(user._id),
-        from_subaccount: [],
-        created_at_time: []
-    });
-
-    if('Err' in res) {
-        throw Error(`Transfer failed: ${transferErrorToText(res.Err)}`);
-    }
-
-    return res.Ok;
-};
 
 
 

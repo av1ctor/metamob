@@ -1,21 +1,36 @@
-import { ActorSubclass, Agent, HttpAgent, Identity } from "@dfinity/agent";
+import { ActorSubclass, Agent, HttpAgent } from "@dfinity/agent";
 import { idlFactory as metamobIdlFactory, canisterId as metamobCanisterId } from "../../../declarations/metamob";
 import { idlFactory as ledgerIdlFactory, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
 import { idlFactory as mmtIdlFactory, canisterId as mmtCanisterId } from "../../../declarations/mmt";
+import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { ICProvider } from "../interfaces/icprovider";
-import { Result } from "../interfaces/result";
 import { config } from "../config";
 import { Principal } from "@dfinity/principal";
 import { IDL } from "@dfinity/candid";
+import { Result } from "../interfaces/result";
+import { LEDGER_TRANSFER_FEE } from "../libs/backend";
+import { transferErrorToText } from "../libs/icp";
+
+type RequestConnectOptions = {
+    whitelist: Array<string>;
+    host?: string;
+    onConnectionUpdate?: () => void;
+};
 
 type Plug = {
-    createActor: <T>(args: { canisterId: string, interfaceFactory: IDL.InterfaceFactory }) => Promise<ActorSubclass<T>>;
+    createActor: <T>(args: {
+        canisterId: string, 
+        interfaceFactory: IDL.InterfaceFactory
+    }) => Promise<ActorSubclass<T>>;
     agent: Agent;
-    createAgent: (options: { host: string, whitelist: Array<string> }) => Promise<Agent>;
+    createAgent: (options: {
+        host: string, 
+        whitelist: Array<string>
+    }) => Promise<Agent>;
     getPrincipal: () => Promise<Principal>;
     isConnected: () => Promise<boolean>;
     disconnect: () => Promise<void>;
-    requestConnect: (options: {whitelist: Array<string>, host?: string, dev: boolean, onConnectionUpdate?: () => void}) => Promise<string>;
+    requestConnect: (options: RequestConnectOptions) => Promise<string>;
     accountId: string;
     sessionManager: {
         sessionData: { 
@@ -25,35 +40,50 @@ type Plug = {
         } | null;
     };
     requestTransfer: (args: {
-      to: string,
-      amount: number,
-      opts?: {
-        fee?: number,
-        memo?: string,
-        from_subaccount?: number,
-        created_at_time?: {
-          timestamp_nanos: number
+        to: string,
+        amount: number,
+        opts?: {
+            fee?: number,
+            memo?: string,
+            from_subaccount?: number,
+            created_at_time?: {
+                timestamp_nanos: number
+            },
         },
-      },
     }) => Promise<{
-      height: number
+        height: number
     }>;
     requestBalance: () => Promise<Array<{
-      amount: number
-      canisterId: string
-      decimals: number
-      image?: string
-      name: string
-      symbol: string
+        amount: number
+        canisterId: string
+        decimals: number
+        image?: string
+        name: string
+        symbol: string
     }>>;
     getManagementCanister: () => Promise<ActorSubclass | undefined>;
   }
 
 class PlugProvider implements ICProvider {
     plug?: Plug;
+    config: RequestConnectOptions;
+    ledger?: Ledger;
 
     constructor() {
         this.plug = window.ic?.plug;
+        
+        const whitelist: string[] = [metamobCanisterId];
+        if(mmtCanisterId) {
+            whitelist.push(mmtCanisterId);
+        }
+        if(ledgerCanisterId) {
+            whitelist.push(ledgerCanisterId);
+        }
+        
+        this.config = {
+            whitelist,
+            host: config.IC_URL
+        };
     }
     
     public async initialize(
@@ -68,7 +98,7 @@ class PlugProvider implements ICProvider {
     public async connect(
         options?: any
     ): Promise<Result<any, string>> {
-        return {ok: null}
+        return {ok: null};
     } 
 
     public async isAuthenticated(
@@ -105,28 +135,45 @@ class PlugProvider implements ICProvider {
 
     public async login(
     ): Promise<Result<any, string>> {
-        if(await window.ic.plug.isConnected()) {
+        if(await this.plug?.isConnected()) {
             return {ok: null};
         }
         
         try {
-            const whitelist: string[] = [];
-            whitelist.push(metamobCanisterId);
-            if(mmtCanisterId) {
-                whitelist.push(mmtCanisterId);
-            }
-
-            await this.plug?.requestConnect({
-                whitelist,
-                host: config.IC_URL,
-                dev: !config.isProduction,
-            });
+            await this.plug?.requestConnect(this.config);
 
             return {ok: null};
             
         } catch (e: any) {
             return {err: e.toString()};
         }
+    }
+
+    public async transferICP(
+        to: Array<number>,
+        amount: bigint,
+        memo: bigint,
+    ): Promise<Result<bigint, string>> {
+        //FIXME: it's not possible atm to pass a subaccount to plug.requestTransfer()
+        
+        if(!this.ledger) {
+            return {err: 'Ledger undefined'};
+        }
+        
+        const res = await this.ledger?.transfer({
+            to: to,
+            amount: {e8s: amount},
+            fee: {e8s: LEDGER_TRANSFER_FEE},
+            memo: memo,
+            from_subaccount: [],
+            created_at_time: []
+        });
+    
+        if('Err' in res) {
+            return {err: `Transfer failed: ${transferErrorToText(res.Err)}`};
+        }
+
+        return {ok: res.Ok};
     }
 
     public async logout(
@@ -151,11 +198,13 @@ class PlugProvider implements ICProvider {
         if(!ledgerCanisterId) {
             throw Error('Ledger canister id is undefined');
         }
-    
-        return await this.plug?.createActor({
+
+        this.ledger = await this.plug?.createActor({
             canisterId: ledgerCanisterId,
             interfaceFactory: ledgerIdlFactory,
         });
+    
+        return this.ledger;
     }
     
     private async _createMmtActor(

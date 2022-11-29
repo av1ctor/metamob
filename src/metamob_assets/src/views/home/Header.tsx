@@ -15,7 +15,7 @@ interface Props {
 };
 
 const Header = (props: Props) => {
-    const {isLogged: isRegistered, user} = useAuth();
+    const {isLogged, user} = useAuth();
     const [intl, intlDispatch] = useContext(IntlContext);
 
     const {logout} = useAuth();
@@ -121,10 +121,10 @@ const Header = (props: Props) => {
                         </div>
                     </div>
 
-                    {isRegistered &&
+                    {isLogged &&
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
-                                <Avatar id={user?._id || 0} />
+                                <Avatar id={user?._id} />
                                 {notifications.data? <div className="notification-badge floating"><Badge>{notifications.data}</Badge></div>: undefined}
                             </a>
 
@@ -202,7 +202,7 @@ const Header = (props: Props) => {
                         </div>
                     }
                     
-                    {!isRegistered &&
+                    {!isLogged &&
                         <div className="navbar-item">
                             <div className="buttons">
                                 <a 

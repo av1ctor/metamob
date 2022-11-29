@@ -1,10 +1,7 @@
-import { Identity } from "@dfinity/agent";
 import {metamob} from "../../../declarations/metamob";
 import {Metamob, ProfileResponse, Profile, Variant} from "../../../declarations/metamob/metamob.did";
-import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
-import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
+import { valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
-import { principalToAccountDefaultIdentifier, transferErrorToText } from "./icp";
 
 export enum Banned {
     None = 0,
@@ -155,6 +152,5 @@ export const isModerator = (
 export const getAccountId = async (
     metamob: Metamob
 ): Promise<Uint8Array> => {
-    const res = await metamob.userGetAccountId();
-    return Uint8Array.from(res);
+    return await metamob.userGetAccountId();
 }
