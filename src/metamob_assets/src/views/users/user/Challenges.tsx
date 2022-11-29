@@ -1,18 +1,18 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import Button from "../../../components/Button";
 import MyChallenges from "./challenges/MyChallenges";
 import BecomeModForm from "./BecomeMod";
 import ToModerate from "./challenges/ToModerate";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 };
 
 const Challenges = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const [modals, setModals] = useState({
         becomeMod: false,
@@ -25,7 +25,7 @@ const Challenges = (props: Props) => {
         }));
     }, []);
 
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
 
@@ -38,11 +38,8 @@ const Challenges = (props: Props) => {
             />
 
             <div className="mt-4">
-                {isModerator(auth.user)?
+                {isModerator(user)?
                     <ToModerate
-                        
-                        
-                        
                     />
                 :
                     <div className="container border mt-6 p-4">

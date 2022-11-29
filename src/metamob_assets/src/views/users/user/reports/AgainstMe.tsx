@@ -1,15 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ReportResponse } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindAgainstUserReports } from "../../../../hooks/reports";
-import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportResult, ReportState } from "../../../../libs/reports";
 import CreateForm from "../../../challenges/challenge/Create";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../hooks/ui";
+import { useAuth } from "../../../../hooks/auth";
 
 interface Props {
 };
@@ -20,7 +20,7 @@ const orderBy = [{
 }];
 
 const AgainstMe = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showError, toggleLoading} = useUI();
 
@@ -33,7 +33,7 @@ const AgainstMe = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindAgainstUserReports(orderBy, limit, auth.user?._id);
+    const reports = useFindAgainstUserReports(orderBy, limit, user?._id);
     
     const toggleChallenge = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -82,8 +82,6 @@ const AgainstMe = (props: Props) => {
                             <BaseItem 
                                 report={report} 
                                 partial
-                                
-                                
                             >
                                 <p>
                                     <small>
@@ -130,9 +128,6 @@ const AgainstMe = (props: Props) => {
                     <CreateForm
                         moderationId={report.moderationId[0] || 0} 
                         onClose={toggleChallenge}
-                        
-                        
-                        
                     />
                 }
             </Modal>

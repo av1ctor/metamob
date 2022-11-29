@@ -1,6 +1,5 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import { AuthContext } from "../../../stores/auth";
 import { FormattedMessage } from "react-intl";
 import { useDeleteNotification, useFindNotificationsByUser, useMarkAsReadNotification } from "../../../hooks/notifications";
 import { Notification } from "../../../../../declarations/metamob/metamob.did";
@@ -11,6 +10,7 @@ import Container from "../../../components/Container";
 import Button from "../../../components/Button";
 import { Markdown } from "../../../components/Markdown";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 const sortByDate: Order[] = [
     {
@@ -23,7 +23,7 @@ interface Props {
 };
 
 const Notifications = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showSuccess, showError} = useUI();
 
@@ -103,7 +103,7 @@ const Notifications = (props: Props) => {
         }));
     }, []);
 
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
 

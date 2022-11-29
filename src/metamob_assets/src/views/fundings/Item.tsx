@@ -1,14 +1,14 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {Campaign, ProfileResponse, FundingResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState, findById } from "../../libs/campaigns";
 import { FundingState } from "../../libs/fundings";
 import { icpToDecimal } from "../../libs/icp";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     user?: ProfileResponse;
@@ -107,22 +107,22 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth()
     
     const {funding} = props;
 
-    const creatorReq = useFindUserById(funding.createdBy);
+    const author = useFindUserById(funding.createdBy);
 
-    const creator = funding.createdBy && funding.createdBy.length > 0?
+    const authorId = funding.createdBy && funding.createdBy.length > 0?
         funding.createdBy[0] || 0:
         0;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === creator && creator !== 0));
+        user && (user._id === authorId && authorId !== 0));
 
     return (
         <BaseItem
-            user={creatorReq.data}
+            user={author.data}
             campaign={props.campaign}
             funding={funding}
             onShowModerations={props.onShowModerations}
@@ -147,7 +147,7 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
-                    {auth.user && 
+                    {user && 
                         <>
                             <a
                                 title="Report funding"

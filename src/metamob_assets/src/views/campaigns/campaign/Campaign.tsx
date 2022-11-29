@@ -2,7 +2,6 @@ import React, {useState, useCallback, useContext, useEffect} from "react";
 import {useParams} from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import {useFindCampaignByPubId} from "../../../hooks/campaigns";
-import {AuthContext} from "../../../stores/auth";
 import {CategoryContext} from "../../../stores/category";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
@@ -37,17 +36,18 @@ import Result from "./Result";
 import Poaps from "../../poaps/Poaps";
 import Cover from "./Cover";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 }
 
 const Campaign = (props: Props) => {
     const {id} = useParams();
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
     const [categories] = useContext(CategoryContext);
     const intl = useIntl();
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {toggleLoading, showError} = useUI();
     
     const [modals, setModals] = useState({
         edit: false,
@@ -98,7 +98,7 @@ const Campaign = (props: Props) => {
         undefined;
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaign?.createdBy;
+        user && user._id === campaign?.createdBy;
 
     return (
         <>
@@ -158,33 +158,21 @@ const Campaign = (props: Props) => {
                                 {campaign.kind === CampaignKind.SIGNATURES &&
                                     <SignFrame
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 }
                                 {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
                                     <VoteFrame 
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 }
                                 {campaign.kind === CampaignKind.FUNDINGS &&
                                     <FundingFrame
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 }
                                 {campaign.kind === CampaignKind.DONATIONS &&
                                     <DonationFrame
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 }
                                 {campaign.state === CampaignState.PUBLISHED? 
@@ -192,17 +180,11 @@ const Campaign = (props: Props) => {
                                         <Box>
                                             <Boost 
                                                 campaign={campaign} 
-                                                
-                                                
-                                                
                                             />
                                         </Box>
                                         <Box>
                                             <Poaps
                                                 campaign={campaign}
-                                                
-                                                
-                                                
                                             />
                                         </Box>
                                         <Box>
@@ -214,9 +196,6 @@ const Campaign = (props: Props) => {
                                 :
                                     <Result
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 }
                             </>:
@@ -263,7 +242,7 @@ const Campaign = (props: Props) => {
                                 :
                                     null
                                 }
-                                {auth.user && 
+                                {user && 
                                     <>
                                         <a
                                             title={intl.formatMessage({id: "Report campaign", defaultMessage: "Report campaign"})}
@@ -319,42 +298,27 @@ const Campaign = (props: Props) => {
                         {campaign.kind === CampaignKind.SIGNATURES?
                             <Signatures 
                                 campaign={campaign} 
-                                
-                                
-                                
                             />
                         :
                             (campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES)?
                                 <Votes 
                                     campaign={campaign} 
-                                    
-                                    
-                                    
                                 />
                             :
                                 campaign.kind === CampaignKind.DONATIONS?
                                     <Donations 
                                         campaign={campaign} 
-                                        
-                                        
-                                        
                                     />
                                 :
                                     campaign.kind === CampaignKind.FUNDINGS?
                                         <Fundings 
                                             campaign={campaign} 
-                                            
-                                            
-                                            
                                         />
                                     :
                                         <div></div>
                         }
                         <Updates
                             campaign={campaign} 
-                            
-                            
-                            
                         />
                     </Tabs>
 
@@ -367,9 +331,6 @@ const Campaign = (props: Props) => {
                             campaign={campaign} 
                             categories={categories.categories} 
                             onClose={toggleEdit}
-                            
-                            
-                            
                         />
                     </Modal>
 
@@ -381,9 +342,6 @@ const Campaign = (props: Props) => {
                         <DeleteForm 
                             campaign={campaign} 
                             onClose={toggleDelete}
-                            
-                            
-                            
                         />
                     </Modal>
 
@@ -397,9 +355,6 @@ const Campaign = (props: Props) => {
                             entityPubId={campaign.pubId}
                             entityType={EntityType.CAMPAIGNS}
                             onClose={toggleReport}
-                            
-                            
-                            
                         />
                     </Modal>
 
@@ -409,9 +364,6 @@ const Campaign = (props: Props) => {
                         entityId={campaign._id}
                         moderated={campaign.moderated}
                         onClose={toggleModerations}
-                        
-                        
-                        
                     />
                 </>
             }

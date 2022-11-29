@@ -1,6 +1,5 @@
-import React, { useCallback, useContext, useState } from "react"
+import React, { useCallback, useState } from "react"
 import * as yup from 'yup';
-import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
@@ -9,6 +8,7 @@ import { AvatarPicker } from "../../../components/AvatarPicker";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 import { useActors } from "../../../hooks/actors";
 
 interface Props {
@@ -23,8 +23,8 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
+    const {update} = useAuth();
     const {metamob} = useActors();
-    const [auth, authDispatch] = useContext(AuthContext);
 
     const {showError, toggleLoading} = useUI();
 
@@ -81,11 +81,7 @@ const Create = (props: Props) => {
             const res = await metamob.userCreate(form);
 
             if('ok' in res) {
-                const user = res.ok;
-                authDispatch({
-                    type: AuthActionType.SET_USER, 
-                    payload: user
-                });
+                update(res.ok);
                 props.onSuccess('User created!');
             }
             else {
@@ -99,10 +95,6 @@ const Create = (props: Props) => {
             toggleLoading(false);
         }
     }, [form, metamob]);
-
-    if(!auth.client || !auth.identity) {
-        return null;
-    }
 
     return (
         <form onSubmit={handleCreate}>

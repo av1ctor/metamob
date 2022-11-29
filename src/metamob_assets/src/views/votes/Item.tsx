@@ -1,13 +1,13 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import {Campaign, ProfileResponse, VoteResponse} from "../../../../declarations/metamob/metamob.did";
 import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Badge } from "./vote/Badge";
 import ModerationBadge from "../moderations/moderation/Badge";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     vote: VoteResponse;
@@ -71,7 +71,7 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {vote} = props;
 
@@ -82,7 +82,7 @@ export const Item = (props: ItemProps) => {
         0;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === creator && creator !== 0));
+        user && (user._id === creator && creator !== 0));
 
     return (
         <BaseItem
@@ -110,7 +110,7 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
-                    {auth.user && 
+                    {user && 
                         <>
                             <a
                                 title="Report vote"

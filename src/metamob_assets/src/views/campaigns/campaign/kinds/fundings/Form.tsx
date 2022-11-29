@@ -1,24 +1,21 @@
-import React, {useState, useContext, useCallback, useEffect, useMemo} from "react";
+import React, {useState, useContext, useCallback, useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCompleteFunding, useCreateFunding, useDeleteFunding} from "../../../../../hooks/fundings";
 import {FundingRequest, Campaign} from "../../../../../../../declarations/metamob/metamob.did";
-import {idlFactory as Ledger} from "../../../../../../../declarations/ledger";
-import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
-import { ActorActionType, ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import TextField from "../../../../../components/TextField";
-import { depositIcp, getIcpBalance } from "../../../../../libs/users";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
+import { LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
 import { icpToDecimal } from "../../../../../libs/icp";
-import { Identity } from "@dfinity/agent";
 import NumberField from "../../../../../components/NumberField";
 import CustomSelectField from "../../../../../components/CustomSelectField";
 import Badge from "../../../../../components/Badge";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../../hooks/ui";
+import { useAuth } from "../../../../../hooks/auth";
+import { useWallet } from "../../../../../hooks/wallet";
 
 interface Props {
     campaign: Campaign;
@@ -32,12 +29,10 @@ const formSchema = yup.object().shape({
 });
 
 const FundingForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
-    const [actors, actorDispatch] = useContext(ActorContext);
+    const {principal, isLogged: isRegistered} = useAuth();
+    const {balances, depositICP} = useWallet();
 
-    const {showSuccess, showError, toggleLoading} = useUI();
-
-    const [balance, setBalance] = useState(BigInt(0));
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
 
     const [form, setForm] = useState<FundingRequest>({
         campaignId: props.campaign._id,
@@ -47,55 +42,12 @@ const FundingForm = (props: Props) => {
         amount: 0,
         value: BigInt(0)
     });
-    const [isLoading, setIsLoading] = useState(false);
     
     const createMut = useCreateFunding();
     const completeMut = useCompleteFunding();
     const deleteMut = useDeleteFunding();
 
     const navigate = useNavigate();
-
-    const getLedgerCanister = async (
-    ): Promise<Ledger | undefined> => {
-        if(actors.ledger) {
-            return actors.ledger;
-        }
-        
-        if(!auth.identity) {
-            return undefined;
-        }
-
-        const ledger = createLedgerActor(auth.identity);
-        actorDispatch({
-            type: ActorActionType.SET_LEDGER,
-            payload: ledger
-        });
-
-        return ledger;
-    };
-
-    const checkUserBalance = async (
-        identity: Identity, 
-        ledger: Ledger
-    ) => {
-        const balance = await getIcpBalance(identity, ledger);
-        setBalance(balance);
-    };
-
-    const updateState = useCallback(async(
-    ) => {
-        const ledger = await getLedgerCanister();
-        if(!ledger) {
-            return;
-        }
-
-        const identity = auth.identity;
-        if(!identity) {
-            return;
-        }
-
-        checkUserBalance(identity, ledger);
-    }, [auth.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -128,16 +80,7 @@ const FundingForm = (props: Props) => {
         }
 
         try {
-            setIsLoading(true);
             toggleLoading(true);
-
-            if(!actors.main) {
-                throw Error("Main canister undefined");
-            }
-
-            if(!auth.user) {
-                throw Error("Not logged in");
-            }
 
             const info = props.campaign.info;
             const tiers = 'funding' in info?
@@ -147,7 +90,7 @@ const FundingForm = (props: Props) => {
             const value = tiers[Number(form.tier)].value * BigInt(form.amount);
             const fees = LEDGER_TRANSFER_FEE * BigInt(2);
 
-            if(balance < value + fees) {
+            if(balances.icp < value + fees) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + fees)} ICP.`)
             }
 
@@ -163,7 +106,7 @@ const FundingForm = (props: Props) => {
             });
 
             try {
-                await depositIcp(auth.user, value + fees, actors.main, actors.ledger);
+                await depositICP(value + fees);
             }
             catch(e) {
                 await deleteMut.mutateAsync({
@@ -178,27 +121,19 @@ const FundingForm = (props: Props) => {
                 campaignPubId: props.campaign.pubId,
             });
 
-            updateState();
             showSuccess('Your funding has been sent!');
         }
         catch(e) {
             showError(e);
         }
         finally {
-            setIsLoading(false);
             toggleLoading(false);
         }
-    }, [form, auth, actors.main, balance, props.campaign, updateState]);
+    }, [form, balances, depositICP, props.campaign]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
-
-    useEffect(() => {
-        updateState();
-    }, [updateState]);
-
-    const isLoggedIn = !!auth.user;
 
     const tiersAsOptions = useMemo(() => {
         return 'funding' in props.campaign.info?
@@ -228,7 +163,7 @@ const FundingForm = (props: Props) => {
     return (
         <form onSubmit={handleFunding}>
             <div>
-                {isLoggedIn && 
+                {isRegistered && 
                     <>
                         <CustomSelectField
                             label="Tier"
@@ -247,15 +182,12 @@ const FundingForm = (props: Props) => {
                         />
                         <TextField
                             label="From account id"
-                            value={auth.identity? 
-                                auth.identity.getPrincipal().toString(): 
-                                ''
-                            }
-                            disabled={true}
+                            value={principal? principal.toString(): ''}
+                            disabled
                         />
                         <TextField
                             label="Account balance"
-                            value={icpToDecimal(balance)}
+                            value={icpToDecimal(balances.icp)}
                             disabled={true}
                         />
                         <TextAreaField
@@ -280,7 +212,7 @@ const FundingForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleFunding: redirectToLogon}
+                            onClick={isRegistered? handleFunding: redirectToLogon}
                             disabled={isLoading}
                         >
                             <i className="la la-lightbulb"/>&nbsp;<FormattedMessage id="FUND" defaultMessage="FUND"/>

@@ -1,16 +1,11 @@
-import React, {useState, useCallback, useContext, useEffect} from "react";
+import React, {useCallback} from "react";
 import {useMintPoap} from "../../../hooks/poap";
 import {Campaign, Poap, ProfileResponse} from "../../../../../declarations/metamob/metamob.did";
-import {idlFactory as Ledger} from "../../../../../declarations/ledger";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorActionType, ActorContext } from "../../../stores/actor";
 import TextField from "../../../components/TextField";
-import { depositIcp, getIcpBalance } from "../../../libs/users";
-import { AuthContext } from "../../../stores/auth";
 import { FormattedMessage, useIntl } from "react-intl";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
-import { Identity } from "@dfinity/agent";
+import { LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { icpToDecimal } from "../../../libs/icp";
 import { formatPoapBody } from "../../../libs/poap";
 import { CampaignKind } from "../../../libs/campaigns";
@@ -19,6 +14,8 @@ import { findByCampaignAndUser as findDonationByCampaignAndUser } from "../../..
 import { findByCampaignAndUser as findVoteByCampaignAndUser } from "../../../libs/votes";
 import { findByCampaignAndUser as findFundingByCampaignAndUser } from "../../../libs/fundings";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
+import { useWallet } from "../../../hooks/wallet";
 
 interface Props {
     campaign: Campaign;
@@ -27,14 +24,12 @@ interface Props {
 };
 
 const MintForm = (props: Props) => {
-    const [actors, actorsDispatch] = useContext(ActorContext);
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
+    const {balances, depositICP} = useWallet();
     const intl = useIntl();
 
-    const {showSuccess, showError, toggleLoading} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
     
-    const [balance, setBalance] = useState(BigInt(0));
-
     const mintMut = useMintPoap();
 
     const fees = LEDGER_TRANSFER_FEE * BigInt(2);
@@ -74,71 +69,25 @@ const MintForm = (props: Props) => {
         return true;
     };    
 
-    const getLedgerCanister = async (
-    ): Promise<Ledger | undefined> => {
-        if(actors.ledger) {
-            return actors.ledger;
-        }
-        
-        if(!auth.identity) {
-            return undefined;
-        }
-
-        const ledger = createLedgerActor(auth.identity);
-        actorsDispatch({
-            type: ActorActionType.SET_LEDGER,
-            payload: ledger
-        });
-
-        return ledger;
-    };
-
-    const checkUserBalance = async (
-        identity: Identity, 
-        ledger: Ledger
-    ) => {
-        const balance = await getIcpBalance(identity, ledger);
-        setBalance(balance);
-    };
-
-    const updateState = useCallback(async(
-    ) => {
-        const ledger = await getLedgerCanister();
-        if(!ledger) {
-            return;
-        }
-
-        const identity = auth.identity;
-        if(!identity) {
-            return;
-        }
-
-        checkUserBalance(identity, ledger);
-    }, [auth.identity]);
-
     const handleMint = useCallback(async (e: any) => {
         e.preventDefault();
 
         try {
             toggleLoading(true);
 
-            if(!auth.user) {
+            if(!user) {
                 throw Error("Not logged in");
             }
 
-            if(!actors.main) {
-                throw Error("Main canister undefined");
-            }
-            
-            if(!await checkParticipation(props.campaign, auth.user)) {
+            if(!await checkParticipation(props.campaign, user)) {
                 throw Error("Only users that participated in the campaign can mint a POAP");
             }
 
-            if(props.poap.price + fees >= balance) {
+            if(props.poap.price + fees >= balances.icp) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(props.poap.price + fees)} ICP.`)
             }
 
-            await depositIcp(auth.user, props.poap.price + fees, actors.main, actors.ledger);
+            await depositICP(props.poap.price + fees);
             
             try {
                 await mintMut.mutateAsync({
@@ -157,16 +106,12 @@ const MintForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [props.poap, props.campaign, balance, updateState, props.onClose]);
+    }, [props.poap, props.campaign, balances, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
-
-    useEffect(() => {
-        updateState();
-    }, [updateState]);
 
     const {poap} = props;
 
@@ -218,7 +163,7 @@ const MintForm = (props: Props) => {
                     <div className="control">
                         <Button
                             onClick={handleMint}
-                            disabled={mintMut.isLoading}
+                            disabled={isLoading}
                         >
                             <FormattedMessage id="Mint" defaultMessage="Mint"/>
                         </Button>

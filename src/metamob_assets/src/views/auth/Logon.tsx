@@ -1,16 +1,13 @@
-import React, { useCallback, useContext, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
-import { AuthActionType, AuthContext } from "../../stores/auth";
 import Button from "../../components/Button";
 import Container from "../../components/Container";
-import { Metamob, ProfileResponse } from "../../../../declarations/metamob/metamob.did";
 import Steps, { Step } from "../../components/Steps";
 import UserCreateForm from "../users/user/Create";
-import { loginUser } from "../../libs/users";
-import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
-import { ActorActionType, ActorContext } from "../../stores/actor";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../hooks/ui";
+import { useAuth } from "../../hooks/auth";
+import { ICProviderType } from "../../interfaces/icprovider";
 
 interface Props {
 }
@@ -31,10 +28,9 @@ const steps: Step[] = [
 ];
 
 const Logon = (props: Props) => {
-    const [auth, authDispatch] = useContext(AuthContext);
-    const [, actorDispatch] = useContext(ActorContext);
+    const {isAuthenticated, isLogged: isRegistered, login} = useAuth();
 
-    const {toggleLoading, showSuccess, showError} = useUI();
+    const {showSuccess, showError} = useUI();
 
     const [step, setStep] = useState(0);
 
@@ -46,101 +42,38 @@ const Logon = (props: Props) => {
         return (returnTo && returnTo[1]) || '/';
     }
 
-    const loadAuthenticatedUser = async (
-        main: Metamob        
-    ): Promise<ProfileResponse|undefined> => {
-        try {
-            toggleLoading(true);
-
-            const res = await main.userFindMe();
-            if('ok' in res) {
-                return res.ok;
-            }
-        }
-        catch(e) {
-            showError(e);
-        }
-        finally {
-            toggleLoading(false);
-        }
-
-        return undefined;
-    };
-
-    const handleAuthenticated = useCallback(async () => {
-        try {
-            toggleLoading(true);
-
-            const identity = auth.client?.getIdentity();
-            if(!identity) {
-                showError('IC Identity should not be null');
-                return;
-            }
-
-            authDispatch({
-                type: AuthActionType.SET_IDENTITY, 
-                payload: identity
-            });
-            showSuccess('User authenticated!');
-
-            const main = createMainActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_MAIN,
-                payload: main
-            });
-
-            const ledger = createLedgerActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_LEDGER,
-                payload: ledger
-            });        
-
-            const mmt = createMmtActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_MMT,
-                payload: mmt
-            });        
-
-            const user = await loadAuthenticatedUser(main);
-            if(user) {
-                authDispatch({
-                    type: AuthActionType.SET_USER, 
-                    payload: user
-                });
-                setStep(2);
-            }
-            else {
-                setStep(step => step + 1);
-            }
-        }
-        catch(e) {
-            showError(e);
-        }
-        finally {
-            toggleLoading(false);
-        }
-    }, [auth.client]);
+    const handleAuthenticated = useCallback(() => {
+        setStep(step => step + 1)
+    }, []);
 
     const handleRegistered = useCallback(async (msg: string) => {
         showSuccess(msg);
         setStep(step => step + 1);
     }, []);
 
-    const handleAuthenticate = useCallback(async () => {
-        if(auth.client) {
-            loginUser(auth.client, handleAuthenticated, showError);
+    const handleAuthenticateII = useCallback(async () => {
+        try {
+            await login(ICProviderType.InternetIdentity, handleAuthenticated, showError);
         }
-    }, [auth.client, handleAuthenticated]);
+        catch(e) {
+            showError(e);
+        }
+    }, [login]);
 
     const handleReturn = useCallback(() => {
         navigate(getReturnUrl());
     }, [navigate]);
 
-    if(!auth.client) {
-        showError('No IC client found');
-        navigate(getReturnUrl());
-        return null;
-    }
+    useEffect(() => {
+        if(isRegistered) {
+            setStep(2);
+        }
+        else {
+            if(isAuthenticated) {
+                setStep(1);
+            }
+        }
+    }, [isAuthenticated, isRegistered]);
 
     return (
         <div className="container has-text-centered">
@@ -153,7 +86,7 @@ const Logon = (props: Props) => {
             <Container>
                 {step === 0 && 
                     <Button 
-                        onClick={handleAuthenticate}>
+                        onClick={handleAuthenticateII}>
                         <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate" defaultMessage="Authenticate"/>
                     </Button>
                 }

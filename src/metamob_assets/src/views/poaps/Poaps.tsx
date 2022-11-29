@@ -1,4 +1,4 @@
-import React, {useState, useCallback, Fragment, useContext} from "react";
+import React, {useState, useCallback, Fragment} from "react";
 import {Campaign, Poap} from '../../../../declarations/metamob/metamob.did';
 import {Order} from "../../libs/common";
 import {useFindPoapsByCampaign} from "../../hooks/poap";
@@ -11,8 +11,8 @@ import EditForm from "./poap/Edit";
 import Button from "../../components/Button";
 import ModerationModal from "../moderations/Modal";
 import { FormattedMessage } from "react-intl";
-import { AuthContext } from "../../stores/auth";
 import MintForm from "./poap/Mint";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
@@ -24,7 +24,7 @@ const orderBy: Order[] = [{
 }];
 
 const Poaps = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const [modals, setModals] = useState({
         create: false,
@@ -85,7 +85,7 @@ const Poaps = (props: Props) => {
     }, []);
 
     const campaign = props.campaign;
-    const isOwner = campaign.createdBy === auth.user?._id;
+    const isOwner = campaign.createdBy === user?._id;
 
     const poaps = useFindPoapsByCampaign(campaign._id, orderBy, 10);
 

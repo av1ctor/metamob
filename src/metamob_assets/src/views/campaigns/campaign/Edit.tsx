@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext, useEffect} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 import * as yup from 'yup';
 import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
 import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry} from "../../../../../declarations/metamob/metamob.did";
@@ -11,7 +11,6 @@ import TagsField from "../../../components/TagsField";
 import { useFindPlaceById } from "../../../hooks/places";
 import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
-import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, campaignKindToGoal, kindOptions, stateOptions } from "../../../libs/campaigns";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
@@ -25,6 +24,7 @@ import FileDropArea from "../../../components/FileDropArea";
 import VariantField from "../../../components/VariantField";
 import ArrayField from "../../../components/ArrayField";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -138,7 +138,7 @@ interface Props {
 };
 
 const EditForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -282,7 +282,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(auth.user);
+        const isModeration = props.reportId && isModerator(user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -302,7 +302,7 @@ const EditForm = (props: Props) => {
                         decimalToIcp(formt.goal):
                         formt.goal:    
                     BigInt(formt.goal),
-                state: isModerator(auth.user) && formt.state.length > 0? 
+                state: isModerator(user) && formt.state.length > 0? 
                     [Number(formt.state[0])]: 
                     [],
                 categoryId: Number(formt.categoryId),
@@ -584,7 +584,7 @@ const EditForm = (props: Props) => {
                         }
                     </>
                 }
-                {auth.user && isModerator(auth.user) &&
+                {user && isModerator(user) &&
                     <SelectField
                         label="State"
                         name="state"
@@ -593,7 +593,7 @@ const EditForm = (props: Props) => {
                         onChange={changeFormOpt}
                     />                    
                 }
-                {props.reportId && isModerator(auth.user) &&
+                {props.reportId && isModerator(user) &&
                     <CreateModerationForm
                         form={modForm}
                         onChange={changeModForm}

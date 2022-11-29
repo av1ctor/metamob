@@ -2,7 +2,6 @@ import React, {useState, useCallback, useContext} from "react";
 import SearchForm from "./Search";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
-import { AuthContext } from "../../stores/auth";
 import {CategoryContext} from "../../stores/category";
 import {Filter, Order} from "../../libs/common";
 import {useCreateCampaign} from "../../hooks/campaigns";
@@ -11,6 +10,7 @@ import Button from "../../components/Button";
 import { Place } from "../../../../declarations/metamob/metamob.did";
 import { Sort } from "./Sort";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
     filters: Filter[];
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const Bar = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {isLogged} = useAuth();
     const [categoryState, ] = useContext(CategoryContext);
 
     const [modals, setModals] = useState({
@@ -43,8 +43,6 @@ export const Bar = (props: Props) => {
     }, []);
 
     const createCampaignMut = useCreateCampaign();
-
-    const isLoggedIn = !!auth.user;
 
     return (
         <>
@@ -72,7 +70,7 @@ export const Bar = (props: Props) => {
                                 <div className="control">
                                     <Button
                                         title="Create a new campaign" 
-                                        onClick={isLoggedIn? toggleCreate: redirectToLogon}
+                                        onClick={isLogged? toggleCreate: redirectToLogon}
                                     >
                                         <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                                     </Button>

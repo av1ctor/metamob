@@ -1,9 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FundingResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserFundings } from "../../../hooks/fundings";
-import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../fundings/Item";
 import DeleteForm from "../../fundings/funding/Delete";
@@ -11,6 +10,7 @@ import EditForm from "../../fundings/funding/Edit";
 import { Paginator } from "../../../components/Paginator";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 };
@@ -21,7 +21,7 @@ const orderBy = [{
 }];
 
 const Fundings = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -35,7 +35,7 @@ const Fundings = (props: Props) => {
     });
     const [funding, setFunding] = useState<FundingResponse>();
 
-    const fundings = useFindUserFundings(orderBy, limit, auth.user?._id);
+    const fundings = useFindUserFundings(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((funding: FundingResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -74,7 +74,7 @@ const Fundings = (props: Props) => {
         }
     }, [fundings.status]);
 
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
@@ -149,9 +149,6 @@ const Fundings = (props: Props) => {
                     <EditForm
                         funding={funding} 
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -165,9 +162,6 @@ const Fundings = (props: Props) => {
                     <DeleteForm
                         funding={funding} 
                         onClose={toggleDelete}
-                        
-                        
-                        
                     />
                 }
             </Modal> 

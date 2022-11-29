@@ -1,12 +1,12 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import {ProfileResponse, Update} from "../../../../declarations/metamob/metamob.did";
 import { Markdown } from "../../components/Markdown";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     update: Update;
@@ -68,15 +68,15 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const update = props.update;
 
-    const creatorReq = useFindUserById(update.createdBy);
+    const author = useFindUserById(update.createdBy);
 
     return (
         <BaseItem
-            user={creatorReq.data}
+            user={author.data}
             update={update}
             onShowModerations={props.onShowModerations}
         >
@@ -100,7 +100,7 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
-                    {auth.user && 
+                    {user && 
                         <>
                             <a
                                 title="Report update"

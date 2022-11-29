@@ -1,14 +1,14 @@
-import React, {useState, useContext, useCallback, useEffect} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCreateSignature} from "../../../../../hooks/signatures";
 import {SignatureRequest, Campaign, SignatureResponse} from "../../../../../../../declarations/metamob/metamob.did";
-import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
 import CheckboxField from "../../../../../components/CheckboxField";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../../hooks/ui";
+import { useAuth } from "../../../../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
 });
 
 const SignForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {isLogged} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -84,7 +84,7 @@ const SignForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, auth]);
+    }, [form]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
@@ -97,13 +97,12 @@ const SignForm = (props: Props) => {
         }));
     }, [props.signature]);
 
-    const isLoggedIn = !!auth.user;
     const hasSigned = !!props.signature?._id;
 
     return (
         <form onSubmit={handleSign}>
             <div>
-                {isLoggedIn && 
+                {isLogged && 
                     <>
                         <TextAreaField
                             label="Message"
@@ -128,8 +127,8 @@ const SignForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleSign: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || hasSigned: false}
+                            onClick={isLogged? handleSign: redirectToLogon}
+                            disabled={isLogged? createMut.isLoading || hasSigned: false}
                         >
                             <i className="la la-pen-fancy"/>&nbsp;<FormattedMessage id="SIGN" defaultMessage="SIGN"/>
                         </Button>

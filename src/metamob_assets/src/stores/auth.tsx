@@ -1,81 +1,70 @@
+import { Principal } from "@dfinity/principal";
 import React, {createContext, useReducer} from "react";
-import { AuthClient } from "@dfinity/auth-client";
 import { ProfileResponse } from "../../../declarations/metamob/metamob.did";
-import { Identity } from "@dfinity/agent";
-
-export interface UserBalances {
-    icp: bigint;
-    mmt: bigint;
-    staked: bigint;
-    deposited: bigint;
-}
+import { ICProvider, ICProviderState } from "../interfaces/icprovider";
 
 export interface AuthState {
-    client?: AuthClient;
-    identity?: Identity;
+    state: ICProviderState;
+    provider?: ICProvider;
     user?: ProfileResponse;
-    balances: UserBalances;
+    principal?: Principal;
+    accountId?: string;
 };
 
 export enum AuthActionType {
-    SET_CLIENT,
-    SET_IDENTITY,
+    SET_STATE,
+    SET_PROVIDER,
     SET_USER,
-    SET_BALANCES,
-    LOGOUT
+    SET_PRINCIPAL,
+    SET_ACCOUNT_ID,
 };
 
-interface Action {
+export interface AuthAction {
     type: AuthActionType;
     payload: any;
 }
 
 const initialState: AuthState = {
-    client: undefined,
-    identity: undefined,
+    state: ICProviderState.Idle,
+    provider: undefined,
     user: undefined,
-    balances: {
-        icp: 0n,
-        mmt: 0n,
-        staked: 0n,
-        deposited: 0n,
-    },
+    principal: undefined,
+    accountId: undefined,
 };
 
-export const AuthContext = createContext<[AuthState, (action: Action) => void]>(
-    [initialState, (action: Action) => {}]);
+export const AuthContext = createContext<[AuthState, (action: AuthAction) => void]>(
+    [initialState, (action: AuthAction) => {}]);
 
-const reducer = (state: AuthState, action: Action) => {
+const reducer = (state: AuthState, action: AuthAction): AuthState => {
     switch(action.type) {
-        case AuthActionType.SET_CLIENT:
+        case AuthActionType.SET_STATE:
             return {
                 ...state,
-                client: action.payload
+                state: action.payload
+            };
+
+        case AuthActionType.SET_PROVIDER:
+            return {
+                ...state,
+                provider: action.payload
             };
         
-        case AuthActionType.SET_IDENTITY:
-            return {
-                ...state,
-                identity: action.payload
-            };
-
         case AuthActionType.SET_USER:
             return {
                 ...state,
                 user: action.payload
             };
 
-        case AuthActionType.SET_BALANCES:
+        case AuthActionType.SET_PRINCIPAL:
             return {
                 ...state,
-                balances: action.payload
+                principal: action.payload
             };
 
-        case AuthActionType.LOGOUT:
+        case AuthActionType.SET_ACCOUNT_ID:
             return {
                 ...state,
-                identity: undefined,
-                user: undefined
+                accountId: action.payload
             };
 
         default:
@@ -84,12 +73,17 @@ const reducer = (state: AuthState, action: Action) => {
 };
 
 interface Props {
+    provider: ICProvider | undefined;
     children: any
 };
 
 export const AuthContextProvider = (props: Props) => {
-    const [state, dispatch] = useReducer(reducer, initialState);
-    
+    const [state, dispatch] = useReducer(
+        reducer, {
+            ...initialState, 
+            provider: props.provider,
+    });
+
     return (
         <AuthContext.Provider
             value={[state, dispatch]}>

@@ -1,21 +1,18 @@
-import React, {useState, useContext, useCallback, useEffect} from "react";
+import React, {useState, useCallback} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCompleteDonation, useCreateDonation, useDeleteDonation} from "../../../../../hooks/donations";
 import {DonationRequest, Campaign} from "../../../../../../../declarations/metamob/metamob.did";
-import {idlFactory as Ledger} from "../../../../../../../declarations/ledger";
-import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
-import { ActorActionType, ActorContext } from "../../../../../stores/actor";
 import CheckboxField from "../../../../../components/CheckboxField";
 import TextField from "../../../../../components/TextField";
-import { depositIcp, getIcpBalance } from "../../../../../libs/users";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
+import { LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../../../libs/icp";
-import { Identity } from "@dfinity/agent";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../../hooks/ui";
+import { useAuth } from "../../../../../hooks/auth";
+import { useWallet } from "../../../../../hooks/wallet";
 
 interface Props {
     campaign: Campaign;
@@ -28,12 +25,10 @@ const formSchema = yup.object().shape({
 });
 
 const DonationForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
-    const [actors, actorDispatch] = useContext(ActorContext);
+    const {principal, isLogged: isRegistered} = useAuth();
+    const {balances, depositICP} = useWallet();
 
-    const {showSuccess, showError, toggleLoading} = useUI();
-
-    const [balance, setBalance] = useState(BigInt(0));
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
 
     const [form, setForm] = useState<DonationRequest>({
         campaignId: props.campaign._id,
@@ -41,55 +36,12 @@ const DonationForm = (props: Props) => {
         body: '',
         value: BigInt(0)
     });
-    const [isLoading, setIsLoading] = useState(false);
     
     const createMut = useCreateDonation();
     const completeMut = useCompleteDonation();
     const deleteMut = useDeleteDonation();
 
     const navigate = useNavigate();
-
-    const getLedgerCanister = async (
-    ): Promise<Ledger | undefined> => {
-        if(actors.ledger) {
-            return actors.ledger;
-        }
-        
-        if(!auth.identity) {
-            return undefined;
-        }
-
-        const ledger = createLedgerActor(auth.identity);
-        actorDispatch({
-            type: ActorActionType.SET_LEDGER,
-            payload: ledger
-        });
-
-        return ledger;
-    };
-
-    const checkUserBalance = async (
-        identity: Identity, 
-        ledger: Ledger
-    ) => {
-        const balance = await getIcpBalance(identity, ledger);
-        setBalance(balance);
-    };
-
-    const updateState = useCallback(async(
-    ) => {
-        const ledger = await getLedgerCanister();
-        if(!ledger) {
-            return;
-        }
-
-        const identity = auth.identity;
-        if(!identity) {
-            return;
-        }
-
-        checkUserBalance(identity, ledger);
-    }, [auth.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -122,21 +74,12 @@ const DonationForm = (props: Props) => {
         }
 
         try {
-            setIsLoading(true);
             toggleLoading(true);
 
-            if(!actors.main) {
-                throw Error("Main canister undefined");
-            }
-
-            if(!auth.user) {
-                throw Error("Not logged in");
-            }
-            
             const value = decimalToIcp(form.value.toString());
             const fees = LEDGER_TRANSFER_FEE * BigInt(2);
 
-            if(balance < value + fees) {
+            if(balances.icp < value + fees) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + fees)} ICP.`)
             }
 
@@ -150,7 +93,7 @@ const DonationForm = (props: Props) => {
             });
 
             try {
-                await depositIcp(auth.user, value + fees, actors.main, actors.ledger);
+                await depositICP(value + fees);
             }
             catch(e) {
                 await deleteMut.mutateAsync({
@@ -165,32 +108,24 @@ const DonationForm = (props: Props) => {
                 campaignPubId: props.campaign.pubId,
             });
 
-            updateState();
             showSuccess('Your donation has been sent!');
         }
         catch(e) {
             showError(e);
         }
         finally {
-            setIsLoading(false);
             toggleLoading(false);
         }
-    }, [form, auth, actors.main, balance, updateState]);
+    }, [form, balances, depositICP]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
 
-    useEffect(() => {
-        updateState();
-    }, [updateState]);
-
-    const isLoggedIn = !!auth.user;
-
     return (
         <form onSubmit={handleDonation}>
             <div>
-                {isLoggedIn && 
+                {isRegistered && 
                     <>
                         <TextField
                             label="Value (ICP)"
@@ -200,15 +135,12 @@ const DonationForm = (props: Props) => {
                         />
                         <TextField
                             label="From account id"
-                            value={auth.identity? 
-                                auth.identity.getPrincipal().toString(): 
-                                ''
-                            }
+                            value={principal? principal.toString(): ''}
                             disabled={true}
                         />
                         <TextField
                             label="Account balance"
-                            value={icpToDecimal(balance)}
+                            value={icpToDecimal(balances.icp)}
                             disabled={true}
                         />
                         <TextAreaField
@@ -233,7 +165,7 @@ const DonationForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleDonation: redirectToLogon}
+                            onClick={isRegistered? handleDonation: redirectToLogon}
                             disabled={isLoading}
                         >
                             <i className="la la-money-bill"/>&nbsp;<FormattedMessage id="DONATE" defaultMessage="DONATE"/>

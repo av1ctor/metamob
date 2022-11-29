@@ -4,10 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import Badge from "../../components/Badge";
 import { LangIcon } from "../../components/LangIcon";
 import NavItem from "../../components/NavItem";
+import { useAuth } from "../../hooks/auth";
 import { useCountUnreadNotificationsByUser } from "../../hooks/notifications";
 import { useUI } from "../../hooks/ui";
 import { Lang, languages, loadMessages } from "../../libs/intl";
-import { AuthActionType, AuthContext } from "../../stores/auth";
 import { IntlActionType, IntlContext } from "../../stores/intl";
 import Avatar from "../users/Avatar";
 
@@ -15,9 +15,10 @@ interface Props {
 };
 
 const Header = (props: Props) => {
-    const [auth, authDispatch] = useContext(AuthContext);
+    const {isLogged: isRegistered, user} = useAuth();
     const [intl, intlDispatch] = useContext(IntlContext);
 
+    const {logout} = useAuth();
     const {showSuccess} = useUI();
     
     const menuRef = useRef<HTMLDivElement>(null);
@@ -32,13 +33,9 @@ const Header = (props: Props) => {
     }, []);
 
     const handleLogout = useCallback(async () => {
-        await auth.client?.logout();
-        authDispatch({
-            type: AuthActionType.LOGOUT,
-            payload: undefined
-        });
+        await logout();
         showSuccess('Logged out!');
-    }, []);
+    }, [logout]);
 
     const handleToggleMenu = useCallback(() => {
         burgerRef.current?.classList.toggle('is-active');
@@ -57,8 +54,6 @@ const Header = (props: Props) => {
             }
         })
     }, []);
-
-    const isLogged = !!auth.user;
 
     return (
         <nav 
@@ -126,10 +121,10 @@ const Header = (props: Props) => {
                         </div>
                     </div>
 
-                    {isLogged &&
+                    {isRegistered &&
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">
-                                <Avatar id={auth.user?._id || 0} />
+                                <Avatar id={user?._id || 0} />
                                 {notifications.data? <div className="notification-badge floating"><Badge>{notifications.data}</Badge></div>: undefined}
                             </a>
 
@@ -207,7 +202,7 @@ const Header = (props: Props) => {
                         </div>
                     }
                     
-                    {!isLogged &&
+                    {!isRegistered &&
                         <div className="navbar-item">
                             <div className="buttons">
                                 <a 

@@ -1,7 +1,5 @@
-import { Principal } from '@dfinity/principal';
 import {useMutation, useQuery, useQueryClient, UseQueryResult} from 'react-query'
 import {ProfileResponse, Profile, ProfileRequest, ModerationRequest} from "../../../declarations/metamob/metamob.did";
-import {canisterId as metamobCanisterId} from "../../../declarations/metamob";
 import { Filter, Limit, Order } from '../libs/common';
 import { findById, findAll, findByIdEx, findByPubId } from '../libs/users';
 import { useActors } from './actors';
@@ -134,120 +132,6 @@ export const useSignupAsModerator = () => {
                 throw new Error(res.err);
             }
             return res.ok;
-        },
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(['users']);
-            }   
-        }
-    );
-};
-
-export const useApprove = () => {
-    const {metamob, mmt} = useActors();
-
-    return useMutation(
-        async (options: {value: bigint}) => {
-            if(!metamob || !metamobCanisterId) {
-                throw Error('Main actor undefined');
-            }
-
-            if(!mmt) {
-                throw Error('MMT actor undefined');
-            }
-            
-            const res = await mmt.approve(
-                Principal.fromText(metamobCanisterId), options.value);
-            if(res && 'Err' in res) {
-                throw new Error(JSON.stringify(res.Err));
-            }
-
-            return;
-        },
-        {
-            onSuccess: () => {
-            }   
-        }
-    );
-};
-
-export const useStake = () => {
-    const queryClient = useQueryClient();
-    const {metamob, mmt} = useActors();
-
-    return useMutation(
-        async (options: {value: bigint}) => {
-            if(!metamob || !metamobCanisterId) {
-                throw Error('Main actor undefined');
-            }
-
-            if(!mmt) {
-                throw Error('MMT actor undefined');
-            }
-            
-            const res = await mmt.approve(
-                Principal.fromText(metamobCanisterId), options.value);
-            if(res && 'Err' in res) {
-                throw new Error(JSON.stringify(res.Err));
-            }
-
-            const res2 = await metamob.daoStake(options.value);
-            if('err' in res2) {
-                throw new Error(res2.err);
-            }
-            
-            return;
-        },
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(['users']);
-            }   
-        }
-    );
-};
-
-export const useUnstake = () => {
-    const queryClient = useQueryClient();
-    const {metamob} = useActors();
-
-    return useMutation(
-        async (options: {value: bigint}) => {
-            if(!metamob) {
-                throw Error('Main actor undefined');
-            }
-
-            const res = await metamob.daoUnStake(options.value);
-            if('err' in res) {
-                throw new Error(res.err);
-            }
-            
-            return;
-        },
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(['users']);
-            }   
-        }
-    );
-};
-
-export const useTransfer = () => {
-    const queryClient = useQueryClient();
-    const {metamob, mmt} = useActors();
-
-    return useMutation(
-        async (options: {to: string, value: bigint}) => {
-            if(!mmt) {
-                throw Error('MMT actor undefined');
-            }
-
-            const res = await mmt.transfer( 
-                Principal.fromText(options.to), options.value);
-            if(res && 'Err' in res) {
-                throw new Error(JSON.stringify(res.Err));
-            }
-            
-            return;
         },
         {
             onSuccess: () => {

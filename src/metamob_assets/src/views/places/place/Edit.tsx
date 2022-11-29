@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { Place, PlaceRequest, PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
 import AutocompleteField from "../../../components/AutocompleteField";
@@ -15,11 +15,11 @@ import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../..
 import { setField } from "../../../libs/utils";
 import Avatar from "../../users/Avatar";
 import { transformAuth, validateAuth } from "./utils";
-import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 
 interface Props {
@@ -45,7 +45,7 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
     
@@ -138,7 +138,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(auth.user);
+        const isModeration = props.reportId && isModerator(user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -409,7 +409,7 @@ const EditForm = (props: Props) => {
                     />
                 </div>
             </div>
-            {props.reportId && isModerator(auth.user) &&
+            {props.reportId && isModerator(user) &&
                 <CreateModerationForm
                     form={modForm}
                     onChange={changeModForm}

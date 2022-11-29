@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import { useCreateCampaign } from "../../hooks/campaigns";
-import { AuthContext } from "../../stores/auth";
+import { useAuth } from "../../hooks/auth";
 import { CategoryContext } from "../../stores/category";
 import CreateForm from "../campaigns/campaign/Create";
 import HotCampaigns from "../campaigns/Hot";
@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Front = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {isLogged} = useAuth();
     const [categoryState, ] = useContext(CategoryContext);
 
     const [modals, setModals] = useState({
@@ -38,8 +38,6 @@ const Front = (props: Props) => {
     }, []);
 
     const createCampaignMut = useCreateCampaign();
-
-    const isLoggedIn = !!auth.user;
 
     return (
         <>
@@ -70,7 +68,7 @@ const Front = (props: Props) => {
                             <Button
                                 size="large"
                                 color="success"
-                                onClick={isLoggedIn? toggleCreate: redirectToLogon}
+                                onClick={isLogged? toggleCreate: redirectToLogon}
                             >
                                 &nbsp;&nbsp;<FormattedMessage id="Create" defaultMessage="Create" />&nbsp;&nbsp;
                             </Button>

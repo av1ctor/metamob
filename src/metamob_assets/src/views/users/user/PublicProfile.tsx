@@ -1,5 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react"
-import { AuthContext } from "../../../stores/auth";
+import React, { useCallback, useEffect, useState } from "react"
 import TextField from "../../../components/TextField";
 import {ProfileResponse } from "../../../../../declarations/metamob/metamob.did";
 import { useFindUserByPubId } from "../../../hooks/users";
@@ -13,13 +12,14 @@ import ModerationModal from "../../moderations/Modal";
 import ModerationBadge from "../../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
     pubId?: string;
 }
 
 const PublicProfile = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {id} = useParams();
 
@@ -30,7 +30,9 @@ const PublicProfile = (props: Props) => {
     const [modals, setModals] = useState({
         report: false,
         moderations: false,
-    });const [profile, setProfile] = useState<ProfileResponse>();
+    });
+    
+    const [profile, setProfile] = useState<ProfileResponse>();
 
     useEffect(() => {
         switch(req.status) {
@@ -113,7 +115,7 @@ const PublicProfile = (props: Props) => {
             </div>
             <div className="columns">
                 <div className="column is-12">
-                    {auth.user && 
+                    {user && 
                         <a
                             title="Report user"
                             onClick={toggleReport}
@@ -143,9 +145,6 @@ const PublicProfile = (props: Props) => {
                 entityId={profile._id}
                 moderated={profile.moderated}
                 onClose={toggleModerations}
-                
-                
-                
             />
         </>
     )

@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useMemo } from "react";
 import { useIntl } from "react-intl";
 import Badge from "../../../components/Badge";
+import { useAuth } from "../../../hooks/auth";
 import { ModerationReason, moderationReasonToColor, moderationReasonToText, moderationReasonToTitle } from "../../../libs/moderations";
-import { AuthContext } from "../../../stores/auth";
 import { IntlContext } from "../../../stores/intl";
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ModBadge = (props: Props) => {
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
     const [lang] = useContext(IntlContext);
 
     const intl = useIntl();
@@ -40,10 +40,10 @@ const ModBadge = (props: Props) => {
     }, [desc.texts]);
 
     const handleShowModerations = useCallback(() => {
-        if(auth.user && props.onShowModerations) {
+        if(user && props.onShowModerations) {
             props.onShowModerations();
         }
-    }, [auth.user, props.onShowModerations]);
+    }, [user, props.onShowModerations]);
 
     if(props.reason === ModerationReason.NONE) {
         return null;

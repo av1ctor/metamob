@@ -4,38 +4,38 @@ import { idlFactory as Ledger } from "../../../declarations/ledger";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 
 export interface ActorState {
-    main?: Metamob;
+    metamob?: Metamob;
     ledger?: Ledger;
     mmt?: MMT;
 };
 
 export enum ActorActionType {
-    SET_MAIN,
+    SET_METAMOB,
     SET_LEDGER,
     SET_MMT,
 };
 
-interface Action {
+export interface ActorAction {
     type: ActorActionType;
     payload: any;
 };
 
 const initialState: ActorState = {
-    main: undefined,
+    metamob: undefined,
     ledger: undefined,
     mmt: undefined,
 };
 
-export const ActorContext = createContext<[ActorState, (action: Action) => void]>([
-    initialState, (action: Action) => {}
+export const ActorContext = createContext<[ActorState, (action: ActorAction) => void]>([
+    initialState, (action: ActorAction) => {}
 ]);
 
-const reducer = (state: ActorState, action: Action): ActorState => {
+const reducer = (state: ActorState, action: ActorAction): ActorState => {
     switch(action.type) {
-        case ActorActionType.SET_MAIN:
+        case ActorActionType.SET_METAMOB:
             return {
                 ...state,
-                main: action.payload
+                metamob: action.payload
             };
 
         case ActorActionType.SET_LEDGER:

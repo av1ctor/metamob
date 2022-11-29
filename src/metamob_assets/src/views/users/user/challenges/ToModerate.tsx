@@ -1,15 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Challenge } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindJudgeChallenges } from "../../../../hooks/challenges";
-import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../challenges/Item";
 import { Paginator } from "../../../../components/Paginator";
 import { ChallengeState } from "../../../../libs/challenges";
 import ModerateForm from "../../../challenges/challenge/Moderate";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../hooks/ui";
+import { useAuth } from "../../../../hooks/auth";
 
 interface Props {
 };
@@ -20,7 +20,7 @@ const orderBy = [{
 }];
 
 const ToModerate = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showError, toggleLoading} = useUI();
 
@@ -33,8 +33,7 @@ const ToModerate = (props: Props) => {
     });
     const [challenge, setChallenge] = useState<Challenge>();
 
-    const challenges = useFindJudgeChallenges(
-        orderBy, limit, auth.user?._id);
+    const challenges = useFindJudgeChallenges(orderBy, limit, user?._id);
     
     const toggleModerate = useCallback(() => {
         setModals(modals => ({
@@ -86,8 +85,6 @@ const ToModerate = (props: Props) => {
                         >
                             <BaseItem 
                                 challenge={challenge} 
-                                
-                                
                             >
                                 <p>
                                     <small>
@@ -135,9 +132,6 @@ const ToModerate = (props: Props) => {
                         challenge={challenge}
                         onModerate={toggleModerate}
                         onClose={toggleModerate}
-                        
-                        
-                        
                     />
                 }
             </Modal>

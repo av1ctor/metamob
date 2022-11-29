@@ -1,10 +1,9 @@
-import React, {useState, useCallback, useContext, Fragment} from "react";
+import React, {useState, useCallback, Fragment} from "react";
 import {Update, Campaign} from '../../../../declarations/metamob/metamob.did';
 import {EntityType, Order} from "../../libs/common";
 import {CampaignState} from "../../libs/campaigns";
 import {useFindUpdatesByCampaign} from "../../hooks/updates";
 import { Item } from "./Item";
-import { AuthContext } from "../../stores/auth";
 import Modal from "../../components/Modal";
 import CreateForm from "./update/Create";
 import EditForm from "./update/Edit";
@@ -13,6 +12,7 @@ import Button from "../../components/Button";
 import DeleteForm from "./update/Delete";
 import ModerationModal from "../moderations/Modal";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
@@ -24,7 +24,7 @@ const orderBy: Order[] = [{
 }];
 
 const Updates = (props: Props) => {
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const [modals, setModals] = useState({
         create: false,
@@ -40,7 +40,7 @@ const Updates = (props: Props) => {
     const updates = useFindUpdatesByCampaign(campaign._id, orderBy, 10);
 
     const canEdit = (campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaign?.createdBy);
+        user && user._id === campaign?.createdBy);
 
     const toggleCreate = useCallback(() => {
         setModals(modals => ({
@@ -108,7 +108,7 @@ const Updates = (props: Props) => {
                         </div>
                     </div>
                     <div className="level-right is-align-self-baseline">
-                        {auth.user?._id === props.campaign.createdBy &&
+                        {user?._id === props.campaign.createdBy &&
                             <Button
                                 onClick={toggleCreate}
                             >

@@ -1,13 +1,13 @@
-import React, {useState, useContext, useCallback, useEffect} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCreateVote} from "../../../../../hooks/votes";
 import {VoteRequest, Campaign, VoteResponse} from "../../../../../../../declarations/metamob/metamob.did";
-import { AuthContext } from "../../../../../stores/auth";
 import Button from "../../../../../components/Button";
 import TextAreaField from "../../../../../components/TextAreaField";
 import CheckboxField from "../../../../../components/CheckboxField";
 import { useUI } from "../../../../../hooks/ui";
+import { useAuth } from "../../../../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
@@ -21,7 +21,7 @@ const formSchema = yup.object().shape({
 });
 
 const VoteForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {isLogged} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -86,7 +86,7 @@ const VoteForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, auth]);
+    }, [form]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
@@ -100,13 +100,12 @@ const VoteForm = (props: Props) => {
         }));
     }, [props.vote]);
 
-    const isLoggedIn = !!auth.user;
     const hasVoted = !!props.vote?._id;
 
     return (
         <form onSubmit={handleVote}>
             <div>
-                {isLoggedIn && 
+                {isLogged && 
                     <>
                         <CheckboxField
                             label="In favor"
@@ -144,8 +143,8 @@ const VoteForm = (props: Props) => {
                     <div className="control">
                         <Button
                             color="danger"
-                            onClick={isLoggedIn? handleVote: redirectToLogon}
-                            disabled={isLoggedIn? createMut.isLoading || hasVoted: false}
+                            onClick={isLogged? handleVote: redirectToLogon}
+                            disabled={isLogged? createMut.isLoading || hasVoted: false}
                         >
                             <i className="la la-vote-yea"/>&nbsp;VOTE
                         </Button>

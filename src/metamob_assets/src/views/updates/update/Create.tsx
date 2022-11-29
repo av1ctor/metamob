@@ -1,8 +1,7 @@
-import React, {useState, ChangeEvent, useContext, useCallback} from "react";
+import React, {useState, useCallback} from "react";
 import * as yup from 'yup';
 import {useCreateUpdate} from "../../../hooks/updates";
 import {UpdateRequest, Campaign} from "../../../../../declarations/metamob/metamob.did";
-import { AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import MarkdownField from "../../../components/MarkdownField";
 import { CampaignResult } from "../../../libs/campaigns";
@@ -11,6 +10,7 @@ import CheckboxField from "../../../components/CheckboxField";
 import SwitchField from "../../../components/SwitchField";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
@@ -22,7 +22,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -110,7 +110,7 @@ const Create = (props: Props) => {
         props.onClose();
     }, [props.onClose]);
 
-    if(!auth.user) {
+    if(!user) {
         return null;
     }
 

@@ -1,15 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ReportResponse } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindUserReports } from "../../../../hooks/reports";
-import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import EditForm from "../../../reports/report/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ReportState } from "../../../../libs/reports";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../hooks/ui";
+import { useAuth } from "../../../../hooks/auth";
 
 interface Props {
 };
@@ -20,7 +20,7 @@ const orderBy = [{
 }];
 
 const MyReports = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showError, toggleLoading} = useUI();
 
@@ -33,7 +33,7 @@ const MyReports = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindUserReports(orderBy, limit, auth.user?._id);
+    const reports = useFindUserReports(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -82,8 +82,6 @@ const MyReports = (props: Props) => {
                             <BaseItem 
                                 report={report} 
                                 partial
-                                
-                                
                             >
                                 <p>
                                     <small>
@@ -130,9 +128,6 @@ const MyReports = (props: Props) => {
                     <EditForm
                         report={report} 
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>

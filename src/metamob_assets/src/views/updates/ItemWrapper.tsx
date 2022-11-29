@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Update, ProfileResponse } from "../../../../declarations/metamob/metamob.did";
 import { useFindCampaignById } from "../../hooks/campaigns";
+import { useAuth } from "../../hooks/auth";
 import { useFindUpdateByPubId } from "../../hooks/updates";
 import { CampaignState } from "../../libs/campaigns";
-import { AuthContext } from "../../stores/auth";
 import {BaseItem, Item} from "./Item";
 
 interface BaseItemProps {
@@ -40,7 +40,7 @@ interface Props {
 };
 
 const ItemWrapper = (props: Props) => {
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const req = useFindUpdateByPubId(props.pubId);
     const campaignReq = useFindCampaignById(req.data?.campaignId);
@@ -50,7 +50,7 @@ const ItemWrapper = (props: Props) => {
     }
 
     const canEdit = (campaignReq.data?.state === CampaignState.PUBLISHED && 
-        auth.user && auth.user._id === campaignReq.data?.createdBy);
+        user && user._id === campaignReq.data?.createdBy);
 
     return (
         <Item

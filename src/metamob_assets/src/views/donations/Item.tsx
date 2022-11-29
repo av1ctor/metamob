@@ -1,15 +1,15 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import {Campaign, ProfileResponse, DonationResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { DonationState } from "../../libs/donations";
 import { icpToDecimal } from "../../libs/icp";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     donation: DonationResponse;
@@ -83,22 +83,22 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {donation} = props;
 
-    const creatorReq = useFindUserById(donation.createdBy);
+    const author = useFindUserById(donation.createdBy);
 
-    const creator = donation.createdBy && donation.createdBy.length > 0?
+    const authorId = donation.createdBy && donation.createdBy.length > 0?
         donation.createdBy[0] || 0:
         0;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === creator && creator !== 0));
+        user && (user._id === authorId && authorId !== 0));
 
     return (
         <BaseItem
-            user={creatorReq.data}
+            user={author.data}
             donation={donation}
             onShowModerations={props.onShowModerations}
         >
@@ -122,7 +122,7 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
-                    {auth.user && 
+                    {user && 
                         <>
                             <a
                                 title="Report donation"

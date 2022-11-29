@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { VoteResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
+import { useAuth } from "../../../hooks/auth";
 import { useUI } from "../../../hooks/ui";
 import { useFindUserVotes } from "../../../hooks/votes";
-import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../votes/Item";
 import DeleteForm from "../../votes/vote/Delete";
@@ -21,7 +21,7 @@ const orderBy = [{
 }];
 
 const Votes = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -35,7 +35,7 @@ const Votes = (props: Props) => {
     });
     const [vote, setVote] = useState<VoteResponse>();
 
-    const votes = useFindUserVotes(orderBy, limit, auth.user?._id);
+    const votes = useFindUserVotes(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((vote: VoteResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -74,7 +74,7 @@ const Votes = (props: Props) => {
         }
     }, [votes.status]);
     
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
@@ -149,9 +149,6 @@ const Votes = (props: Props) => {
                     <EditForm
                         vote={vote} 
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -165,9 +162,6 @@ const Votes = (props: Props) => {
                     <DeleteForm
                         vote={vote} 
                         onClose={toggleDelete}
-                        
-                        
-                        
                     />
                 }
             </Modal> 

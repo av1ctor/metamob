@@ -6,6 +6,8 @@ import {CategoryContextProvider} from "./stores/category";
 import { ActorContextProvider } from "./stores/actor";
 import { IntlContextProvider } from "./stores/intl";
 import { UIContextProvider } from "./stores/ui";
+import { WalletContextProvider } from "./stores/wallet";
+import { IcProviderBuider } from "./libs/icproviderbuilder";
 import {Home} from "./views/home/Home";
 
 const queryClient = new QueryClient({
@@ -16,20 +18,26 @@ const queryClient = new QueryClient({
     },
 });
 
+const authProvider = new IcProviderBuider()
+    .withInternetIdentity()
+    .build();
+
 export const App = () => {
     return (
         <IntlContextProvider>
             <QueryClientProvider client={queryClient}>
-                <AuthContextProvider>
-                    <ActorContextProvider>
-                        <UIContextProvider>
-                            <CategoryContextProvider>
-                                <Router>     
-                                    <Home />
-                                </Router>
-                            </CategoryContextProvider>
-                        </UIContextProvider>
-                    </ActorContextProvider>
+                <AuthContextProvider provider={authProvider}>
+                    <WalletContextProvider>
+                        <ActorContextProvider>
+                            <UIContextProvider>
+                                <CategoryContextProvider>
+                                    <Router>     
+                                        <Home />
+                                    </Router>
+                                </CategoryContextProvider>
+                            </UIContextProvider>
+                        </ActorContextProvider>
+                    </WalletContextProvider>
                 </AuthContextProvider>
             </QueryClientProvider>
         </IntlContextProvider> 

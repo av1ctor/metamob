@@ -1,24 +1,22 @@
-import React, {useState, useCallback, useContext, useEffect} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 import * as yup from 'yup';
 import {useCreatePoap, useModeratePoap, useUpdatePoap} from "../../../hooks/poap";
 import {Poap, PoapRequest} from "../../../../../declarations/metamob/metamob.did";
-import {idlFactory as Ledger} from "../../../../../declarations/ledger";
 import Container from "../../../components/Container";
 import Button from "../../../components/Button";
-import { ActorActionType, ActorContext } from "../../../stores/actor";
 import TextField from "../../../components/TextField";
-import { depositIcp, getIcpBalance, isModerator } from "../../../libs/users";
-import { AuthContext } from "../../../stores/auth";
+import { isModerator } from "../../../libs/users";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 import { FormattedMessage, useIntl } from "react-intl";
 import FileDropArea from "../../../components/FileDropArea";
 import NumberField from "../../../components/NumberField";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
-import { Identity } from "@dfinity/agent";
+import { LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { getConfigAsNat64 } from "../../../libs/dao";
 import { formatPoapBody, POAP_DEPLOYING_PRICE } from "../../../libs/poap";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
+import { useWallet } from "../../../hooks/wallet";
 
 interface Props {
     campaignId: number,
@@ -70,14 +68,13 @@ const loadForm = (campaignId: number, poap?: Poap): PoapRequest => {
 };
 
 const EditForm = (props: Props) => {
-    const [actors, actorsDispatch] = useContext(ActorContext);
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
+    const {balances, depositICP} = useWallet();
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
     
     const [form, setForm] = useState<PoapRequest>(() => loadForm(props.campaignId, props.poap));
-    const [balance, setBalance] = useState(BigInt(0));
     const [poapDeployingPrice, setPoapDeployingPrice] = useState(POAP_DEPLOYING_PRICE);
 
     const [modForm, setModForm] = useModerationForm(props.reportId);
@@ -87,48 +84,6 @@ const EditForm = (props: Props) => {
     const moderateMut = useModeratePoap();
 
     const fees = LEDGER_TRANSFER_FEE * BigInt(2);
-
-    const getLedgerCanister = async (
-    ): Promise<Ledger | undefined> => {
-        if(actors.ledger) {
-            return actors.ledger;
-        }
-        
-        if(!auth.identity) {
-            return undefined;
-        }
-
-        const ledger = createLedgerActor(auth.identity);
-        actorsDispatch({
-            type: ActorActionType.SET_LEDGER,
-            payload: ledger
-        });
-
-        return ledger;
-    };
-
-    const checkUserBalance = async (
-        identity: Identity, 
-        ledger: Ledger
-    ) => {
-        const balance = await getIcpBalance(identity, ledger);
-        setBalance(balance);
-    };
-
-    const updateState = useCallback(async(
-    ) => {
-        const ledger = await getLedgerCanister();
-        if(!ledger) {
-            return;
-        }
-
-        const identity = auth.identity;
-        if(!identity) {
-            return;
-        }
-
-        checkUserBalance(identity, ledger);
-    }, [auth.identity]);
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -214,7 +169,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(auth.user);
+        const isModeration = props.reportId && isModerator(user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -244,10 +199,6 @@ const EditForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            if(!auth.user) {
-                throw Error("Not logged in");
-            }
-
             if(isModeration) {
                 if(props.poap) {
                     await moderateMut.mutateAsync({
@@ -260,15 +211,11 @@ const EditForm = (props: Props) => {
             }
             else {
                 if(!props.poap) {
-                    if(!actors.main) {
-                        throw Error("Main canister undefined");
-                    }
-                    
-                    if(poapDeployingPrice + fees >= balance) {
+                    if(poapDeployingPrice + fees >= balances.icp) {
                         throw Error(`Insufficient funds! Needed: ${icpToDecimal(poapDeployingPrice + fees)} ICP.`)
                     }
 
-                    await depositIcp(auth.user, poapDeployingPrice + fees, actors.main, actors.ledger);
+                    await depositICP(poapDeployingPrice + fees);
                     
                     try {
                         await createMut.mutateAsync({
@@ -297,7 +244,7 @@ const EditForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, modForm, props.poap, balance, poapDeployingPrice, updateState, props.onClose]);
+    }, [form, modForm, props.poap, balances, poapDeployingPrice, props.onClose]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
@@ -307,11 +254,6 @@ const EditForm = (props: Props) => {
     useEffect(() => {
         setForm(loadForm(props.campaignId, props.poap));
     }, [props.poap]);
-
-    useEffect(() => {
-        updateState();
-    }, [updateState]);
-
 
     useEffect(() => {
         (async () => {
@@ -404,7 +346,7 @@ const EditForm = (props: Props) => {
                         </div>
                     }
                 </FileDropArea>
-                {props.reportId && isModerator(auth.user) &&
+                {props.reportId && isModerator(user) &&
                     <CreateModerationForm
                         form={modForm}
                         onChange={changeModForm}

@@ -1,7 +1,6 @@
-import React, {useState, useCallback, useContext} from "react";
+import React, {useState, useCallback} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Modal from "../../components/Modal";
-import { AuthContext } from "../../stores/auth";
 import {Filter, Order} from "../../libs/common";
 import Button from "../../components/Button";
 import SearchForm from "./Search";
@@ -9,6 +8,7 @@ import CreateForm from "./place/Create";
 import { Sort } from "./Sort";
 import { Modes } from "./Places";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
     filters: Filter[];
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const Bar = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {isLogged} = useAuth();
 
     const [modals, setModals] = useState({
         create: false,
@@ -39,8 +39,6 @@ export const Bar = (props: Props) => {
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=${location.pathname}`);
     }, []);
-
-    const isLoggedIn = !!auth.user;
 
     return (
         <>
@@ -76,7 +74,7 @@ export const Bar = (props: Props) => {
                                 <div className="control">
                                     <Button
                                         title="Create a new place" 
-                                        onClick={isLoggedIn? toggleCreate: redirectToLogon}
+                                        onClick={isLogged? toggleCreate: redirectToLogon}
                                     >
                                         <i className="la la-plus-circle" />&nbsp;<FormattedMessage id="Create" defaultMessage="Create"/>
                                     </Button>

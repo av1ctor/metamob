@@ -1,6 +1,5 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Modal from "../../../components/Modal";
-import { AuthContext } from "../../../stores/auth";
 import { isModerator } from "../../../libs/users";
 import ToModerate from "./reports/ToModerate";
 import Button from "../../../components/Button";
@@ -8,12 +7,13 @@ import BecomeModForm from "./BecomeMod";
 import MyReports from "./reports/MyReports";
 import AgainstMe from "./reports/AgainstMe";
 import { FormattedMessage } from "react-intl";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 };
 
 const Reports = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const [modals, setModals] = useState({
         becomeMod: false,
@@ -26,16 +26,13 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
 
     return (
         <>
             <MyReports
-                
-                
-                
             />
 
             <div className="mt-4">
@@ -44,11 +41,8 @@ const Reports = (props: Props) => {
             </div>
 
             <div className="mt-4">
-                {isModerator(auth.user)?
+                {isModerator(user)?
                     <ToModerate
-                        
-                        
-                        
                     />
                 :
                     <div className="container border mt-6 p-4">

@@ -1,9 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { DonationResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserDonations } from "../../../hooks/donations";
-import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../donations/Item";
 import DeleteForm from "../../donations/donation/Delete";
@@ -11,6 +10,7 @@ import EditForm from "../../donations/donation/Edit";
 import { Paginator } from "../../../components/Paginator";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 };
@@ -21,7 +21,7 @@ const orderBy = [{
 }];
 
 const Donations = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -35,7 +35,7 @@ const Donations = (props: Props) => {
     });
     const [donation, setDonation] = useState<DonationResponse>();
 
-    const donations = useFindUserDonations(orderBy, limit, auth.user?._id);
+    const donations = useFindUserDonations(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((donation: DonationResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -74,7 +74,7 @@ const Donations = (props: Props) => {
         }
     }, [donations.status]);
 
-    if(!auth.user) {
+    if(!user) {
         return <div>Forbidden</div>;
     }
     

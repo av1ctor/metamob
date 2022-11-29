@@ -1,15 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Challenge } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindUserChallenges } from "../../../../hooks/challenges";
-import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../challenges/Item";
 import EditForm from "../../../challenges/challenge/Edit";
 import { Paginator } from "../../../../components/Paginator";
 import { ChallengeState } from "../../../../libs/challenges";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../hooks/ui";
+import { useAuth } from "../../../../hooks/auth";
 
 interface Props {
 };
@@ -20,7 +20,7 @@ const orderBy = [{
 }];
 
 const MyChallenges = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showError, toggleLoading} = useUI();
 
@@ -33,8 +33,7 @@ const MyChallenges = (props: Props) => {
     });
     const [challenge, setChallenge] = useState<Challenge>();
 
-    const challenges = useFindUserChallenges(
-        orderBy, limit, auth.user?._id);
+    const challenges = useFindUserChallenges(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((challenge: Challenge | undefined = undefined) => {
         setModals(modals => ({
@@ -83,8 +82,6 @@ const MyChallenges = (props: Props) => {
                             <BaseItem 
                                 challenge={challenge} 
                                 partial
-                                
-                                
                             >
                                 <p>
                                     <small>
@@ -131,9 +128,6 @@ const MyChallenges = (props: Props) => {
                     <EditForm
                         challenge={challenge} 
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>

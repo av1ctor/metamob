@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { Paginator } from "../../../components/Paginator";
+import { useAuth } from "../../../hooks/auth";
 import { useFindCampaignsByUserId } from "../../../hooks/campaigns";
 import { useUI } from "../../../hooks/ui";
-import { AuthContext } from "../../../stores/auth";
 import Item from "../../campaigns/Item";
 
 interface Props {
@@ -15,7 +15,7 @@ const orderBy = [{
 }];
 
 const Campaigns = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -24,7 +24,7 @@ const Campaigns = (props: Props) => {
         size: 3
     });
 
-    const campaigns = useFindCampaignsByUserId(auth.user?._id || 0, orderBy, limit);
+    const campaigns = useFindCampaignsByUserId(user?._id || 0, orderBy, limit);
 
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({
@@ -47,7 +47,7 @@ const Campaigns = (props: Props) => {
         }
     }, [campaigns.status]);
     
-    if(!auth.user) {
+    if(!user) {
         return <div>Forbidden</div>;
     }
     

@@ -1,10 +1,10 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { Campaign } from "../../../../../declarations/metamob/metamob.did";
 import Box from "../../../components/Box";
 import Modal from "../../../components/Modal";
+import { useAuth } from "../../../hooks/auth";
 import { CampaignResult } from "../../../libs/campaigns";
-import { AuthContext } from "../../../stores/auth";
 import Email from "./results/Email";
 
 interface Props {
@@ -16,7 +16,7 @@ enum Action {
 }
 
 const Result = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const [action, setAction] = useState(Action.GEN_EMAIL);
     const [modals, setModals] = useState({
@@ -37,7 +37,7 @@ const Result = (props: Props) => {
 
     const {campaign} = props;
 
-    const isOwner = campaign.createdBy === auth.user?._id;
+    const isOwner = campaign.createdBy === user?._id;
     
     return (
         <>

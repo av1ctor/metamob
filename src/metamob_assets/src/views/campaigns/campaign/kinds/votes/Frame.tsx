@@ -1,19 +1,19 @@
-import React, { useContext } from "react";
+import React from "react";
 import Box from "../../../../../components/Box";
 import { CampaignState, getAgainstVotes, getProVotes } from "../../../../../libs/campaigns";
 import { useFindVoteByCampaignAndUser } from "../../../../../hooks/votes";
 import { Campaign } from "../../../../../../../declarations/metamob/metamob.did";
-import { AuthContext } from "../../../../../stores/auth";
 import VoteForm from "./Form";
 import { FormattedMessage } from "react-intl";
 import Action from "../Action";
+import { useAuth } from "../../../../../hooks/auth";
 
 interface Props {
     campaign: Campaign;
 }
 
 export const VoteFrame = (props: Props) => {
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {campaign} = props;
     
@@ -21,7 +21,7 @@ export const VoteFrame = (props: Props) => {
     const againstVotes = getAgainstVotes(campaign);
     const totalVotes = proVotes + againstVotes;
     
-    const userVote = useFindVoteByCampaignAndUser(campaign?._id, auth.user?._id);
+    const userVote = useFindVoteByCampaignAndUser(campaign?._id, user?._id);
    
     return (
         <>

@@ -14,7 +14,6 @@ import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
 import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
-import { AuthContext } from "../../../stores/auth";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { ModerationReason } from "../../../libs/moderations";
@@ -24,6 +23,7 @@ import FileDropArea from "../../../components/FileDropArea";
 import ArrayField from "../../../components/ArrayField";
 import VariantField from "../../../components/VariantField";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
     mutation: any;
@@ -205,7 +205,7 @@ export const transformInfo = (
 };
 
 const CreateForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {principal, user} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
     
@@ -346,8 +346,8 @@ const CreateForm = (props: Props) => {
 
         let action: CampaignAction = {nop: null};
         let info: CampaignInfo = {signatures: {}};
-        const receiver = auth.identity? 
-            auth.identity.getPrincipal().toString(): 
+        const receiver = principal? 
+            principal.toString(): 
             ''
         switch(Number(value)) {
             case CampaignKind.DONATIONS:
@@ -373,7 +373,7 @@ const CreateForm = (props: Props) => {
             action: action,
             info: info,
         }));
-    }, [auth.identity]);
+    }, [principal]);
 
     const handleSearchPlace = useCallback(async (
         value: string
@@ -707,7 +707,7 @@ const CreateForm = (props: Props) => {
                 {step === 5 &&
                     <div>
                         <Item
-                            campaign={toCampaign(form, auth.user)}
+                            campaign={toCampaign(form, user)}
                             cover={files.cover}
                             isPreview
                         />

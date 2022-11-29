@@ -14,7 +14,7 @@ export const useActors = (
 ): Actors => {
     const [actors, ] = useContext(ActorContext);
     return {
-        metamob: actors.main,
+        metamob: actors.metamob,
         ledger: actors.ledger,
         mmt: actors.mmt,
     };

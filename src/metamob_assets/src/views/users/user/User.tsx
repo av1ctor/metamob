@@ -1,24 +1,21 @@
-import React, { useCallback, useContext, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import * as yup from 'yup';
-import { AuthActionType, AuthContext } from "../../../stores/auth";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import {Profile, ProfileRequest } from "../../../../../declarations/metamob/metamob.did";
-import { ActorContext } from "../../../stores/actor";
 import { AvatarPicker } from "../../../components/AvatarPicker";
 import { useFindUserById, useUpdateMe } from "../../../hooks/users";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
-import { getMmtBalance } from "../../../libs/mmt";
-import { getIcpBalance } from "../../../libs/users";
-import { accountIdentifierFromBytes, icpToDecimal, principalToAccountDefaultIdentifier } from "../../../libs/icp";
-import { getDepositedBalance, getStakedBalance } from "../../../libs/dao";
+import { icpToDecimal } from "../../../libs/icp";
 import Modal from "../../../components/Modal";
 import StakeForm from "./Stake";
 import UnstakeForm from "./Unstake";
 import TransferForm from "./Transfer";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
+import { useWallet } from "../../../hooks/wallet";
 
 interface Props {
 }
@@ -31,13 +28,11 @@ const formSchema = yup.object().shape({
 });
 
 const User = (props: Props) => {
-    const [auth, authDispatch] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
+    const {user, principal, accountId, update} = useAuth();
+    const {balances} = useWallet();
 
     const {toggleLoading, showSuccess, showError} = useUI();
 
-    const [principal, setPrincipal] = useState('');
-    const [accountId, setAccountId] = useState('');
     const [form, setForm] = useState<ProfileRequest>({
         name: '',
         email: '',
@@ -53,7 +48,7 @@ const User = (props: Props) => {
         transfer: false,
     });
 
-    const profile = useFindUserById(auth.user?._id || 0);
+    const profile = useFindUserById(user?._id || 0);
     const updateMut = useUpdateMe();
 
     const changeForm = useCallback((e: any) => {
@@ -92,8 +87,8 @@ const User = (props: Props) => {
         try {
             toggleLoading(true);
 
-            const res = await updateMut.mutateAsync({req: form});
-            authDispatch({type: AuthActionType.SET_USER, payload: res});
+            const profile = await updateMut.mutateAsync({req: form});
+            update(profile);
             showSuccess('Profile updated!');
         }
         catch(e: any) {
@@ -103,27 +98,6 @@ const User = (props: Props) => {
             toggleLoading(false);
         }
     }, [form]);
-
-    const updateBalances = useCallback(async () => {
-        Promise.all([
-            getIcpBalance(auth.identity, actors.ledger),
-            getMmtBalance(auth.identity, actors.mmt),
-            getStakedBalance(actors.main),
-            getDepositedBalance(actors.main),
-        ]).then(res => {
-            authDispatch({
-                type: AuthActionType.SET_BALANCES,
-                payload: {
-                    icp: res[0],
-                    mmt: res[1],
-                    staked: res[2],
-                    deposited: res[3],
-                }
-            });
-        }).catch(e => {
-            showError(e);
-        });
-    }, [auth.identity, actors]);
 
     const toggleStake = useCallback(() => {
         setModals(modals => ({
@@ -164,17 +138,7 @@ const User = (props: Props) => {
     useEffect(() => {
         switch(profile.status) {
             case 'success':
-                if(!auth.identity) {
-                    showError("Identity undefined");
-                    return
-                }
-                updateBalances();
                 const full = profile.data as Profile;
-                setPrincipal(full.principal);
-                setAccountId(
-                    accountIdentifierFromBytes(
-                        principalToAccountDefaultIdentifier(
-                            auth.identity?.getPrincipal())));
                 setForm({
                     name: full.name,
                     email: full.email,
@@ -193,11 +157,9 @@ const User = (props: Props) => {
         toggleLoading(profile.status === 'loading');
     }, [profile.status]);
 
-    if(!auth.user) {
+    if(!user) {
         return null;
     }
-
-    const {balances} = auth;
 
     return (
         <>
@@ -253,7 +215,7 @@ const User = (props: Props) => {
                     <div className="column is-12">
                         <TextField 
                             label="ICP principal"
-                            value={principal || ''}
+                            value={principal? principal.toString(): ''}
                             disabled
                         />
                     </div>
@@ -354,7 +316,6 @@ const User = (props: Props) => {
                 onClose={toggleStake}
             >
                 <StakeForm
-                    onUpdateBalances={updateBalances}
                     onClose={toggleStake}
                 />
             </Modal>
@@ -365,7 +326,6 @@ const User = (props: Props) => {
                 onClose={toggleWithdraw}
             >
                 <UnstakeForm
-                    onUpdateBalances={updateBalances}
                     onClose={toggleWithdraw}
                 />
             </Modal>
@@ -376,7 +336,6 @@ const User = (props: Props) => {
                 onClose={toggleTransfer}
             >
                 <TransferForm
-                    onUpdateBalances={updateBalances}
                     onClose={toggleTransfer}
                 />
             </Modal>

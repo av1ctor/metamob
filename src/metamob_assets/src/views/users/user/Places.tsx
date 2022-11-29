@@ -1,10 +1,9 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Place } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindUserPlaces } from "../../../hooks/places";
-import { AuthContext } from "../../../stores/auth";
 import PlaceEmails from "../../places/emails/Emails";
 import EditForm from "../../places/place/Edit";
 import CreateForm from '../../places/place/Create';
@@ -13,6 +12,7 @@ import { Paginator } from "../../../components/Paginator";
 import { PlaceIcon } from "../../places/place/PlaceIcon";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
 };
@@ -23,7 +23,7 @@ const orderBy = [{
 }];
 
 const Places = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -39,7 +39,7 @@ const Places = (props: Props) => {
     });
     const [place, setPlace] = useState<Place>();
 
-    const places = useFindUserPlaces(auth.user?._id || 0, orderBy, limit);
+    const places = useFindUserPlaces(user?._id || 0, orderBy, limit);
 
     const navigate = useNavigate();
 
@@ -98,7 +98,7 @@ const Places = (props: Props) => {
         }
     }, [places.status]);
     
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
     
@@ -190,10 +190,7 @@ const Places = (props: Props) => {
                 onClose={toggleCreate}
             >
                 <CreateForm 
-                    
-                    
                     onClose={toggleCreate}
-                    
                 />
             </Modal>            
             
@@ -207,9 +204,6 @@ const Places = (props: Props) => {
                         place={place} 
                         onEditEmails={toggleEditEmails}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -229,9 +223,6 @@ const Places = (props: Props) => {
                 {place && 
                     <PlaceEmails
                         place={place}
-                        
-                        
-                        
                     />
                 }
             </Modal> 

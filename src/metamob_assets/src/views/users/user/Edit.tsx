@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import * as yup from 'yup';
 import { ProfileRequest, Profile, Role } from "../../../../../declarations/metamob/metamob.did";
 import { AvatarPicker } from "../../../components/AvatarPicker";
@@ -6,11 +6,11 @@ import Button from "../../../components/Button";
 import CheckboxField from "../../../components/CheckboxField";
 import SelectField, { Option } from "../../../components/SelectField";
 import TextField from "../../../components/TextField";
+import { useAuth } from "../../../hooks/auth";
 import { useUI } from "../../../hooks/ui";
 import { useModerateUser, useUpdateUser } from "../../../hooks/users";
 import countries from "../../../libs/countries";
 import { Banned, isModerator } from "../../../libs/users";
-import { AuthContext } from "../../../stores/auth";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
 
 function rolesToString(
@@ -60,7 +60,7 @@ interface Props {
 }
 
 const EditForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user, update} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
     
@@ -143,7 +143,7 @@ const EditForm = (props: Props) => {
             return;
         }
 
-        const isModeration = props.reportId && isModerator(auth.user);
+        const isModeration = props.reportId && isModerator(user);
 
         if(isModeration) {
             const errors = validateModerationForm(modForm);
@@ -161,18 +161,20 @@ const EditForm = (props: Props) => {
             toggleLoading(true);
 
             if(isModeration) {
-                await moderateMut.mutateAsync({
+                const profile = await moderateMut.mutateAsync({
                     pubId: props.user.pubId, 
                     req: transformReq(),
                     mod: transformModerationForm(modForm)
                 });
+                update(profile);
                 showSuccess('User moderated!');
             }
             else {
-                await updateMut.mutateAsync({
+                const profile = await updateMut.mutateAsync({
                     pubId: props.user.pubId, 
                     req: transformReq()
                 });
+                update(profile);
                 showSuccess('User updated!');
             }
 
@@ -273,7 +275,7 @@ const EditForm = (props: Props) => {
                 value={(banned & Banned.AsAdmin) != 0}
                 onChange={(e) => changeBanned(e, Banned.AsAdmin)}
             />
-            {props.reportId && isModerator(auth.user) &&
+            {props.reportId && isModerator(user) &&
                 <CreateModerationForm
                     form={modForm}
                     onChange={changeModForm}

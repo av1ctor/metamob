@@ -1,13 +1,13 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import {Campaign, ProfileResponse, Poap} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
-import { AuthContext } from "../../stores/auth";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
 import Button from "../../components/Button";
 import { PoapState } from "../../libs/poap";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     campaign?: Campaign;
@@ -60,16 +60,16 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {poap} = props;
 
-    const creatorReq = useFindUserById(poap.createdBy);
+    const author = useFindUserById(poap.createdBy);
 
-    const creator = poap.createdBy;
+    const authorId = poap.createdBy;
 
     const canEdit = (props.campaign?.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === creator && creator !== 0));
+        user && (user._id === authorId && authorId !== 0));
 
     const maxSupply = poap.maxSupply.length > 0? poap.maxSupply[0] || Number.MAX_SAFE_INTEGER: Number.MAX_SAFE_INTEGER;
     const canMint = (poap.state === PoapState.MINTING) && 
@@ -78,7 +78,7 @@ export const Item = (props: ItemProps) => {
 
     return (
         <BaseItem
-            user={creatorReq.data}
+            user={author.data}
             campaign={props.campaign}
             poap={poap}
             onShowModerations={props.onShowModerations}
@@ -87,7 +87,7 @@ export const Item = (props: ItemProps) => {
                 <div className="has-text-centered">
                     <Button
                         color="dark"
-                        disabled={!canMint || !auth.user}
+                        disabled={!canMint || !user}
                         onClick={() => props.onMint? props.onMint(poap): null}
                     >
                         <i className="la la-hammer"/>&nbsp;<FormattedMessage id="Mint" defaultMessage="Mint"/>
@@ -115,7 +115,7 @@ export const Item = (props: ItemProps) => {
                             &nbsp;·&nbsp;
                         </>
                     }
-                    {auth.user && 
+                    {user && 
                         <>
                             <a
                                 title="Report poap"

@@ -1,11 +1,11 @@
-import React, { useCallback, useContext, useState } from "react"
+import React, { useCallback, useState } from "react"
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextField from "../../../components/TextField";
 import {Place, PlaceEmailRequest} from "../../../../../declarations/metamob/metamob.did";
-import { ActorContext } from "../../../stores/actor";
 import { useUI } from "../../../hooks/ui";
+import { useActors } from "../../../hooks/actors";
 
 interface Props {
     place: Place;
@@ -17,7 +17,7 @@ const formSchema = yup.object().shape({
 });
 
 const Create = (props: Props) => {
-    const [actors, ] = useContext(ActorContext);
+    const {metamob} = useActors();
 
     const {showSuccess, showError, toggleLoading} = useUI();
 
@@ -55,7 +55,7 @@ const Create = (props: Props) => {
         try {
             toggleLoading(true);
 
-            if(!actors.main) {
+            if(!metamob) {
                 throw Error('Main actor undefined');
             }
 
@@ -64,7 +64,7 @@ const Create = (props: Props) => {
                 email: form.email, 
             };
             
-            const res = await actors.main.placeEmailCreate(req);
+            const res = await metamob.placeEmailCreate(req);
             
             if('ok' in res) {
                 showSuccess('E-mail created!');

@@ -1,9 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ReportResponse } from "../../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../../components/Modal";
 import TimeFromNow from "../../../../components/TimeFromNow";
 import { useFindReportsAssigned } from "../../../../hooks/reports";
-import { AuthContext } from "../../../../stores/auth";
 import {BaseItem} from "../../../reports/Item";
 import ModerateForm from "../../../reports/report/Moderate";
 import { Paginator } from "../../../../components/Paginator";
@@ -12,6 +11,7 @@ import EntityModerate from "../../../reports/report/EntityModerate";
 import { entityTypeToText } from "../../../../libs/common";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../hooks/ui";
+import { useAuth } from "../../../../hooks/auth";
 
 interface Props {
 };
@@ -22,7 +22,7 @@ const orderBy = [{
 }];
 
 const ToModerate = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {showError, toggleLoading} = useUI();
 
@@ -36,7 +36,7 @@ const ToModerate = (props: Props) => {
     });
     const [report, setReport] = useState<ReportResponse>();
 
-    const reports = useFindReportsAssigned(auth.user?._id || 0, orderBy, limit);
+    const reports = useFindReportsAssigned(user?._id || 0, orderBy, limit);
     
     const toggleEdit = useCallback((report: ReportResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -96,8 +96,6 @@ const ToModerate = (props: Props) => {
                         >
                             <BaseItem 
                                 report={report} 
-                                
-                                
                             >
                                 <p>
                                     <small>
@@ -145,9 +143,6 @@ const ToModerate = (props: Props) => {
                         report={report} 
                         onModerate={handleModerate}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -161,9 +156,6 @@ const ToModerate = (props: Props) => {
                     <EntityModerate
                         report={report}
                         onClose={toggleModerate}
-                        
-                        
-                        
                     />
                 }
             </Modal>

@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {Metamob, Notification} from "../../../declarations/metamob/metamob.did";
+import {Notification} from "../../../declarations/metamob/metamob.did";
 import { Limit, Order } from '../libs/common';
 import { findByUser, findByPubId, countUnreadByUser } from '../libs/notifications';
 import { useActors } from './actors';

@@ -1,16 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 import {Campaign, ProfileResponse, ReportResponse} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { reportResultToColor, reportResultToText, reportStateToColor, reportStateToText } from "../../libs/reports";
 import { isModerator } from "../../libs/users";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import EntityPreview from "./report/EntityPreview";
 import Badge from "../../components/Badge";
 import Box from "../../components/Box";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     report: ReportResponse;
@@ -85,21 +85,21 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {report} = props;
 
-    const author = report.createdBy;
+    const authorId = report.createdBy;
 
-    const user = useFindUserById(author);
+    const author = useFindUserById(authorId);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (author.length > 0 && auth.user._id === author[0])) ||
-        (auth.user && isModerator(auth.user));
+        user && (authorId.length > 0 && user._id === authorId[0])) ||
+        (user && isModerator(user));
 
     return (
         <BaseItem
-            user={user.data}
+            user={author.data}
             report={report}
             onModerate={props.onModerate}
         >

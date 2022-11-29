@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
 import {Campaign, ProfileResponse, Challenge} from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { challengeResultToColor, challengeResultToText, challengeStateToColor, challengeStateToText } from "../../libs/challenges";
-import { AuthContext } from "../../stores/auth";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import Badge from "../../components/Badge";
 import Box from "../../components/Box";
+import { useAuth } from "../../hooks/auth";
 
 interface BaseItemProps {
     challenge: Challenge;
@@ -73,18 +73,18 @@ interface ItemProps {
 };
 
 export const Item = (props: ItemProps) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {challenge} = props;
 
-    const user = useFindUserById(challenge.createdBy);
+    const author = useFindUserById(challenge.createdBy);
 
     const canEdit = (props.campaign.state === CampaignState.PUBLISHED && 
-        auth.user && (auth.user._id === challenge.createdBy));
+        user && (user._id === challenge.createdBy));
 
     return (
         <BaseItem
-            user={user.data}
+            user={author.data}
             challenge={challenge}
             onModerate={props.onModerate}
         >

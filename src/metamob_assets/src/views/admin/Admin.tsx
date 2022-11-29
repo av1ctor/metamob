@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import Box from "../../components/Box";
 import { isModerator } from "../../libs/users";
-import { AuthContext } from "../../stores/auth";
 import Campaigns from "./campaigns/Campaigns";
 import Reports from "./reports/Reports";
 import Users from "./users/Users";
@@ -9,15 +8,15 @@ import Categories from "./categories/Categories";
 import Places from "./places/Places";
 import Poaps from "./poaps/Poaps";
 import Logs from "./logs/Logs";
-import { useUI } from "../../hooks/ui";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
 };
 
 const Admin = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
-    if(!auth.user || !isModerator(auth.user)) {
+    if(!user || !isModerator(user)) {
         return <span>Forbidden</span>;
     }
 

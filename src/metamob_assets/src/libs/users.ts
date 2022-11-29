@@ -1,9 +1,7 @@
 import { Identity } from "@dfinity/agent";
-import { AuthClient } from "@dfinity/auth-client";
 import {metamob} from "../../../declarations/metamob";
 import {Metamob, ProfileResponse, Profile, Variant} from "../../../declarations/metamob/metamob.did";
 import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
-import { config } from "../config";
 import { LEDGER_TRANSFER_FEE, valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
 import { principalToAccountDefaultIdentifier, transferErrorToText } from "./icp";
@@ -126,25 +124,6 @@ export const search = async (
     }));
 };
 
-export const loginUser = async (
-    client: AuthClient, 
-    onSuccess: () => void, 
-    onError: (msg: string|undefined) => void
-): Promise<void> => {
-    const width = 500;
-    const height = screen.height;
-    const left = ((screen.width/2)-(width/2))|0;
-    const top = ((screen.height/2)-(height/2))|0; 
-    
-    client.login({
-        identityProvider: config.II_URL,
-        maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
-        windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
-        onSuccess: onSuccess,
-        onError: onError,
-    });
-};
-
 export const isAdmin = (
     user?: ProfileResponse
 ): boolean => {
@@ -179,44 +158,3 @@ export const getAccountId = async (
     const res = await metamob.userGetAccountId();
     return Uint8Array.from(res);
 }
-
-export const getIcpBalance = async (
-    identity?: Identity,
-    ledger?: Ledger
-): Promise<bigint> => {
-    if(!identity || !ledger) {
-        return BigInt(0);
-    }
-    
-    const principal = identity.getPrincipal();
-    
-    const res = await ledger.account_balance({
-        account: Array.from(principalToAccountDefaultIdentifier(principal))
-    });
-
-    return res.e8s;
-};
-
-export const depositIcp = async (
-    user: ProfileResponse,
-    amount: bigint,
-    metamob: Metamob,
-    ledger: Ledger
-): Promise<bigint> => {
-    const userSubAccount = await getAccountId(metamob);
-
-    const res = await ledger.transfer({
-        to: Array.from(userSubAccount),
-        amount: {e8s: amount},
-        fee: {e8s: LEDGER_TRANSFER_FEE},
-        memo: BigInt(user._id),
-        from_subaccount: [],
-        created_at_time: []
-    });
-
-    if('Err' in res) {
-        throw Error(`Transfer failed: ${transferErrorToText(res.Err)}`);
-    }
-
-    return res.Ok;
-};

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Place } from "../../../../../declarations/metamob/metamob.did";
@@ -6,7 +6,6 @@ import Button from "../../../components/Button";
 import Modal from "../../../components/Modal";
 import { useFindByPlaceAndUser } from "../../../hooks/places-users";
 import { EntityType } from "../../../libs/common";
-import { AuthContext } from "../../../stores/auth";
 import { PlaceIcon } from "./PlaceIcon";
 import TermsForm from "./TermsForm";
 import ReportForm from "../../reports/report/Create";
@@ -15,6 +14,7 @@ import ModerationModal from "../../moderations/Modal";
 import EditForm from "./Edit";
 import { FormattedMessage } from "react-intl";
 import PlaceTree from "./PlaceTree";
+import { useAuth } from "../../../hooks/auth";
 
 interface Props {
     place?: Place;
@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const PlaceBar = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user, isLogged} = useAuth();
 
     const [modals, setModals] = useState({
         edit: false,
@@ -68,14 +68,13 @@ export const PlaceBar = (props: Props) => {
     
     const {place} = props;
 
-    const placeUser = useFindByPlaceAndUser(place?._id, auth.user?._id);
+    const placeUser = useFindByPlaceAndUser(place?._id, user?._id);
 
     const hasTerms = place && place.terms.length > 0;
     const termsAccepted = hasTerms && placeUser && placeUser.data && placeUser.data.termsAccepted;
 
-    const isLoggedIn = !!auth.user;
-    const canEdit = auth.user && 
-        (auth.user._id === place?.createdBy);
+    const canEdit = user && 
+        (user._id === place?.createdBy);
 
     const banner = place?.banner[0] || '';
 
@@ -105,7 +104,7 @@ export const PlaceBar = (props: Props) => {
                                 <Button
                                     color={termsAccepted? 'primary': 'danger'}
                                     title="View terms and conditions"
-                                    onClick={isLoggedIn? toggleTerms: redirectToLogon}
+                                    onClick={isLogged? toggleTerms: redirectToLogon}
                                 >
                                     <i className={`la la-${termsAccepted? 'check-square': 'align-left'}`}/>&nbsp;<FormattedMessage id="Terms" defaultMessage="Terms"/>
                                 </Button>
@@ -144,7 +143,7 @@ export const PlaceBar = (props: Props) => {
                                 &nbsp;·&nbsp;
                             </>
                         }
-                        {isLoggedIn &&
+                        {isLogged &&
                             <a
                                 className="link-report"    
                                 title="Report place"

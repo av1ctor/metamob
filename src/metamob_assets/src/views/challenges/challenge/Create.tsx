@@ -6,14 +6,10 @@ import Button from "../../../components/Button";
 import Container from "../../../components/Container";
 import TextAreaField from "../../../components/TextAreaField";
 import { useCreateChallenge } from "../../../hooks/challenges";
+import { useWallet } from "../../../hooks/wallet";
 import { useUI } from "../../../hooks/ui";
-import { useApprove } from "../../../hooks/users";
-import { getConfigAsNat64, getDepositedBalance, getStakedBalance } from "../../../libs/dao";
+import { getConfigAsNat64 } from "../../../libs/dao";
 import { icpToDecimal } from "../../../libs/icp";
-import { getMmtBalance } from "../../../libs/mmt";
-import { getIcpBalance } from "../../../libs/users";
-import { ActorContext } from "../../../stores/actor";
-import { AuthActionType, AuthContext } from "../../../stores/auth";
 
 interface Props {
     moderationId: number;
@@ -26,10 +22,9 @@ const formSchema = yup.object().shape({
 });
 
 const CreateForm = (props: Props) => {
-    const [auth, authDispatch] = useContext(AuthContext);
-    const [actors, ] = useContext(ActorContext);
+    const {balances, approveMMT} = useWallet();
     
-    const {showSuccess, showError, toggleLoading} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
     
     const [form, setForm] = useState<ChallengeRequest>({
         moderationId: props.moderationId,
@@ -38,7 +33,6 @@ const CreateForm = (props: Props) => {
     const [minDeposit, setMinDeposit] = useState(0n);
 
     const createMut = useCreateChallenge();
-    const approveMut = useApprove();
 
     const validate = (form: ChallengeRequest): string[] => {
         try {
@@ -62,7 +56,10 @@ const CreateForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            await approveMut.mutateAsync({value: minDeposit});
+            if(!await approveMMT(minDeposit)) {
+                showError("Approve failed");
+                return;
+            };
 
             await createMut.mutateAsync({
                 req: {
@@ -94,32 +91,14 @@ const CreateForm = (props: Props) => {
         }));
     }, []);
 
-    const updateBalances = async () => {
-        Promise.all([
-            getIcpBalance(auth.identity, actors.ledger),
-            getMmtBalance(auth.identity, actors.mmt),
-            getStakedBalance(actors.main),
-            getDepositedBalance(actors.main),
-            getConfigAsNat64('CHALLENGER_DEPOSIT')
-        ]).then(res => {
-            authDispatch({
-                type: AuthActionType.SET_BALANCES,
-                payload: {
-                    icp: res[0],
-                    mmt: res[1],
-                    staked: res[2],
-                    deposited: res[3],
-                }
-            });
-            setMinDeposit(res[4]);
-        }).catch(e => {
-            showError(e);
-        });
+    const init = async () => {
+        const dep = await getConfigAsNat64('CHALLENGER_DEPOSIT');
+        setMinDeposit(dep);
     };
 
     useEffect(() => {
-        updateBalances();
-    }, [auth.user?._id]);
+        init();
+    }, []);
 
     return (
         <form onSubmit={handleCreate}>
@@ -127,9 +106,9 @@ const CreateForm = (props: Props) => {
                 <div className="mb-4">
                     <p><FormattedMessage defaultMessage="To challenge a moderation, your wallet will be billed {mmt} MMT" values={{mmt: icpToDecimal(minDeposit)}} />.</p>
                     <p className="mt-2"><FormattedMessage defaultMessage="If the challenge is accepted and the moderation get reverted, the deposited value will be reimbursed to your wallet. Otherwise"/>, <b><span className="has-text-danger"><FormattedMessage defaultMessage="the value deposited will be lost"/></span></b>!</p>
-                    {auth.balances.mmt <= minDeposit &&
+                    {balances.mmt <= minDeposit &&
                         <p className="mt-2">
-                            <FormattedMessage defaultMessage="Sorry, your balance ({mmt} MMT) is too low" values={{mmt: icpToDecimal(auth.balances.mmt)}} />.
+                            <FormattedMessage defaultMessage="Sorry, your balance ({mmt} MMT) is too low" values={{mmt: icpToDecimal(balances.mmt)}} />.
                         </p>
                     }
                 </div>
@@ -144,7 +123,7 @@ const CreateForm = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
-                            disabled={auth.balances.mmt <= minDeposit}
+                            disabled={isLoading || balances.mmt <= minDeposit}
                             onClick={handleCreate}>
                             <FormattedMessage id="Create" defaultMessage="Create"/>
                         </Button>

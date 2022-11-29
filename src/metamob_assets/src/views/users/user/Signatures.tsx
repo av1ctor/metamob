@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import { SignatureResponse } from "../../../../../declarations/metamob/metamob.did";
 import Modal from "../../../components/Modal";
 import { Paginator } from "../../../components/Paginator";
 import TimeFromNow from "../../../components/TimeFromNow";
+import { useAuth } from "../../../hooks/auth";
 import { useFindUserSignatures } from "../../../hooks/signatures";
 import { useUI } from "../../../hooks/ui";
-import { AuthContext } from "../../../stores/auth";
 import { CampaignLink } from "../../campaigns/campaign/Link";
 import {BaseItem} from "../../signatures/Item";
 import DeleteForm from "../../signatures/signature/Delete";
@@ -21,7 +21,7 @@ const orderBy = [{
 }];
 
 const Signatures = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {user} = useAuth();
 
     const {toggleLoading, showError} = useUI();
 
@@ -35,7 +35,7 @@ const Signatures = (props: Props) => {
     });
     const [signature, setSignature] = useState<SignatureResponse>();
 
-    const signatures = useFindUserSignatures(orderBy, limit, auth.user?._id);
+    const signatures = useFindUserSignatures(orderBy, limit, user?._id);
     
     const toggleEdit = useCallback((signature: SignatureResponse | undefined = undefined) => {
         setModals(modals => ({
@@ -74,7 +74,7 @@ const Signatures = (props: Props) => {
         }
     }, [signatures.status]);
 
-    if(!auth.user) {
+    if(!user) {
         return <div><FormattedMessage id="Forbidden" defaultMessage="Forbidden"/></div>;
     }
 
@@ -149,9 +149,6 @@ const Signatures = (props: Props) => {
                     <EditForm
                         signature={signature} 
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -165,9 +162,6 @@ const Signatures = (props: Props) => {
                     <DeleteForm
                         signature={signature} 
                         onClose={toggleDelete}
-                        
-                        
-                        
                     />
                 }
             </Modal> 

@@ -1,12 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import {Routes, Route} from "react-router-dom";
-import { AuthClient } from "@dfinity/auth-client"
-import { Metamob, ProfileResponse } from "../../../../declarations/metamob/metamob.did";
-import {AuthActionType, AuthContext} from "../../stores/auth";
-import { ActorActionType, ActorContext } from "../../stores/actor";
 import {CategoryActionType, CategoryContext} from "../../stores/category";
 import {useFindCategories} from "../../hooks/categories";
-import { createLedgerActor, createMainActor, createMmtActor } from "../../libs/backend";
 import Campaigns from "../campaigns/Campaigns";
 import Campaign from "../campaigns/campaign/Campaign";
 import Places from "../places/Places";
@@ -43,79 +38,15 @@ const limit: Limit = {
 };
 
 export const Home = () => {
-    const [, authDispatch] = useContext(AuthContext);
-    const [, actorDispatch] = useContext(ActorContext);
-    const [, categoriesDispatch] = useContext(CategoryContext);
+    const [, categoriesDisp] = useContext(CategoryContext);
 
     const {isLoading} = useUI();
 
     const categories = useFindCategories([], orderBy, limit);
     
-    const loadAuthenticatedUser = async (
-        main: Metamob
-    ): Promise<ProfileResponse|undefined> => {
-        try {
-            const res = await main.userFindMe();
-            if('ok' in res) {
-                return res.ok;
-            }
-        }
-        catch(e) {
-        }
-
-        return undefined;
-    };
-    
-    const init = async () => {
-        const client = await AuthClient.create();
-        authDispatch({
-            type: AuthActionType.SET_CLIENT, 
-            payload: client
-        });
-
-        const isAuthenticated = await client.isAuthenticated();
-        if(isAuthenticated) {
-            const identity = client.getIdentity();
-            authDispatch({
-                type: AuthActionType.SET_IDENTITY, 
-                payload: identity
-            });
-
-            const main = createMainActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_MAIN,
-                payload: main
-            });
-
-            const ledger = createLedgerActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_LEDGER,
-                payload: ledger
-            });
-
-            const mmt = createMmtActor(identity);
-            actorDispatch({
-                type: ActorActionType.SET_MMT,
-                payload: mmt
-            });
-
-            const user = await loadAuthenticatedUser(main);
-            if(user) {
-                authDispatch({
-                    type: AuthActionType.SET_USER, 
-                    payload: user
-                });
-            }
-        }
-    };
-
-    useEffect(() => {
-        init();
-    }, []);
-
     useEffect((): void => {
         if(categories.status === 'success') {
-            categoriesDispatch({
+            categoriesDisp({
                 type: CategoryActionType.SET, 
                 payload: categories.data
             });

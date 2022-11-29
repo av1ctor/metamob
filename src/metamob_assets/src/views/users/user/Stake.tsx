@@ -1,15 +1,13 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import * as yup from 'yup';
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
+import { useWallet } from "../../../hooks/wallet";
 import { useUI } from "../../../hooks/ui";
-import { useStake } from "../../../hooks/users";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { AuthContext } from "../../../stores/auth";
 
 interface Props {
-    onUpdateBalances: () => Promise<void>;
     onClose: () => void;
 };
 
@@ -18,15 +16,13 @@ const formSchema = yup.object().shape({
 });
 
 const StakeForm = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
+    const {balances, stakeMMT} = useWallet();
 
-    const {showSuccess, showError, toggleLoading} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
     
     const [form, setForm] = useState({
         value: "0.0",
     });
-
-    const stakeMut = useStake();
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -65,13 +61,15 @@ const StakeForm = (props: Props) => {
             if(value < 10000) {
                 throw Error("Value too low");
             }
-            else if(value >= auth.balances.mmt) {
+            else if(value >= balances.mmt) {
                 throw Error("Value too high");
             }
 
-            await stakeMut.mutateAsync({value: value});
+            if(!await stakeMMT(value)) {
+                showError('Staking failed');
+                return;
+            }
 
-            props.onUpdateBalances();
             showSuccess('Value staked!');
         }
         catch(e) {
@@ -80,14 +78,12 @@ const StakeForm = (props: Props) => {
         finally {
             toggleLoading(false);
         }
-    }, [form, auth]);
+    }, [form, balances.mmt]);
 
     const handleClose = useCallback((e: any) => {
         e.preventDefault();
         props.onClose();
     }, [props.onClose]);
-    
-    const {balances} = auth;
     
     return (
         <form onSubmit={handleStake}>
@@ -112,7 +108,7 @@ const StakeForm = (props: Props) => {
                 <div className="control">
                     <Button
                         onClick={handleStake}
-                        disabled={stakeMut.isLoading}
+                        disabled={isLoading}
                     >
                         <FormattedMessage id="Stake" defaultMessage="Stake"/>
                     </Button>

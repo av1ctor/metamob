@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import Box from "../../../../../components/Box";
 import { CampaignState } from "../../../../../libs/campaigns";
 import { useFindSignatureByCampaignAndUser } from "../../../../../hooks/signatures";
 import { Campaign } from "../../../../../../../declarations/metamob/metamob.did";
-import { AuthContext } from "../../../../../stores/auth";
 import SignForm from "./Form";
 import { FormattedMessage } from "react-intl";
 import Action from "../Action";
+import { useAuth } from "../../../../../hooks/auth";
 
 const maxTb: number[] = [100, 500, 1000, 2500, 5000, 10000, 15000, 25000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3000000, 4000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1000000000, 10000000000];
 
@@ -28,13 +28,13 @@ interface Props {
 }
 
 export const SignFrame = (props: Props) => {
-    const [auth] = useContext(AuthContext);
+    const {user} = useAuth();
     
     const {campaign} = props;
     
     const total = Number(campaign.total);
     
-    const userSignature = useFindSignatureByCampaignAndUser(campaign?._id, auth.user?._id);
+    const userSignature = useFindSignatureByCampaignAndUser(campaign?._id, user?._id);
 
     const goal = campaign.goal === 0n? 
         calcMaxSignatures(total):

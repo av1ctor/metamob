@@ -1,18 +1,16 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import { Campaign } from "../../../../../declarations/metamob/metamob.did";
-import {idlFactory as Ledger} from "../../../../../declarations/ledger";
 import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { useBoostCampaign } from "../../../hooks/campaigns";
-import { createLedgerActor, LEDGER_TRANSFER_FEE } from "../../../libs/backend";
+import { LEDGER_TRANSFER_FEE } from "../../../libs/backend";
 import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
-import { depositIcp, getIcpBalance } from "../../../libs/users";
-import { ActorActionType, ActorContext } from "../../../stores/actor";
-import { AuthContext } from "../../../stores/auth";
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
+import { useAuth } from "../../../hooks/auth";
+import { useWallet } from "../../../hooks/wallet";
 
 const MIN_ICP_VALUE = BigInt(10000 * 10);
 
@@ -25,38 +23,18 @@ const formSchema = yup.object().shape({
 });
 
 const Boost = (props: Props) => {
-    const [auth, ] = useContext(AuthContext);
-    const [actors, actorDispatch] = useContext(ActorContext);
+    const {isLogged} = useAuth();
+    const {balances, depositICP} = useWallet();
 
-    const {showSuccess, showError, toggleLoading} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
 
     const [form, setForm] = useState({
         value: BigInt(1),
     });
-    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
     const boostMut = useBoostCampaign();
-
-    const getLedgerCanister = async (
-    ): Promise<Ledger | undefined> => {
-        if(actors.ledger) {
-            return actors.ledger;
-        }
-        
-        if(!auth.identity) {
-            return undefined;
-        }
-
-        const ledger = createLedgerActor(auth.identity);
-        actorDispatch({
-            type: ActorActionType.SET_LEDGER,
-            payload: ledger
-        });
-
-        return ledger;
-    };
 
     const changeForm = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
@@ -89,31 +67,18 @@ const Boost = (props: Props) => {
         }
 
         try {
-            setIsLoading(true);
             toggleLoading(true);
-
-            if(!actors.main) {
-                throw Error("Main actor undefined");
-            }
-
-            if(!auth.user || !auth.identity) {
-                throw Error("Not logged in");
-            }
 
             const value = BigInt(decimalToIcp(form.value.toString()));
             if(value < MIN_ICP_VALUE) {
                 throw Error(`Min value: ${icpToDecimal(MIN_ICP_VALUE)} ICP`);
             }
 
-            const ledger = await getLedgerCanister();
-
-            const balance = await getIcpBalance(auth.identity, ledger);
-
-            if(value + LEDGER_TRANSFER_FEE >= balance) {
+            if(value + LEDGER_TRANSFER_FEE >= balances.icp) {
                 throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + LEDGER_TRANSFER_FEE)} ICP.`)
             }
 
-            await depositIcp(auth.user, value, actors.main, ledger);
+            await depositICP(value);
 
             await boostMut.mutateAsync({
                 pubId: props.campaign.pubId, 
@@ -126,16 +91,13 @@ const Boost = (props: Props) => {
             showError(e);
         }
         finally {
-            setIsLoading(false);
             toggleLoading(false);
         }
-    }, [form, auth, actors.main, props.campaign]);
+    }, [form, balances, depositICP, props.campaign]);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
     }, [props.campaign.pubId]);
-
-    const isLoggedIn = !!auth.user;
 
     return (
         <>
@@ -161,7 +123,7 @@ const Boost = (props: Props) => {
                     <div className="control">
                         <Button
                             color="success"
-                            onClick={isLoggedIn? handleBoost: redirectToLogon}
+                            onClick={isLogged? handleBoost: redirectToLogon}
                             disabled={isLoading || boostMut.isLoading}
                         >
                             <i className="la la-rocket"/>&nbsp;<FormattedMessage id="BOOST" defaultMessage="BOOST"/>
