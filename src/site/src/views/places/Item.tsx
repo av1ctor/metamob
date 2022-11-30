@@ -4,7 +4,7 @@ import { Place } from "../../../../declarations/metamob/metamob.did";
 import TimeFromNow from "../../components/TimeFromNow";
 import Avatar from "../users/Avatar";
 import Card from "../../components/Card";
-import PlaceTree from "../places/place/PlaceTree";
+import PlaceTree from "./place/PlaceTree";
 import { limitText } from "../../libs/utils";
 import { PlaceIcon } from "./place/PlaceIcon";
 import Badge from "../../components/Badge";

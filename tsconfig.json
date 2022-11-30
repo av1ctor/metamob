@@ -18,9 +18,12 @@
         "allowJs": true,           /* Allow javascript files to be compiled. */
         "jsx": "react",            /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
         "module": "ESNext",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "paths": {
+            "*": [ "src/site/src/custom-types/*"]
+        }
       },
-    "include": ["src/**/*"],
+    "include": ["src/site/**/*"],
     "exclude": [
         "src/declarations/**",
     ]

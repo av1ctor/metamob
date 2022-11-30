@@ -4,6 +4,7 @@ import { Result } from "./result";
 export enum ICProviderType {
     InternetIdentity,
     Plug,
+    Stoic,
 };
 
 export enum ICProviderState {

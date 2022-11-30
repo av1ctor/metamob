@@ -1,6 +1,7 @@
 import { ICProvider, ICProviderType } from "../interfaces/icprovider";
-import InternetIdentityProvider from "../providers/iiprovider";
-import PlugProvider from "../providers/plugprovider";
+import InternetIdentityProvider from "../providers/ii";
+import PlugProvider from "../providers/plug";
+import StoicProvider from "../providers/stoic";
 
 export class IcProviderBuider {
     providersList: ICProviderType[] = [];
@@ -14,6 +15,12 @@ export class IcProviderBuider {
     public withPlug(
     ): IcProviderBuider  {
         this.providersList.push(ICProviderType.Plug);
+        return this;
+    }
+
+    public withStoic(
+    ): IcProviderBuider  {
+        this.providersList.push(ICProviderType.Stoic);
         return this;
     }
 
@@ -43,6 +50,8 @@ export class IcProviderBuider {
                 return new InternetIdentityProvider();
             case ICProviderType.Plug:
                 return new PlugProvider();
+            case ICProviderType.Stoic:
+                return new StoicProvider();
             default:
                 return;
         }

@@ -8,9 +8,8 @@ import { Metamob, ProfileResponse } from "../../../declarations/metamob/metamob.
 import { AuthActionType, AuthContext } from "../stores/auth";
 import { Principal } from "@dfinity/principal";
 import { accountIdentifierFromBytes, principalToAccountDefaultIdentifier } from "../libs/icp";
-import InternetIdentityProvider from "../providers/iiprovider";
-import PlugProvider from "../providers/plugprovider";
 import { Result } from "../interfaces/result";
+import { IcProviderBuider } from "../libs/icproviderbuilder";
 
 interface AuthResponse {
     isAuthenticated: boolean;
@@ -204,16 +203,7 @@ export const useAuth = (
     ): Promise<Result<any, string>> => {
         
         //
-        let provider: ICProvider | undefined = undefined;
-        switch(providerType) {
-            case ICProviderType.InternetIdentity:
-                provider = new InternetIdentityProvider();
-                break;
-            case ICProviderType.Plug:
-                provider = new PlugProvider();
-                break;
-        }
-
+        let provider: ICProvider | undefined = new IcProviderBuider().build(providerType);
         if(!provider) {
             return {err: "Unknown provider"};
         }

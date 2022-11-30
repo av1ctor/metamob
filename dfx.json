@@ -4,13 +4,13 @@
       "main": "src/metamob/facade.mo",
       "type": "motoko"
     },
-    "metamob_assets": {
+    "site": {
       "frontend": {
-        "entrypoint": "src/metamob_assets/src/index.html"
+        "entrypoint": "src/site/src/index.html"
       },
       "source": [
-        "src/metamob_assets/assets",
-        "dist/metamob_assets/"
+        "src/site/assets",
+        "dist/site/"
       ],
       "type": "assets"
     },

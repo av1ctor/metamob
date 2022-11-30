@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
 const authProvider = new IcProviderBuider()
     .withInternetIdentity()
     .withPlug()
+    .withStoic()
     .build();
 
 export const App = () => {

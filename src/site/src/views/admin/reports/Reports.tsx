@@ -7,7 +7,7 @@ import { Filter, Order } from "../../../libs/common";
 import { ReportState, reportStateToText } from "../../../libs/reports";
 import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
 import ModerateForm from "../../reports/report/Moderate";
-import EditUserForm from "../../../views/users/user/Edit";
+import EditUserForm from "../../users/user/Edit";
 import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";

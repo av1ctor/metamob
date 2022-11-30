@@ -703,3 +703,17 @@ a:not(:first-child) {
 .is-fullwidth {
     width: 100%;
 }
+
+.login-providers {
+    display: inline-block;
+
+    .button:not(:last-child) {
+        margin-right: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    img {
+        height: 1rem;
+        margin-right: 0.25rem;
+    }
+}

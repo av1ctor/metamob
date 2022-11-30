@@ -47,9 +47,9 @@ const Logon = (props: Props) => {
         setStep(step => step + 1);
     }, []);
 
-    const handleAuthenticateII = useCallback(async () => {
+    const handleLogin = useCallback(async (providerType: ICProviderType) => {
         try {
-            const res = await login(ICProviderType.InternetIdentity);
+            const res = await login(providerType);
             if(res.err) {
                 showError(res.err);
             }
@@ -62,19 +62,16 @@ const Logon = (props: Props) => {
         }
     }, [login]);
 
+    const handleAuthenticateII = useCallback(async () => {
+        handleLogin(ICProviderType.InternetIdentity);
+    }, [handleLogin]);
+
     const handleAuthenticatePlug = useCallback(async () => {
-        try {
-            const res = await login(ICProviderType.Plug);
-            if(res.err) {
-                showError(res.err);
-            }
-            else {
-                setStep(step => step + 1);
-            }
-        }
-        catch(e) {
-            showError(e);
-        }
+        handleLogin(ICProviderType.Plug);
+    }, [handleLogin]);
+    
+    const handleAuthenticateStoic = useCallback(async () => {
+        handleLogin(ICProviderType.Stoic);
     }, [login]);
 
     const handleReturn = useCallback(() => {
@@ -103,15 +100,26 @@ const Logon = (props: Props) => {
             <Container>
                 {step === 0 && 
                     <div className="block has-text-centered">
-                        <div className="buttons is-inline-block">
+                        <div className="is-size-5 mb-2">
+                            <FormattedMessage defaultMessage="Please choose a provider"/>:
+                        </div>
+                        <div className="login-providers">
                             <Button 
                                 onClick={handleAuthenticateII}>
-                                <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate with II" defaultMessage="Authenticate with II"/>
+                                <img src="providers/ii.svg" height="" />
+                                Internet Identity
                             </Button>
                             <Button 
                                 color="info"
                                 onClick={handleAuthenticatePlug}>
-                                <i className="la la-key"/>&nbsp;<FormattedMessage id="Authenticate with Plug" defaultMessage="Authenticate with Plug"/>
+                                <img src="providers/plug.svg" height="" />
+                                Plug Wallet
+                            </Button>
+                            <Button 
+                                color="warning"
+                                onClick={handleAuthenticateStoic}>
+                                <img src="providers/stoic.png" height="" />
+                                Stoic Wallet
                             </Button>
                         </div>
                     </div>

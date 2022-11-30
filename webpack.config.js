@@ -45,7 +45,7 @@ const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const frontendDirectory = "metamob_assets";
+const frontendDirectory = "site";
 
 const asset_entry = path.join("src", frontendDirectory, "src", "index.html");
 
@@ -118,7 +118,7 @@ module.exports = /*smp.wrap(*/{
     })
     ,
     new MiniCssExtractPlugin({
-      filename: "src/metamob_assets/assets/mystyles.css"
+      filename: "src/site/assets/mystyles.css"
     }),
     new CopyPlugin({
       patterns: [
