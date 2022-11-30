@@ -7,6 +7,10 @@ import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindPoaps } from "../../../hooks/poap";
 import EditForm from "../../poaps/poap/Edit";
 import { Paginator } from "../../../components/Paginator";
+import { findAll } from "../../../libs/poap";
+import { JsonStringfy } from "../../../libs/utils";
+import saveAs from "file-saver";
+import Button from "../../../components/Button";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -77,6 +81,12 @@ const Poaps = (props: Props) => {
             ...limit,
             offset: limit.offset + limit.size
         }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "poaps.json");
     }, []);
 
     const poaps = useFindPoaps(filters, orderBy, limit);
@@ -161,6 +171,14 @@ const Poaps = (props: Props) => {
                 <div className="level-left">
                 </div>
                 <div className="level-right">
+                    <div className="buttons">
+                        <Button
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -174,9 +192,6 @@ const Poaps = (props: Props) => {
                         campaignId={poap.campaignId}
                         poap={poap}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
             </Modal>

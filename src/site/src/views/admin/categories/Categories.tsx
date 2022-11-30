@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { saveAs } from "file-saver";
 import Modal from "../../../components/Modal";
 import { Filter, Order } from "../../../libs/common";
 import { Category } from "../../../../../declarations/metamob/metamob.did";
@@ -9,6 +10,9 @@ import Button from "../../../components/Button";
 import CreateForm from "../../categories/category/Create";
 import EditForm from "./Edit";
 import { Paginator } from "../../../components/Paginator";
+import { findAll } from "../../../libs/categories";
+import { JsonStringfy } from "../../../libs/utils";
+import Import from "./Import";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -27,6 +31,7 @@ const Categories = (props: Props) => {
     const [modals, setModals] = useState({
         edit: false,
         create: false,
+        import: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -85,6 +90,19 @@ const Categories = (props: Props) => {
         setLimit(limit => ({
             ...limit,
             offset: limit.offset + limit.size
+        }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "categories.json");
+    }, []);
+
+    const toggleImport = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            import: !modals.import
         }));
     }, []);
 
@@ -164,11 +182,25 @@ const Categories = (props: Props) => {
                 <div className="level-left">
                 </div>
                 <div className="level-right">
-                    <Button 
-                        onClick={toggleCreate}
-                    >
-                        <i className="la la-plus-circle" />&nbsp;Create
-                    </Button>
+                    <div className="buttons">
+                        <Button 
+                            onClick={toggleCreate}
+                        >
+                            <i className="la la-plus-circle" />&nbsp;Create
+                        </Button>
+                        <Button 
+                            color="warning"
+                            onClick={toggleImport}
+                        >
+                            <i className="la la-arrow-circle-up" />&nbsp;Import
+                        </Button>
+                        <Button 
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -179,8 +211,6 @@ const Categories = (props: Props) => {
             >
                 <CreateForm
                     onClose={toggleCreate}
-                    
-                    
                 />
             </Modal>
             
@@ -193,11 +223,18 @@ const Categories = (props: Props) => {
                     <EditForm
                         category={category}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
+            </Modal>
+
+            <Modal
+                header={<span>Import categories</span>}
+                isOpen={modals.import}
+                onClose={toggleImport}
+            >
+                <Import
+                    onClose={toggleImport}
+                />
             </Modal>
         </>
     );

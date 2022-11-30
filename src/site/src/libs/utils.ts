@@ -1,5 +1,11 @@
 import { Variant } from "../../../declarations/metamob/metamob.did";
 
+export const JsonStringfy = (
+    src: any
+): string => {
+    return JSON.stringify(src, (k, v) => typeof v === 'bigint'? v.toString(): v, 2)
+}
+
 export const setField = (
     obj: any, 
     name: string, 

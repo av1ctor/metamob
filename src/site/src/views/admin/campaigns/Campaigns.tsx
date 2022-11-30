@@ -4,12 +4,16 @@ import { Filter, Order } from "../../../libs/common";
 import { Campaign, Profile } from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import { useFindCampaigns } from "../../../hooks/campaigns";
-import { campaignStateToText, stateOptions } from "../../../libs/campaigns";
+import { campaignStateToText, findAll, stateOptions } from "../../../libs/campaigns";
 import TimeFromNow from "../../../components/TimeFromNow";
 import EditUserForm from "../users/Edit";
 import View from "./View";
-import SelectField, {Option} from "../../../components/SelectField";
+import SelectField from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";
+import Button from "../../../components/Button";
+import { JsonStringfy } from "../../../libs/utils";
+import saveAs from "file-saver";
+import Import from "./Import";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -29,6 +33,7 @@ const Campaigns = (props: Props) => {
     const [modals, setModals] = useState({
         view: false,
         editUser: false,
+        import: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -90,11 +95,6 @@ const Campaigns = (props: Props) => {
         toggleView();
     }, []);
 
-    const handleEditUser = useCallback((user: Profile) => {
-        setUser(user);
-        toggleEditUser();
-    }, []);
-
     const handlePrevPage = useCallback(() => {
         setLimit(limit => ({
             ...limit,
@@ -106,6 +106,19 @@ const Campaigns = (props: Props) => {
         setLimit(limit => ({
             ...limit,
             offset: limit.offset + limit.size
+        }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "campaigns.json");
+    }, []);
+
+    const toggleImport = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            import: !modals.import
         }));
     }, []);
 
@@ -196,6 +209,27 @@ const Campaigns = (props: Props) => {
                 />
             </div>
 
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <div className="buttons">
+                        <Button 
+                            color="warning"
+                            onClick={toggleImport}
+                        >
+                            <i className="la la-arrow-circle-up" />&nbsp;Import
+                        </Button>
+                        <Button 
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
             <Modal
                 header={<span>View campaign</span>}
                 isOpen={modals.view}
@@ -205,9 +239,6 @@ const Campaigns = (props: Props) => {
                     <View
                         campaign={campaign}
                         onClose={toggleView}
-                        
-                        
-                        
                     />
                 }
             </Modal>
@@ -221,11 +252,18 @@ const Campaigns = (props: Props) => {
                     <EditUserForm
                         user={user}
                         onClose={toggleEditUser}
-                        
-                        
-                        
                     />
                 }
+            </Modal>
+
+            <Modal
+                header={<span>Import campaigns</span>}
+                isOpen={modals.import}
+                onClose={toggleImport}
+            >
+                <Import
+                    onClose={toggleImport}
+                />
             </Modal>
         </>
     );

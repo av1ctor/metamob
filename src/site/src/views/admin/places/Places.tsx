@@ -5,11 +5,14 @@ import { Place } from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindPlaces } from "../../../hooks/places";
-import { kindToText } from "../../../libs/places";
+import { findAll, kindToText } from "../../../libs/places";
 import Button from "../../../components/Button";
 import CreateForm from "../../places/place/Create";
 import EditForm from "./Edit";
 import { Paginator } from "../../../components/Paginator";
+import { JsonStringfy } from "../../../libs/utils";
+import saveAs from "file-saver";
+import Import from "./Import";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -28,6 +31,7 @@ const Places = (props: Props) => {
     const [modals, setModals] = useState({
         create: false,
         edit: false,
+        import: false,
     });
     const [filters, setFilters] = useState<Filter[]>([
         {
@@ -87,6 +91,19 @@ const Places = (props: Props) => {
         setLimit(limit => ({
             ...limit,
             offset: limit.offset + limit.size
+        }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "places.json");
+    }, []);
+
+    const toggleImport = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            import: !modals.import
         }));
     }, []);
 
@@ -172,11 +189,25 @@ const Places = (props: Props) => {
                 <div className="level-left">
                 </div>
                 <div className="level-right">
-                    <Button 
-                        onClick={toggleCreate}
-                    >
-                        <i className="la la-plus-circle" />&nbsp;Create
-                    </Button>
+                    <div className="buttons">
+                        <Button 
+                            onClick={toggleCreate}
+                        >
+                            <i className="la la-plus-circle" />&nbsp;Create
+                        </Button>
+                        <Button 
+                            color="warning"
+                            onClick={toggleImport}
+                        >
+                            <i className="la la-arrow-circle-up" />&nbsp;Import
+                        </Button>
+                        <Button 
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -199,11 +230,18 @@ const Places = (props: Props) => {
                     <EditForm
                         place={place}
                         onClose={toggleEdit}
-                        
-                        
-                        
                     />
                 }
+            </Modal>
+
+            <Modal
+                header={<span>Import places</span>}
+                isOpen={modals.import}
+                onClose={toggleImport}
+            >
+                <Import
+                    onClose={toggleImport}
+                />
             </Modal>
         </>
     );

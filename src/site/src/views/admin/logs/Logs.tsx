@@ -2,12 +2,15 @@ import React, { useCallback, useState } from "react";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Badge from "../../../components/Badge";
 import { useFindLogs } from "../../../hooks/logs";
-import { kindToColor, kindToText } from "../../../libs/logs";
+import { findAll, kindToColor, kindToText } from "../../../libs/logs";
 import { Paginator } from "../../../components/Paginator";
-import { limitText } from "../../../libs/utils";
+import { JsonStringfy, limitText } from "../../../libs/utils";
 import { Msg } from "../../../../../declarations/logger/logger.did";
 import Modal from "../../../components/Modal";
 import View from "./View";
+import saveAs from "file-saver";
+import Button from "../../../components/Button";
+import { Principal } from "@dfinity/candid/lib/cjs/idl";
 
 interface Props {
 }
@@ -48,6 +51,12 @@ const Logs = (props: Props) => {
             ...limit,
             offset: limit.offset + limit.size
         }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll(0, 1000);
+        const blob = new Blob([JsonStringfy(items.map(i => ({...i, act: Principal.valueToString(i.act)})))], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "logs.json");
     }, []);
 
     return (
@@ -112,6 +121,21 @@ const Logs = (props: Props) => {
                 />
             </div>
 
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <div className="buttons">
+                        <Button
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
             <Modal
                 header={<span>View log</span>}
                 isOpen={modals.view}
@@ -121,9 +145,6 @@ const Logs = (props: Props) => {
                     <View
                         log={log}
                         onClose={toggleView}
-                        
-                        
-                        
                     />
                 }
             </Modal>

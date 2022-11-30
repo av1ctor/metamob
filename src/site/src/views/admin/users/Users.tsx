@@ -8,7 +8,10 @@ import TextField from "../../../components/TextField";
 import TimeFromNow from "../../../components/TimeFromNow";
 import Badge from "../../../components/Badge";
 import { Paginator } from "../../../components/Paginator";
-import { Banned } from "../../../libs/users";
+import { Banned, findAll } from "../../../libs/users";
+import Button from "../../../components/Button";
+import { JsonStringfy } from "../../../libs/utils";
+import saveAs from "file-saver";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -78,6 +81,12 @@ const Users = (props: Props) => {
             ...limit,
             offset: limit.offset + limit.size
         }));
+    }, []);
+
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "users.json");
     }, []);
 
     const users = useFindUsers(filters, orderBy, limit);
@@ -170,6 +179,21 @@ const Users = (props: Props) => {
                     onPrev={handlePrevPage}
                     onNext={handleNextPage}
                 />
+            </div>
+
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <div className="buttons">
+                        <Button
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             <Modal

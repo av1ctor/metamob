@@ -4,7 +4,7 @@ import Modal from "../../../components/Modal";
 import TimeFromNow from "../../../components/TimeFromNow";
 import { useFindReports } from "../../../hooks/reports";
 import { Filter, Order } from "../../../libs/common";
-import { ReportState, reportStateToText } from "../../../libs/reports";
+import { findAll, ReportState, reportStateToText } from "../../../libs/reports";
 import { entityTypeToColor, entityTypeToText } from "../../../libs/common";
 import ModerateForm from "../../reports/report/Moderate";
 import EditUserForm from "../../users/user/Edit";
@@ -12,6 +12,9 @@ import Badge from "../../../components/Badge";
 import SelectField, {Option} from "../../../components/SelectField";
 import { Paginator } from "../../../components/Paginator";
 import EntityModerate from "../../reports/report/EntityModerate";
+import { JsonStringfy } from "../../../libs/utils";
+import saveAs from "file-saver";
+import Button from "../../../components/Button";
 
 const orderBy: Order[] = [{
     key: '_id',
@@ -105,6 +108,12 @@ const Reports = (props: Props) => {
         }));
     }, []);
 
+    const handleExport = useCallback(async () => {
+        const items = await findAll();
+        const blob = new Blob([JsonStringfy(items)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "reports.json");
+    }, []);
+
     const reports = useFindReports(filters, orderBy, limit);
 
     return (
@@ -184,6 +193,21 @@ const Reports = (props: Props) => {
                     onPrev={handlePrevPage}
                     onNext={handleNextPage}
                 />
+            </div>
+
+            <div className="level mt-5">
+                <div className="level-left">
+                </div>
+                <div className="level-right">
+                    <div className="buttons">
+                        <Button
+                            color="info"
+                            onClick={handleExport}
+                        >
+                            <i className="la la-arrow-circle-down" />&nbsp;Export
+                        </Button>
+                    </div>
+                </div>
             </div>
 
             <Modal
