@@ -19,6 +19,7 @@
         "jsx": "react",            /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
         "module": "ESNext",
         "moduleResolution": "node",
+        "baseUrl": ".",
         "paths": {
             "*": [ "src/site/src/custom-types/*"]
         }

@@ -1,12 +1,11 @@
 import {StoicIdentity} from "ic-stoic-identity";
-import { ActorSubclass, Identity } from "@dfinity/agent";
+import { ActorSubclass } from "@dfinity/agent";
 import { createActor as metamobCreateActor, canisterId as metamobCanisterId } from "../../../declarations/metamob";
 import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
 import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt";
 import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { ICProvider } from "../interfaces/icprovider";
 import { Result } from "../interfaces/result";
-import { config } from "../config";
 import { Principal } from "@dfinity/principal";
 import { LEDGER_TRANSFER_FEE } from "../libs/backend";
 import { transferErrorToText } from "../libs/icp";
