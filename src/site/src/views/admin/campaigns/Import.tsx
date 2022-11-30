@@ -22,7 +22,7 @@ const formSchema = yup.object().shape({
 });
 
 const Import = (props: Props) => {
-    const {showSuccess, showError} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
     
     const [form, setForm] = useState<Form>({
         json: '',
@@ -57,18 +57,15 @@ const Import = (props: Props) => {
         }
 
         try {
+            toggleLoading(true);
+
             const items = JSON.parse(form.json) as Array<Campaign>;
             for(const form of items) {
-                const kind = Number(form.kind);
                 await mutation.mutateAsync({
                     req: {
-                        kind: kind,
-                        goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
-                            typeof form.goal === 'string'? 
-                                decimalToIcp(form.goal):
-                                form.goal:
-                            BigInt(form.goal),
-                        state: [form.state],
+                        kind: Number(form.kind),
+                        goal: BigInt(form.goal),
+                        state: [],
                         title: form.title,
                         target: form.target,
                         body: form.body,
@@ -96,6 +93,9 @@ const Import = (props: Props) => {
         catch(e: any) {
             showError(e);
         }
+        finally {
+            toggleLoading(false);
+        }
     }, [form]);
 
     const handleClose = useCallback((e: any) => {
@@ -117,6 +117,7 @@ const Import = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
+                            disabled={isLoading}
                             onClick={handleImport}
                         >
                             Import

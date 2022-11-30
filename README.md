@@ -2,18 +2,6 @@
 
 https://wbpm2-ciaaa-aaaan-qajta-cai.ic0.app/
 
-Welcome to your new metamob project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
-
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
-
-To learn more before you start working with metamob, see the following documentation available online:
-
-- [Quick Start](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)
-- [SDK Developer Tools](https://sdk.dfinity.org/docs/developers-guide/sdk-guide.html)
-- [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
-- [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-
 If you want to start working on your project right away, you might want to try the following commands:
 
 ```bash
@@ -28,7 +16,7 @@ If you want to test your project locally, you can use the following commands:
 
 ```bash
 # Starts the replica, running in the background
-dfx start
+dfx start --enable-bitcoin
 
 # Deploys your canisters to the replica and generates your candid interface
 npm run dev:back
@@ -59,7 +47,7 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Remove from dfx.json: "internet_identity": ...
 
 ### deploy the local ledger canister:
-- Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup until step 7
+- Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup from step 5 to 6
 - Run: ./scripts/deploy-ledger.sh
 - Do steps 11 and above
 
@@ -79,14 +67,13 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### deploy metamob backend:
 - Run: npm run dev:back
 
-### start metamob frontend:
+### configure the frontend
+- Change the "const [form, setForm] = useState<ProfileRequest>({" at site/src/views/users/user/Create.tsx to include "roles: [[{admin: null}]],"
 - Run: npm run dev:front
-
-### configure the app
-- Change the "const [form, setForm] = useState<ProfileRequest>({" at /views/users/user/Create.tsx to include "roles: [[{admin: null}]],"
-- Go to the login page and create a new Internet Identity anchor
+- Go to the login page and create a new Internet Identity anchor: http://localhost:8080/
 - Create a new account with the admin role
-- Create new categories and places at the /admin page
+- Revert the changes done at the 1st step above
+- Create new categories and places at the http://localhost:8080/#/admin page
 - Find out the ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX at your profile page (the "Ledger account id" field)
 
 ### tranfer ICP from the LEDGER_ACC to the admin account:

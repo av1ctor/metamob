@@ -20,7 +20,7 @@ const formSchema = yup.object().shape({
 });
 
 const Import = (props: Props) => {
-    const {showSuccess, showError} = useUI();
+    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
     
     const [form, setForm] = useState<Form>({
         json: '',
@@ -55,6 +55,8 @@ const Import = (props: Props) => {
         }
 
         try {
+            toggleLoading(true);
+
             const items = JSON.parse(form.json) as Array<Place>;
             for(const item of items) {
                 await mutation.mutateAsync({
@@ -84,6 +86,9 @@ const Import = (props: Props) => {
         catch(e: any) {
             showError(e);
         }
+        finally {
+            toggleLoading(false);
+        }
     }, [form]);
 
     const handleClose = useCallback((e: any) => {
@@ -105,6 +110,7 @@ const Import = (props: Props) => {
                 <div className="field is-grouped mt-2">
                     <div className="control">
                         <Button
+                            disabled={isLoading}
                             onClick={handleImport}
                         >
                             Import
