@@ -7,7 +7,7 @@ import Repository "./repository";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
 import UserService "../users/service";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 
 module {
     public class Service(

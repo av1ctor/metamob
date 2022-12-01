@@ -1,0 +1,17 @@
+## The SHA Package
+
+[![Build Status](https://github.com/enzoh/mo-sha/workflows/build/badge.svg)](https://github.com/enzoh/mo-sha/actions?query=workflow%3Abuild)
+
+This package implements secure hash algorithms for the Motoko programming language.
+
+### Usage
+
+Calculate a SHA256 hash.
+```motoko
+public func sha256(data : [Nat8]) : [Nat8]
+```
+
+Calculate a SHA512 hash.
+```motoko
+public func sha512(data : [Nat8]) : [Nat8]
+```

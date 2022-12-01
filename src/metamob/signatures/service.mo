@@ -15,7 +15,7 @@ import Types "./types";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 import Variant "mo:mo-table/variant";
 
 module {

@@ -32,7 +32,7 @@ import UpdateService "../updates/service";
 import PlaceService "../places/service";
 import PoapService "../poap/service";
 import NotificationService "../notifications/service";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 import D "mo:base/Debug";
 
 module {

@@ -41,7 +41,7 @@ import Table "mo:mo-table/table";
 import Variant "mo:mo-table/variant";
 import IC "../interfaces/IC";
 import Error "mo:base/Error";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 import D "mo:base/Debug";
 import Wasm "./dip721_wasm";
 

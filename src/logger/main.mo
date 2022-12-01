@@ -1,3 +1,4 @@
+import TrieSet "mo:base/TrieSet";
 import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Buffer "mo:base/Buffer";
@@ -15,7 +16,7 @@ import Types "./types";
 import D "mo:base/Debug";
 
 shared(creator) actor class Logger(
-    allowedCanisters: [Principal]
+    _custodians: [Principal]
 ) = this {
 
     type SizedBlob = {
@@ -34,6 +35,7 @@ shared(creator) actor class Logger(
         offset: Nat64;
     };
 
+    stable let custodians: TrieSet.Set<Principal> = TrieSet.fromArray<Principal>(_custodians, Principal.hash, Principal.equal);
     stable var msgList: List.List<MsgNode> = List.nil<MsgNode>();
     let salloc = Salloc.Salloc();
     
@@ -55,7 +57,7 @@ shared(creator) actor class Logger(
         act: actor {},
         text: Text
     ): async () {
-        if(not _checkPermission(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             D.print("Forbidden");
             return;
         };
@@ -66,7 +68,7 @@ shared(creator) actor class Logger(
         act: actor {},
         text: Text
     ): async () {
-        if(not _checkPermission(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             D.print("Forbidden");
             return;
         };
@@ -77,17 +79,17 @@ shared(creator) actor class Logger(
         act: actor {},
         text: Text
     ): async () {
-        if(not _checkPermission(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             D.print("Forbidden");
             return;
         };
         ignore _storeMsg(Types.MSG_KIND_INFO, act, text);
     };
 
-    func _checkPermission(
+    func _isCustodian(
         caller: Principal
     ): Bool {
-        Option.isSome(Array.find<Principal>(allowedCanisters, func (p: Principal) = Principal.equal(p, caller)))
+        TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
     func _storeMsg(

@@ -27,7 +27,7 @@ import PlaceService "../places/service";
 import DaoService "../dao/service";
 import PoapService "../poap/service";
 import NotificationService "../notifications/service";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 import D "mo:base/Debug";
 
 module {

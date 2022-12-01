@@ -19,9 +19,9 @@ import Salloc "salloc";
 import ULID "ulid";
 import HTTP "http";
 
-shared(creator) actor class ImgServer(
-    _allowedCallers: [Principal],
-    _allowedOrigins: [Text]
+shared(creator) actor class FileStore(
+    _custodians: [Principal],
+    _origins: [Text]
 ) = this {
     type SizedBlob = {
         size: Nat32;
@@ -38,8 +38,8 @@ shared(creator) actor class ImgServer(
         contentType: Text;
     };
 
-    stable let allowedCallers: TrieSet.Set<Principal> = TrieSet.fromArray<Principal>(_allowedCallers, Principal.hash, Principal.equal);
-    stable let allowedOrigins: TrieSet.Set<Text> = TrieSet.fromArray<Text>(_allowedOrigins, Text.hash, Text.equal);
+    stable let custodians: TrieSet.Set<Principal> = TrieSet.fromArray<Principal>(_custodians, Principal.hash, Principal.equal);
+    stable let origins: TrieSet.Set<Text> = TrieSet.fromArray<Text>(_origins, Text.hash, Text.equal);
     let files: TrieMap.TrieMap<Text, FileInfo> = TrieMap.TrieMap<Text, FileInfo>(Text.equal, Text.hash);
     let salloc = Salloc.Salloc();
     let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("files")));
@@ -48,7 +48,7 @@ shared(creator) actor class ImgServer(
         contentType: Text,
         data: Blob,
     ): async Result.Result<Text, Text> {
-        if(not _isAllowedCaller(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             return #err("Forbidden");
         };
         
@@ -76,7 +76,7 @@ shared(creator) actor class ImgServer(
         contentType: Text,
         data: Blob,
     ): async Result.Result<(), Text> {
-        if(not _isAllowedCaller(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             return #err("Forbidden");
         };
         
@@ -109,7 +109,7 @@ shared(creator) actor class ImgServer(
     public shared(msg) func delete(
         id: Text
     ): async Result.Result<(), Text> {
-        if(not _isAllowedCaller(msg.caller)) {
+        if(not _isCustodian(msg.caller)) {
             return #err("Forbidden");
         };
         
@@ -220,10 +220,10 @@ shared(creator) actor class ImgServer(
         };
     };
 
-    func _isAllowedCaller(
+    func _isCustodian(
         caller: Principal
     ): Bool {
-        TrieSet.mem<Principal>(allowedCallers, caller, Principal.hash(caller), Principal.equal);
+        TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
     func _storeFile(

@@ -48,10 +48,11 @@ import NotificationTypes "./notifications/types";
 import PoapService "./poap/service";
 import PoapTypes "./poap/types";
 import FileStoreHelper "./common/filestore";
-import Logger "../logger/logger";
+import Logger "../logger/main";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
+    btcWalletCanisterId: Text,
     mmtCanisterId: Text,
     fileStoreCanisterId: Text,
     loggerCanisterId: Text

@@ -13,7 +13,7 @@ import UserTypes "../users/types";
 import UserRepository "../users/repository";
 import UserUtils "../users/utils";
 import Config "./config";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 
 module {
     public class Service(

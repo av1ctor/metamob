@@ -27,15 +27,19 @@
       }
     },
     "mmt": {
-      "main": "src/mmt/token.mo",
+      "main": "src/mmt/main.mo",
       "type": "motoko"
     },
     "logger": {
-      "main": "src/logger/logger.mo",
+      "main": "src/logger/main.mo",
       "type": "motoko"
     },
     "filestore": {
       "main": "src/filestore/main.mo",
+      "type": "motoko"
+    },
+    "btcwallet": {
+      "main": "src/btcwallet/main.mo",
       "type": "motoko"
     }
   },

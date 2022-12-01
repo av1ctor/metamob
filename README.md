@@ -43,13 +43,16 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### deploy the local internet_identity canister:
 - Add to dfx.json: "internet_identity": {"type": "custom", "wasm": "canisters-dev/internet_identity.wasm", "candid": "canisters-dev/internet_identity.did", "build": ""},
 - Run: ./scripts/deploy-ii.sh
-- Copy the local II address and replace the II_URL_LOCAL variable at .env with http://127.0.0.1:4943/?canisterId=**{II_CANISTER_ID}**&id=**{II_CANISTER_ID}**
+- Copy the local II address and replace the II_URL_LOCAL variable at .env with http://127.0.0.1:4943/?canisterId=**{II_CANISTER_ID}**
 - Remove from dfx.json: "internet_identity": ...
 
 ### deploy the local ledger canister:
 - Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup from step 5 to 6
 - Run: ./scripts/deploy-ledger.sh
 - Do steps 11 and above
+
+### create the btcwallet canister
+- Run: dfx canister create btcwallet
 
 ### create the metamob canister
 - Run: dfx canister create metamob
@@ -60,9 +63,12 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 ### deploy the logger:
 - Run: ./scripts/deploy-logger.sh
 
+### deploy the btcwallet:
+- Run: ./scripts/deploy-btcwallet.sh
+
 ### deploy the file store:
 - Run: ./scripts/deploy-filestore.sh
-- Update the FILESTORE_URL_LOCAL variable at .env with http://127.0.0.1:4943/{id}?canisterId=**{FILESTORE_CANISTER_ID}**&id=**{FILESTORE_CANISTER_ID}**
+- Update the FILESTORE_URL_LOCAL variable at .env with http://127.0.0.1:4943/{id}?canisterId=**{FILESTORE_CANISTER_ID}**
 
 ### deploy metamob backend:
 - Run: npm run dev:back

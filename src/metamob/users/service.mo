@@ -17,7 +17,7 @@ import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Types "./types";
 import Utils "./utils";
-import Logger "../../logger/logger";
+import Logger "../../logger/main";
 import Variant "mo:mo-table/variant";
 
 module {
