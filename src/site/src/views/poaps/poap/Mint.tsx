@@ -6,7 +6,7 @@ import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { FormattedMessage, useIntl } from "react-intl";
 import { LEDGER_TRANSFER_FEE } from "../../../libs/backend";
-import { icpToDecimal } from "../../../libs/icp";
+import { e8sToDecimal } from "../../../libs/icp";
 import { formatPoapBody } from "../../../libs/poap";
 import { CampaignKind } from "../../../libs/campaigns";
 import { findByCampaignAndUser as findSignatureByCampaignAndUser } from "../../../libs/signatures";
@@ -84,7 +84,7 @@ const MintForm = (props: Props) => {
             }
 
             if(props.poap.price + fees >= balances.icp) {
-                throw Error(`Insufficient funds! Needed: ${icpToDecimal(props.poap.price + fees)} ICP.`)
+                throw Error(`Insufficient funds! Needed: ${e8sToDecimal(props.poap.price + fees)} ICP.`)
             }
 
             await depositICP(props.poap.price + fees);
@@ -135,7 +135,7 @@ const MintForm = (props: Props) => {
                 />
                 <TextField
                     label="Price (ICP)"
-                    value={icpToDecimal(poap.price)}
+                    value={e8sToDecimal(poap.price)}
                     disabled
                 />
                 <TextField
@@ -157,7 +157,7 @@ const MintForm = (props: Props) => {
                     </div>
                 </div>
                 <div className="warning-box">
-                    <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: icpToDecimal(poap.price + fees)}} />
+                    <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: e8sToDecimal(poap.price + fees)}} />
                 </div>
                 <div className="field is-grouped mt-2">
                     <div className="control">

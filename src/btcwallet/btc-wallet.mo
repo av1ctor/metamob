@@ -36,7 +36,11 @@ module {
     let SIGHASH_ALL : SighashType = 0x01;
 
     /// Returns the P2PKH address of this canister at the given derivation path.
-    public func get_p2pkh_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
+    public func get_p2pkh_address(
+        network: Network, 
+        key_name: Text, 
+        derivation_path: [[Nat8]]
+    ): async BitcoinAddress {
         // Fetch the public key of the given derivation path.
         let public_key = await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
 
@@ -47,7 +51,13 @@ module {
     /// Sends a transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send(network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send(
+        network: Network, 
+        derivation_path: [[Nat8]], 
+        key_name: Text, 
+        dst_address: BitcoinAddress, 
+        amount: Satoshi
+    ): async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -65,7 +75,7 @@ module {
         let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
         let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
-        let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
+        let own_utxos = (await BitcoinApi.get_utxos(network, own_address, null)).utxos;
 
         // Build the transaction that sends `amount` to the destination address.
         let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_byte);
@@ -199,7 +209,10 @@ module {
     };
 
     // Converts a public key to a P2PKH address.
-    func public_key_to_p2pkh_address(network : Network, public_key_bytes : [Nat8]) : BitcoinAddress {
+    func public_key_to_p2pkh_address(
+        network: Network, 
+        public_key_bytes: [Nat8]
+    ): BitcoinAddress {
         let public_key = public_key_bytes_to_public_key(public_key_bytes);
 
         // Compute the P2PKH address from our public key.
@@ -211,7 +224,9 @@ module {
         Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)))
     };
 
-    func public_key_bytes_to_public_key(public_key_bytes : [Nat8]) : PublicKey {
+    func public_key_bytes_to_public_key(
+        public_key_bytes: [Nat8]
+    ) : PublicKey {
         let point = Utils.unwrap(Affine.fromBytes(public_key_bytes, CURVE));
         Utils.get_ok(Publickey.decode(#point point))
     };

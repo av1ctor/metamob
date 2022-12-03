@@ -11,7 +11,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import FileDropArea from "../../../components/FileDropArea";
 import NumberField from "../../../components/NumberField";
 import { LEDGER_TRANSFER_FEE } from "../../../libs/backend";
-import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
 import { getConfigAsNat64 } from "../../../libs/dao";
 import { formatPoapBody, POAP_DEPLOYING_PRICE } from "../../../libs/poap";
 import { useUI } from "../../../hooks/ui";
@@ -109,7 +109,7 @@ const EditForm = (props: Props) => {
 
     const changeFormICP = useCallback((e: any) => {
         const field = e.target.id || e.target.name;
-        const value = decimalToIcp(e.target.value);
+        const value = decimalToE8s(e.target.value);
         setForm(form => ({
             ...form, 
             [field]: value
@@ -212,7 +212,7 @@ const EditForm = (props: Props) => {
             else {
                 if(!props.poap) {
                     if(poapDeployingPrice + fees >= balances.icp) {
-                        throw Error(`Insufficient funds! Needed: ${icpToDecimal(poapDeployingPrice + fees)} ICP.`)
+                        throw Error(`Insufficient funds! Needed: ${e8sToDecimal(poapDeployingPrice + fees)} ICP.`)
                     }
 
                     await depositICP(poapDeployingPrice + fees);
@@ -304,7 +304,7 @@ const EditForm = (props: Props) => {
                 <TextField
                     label="Price (ICP)"
                     name="price"
-                    value={icpToDecimal(form.price)}
+                    value={e8sToDecimal(form.price)}
                     required
                     onChange={changeFormICP} 
                 />
@@ -354,7 +354,7 @@ const EditForm = (props: Props) => {
                 }
                 {!props.poap &&
                     <div className="warning-box">
-                        <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: icpToDecimal(poapDeployingPrice + fees)}} />
+                        <FormattedMessage defaultMessage="A total of {value} ICP will be billed from your wallet!" values={{value: e8sToDecimal(poapDeployingPrice + fees)}} />
                     </div>
                 }
                 <div className="field is-grouped mt-2">

@@ -16,7 +16,7 @@ import Ledger "../interfaces/ledger";
 module {
     public let icp_fee: Nat = 10_000;
 
-    public class LedgerUtils(
+    public class LedgerHelper(
         ledgerCanisterId: Text
     ) {
         let ledger: Ledger.Interface = actor(ledgerCanisterId);

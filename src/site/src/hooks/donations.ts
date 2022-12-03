@@ -80,6 +80,7 @@ export const useFindUserDonations = (
 };
 
 export const useCreateDonation = () => {
+    const queryClient = useQueryClient();
     const {metamob} = useActors();
     
     return useMutation(
@@ -96,6 +97,7 @@ export const useCreateDonation = () => {
         },
         {
             onSuccess: () => {
+                queryClient.invalidateQueries(['donations']);
             }   
         }
     );

@@ -1147,6 +1147,7 @@ module {
                             #map([
                                 {key = "title"; value = #text(l.title);},
                                 {key = "desc"; value = #text(l.desc);},
+                                {key = "currency"; value = #nat32(l.currency);},
                                 {key = "value"; value = #nat(l.value);},
                                 {key = "max"; value = #nat32(l.max);},
                                 {key = "total"; value = #nat32(l.total);}
@@ -1240,6 +1241,7 @@ module {
                             title = Variant.getOptText(tier.get("title"));
                             desc = Variant.getOptText(tier.get("desc"));
                             value = Variant.getOptNat(tier.get("value"));
+                            currency = Variant.getOptNat32(tier.get("currency"));
                             max = Variant.getOptNat32(tier.get("max"));
                             total = Variant.getOptNat32(tier.get("total"));
                         }

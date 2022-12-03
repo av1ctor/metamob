@@ -6,7 +6,7 @@ import { useCreateCampaign } from "../../../hooks/campaigns";
 import { useUI } from "../../../hooks/ui";
 import TextAreaField from "../../../components/TextAreaField";
 import { CampaignKind } from "../../../libs/campaigns";
-import { decimalToIcp } from "../../../libs/icp";
+import { decimalToE8s } from "../../../libs/icp";
 import { transformInfo } from "../../campaigns/campaign/Create";
 
 interface Props {

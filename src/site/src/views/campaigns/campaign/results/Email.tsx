@@ -5,7 +5,7 @@ import Box from "../../../../components/Box";
 import Button from "../../../../components/Button";
 import { config } from "../../../../config";
 import { CampaignKind } from "../../../../libs/campaigns";
-import { icpToDecimal } from "../../../../libs/icp";
+import { e8sToDecimal } from "../../../../libs/icp";
 import { copyToClipboard } from "../../../../libs/utils";
 
 interface Props {
@@ -41,7 +41,7 @@ const Email = (props: Props): React.ReactElement => {
                 if(!('donations' in campaign.info)) {
                     return null;
                 }
-                return `${icpToDecimal(campaign.total)} ICP donations`;
+                return `${e8sToDecimal(campaign.total)} ICP donations`;
 
             case CampaignKind.SIGNATURES:
                 if(!('signatures' in campaign.info)) {

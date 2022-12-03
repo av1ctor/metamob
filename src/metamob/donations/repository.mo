@@ -419,6 +419,7 @@ module {
                 anonymous = req.anonymous;
                 campaignId = req.campaignId;
                 body = req.body;
+                currency = req.currency;
                 value = req.value;
                 moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
@@ -440,7 +441,6 @@ module {
                 state = state;
                 anonymous = req.anonymous;
                 body = req.body;
-                value = req.value;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -500,6 +500,7 @@ module {
         res.put("anonymous", #bool(e.anonymous));
         res.put("campaignId", #nat32(e.campaignId));
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
+        res.put("currency", #nat32(e.currency));
         res.put("value", #nat(e.value));
         res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
@@ -520,6 +521,7 @@ module {
             anonymous = Variant.getOptBool(map.get("anonymous"));
             campaignId = Variant.getOptNat32(map.get("campaignId"));
             body = Variant.getOptText(map.get("body"));
+            currency = Variant.getOptNat32(map.get("currency"));
             value = Variant.getOptNat(map.get("value"));
             moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

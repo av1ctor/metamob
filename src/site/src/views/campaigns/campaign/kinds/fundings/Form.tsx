@@ -1,4 +1,4 @@
-import React, {useState, useContext, useCallback, useMemo} from "react";
+import React, {useState, useCallback, useMemo} from "react";
 import { useNavigate } from "react-router-dom";
 import * as yup from 'yup';
 import {useCompleteFunding, useCreateFunding, useDeleteFunding} from "../../../../../hooks/fundings";
@@ -8,7 +8,7 @@ import TextAreaField from "../../../../../components/TextAreaField";
 import CheckboxField from "../../../../../components/CheckboxField";
 import TextField from "../../../../../components/TextField";
 import { LEDGER_TRANSFER_FEE } from "../../../../../libs/backend";
-import { icpToDecimal } from "../../../../../libs/icp";
+import { e8sToDecimal } from "../../../../../libs/icp";
 import NumberField from "../../../../../components/NumberField";
 import CustomSelectField from "../../../../../components/CustomSelectField";
 import Badge from "../../../../../components/Badge";
@@ -16,10 +16,13 @@ import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../../../hooks/ui";
 import { useAuth } from "../../../../../hooks/auth";
 import { useWallet } from "../../../../../hooks/wallet";
+import { currencyToString, CurrencyType } from "../../../../../libs/payment";
 
 interface Props {
     campaign: Campaign;
 };
+
+const icpFees = LEDGER_TRANSFER_FEE * BigInt(2);
 
 const formSchema = yup.object().shape({
     body: yup.string(),
@@ -40,6 +43,7 @@ const FundingForm = (props: Props) => {
         body: '',
         tier: 0,
         amount: 0,
+        currency: CurrencyType.ICP,
         value: BigInt(0)
     });
     
@@ -87,11 +91,14 @@ const FundingForm = (props: Props) => {
                 info.funding.tiers:
                 [];
 
-            const value = tiers[Number(form.tier)].value * BigInt(form.amount);
-            const fees = LEDGER_TRANSFER_FEE * BigInt(2);
-
-            if(balances.icp < value + fees) {
-                throw Error(`Insufficient funds! Needed: ${icpToDecimal(value + fees)} ICP.`)
+            const tier = tiers[Number(form.tier)];
+            const value = tier.value * BigInt(form.amount);
+            const currency = Number(tier.currency);
+            
+            if(currency === CurrencyType.ICP) {
+                if(balances.icp < value + icpFees) {
+                    throw Error(`Insufficient funds! Needed: ${e8sToDecimal(value + icpFees)} ICP.`)
+                }
             }
 
             const funding = await createMut.mutateAsync({
@@ -100,28 +107,36 @@ const FundingForm = (props: Props) => {
                     body: form.body,
                     tier: Number(form.tier),
                     amount: Number(form.amount),
+                    currency: currency,
                     value: value,
                     anonymous: form.anonymous,
                 }
             });
 
-            try {
-                await depositICP(value + fees);
-            }
-            catch(e) {
-                await deleteMut.mutateAsync({
-                    pubId: funding.pubId,
-                    campaignPubId: props.campaign.pubId,
-                });
-                throw e;
-            }
+            switch(currency) {
+                case CurrencyType.ICP:
+                    try {
+                        await depositICP(value + icpFees);
+                    }
+                    catch(e) {
+                        await deleteMut.mutateAsync({
+                            pubId: funding.pubId,
+                            campaignPubId: props.campaign.pubId,
+                        });
+                        throw e;
+                    }
 
-            await completeMut.mutateAsync({
-                pubId: funding.pubId,
-                campaignPubId: props.campaign.pubId,
-            });
+                    await completeMut.mutateAsync({
+                        pubId: funding.pubId,
+                        campaignPubId: props.campaign.pubId,
+                    });
 
-            showSuccess('Your funding has been sent!');
+                    showSuccess('Your funding has been sent!');
+                    break;
+                
+                case CurrencyType.BTC:
+                    break;
+            }
         }
         catch(e) {
             showError(e);
@@ -138,14 +153,15 @@ const FundingForm = (props: Props) => {
     const tiersAsOptions = useMemo(() => {
         return 'funding' in props.campaign.info?
             props.campaign.info.funding.tiers.map((tier, index) => {
+                const currency = currencyToString(tier.currency);
                 return {
-                    name: `${tier.title} (${icpToDecimal(tier.value)} ICP)`, 
+                    name: `${tier.title} (${e8sToDecimal(tier.value)} ${currency})`, 
                     value: index,
                     node: 
                         <div className="tier-option">
                             <div className="has-text-info"><b><FormattedMessage id="Tier" defaultMessage="Tier"/> {1+index}</b></div>
                             <div>
-                                <strong>{tier.title} ({icpToDecimal(tier.value)} ICP)</strong>
+                                <strong>{tier.title} ({e8sToDecimal(tier.value)} ICP)</strong>
                             </div> 
                             <div>
                                 <small>{tier.desc}</small>
@@ -187,7 +203,7 @@ const FundingForm = (props: Props) => {
                         />
                         <TextField
                             label="Account balance"
-                            value={icpToDecimal(balances.icp)}
+                            value={e8sToDecimal(balances.icp)}
                             disabled={true}
                         />
                         <TextAreaField
@@ -206,7 +222,7 @@ const FundingForm = (props: Props) => {
                     </>
                 }
 
-                <div className="has-text-danger is-size-7"><b><FormattedMessage defaultMessage="Warning: THIS IS A TEST SITE. ANY ICP SENT WILL BE LOST!"/></b></div>
+                <div className="has-text-danger is-size-7"><b><FormattedMessage defaultMessage="Warning: THIS IS A TEST SITE. ANY VALUE SENT WILL BE LOST!"/></b></div>
 
                 <div className="field mt-2">
                     <div className="control">

@@ -9,7 +9,7 @@ import { useCreateChallenge } from "../../../hooks/challenges";
 import { useWallet } from "../../../hooks/wallet";
 import { useUI } from "../../../hooks/ui";
 import { getConfigAsNat64 } from "../../../libs/dao";
-import { icpToDecimal } from "../../../libs/icp";
+import { e8sToDecimal } from "../../../libs/icp";
 
 interface Props {
     moderationId: number;
@@ -104,11 +104,11 @@ const CreateForm = (props: Props) => {
         <form onSubmit={handleCreate}>
             <Container>
                 <div className="mb-4">
-                    <p><FormattedMessage defaultMessage="To challenge a moderation, your wallet will be billed {mmt} MMT" values={{mmt: icpToDecimal(minDeposit)}} />.</p>
+                    <p><FormattedMessage defaultMessage="To challenge a moderation, your wallet will be billed {mmt} MMT" values={{mmt: e8sToDecimal(minDeposit)}} />.</p>
                     <p className="mt-2"><FormattedMessage defaultMessage="If the challenge is accepted and the moderation get reverted, the deposited value will be reimbursed to your wallet. Otherwise"/>, <b><span className="has-text-danger"><FormattedMessage defaultMessage="the value deposited will be lost"/></span></b>!</p>
                     {balances.mmt <= minDeposit &&
                         <p className="mt-2">
-                            <FormattedMessage defaultMessage="Sorry, your balance ({mmt} MMT) is too low" values={{mmt: icpToDecimal(balances.mmt)}} />.
+                            <FormattedMessage defaultMessage="Sorry, your balance ({mmt} MMT) is too low" values={{mmt: e8sToDecimal(balances.mmt)}} />.
                         </p>
                     }
                 </div>

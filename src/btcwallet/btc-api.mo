@@ -31,51 +31,41 @@ module {
 
     let management_canister_actor : ManagementCanisterActor = actor("aaaaa-aa");
 
-    /// Returns the balance of the given Bitcoin address.
-    ///
-    /// Relies on the `bitcoin_get_balance` endpoint.
-    /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance
-    public func get_balance(network : Network, address : BitcoinAddress) : async Satoshi {
+    public func get_balance(
+        network: Network, 
+        address: BitcoinAddress,
+        min_confirmations : ?Nat32
+    ): async Satoshi {
         ExperimentalCycles.add(GET_BALANCE_COST_CYCLES);
         await management_canister_actor.bitcoin_get_balance({
             address;
             network;
-            min_confirmations = null;
+            min_confirmations = min_confirmations;
         })
     };
 
-    /// Returns the UTXOs of the given Bitcoin address.
-    ///
-    /// NOTE: Pagination is ignored in this example. If an address has many thousands
-    /// of UTXOs, then subsequent calls to `bitcoin_get_utxos` are required.
-    ///
-    /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
-    public func get_utxos(network : Network, address : BitcoinAddress) : async GetUtxosResponse {
+    public func get_utxos(
+        network: Network, 
+        address: BitcoinAddress,
+        filter: ?Types.UtxosFilter
+    ): async GetUtxosResponse {
         ExperimentalCycles.add(GET_UTXOS_COST_CYCLES);
-        await management_canister_actor.bitcoin_get_utxos({
-            address;
-            network;
-            filter = null;
-        })
+        await management_canister_actor.bitcoin_get_utxos({address; network; filter;})
     };
 
-    /// Returns the 100 fee percentiles measured in millisatoshi/byte.
-    /// Percentiles are computed from the last 10,000 transactions (if available).
-    ///
-    /// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
-    /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles
-    public func get_current_fee_percentiles(network : Network) : async [MillisatoshiPerByte] {
+    public func get_current_fee_percentiles(
+        network: Network
+    ): async [MillisatoshiPerByte] {
         ExperimentalCycles.add(GET_CURRENT_FEE_PERCENTILES_COST_CYCLES);
         await management_canister_actor.bitcoin_get_current_fee_percentiles({
             network;
         })
     };
 
-    /// Sends a (signed) transaction to the Bitcoin network.
-    ///
-    /// Relies on the `bitcoin_send_transaction` endpoint.
-    /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction
-    public func send_transaction(network : Network, transaction : [Nat8]) : async () {
+    public func send_transaction(
+        network: Network, 
+        transaction: [Nat8]
+    ): async () {
         let transaction_fee =
             SEND_TRANSACTION_BASE_COST_CYCLES + transaction.size() * SEND_TRANSACTION_COST_CYCLES_PER_BYTE;
 

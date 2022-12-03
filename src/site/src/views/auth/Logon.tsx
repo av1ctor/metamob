@@ -28,7 +28,7 @@ const steps: Step[] = [
 ];
 
 const Logon = (props: Props) => {
-    const {isAuthenticated, isLogged: isRegistered, login} = useAuth();
+    const {isAuthenticated, isLogged, login} = useAuth();
 
     const {showSuccess, showError} = useUI();
 
@@ -79,7 +79,7 @@ const Logon = (props: Props) => {
     }, [navigate]);
 
     useEffect(() => {
-        if(isRegistered) {
+        if(isLogged) {
             setStep(2);
         }
         else {
@@ -87,7 +87,7 @@ const Logon = (props: Props) => {
                 setStep(1);
             }
         }
-    }, [isAuthenticated, isRegistered]);
+    }, [isAuthenticated, isLogged]);
 
     return (
         <div className="container has-text-centered">

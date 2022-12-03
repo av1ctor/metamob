@@ -75,14 +75,5 @@ module {
     public func bytesToText(bytes : [Nat8]) : Text {
         Text.join("", Iter.map<Nat8, Text>(Iter.fromArray(bytes), func (n) { nat8ToText(n) }))
     };
-	
-	public func nat32ToArrayBE(value: Nat32): [Nat8] {
-		[
-			Nat8.fromNat(Nat32.toNat((value >> 24) & 0xff)), 
-			Nat8.fromNat(Nat32.toNat((value >> 16) & 0xff)),
-			Nat8.fromNat(Nat32.toNat((value >>  8) & 0xff)),
-			Nat8.fromNat(Nat32.toNat((value      ) & 0xff))
-		]
-	};
 }
 

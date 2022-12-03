@@ -34,6 +34,7 @@ const EditForm = (props: Props) => {
     const [form, setForm] = useState<DonationRequest>({
         campaignId: props.donation.campaignId,
         body: props.donation.body,
+        currency: props.donation.currency,
         value: props.donation.value,
         anonymous: props.donation.anonymous,
     });
@@ -89,6 +90,7 @@ const EditForm = (props: Props) => {
             return {
                 campaignId: Number(props.donation.campaignId),
                 body: form.body,
+                currency: form.currency,
                 value: BigInt(form.value),
                 anonymous: form.anonymous,
             };
@@ -132,6 +134,7 @@ const EditForm = (props: Props) => {
         setForm({
             campaignId: props.donation.campaignId,
             body: props.donation.body,
+            currency: props.donation.currency,
             value: props.donation.value,
             anonymous: props.donation.anonymous,
         });

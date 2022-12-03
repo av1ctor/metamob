@@ -4,12 +4,13 @@ import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState } from "../../libs/campaigns";
 import { DonationState } from "../../libs/donations";
-import { icpToDecimal } from "../../libs/icp";
+import { e8sToDecimal } from "../../libs/icp";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
 import { FormattedMessage } from "react-intl";
 import { useAuth } from "../../hooks/auth";
+import { currencyToString } from "../../libs/payment";
 
 interface BaseItemProps {
     donation: DonationResponse;
@@ -46,13 +47,13 @@ export const BaseItem = (props: BaseItemProps) => {
                     <div>
                         <FormattedMessage id="Value" defaultMessage="Value"/>:&nbsp;
                         <span 
-                            className={`${props.donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
+                            className={`${donation.state === DonationState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
                         >
-                            {icpToDecimal(props.donation.value)} ICP&nbsp;
+                            {e8sToDecimal(donation.value)} {currencyToString(donation.currency)}&nbsp;
                             {props.donation.state === DonationState.COMPLETED? 
                                 <i className="la la-check-circle" title="Completed!" />
                             :  
-                                <i className="la la-times-circle" title="Ongoing..." />
+                                <i className="la la-times-circle" title="Pending..." />
                             }
                         </span>
                     </div>

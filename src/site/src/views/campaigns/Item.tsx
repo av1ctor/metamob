@@ -10,7 +10,7 @@ import { CampaignKind, campaignKindToIcon, campaignKindToTitle } from "../../lib
 import State from "./campaign/State";
 import PlaceTree from "../places/place/PlaceTree";
 import { limitText } from "../../libs/utils";
-import { icpToDecimal } from "../../libs/icp";
+import { e8sToDecimal } from "../../libs/icp";
 import Badge from "../../components/Badge";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
@@ -28,7 +28,7 @@ const Item = (props: Props) => {
     const campaign = props.campaign;
 
     const total = campaign.kind === CampaignKind.DONATIONS || campaign.kind === CampaignKind.FUNDINGS?
-        icpToDecimal(campaign.total, 2):
+        e8sToDecimal(campaign.total, 2):
         campaign.total.toString();
 
     return (

@@ -5,7 +5,7 @@ import Button from "../../../components/Button";
 import TextField from "../../../components/TextField";
 import { useWallet } from "../../../hooks/wallet";
 import { useUI } from "../../../hooks/ui";
-import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
 
 interface Props {
     onClose: () => void;
@@ -57,7 +57,7 @@ const UnstakeForm = (props: Props) => {
         try {
             toggleLoading(true);
 
-            const value = decimalToIcp(form.value);
+            const value = decimalToE8s(form.value);
             if(value < 10000) {
                 throw Error("Value too low");
             }
@@ -89,12 +89,12 @@ const UnstakeForm = (props: Props) => {
         <form onSubmit={handleWithdraw}>
             <TextField
                 label="MMT balance"
-                value={icpToDecimal(balances.mmt)}
+                value={e8sToDecimal(balances.mmt)}
                 disabled
             />
             <TextField
                 label="Staked MMT"
-                value={icpToDecimal(balances.staked)}
+                value={e8sToDecimal(balances.staked)}
                 disabled
             />
             <TextField

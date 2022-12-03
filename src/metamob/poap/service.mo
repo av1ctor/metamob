@@ -16,7 +16,7 @@ import Nat64 "mo:base/Nat64";
 import Types "./types";
 import EntityTypes "../common/entities";
 import Account "../accounts/account";
-import LedgerUtils "../common/ledger";
+import LedgerHelper "../common/ledger";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
@@ -57,7 +57,7 @@ module {
         placeService: PlaceService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository, 
-        ledgerUtils: LedgerUtils.LedgerUtils, 
+        ledgerHelper: LedgerHelper.LedgerHelper, 
         logger: Logger.Logger
     ) {
         let ic: IC.ICActor = actor("aaaaa-aa");
@@ -102,8 +102,8 @@ module {
                 };
             
                 let price = daoService.configGetAsNat64("POAP_DEPLOYING_PRICE");
-                let balance = await ledgerUtils.getUserBalance(invoker, this);
-                if(balance < price + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                let balance = await ledgerHelper.getUserBalance(invoker, this);
+                if(balance < price + Nat64.fromNat(LedgerHelper.icp_fee)) {
                     return #err("Insufficient ICP balance");
                 };
 
@@ -116,7 +116,7 @@ module {
                     Account.defaultSubaccount()
                 );
 
-                switch(await ledgerUtils.transferFromUserSubaccount(caller._id, price, app, invoker, this)) {
+                switch(await ledgerHelper.transferFromUserSubaccount(caller._id, price, app, invoker, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -259,12 +259,12 @@ module {
                                     };
 
                                     try {
-                                        let balance = await ledgerUtils.getUserBalance(Principal.fromText(caller.principal), this);
-                                        if(balance < entity.price + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                                        let balance = await ledgerHelper.getUserBalance(Principal.fromText(caller.principal), this);
+                                        if(balance < entity.price + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                             return #err("Insufficient ICP balance");
                                         };
                                         
-                                        switch(await ledgerUtils
+                                        switch(await ledgerHelper
                                             .transferFromUserSubaccountToCampaignSubaccountEx(
                                                 campaign, caller._id, entity.price, invoker, this)) {
                                             case (#err(msg)) {
@@ -278,7 +278,7 @@ module {
 
                                                 let cut = daoService.configGetAsNat64("POAP_MINTING_TAX");
 
-                                                switch(await ledgerUtils.withdrawFromCampaignSubaccount(campaign, (entity.price * cut) / 100, app, caller._id)) {
+                                                switch(await ledgerHelper.withdrawFromCampaignSubaccount(campaign, (entity.price * cut) / 100, app, caller._id)) {
                                                     case (#err(msg)) {
                                                         return #err(msg);
                                                     };

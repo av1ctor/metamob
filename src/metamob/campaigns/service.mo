@@ -8,9 +8,10 @@ import DIP721 "../common/dip721";
 import D "mo:base/Debug";
 import EntityTypes "../common/entities";
 import Error "mo:base/Error";
-import ExpICP "mo:base/ExperimentalInternetComputer";
+import IC "mo:base/ExperimentalInternetComputer";
 import FundingRepository "../fundings/repository";
-import LedgerUtils "../common/ledger";
+import BtcHelper "../common/btchelper";
+import LedgerHelper "../common/ledger";
 import ModerationTypes "../moderations/types";
 import ModerationService "../moderations/service";
 import Nat "mo:base/Nat";
@@ -40,7 +41,8 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
         notificationService: NotificationService.Service, 
-        ledgerUtils: LedgerUtils.LedgerUtils,
+        ledgerHelper: LedgerHelper.LedgerHelper,
+        btcHelper: BtcHelper.BtcHelper,
         fileStoreHelper: FileStoreHelper.FileStoreHelper,
         logger: Logger.Logger
     ) {
@@ -615,7 +617,7 @@ module {
             caller: UserTypes.Profile,
             this: actor {}
         ): async Result.Result<(), Text> {
-            let balance = await ledgerUtils.getCampaignBalance(campaign, this);
+            let balance = await ledgerHelper.getCampaignBalance(campaign, this);
             if(balance <= Types.MIN_WITHDRAW_VALUE) {
                 return #err("Nothing to withdraw");
             };
@@ -637,7 +639,7 @@ module {
             );
 
             try {
-                ignore await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
+                ignore await ledgerHelper.withdrawFromCampaignSubaccountLessTax(
                     campaign, 
                     balance, 
                     tax,
@@ -665,7 +667,7 @@ module {
             };
 
             try {
-                ignore await ExpICP.call(
+                ignore await IC.call(
                     Principal.fromText(action.canisterId), 
                     action.method, 
                     to_candid(action.args)
@@ -757,7 +759,7 @@ module {
                                                     Account.defaultSubaccount()
                                                 );
 
-                                                switch(await ledgerUtils.withdrawFromCampaignSubaccountLessTax(
+                                                switch(await ledgerHelper.withdrawFromCampaignSubaccountLessTax(
                                                     campaign, amount, Types.REFUND_TAX, to, app, 1
                                                 )) {
                                                     case (#err(msg)) {
@@ -852,12 +854,12 @@ module {
                             #err(msg);
                         };
                         case (#ok(campaign)) {
-                            let balance = await ledgerUtils.getUserBalance(invoker, this);
-                            if(balance < value + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                            let balance = await ledgerHelper.getUserBalance(invoker, this);
+                            if(balance < value + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                 return #err("Insufficient balance");
                             };
                             
-                            switch(await ledgerUtils
+                            switch(await ledgerHelper
                                 .transferFromUserSubaccountToCampaignSubaccountEx(
                                     campaign, caller._id, value, invoker, this)) {
                                 case (#err(msg)) {

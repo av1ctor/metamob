@@ -1,5 +1,6 @@
 import Variant "mo:mo-table/variant";
 import ModerationTypes "../moderations/types";
+import PaymentTypes "../payments/types";
 
 module {
     public let REFUND_TAX: Nat64 = 10; // 10%
@@ -47,6 +48,7 @@ module {
         desc: Text;
         total: Nat32;
         max: Nat32; 
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
     };
 

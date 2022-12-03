@@ -4,7 +4,7 @@ import TimeFromNow from "../../components/TimeFromNow";
 import { useFindUserById } from "../../hooks/users";
 import { CampaignState, findById } from "../../libs/campaigns";
 import { FundingState } from "../../libs/fundings";
-import { icpToDecimal } from "../../libs/icp";
+import { e8sToDecimal } from "../../libs/icp";
 import Avatar from "../users/Avatar";
 import { Markdown } from "../../components/Markdown";
 import ModerationBadge from "../moderations/moderation/Badge";
@@ -72,7 +72,7 @@ export const BaseItem = (props: BaseItemProps) => {
                         <span 
                             className={`${props.funding.state === FundingState.COMPLETED? 'has-text-success': 'has-text-danger'}`}
                         >
-                            {icpToDecimal(props.funding.value)} ICP&nbsp;
+                            {e8sToDecimal(props.funding.value)} ICP&nbsp;
                             {props.funding.state === FundingState.COMPLETED? 
                                 <i className="la la-check-circle" title="Completed!" />
                             :  

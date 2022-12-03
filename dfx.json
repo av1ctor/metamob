@@ -44,11 +44,11 @@
     }
   },
   "defaults": {
-      "bitcoin": {
-        "enabled": true,
-        "nodes": ["127.0.0.1:18444"]
-      },
-      "build": {
+    "bitcoin": {
+      "enabled": true,
+      "nodes": ["127.0.0.1:18444"]
+    },
+    "build": {
       "args": "--max-stable-pages=524288",
       "packtool": "vessel sources"
     },

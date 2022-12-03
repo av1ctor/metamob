@@ -5,7 +5,9 @@ import CampaignService "../campaigns/service";
 import CampaignTypes "../campaigns/types";
 import EntityTypes "../common/entities";
 import Int "mo:base/Int";
-import LedgerUtils "../common/ledger";
+import PaymentTypes "../payments/types";
+import PaymentService "../payments/service";
+import LedgerHelper "../common/ledger";
 import ModerationRepository "../moderations/repository";
 import ModerationService "../moderations/service";
 import ModerationTypes "../moderations/types";
@@ -36,7 +38,8 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,         
         notificationService: NotificationService.Service,
-        ledgerUtils: LedgerUtils.LedgerUtils, 
+        paymentService: PaymentService.Service,
+        ledgerHelper: LedgerHelper.LedgerHelper, 
         logger: Logger.Logger
     ) {
         let repo = Repository.Repository(campaignService.getRepository());
@@ -46,7 +49,8 @@ module {
 
         public func create(
             req: Types.DonationRequest,
-            invoker: Principal
+            invoker: Principal,
+            this: actor {}
         ): async Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
@@ -67,7 +71,24 @@ module {
                                         #err(msg);
                                     };
                                     case _ {
-                                        repo.create(req, Types.STATE_CREATED, caller._id);
+                                        switch(repo.create(req, Types.STATE_CREATED, caller._id)) {
+                                            case (#err(msg)) {
+                                                #err(msg);
+                                            };
+                                            case (#ok(e)) {
+                                                if(e.currency == PaymentTypes.CURRENCY_BTC) {
+                                                    ignore paymentService.addPendingBtcDeposit(
+                                                        "donation-" # e.pubId,
+                                                        await paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
+                                                        Nat64.fromNat(e.value),
+                                                        "donationOnBtcDepositConfirmed",
+                                                        [{key = "id"; value = #nat32(e._id);}],
+                                                        this
+                                                    );
+                                                };
+                                                #ok(e);
+                                            };
+                                        };
                                     };
                                 };
                             };
@@ -111,52 +132,19 @@ module {
                                         };
 
                                         let value = Nat64.fromNat(entity.value);
-                                        let balance = await ledgerUtils.getUserBalance(invoker, this);
-                                        if(balance < value + Nat64.fromNat(LedgerUtils.icp_fee)) {
+                                        let balance = await ledgerHelper.getUserBalance(invoker, this);
+                                        if(balance < value + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                             return #err("Insufficient balance");
                                         };
                                         
-                                        switch(await ledgerUtils
+                                        switch(await ledgerHelper
                                             .transferFromUserSubaccountToCampaignSubaccountEx(
                                                 campaign, caller._id, value, invoker, this)) {
                                             case (#err(msg)) {
-                                                #err(msg);
+                                                return #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                let res = repo.complete(entity, Nat64.toNat(amount), caller._id);
-                                                if(campaign.goal != 0) {
-                                                    switch(campaignRepo.findById(campaign._id)) {
-                                                        case (#ok(campaign)) {
-                                                            if(campaign.total >= campaign.goal) {
-                                                                switch(await campaignService.finishAndRunAction(
-                                                                        campaign, CampaignTypes.RESULT_OK, caller, this)) {
-                                                                    case (#err(msg)) {
-                                                                        return #err(msg);
-                                                                    };
-                                                                    case _ {
-                                                                    };
-                                                                };
-                                                            };
-                                                        };
-                                                        case _ {
-                                                        };
-                                                    };
-                                                };
-
-                                                switch(res) {
-                                                    case(#ok(e)) {
-                                                        ignore notificationService.create({
-                                                            title = "Donation received";
-                                                            body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a donation amounting **" # Utils.e8sToDecimal(value) # "** ICP!";
-                                                        }, campaign.createdBy);
-
-                                                        ignore logger.info(this, "Campaign " # campaign.pubId # " received a donation amounting " #  Utils.e8sToDecimal(value) # " ICP by " # caller.pubId);
-                                                        #ok(e);
-                                                    };
-                                                    case (#err(msg)) {
-                                                        #err(msg);
-                                                    };
-                                                };
+                                                await _completeAndCheckCampaign(entity, campaign, Nat64.toNat(amount), caller, this);
                                             };
                                         };
                                     };
@@ -164,6 +152,92 @@ module {
                             };
                         };
                     };
+                };
+            };
+        };
+
+        public func onBtcDepositConfirmed(
+            params: [Variant.MapEntry],
+            btcWalletCanisterId: Text,
+            invoker: Principal,
+            this: actor {}
+        ): async () {
+            if(Principal.toText(invoker) != btcWalletCanisterId) {
+                return;
+            };
+
+            let id = Variant.getNat32(params[0].value);
+            switch(repo.findById(id)) {
+                case (#err(msg)) {
+                    return;
+                };
+                case (#ok(entity)) {
+                    switch(canChangeCampaign(entity.campaignId)) {
+                        case (#err(msg)) {
+                            return;
+                        };
+                        case (#ok(campaign)) {
+                            if(entity.state != Types.STATE_CREATED) {
+                                return;
+                            };
+
+                            switch(userService.findById(entity.createdBy)) {
+                                case (#err(msg)) {
+                                    return;
+                                };
+                                case (#ok(caller)) {
+                                    ignore await _completeAndCheckCampaign(entity, campaign, entity.value, caller, this);
+                                    return;
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        func _completeAndCheckCampaign(
+            entity: Types.Donation,
+            campaign: CampaignTypes.Campaign,
+            amountTransfered: Nat,
+            caller: UserTypes.Profile,
+            this: actor {}
+        ): async Result.Result<Types.Donation, Text> {
+            let res = repo.complete(entity, amountTransfered, caller._id);
+            if(campaign.goal != 0) {
+                switch(campaignRepo.findById(campaign._id)) {
+                    case (#ok(campaign)) {
+                        if(campaign.total >= campaign.goal) {
+                            switch(await campaignService.finishAndRunAction(
+                                    campaign, CampaignTypes.RESULT_OK, caller, this)) {
+                                case (#err(msg)) {
+                                    return #err(msg);
+                                };
+                                case _ {
+                                };
+                            };
+                        };
+                    };
+                    case _ {
+                    };
+                };
+            };
+
+            switch(res) {
+                case(#ok(e)) {
+                    let value = Nat64.fromNat(entity.value);
+                    let currency = PaymentService.currencyToString(entity.currency);
+
+                    ignore notificationService.create({
+                        title = "Donation received";
+                        body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") received a donation amounting **" # Utils.e8sToDecimal(value) # "** " # currency;
+                    }, campaign.createdBy);
+
+                    ignore logger.info(this, "Campaign " # campaign.pubId # " received a donation amounting " #  Utils.e8sToDecimal(value) # " " # currency # " by " # caller.pubId);
+                    #ok(e);
+                };
+                case (#err(msg)) {
+                    #err(msg);
                 };
             };
         };
@@ -402,7 +476,11 @@ module {
                                             };
                                             case _ {
                                                 let res = if(entity.state == Types.STATE_COMPLETED) {
-                                                    let amount = Nat64.fromNat(entity.value - (LedgerUtils.icp_fee * 2));
+                                                    if(entity.currency != PaymentTypes.CURRENCY_ICP) {
+                                                        return #err("At the moment, only ICP donations can be reimbursed. Sorry!");
+                                                    };
+                                                    
+                                                    let amount = Nat64.fromNat(entity.value - (LedgerHelper.icp_fee * 2));
                                                     switch(repo.delete(entity, caller._id)) {
                                                         case (#err(msg)) {
                                                             #err(msg);
@@ -419,7 +497,7 @@ module {
                                                             );
 
                                                             switch(
-                                                                await ledgerUtils
+                                                                await ledgerHelper
                                                                     .withdrawFromCampaignSubaccountLessTax(
                                                                         campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
                                                                 case (#err(msg)) {

@@ -1,5 +1,6 @@
 import AccountTypes "../accounts/types";
 import ModerationTypes "../moderations/types";
+import PaymentTypes "../payments/types";
 
 module {
     public type DonationState = Nat32;
@@ -13,6 +14,7 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
@@ -25,6 +27,7 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
     };
 
@@ -35,6 +38,7 @@ module {
         campaignId: Nat32;
         anonymous: Bool;
         body: Text;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;

@@ -10,7 +10,7 @@ import TagsField from "../../../components/TagsField";
 import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { CampaignKind, campaignKindToGoal, CampaignResult, CampaignState, kindOptions } from "../../../libs/campaigns";
-import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
 import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
@@ -24,6 +24,7 @@ import ArrayField from "../../../components/ArrayField";
 import VariantField from "../../../components/VariantField";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
+import { number } from "yup/lib/locale";
 
 interface Props {
     mutation: any;
@@ -194,8 +195,9 @@ export const transformInfo = (
             desc: tier.desc,
             total: 0,
             max: Number(tier.max),
+            currency: Number(tier.currency),
             value: typeof tier.value === 'string'? 
-                decimalToIcp(tier.value): 
+                decimalToE8s(tier.value): 
                 tier.value
         });
     }
@@ -261,7 +263,7 @@ const CreateForm = (props: Props) => {
                     kind: kind,
                     goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
                         typeof form.goal === 'string'? 
-                            decimalToIcp(form.goal):
+                            decimalToE8s(form.goal):
                             form.goal:
                         BigInt(form.goal),
                     state: form.state,
@@ -604,7 +606,7 @@ const CreateForm = (props: Props) => {
                             <TextField 
                                 label={campaignKindToGoal(form.kind)}
                                 name="goal"
-                                value={typeof form.goal === 'string'? form.goal: icpToDecimal(form.goal)}
+                                value={typeof form.goal === 'string'? form.goal: e8sToDecimal(form.goal)}
                                 required={true}
                                 onChange={changeForm}
                             />

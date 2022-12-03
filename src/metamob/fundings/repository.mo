@@ -427,6 +427,7 @@ module {
                 body = req.body;
                 tier = req.tier;
                 amount = req.amount;
+                currency = req.currency;
                 value = req.value;
                 moderated = ModerationTypes.REASON_NONE;
                 createdAt = Time.now();
@@ -448,9 +449,6 @@ module {
                 state = state;
                 anonymous = req.anonymous;
                 body = req.body;
-                tier = req.tier;
-                amount = req.amount;
-                value = req.value;
                 updatedAt = ?Time.now();
                 updatedBy = ?callerId;
             }  
@@ -512,6 +510,7 @@ module {
         res.put("body", #text(if ignoreCase Utils.toLower(e.body) else e.body));
         res.put("tier", #nat32(e.tier));
         res.put("amount", #nat32(e.amount));
+        res.put("currency", #nat32(e.currency));
         res.put("value", #nat(e.value));
         res.put("moderated", #nat32(e.moderated));
         res.put("createdAt", #int(e.createdAt));
@@ -534,6 +533,7 @@ module {
             body = Variant.getOptText(map.get("body"));
             tier = Variant.getOptNat32(map.get("tier"));
             amount = Variant.getOptNat32(map.get("amount"));
+            currency = Variant.getOptNat32(map.get("currency"));
             value = Variant.getOptNat(map.get("value"));
             moderated = Variant.getOptNat32(map.get("moderated"));
             createdAt = Variant.getOptInt(map.get("createdAt"));

@@ -11,11 +11,13 @@ import DaoService "./dao/service";
 import DaoTypes "./dao/types";
 import DonationService "./donations/service";
 import DonationTypes "./donations/types";
+import Error "mo:base/Error";
 import EntityTypes "common/entities";
 import FundingService "./fundings/service";
 import FundingTypes "./fundings/types";
 import Int "mo:base/Int";
-import LedgerUtils "./common/ledger";
+import BtcHelper "./common/btchelper";
+import LedgerHelper "./common/ledger";
 import ChallengeService "./challenges/service";
 import ChallengeTypes "./challenges/types";
 import ModerationService "./moderations/service";
@@ -47,6 +49,7 @@ import NotificationService "./notifications/service";
 import NotificationTypes "./notifications/types";
 import PoapService "./poap/service";
 import PoapTypes "./poap/types";
+import PaymentService "./payments/service";
 import FileStoreHelper "./common/filestore";
 import Logger "../logger/main";
 
@@ -61,7 +64,8 @@ shared({caller = owner}) actor class Metamob(
     public type FileRequest = FileStoreHelper.FileRequest;
 
     // helpers
-    let ledgerUtils = LedgerUtils.LedgerUtils(ledgerCanisterId);
+    let ledgerHelper = LedgerHelper.LedgerHelper(ledgerCanisterId);
+    let btcHelper = BtcHelper.BtcHelper(btcWalletCanisterId);
     let logger = actor (loggerCanisterId) : Logger.Logger;
     let fileStoreHelper = FileStoreHelper.FileStoreHelper(
         fileStoreCanisterId, 
@@ -88,7 +92,10 @@ shared({caller = owner}) actor class Metamob(
         daoService, userRepo, reportRepo, notificationService
     );
     let userService = UserService.Service(
-        userRepo, daoService, moderationService, reportRepo, ledgerUtils, logger
+        userRepo, daoService, moderationService, reportRepo, ledgerHelper, logger
+    );
+    let paymentService = PaymentService.Service(
+        userService, btcHelper
     );
     let placeService = PlaceService.Service(
         userService, moderationService, reportRepo
@@ -103,7 +110,8 @@ shared({caller = owner}) actor class Metamob(
         userService, logger
     );
     let campaignService = CampaignService.Service(
-        userService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, fileStoreHelper, logger
+        userService, placeService, moderationService, reportRepo, notificationService, 
+        ledgerHelper, btcHelper, fileStoreHelper, logger
     );
     let signatureService = SignatureService.Service(
         userService, campaignService, placeService, moderationService, reportRepo, logger
@@ -112,17 +120,19 @@ shared({caller = owner}) actor class Metamob(
         userService, campaignService, placeService, moderationService, reportRepo, logger
     );
     let donationService = DonationService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
+        userService, campaignService, placeService, moderationService, reportRepo, 
+        notificationService, paymentService, ledgerHelper, logger
     );
     let fundingService = FundingService.Service(
-        userService, campaignService, placeService, moderationService, reportRepo, notificationService, ledgerUtils, logger
+        userService, campaignService, placeService, moderationService, reportRepo, 
+        notificationService, paymentService, ledgerHelper, logger
     );
     let updateService = UpdateService.Service(
         userService, campaignService, placeService, moderationService, reportRepo, logger
     );
     let poapService = PoapService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
-        donationService, placeService, moderationService, reportRepo, ledgerUtils, logger
+        donationService, placeService, moderationService, reportRepo, ledgerHelper, logger
     );
     let reportService = ReportService.Service(
         reportRepo, daoService, userService, campaignService, signatureService, voteService, 
@@ -762,13 +772,19 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func donationCreate(
         req: DonationTypes.DonationRequest
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
-        _transformDonationResponse(await donationService.create(req, msg.caller), false);
+        _transformDonationResponse(await donationService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func donationComplete(
         pubId: Text
     ): async Result.Result<DonationTypes.DonationResponse, Text> {
         _transformDonationResponse(await donationService.complete(pubId, msg.caller, this), false);
+    };
+
+    public shared(msg) func donationOnBtcDepositConfirmed(
+        params: [Variant.MapEntry]
+    ): async () {
+        ignore donationService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
     };
 
     public shared(msg) func donationUpdate(
@@ -851,6 +867,7 @@ shared({caller = owner}) actor class Metamob(
                 state = e.state;
                 anonymous = e.anonymous;
                 body = e.body;
+                currency = e.currency;
                 value = e.value;
                 moderated = e.moderated;
                 campaignId = e.campaignId;
@@ -868,6 +885,7 @@ shared({caller = owner}) actor class Metamob(
                 anonymous = e.anonymous;
                 campaignId = e.campaignId;
                 body = e.body;
+                currency = e.currency;
                 value = e.value;
                 moderated = e.moderated;
                 createdAt = e.createdAt;
@@ -916,13 +934,19 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func fundingCreate(
         req: FundingTypes.FundingRequest
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
-        _transformFundingResponse(await fundingService.create(req, msg.caller), false);
+        _transformFundingResponse(await fundingService.create(req, msg.caller, this), false);
     };
 
     public shared(msg) func fundingComplete(
         pubId: Text
     ): async Result.Result<FundingTypes.FundingResponse, Text> {
         _transformFundingResponse(await fundingService.complete(pubId, msg.caller, this), false);
+    };
+
+    public shared(msg) func fundingOnBtcDepositConfirmed(
+        params: [Variant.MapEntry]
+    ): async () {
+        ignore fundingService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
     };
 
     public shared(msg) func fundingUpdate(
@@ -1007,6 +1031,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 tier = e.tier;
                 amount = e.amount;
+                currency = e.currency;
                 value = e.value;
                 moderated = e.moderated;
                 campaignId = e.campaignId;
@@ -1026,6 +1051,7 @@ shared({caller = owner}) actor class Metamob(
                 body = e.body;
                 tier = e.tier;
                 amount = e.amount;
+                currency = e.currency;
                 value = e.value;
                 moderated = e.moderated;
                 createdAt = e.createdAt;
@@ -1636,6 +1662,15 @@ shared({caller = owner}) actor class Metamob(
         id: Text
     ): async Result.Result<NotificationTypes.Notification, Text> {
         notificationService.markAsRead(id, msg.caller);
+    };
+
+    //
+    // payments facade
+    //
+    public shared(msg) func paymentGetBtcAddressOfCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Text, Text> {
+        await paymentService.getBtcAddressOfCampaignAndUser(campaignId, msg.caller);
     };   
 
     //
@@ -1740,17 +1775,17 @@ shared({caller = owner}) actor class Metamob(
         notificationEntities := [];
     };
 
-    let interval: Nat = 60 * 1000_000_000; // 1 minute
+    let HEARTBEAT_INTERVAL: Nat = 60 * 1000_000_000; // 1 minute
     var lastExec: Nat = Int.abs(Time.now());
     var running: Bool = false;
 
     system func heartbeat(
     ): async () {
         let now = Int.abs(Time.now());
-        if(now >= lastExec + interval and not running) {
+        if(now >= lastExec + HEARTBEAT_INTERVAL and not running) {
             running := true;
             lastExec := now;
-            D.print("Info: heartbeat: Verifying...");
+            D.print("metamob.heartbeat(): Verifying...");
             try {
                 await userService.verify(this);
                 await campaignService.verify(this);
@@ -1758,6 +1793,7 @@ shared({caller = owner}) actor class Metamob(
                 await challengeService.verify(this);
             }
             catch(e) {
+                D.print("metamob.heartbeat() exception: " # Error.message(e));
             };
             running := false;
         };

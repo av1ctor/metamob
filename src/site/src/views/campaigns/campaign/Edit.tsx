@@ -13,7 +13,7 @@ import { search } from "../../../libs/places";
 import AutocompleteField from "../../../components/AutocompleteField";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, campaignKindToGoal, kindOptions, stateOptions } from "../../../libs/campaigns";
-import { decimalToIcp, icpToDecimal } from "../../../libs/icp";
+import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
 import { setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
@@ -122,6 +122,7 @@ const cloneInfo = (info: CampaignInfo): CampaignInfo => {
             tiers: info.funding.tiers.map(tier => ({
                 title: tier.title,
                 desc: tier.desc,
+                currency: tier.currency,
                 value: tier.value,
                 max: tier.max,
                 total: tier.total
@@ -302,7 +303,7 @@ const EditForm = (props: Props) => {
                 kind: kind,
                 goal: kind === CampaignKind.DONATIONS || kind === CampaignKind.FUNDINGS?
                     typeof formt.goal === 'string'? 
-                        decimalToIcp(formt.goal):
+                        decimalToE8s(formt.goal):
                         formt.goal:    
                     BigInt(formt.goal),
                 state: isModerator(user) && formt.state.length > 0? 
@@ -513,7 +514,7 @@ const EditForm = (props: Props) => {
                         value={typeof form.goal === 'string'? 
                             form.goal: 
                             Number(form.kind) === CampaignKind.DONATIONS || Number(form.kind) === CampaignKind.FUNDINGS?
-                                icpToDecimal(form.goal):
+                                e8sToDecimal(form.goal):
                                 form.goal.toString()
                         }
                         required={true}

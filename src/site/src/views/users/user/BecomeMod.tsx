@@ -8,7 +8,7 @@ import { useWallet } from "../../../hooks/wallet";
 import { useUI } from "../../../hooks/ui";
 import { useSignupAsModerator } from "../../../hooks/users";
 import { getConfigAsNat64 } from "../../../libs/dao";
-import { icpToDecimal } from "../../../libs/icp";
+import { e8sToDecimal } from "../../../libs/icp";
 
 interface Props {
     onClose: () => void;
@@ -129,14 +129,14 @@ const BecomeModForm = (props: Props) => {
                 <div className="column is-6">
                     <TextField
                         label="MMT balance"
-                        value={icpToDecimal(balances.mmt)}
+                        value={e8sToDecimal(balances.mmt)}
                         disabled
                     />
                 </div>
                 <div className="column is-6">
                     <TextField
                         label="Staked MMT"
-                        value={icpToDecimal(balances.staked)}
+                        value={e8sToDecimal(balances.staked)}
                         disabled
                     />
                 </div>
@@ -145,7 +145,7 @@ const BecomeModForm = (props: Props) => {
                 <div className="column is-6">
                     <TextField
                         label="Min staked MMT needed"
-                        value={icpToDecimal(minToBeStaked)}
+                        value={e8sToDecimal(minToBeStaked)}
                         disabled
                     />
                 </div>

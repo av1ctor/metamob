@@ -1,3 +1,4 @@
+import Nat8 "mo:base/Nat8";
 import Prim "mo:prim";
 import Int "mo:base/Int";
 import Nat32 "mo:base/Nat32";
@@ -53,6 +54,17 @@ module {
     ): Nat64 {
         (Nat64.fromNat(Nat32.toNat(Text.hash(owner))) << 32) | Nat64.fromIntWrap(Time.now())
     };
+
+    public func nat32ToArrayBE(
+        value: Nat32
+    ): [Nat8] {
+		[
+			Nat8.fromNat(Nat32.toNat((value >> 24) & 0xff)), 
+			Nat8.fromNat(Nat32.toNat((value >> 16) & 0xff)),
+			Nat8.fromNat(Nat32.toNat((value >>  8) & 0xff)),
+			Nat8.fromNat(Nat32.toNat((value      ) & 0xff))
+		]
+	};
 
     public func arrayToBuffer<T>(
         from: [T]

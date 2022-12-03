@@ -7,7 +7,7 @@ import { AvatarPicker } from "../../../components/AvatarPicker";
 import { useFindUserByIdEx, useUpdateMe } from "../../../hooks/users";
 import SelectField from "../../../components/SelectField";
 import countries from "../../../libs/countries";
-import { icpToDecimal } from "../../../libs/icp";
+import { e8sToDecimal } from "../../../libs/icp";
 import Modal from "../../../components/Modal";
 import StakeForm from "./Stake";
 import UnstakeForm from "./Unstake";
@@ -233,7 +233,7 @@ const User = (props: Props) => {
                     <div className="column is-12">
                         <TextField 
                             label="ICP balance"
-                            value={icpToDecimal(balances.icp)}
+                            value={e8sToDecimal(balances.icp)}
                             disabled
                         />
                     </div>
@@ -242,7 +242,7 @@ const User = (props: Props) => {
                     <div className="column is-6">
                         <TextField 
                             label="MMT balance"
-                            value={icpToDecimal(balances.mmt)}
+                            value={e8sToDecimal(balances.mmt)}
                             disabled
                         />
                     </div>
@@ -275,7 +275,7 @@ const User = (props: Props) => {
                     <div className="column is-6">
                         <TextField 
                             label="MMT staked"
-                            value={icpToDecimal(balances.staked)}
+                            value={e8sToDecimal(balances.staked)}
                             disabled
                         />
                     </div>

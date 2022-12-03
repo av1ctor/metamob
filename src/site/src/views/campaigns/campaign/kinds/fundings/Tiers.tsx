@@ -1,10 +1,12 @@
 import React, { useCallback } from "react";
+import { CurrencyType } from "../../../../../libs/payment";
 import { CampaignInfo, FundingTier } from "../../../../../../../declarations/metamob/metamob.did";
 import Button from "../../../../../components/Button";
 import NumberField from "../../../../../components/NumberField";
 import TextAreaField from "../../../../../components/TextAreaField";
 import TextField from "../../../../../components/TextField";
-import { icpToDecimal } from "../../../../../libs/icp";
+import CurrencyField from "../../../../../components/CurrencyField";
+import { e8sToDecimal } from "../../../../../libs/icp";
 
 interface Props {
     info: CampaignInfo;
@@ -33,6 +35,7 @@ export const Tiers = (props: Props) => {
             desc: '',
             total: 0,
             max: 0,
+            currency: CurrencyType.ICP,
             value: BigInt(0),
         }));
     }, [tiers, props.onChange]);
@@ -112,11 +115,12 @@ export const Tiers = (props: Props) => {
                             required
                             onChange={(e) => handleChange(e, index)}
                         />
-                        <TextField
-                            label="Value (ICP)"
-                            name="value"
-                            value={typeof tier.value === 'string'? tier.value: icpToDecimal(tier.value)}
+                        <CurrencyField
+                            label="Currency/Value"
+                            names={["currency", "value"]}
                             required
+                            values={[tier.currency, typeof tier.value === 'string'? tier.value: e8sToDecimal(tier.value)]}
+                            title="Currency/Value"
                             onChange={(e) => handleChange(e, index)}
                         />
                     </div>

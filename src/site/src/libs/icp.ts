@@ -162,7 +162,7 @@ const removeZerosAtRight = (s: string): string => {
     return s.substring(0, i+1);
 };
 
-export const icpToDecimal = (
+export const e8sToDecimal = (
     icp: bigint,
     decimals?: number
 ): string => {
@@ -171,7 +171,7 @@ export const icpToDecimal = (
     return `${int}.${removeZerosAtRight(dec)}`; 
 }
 
-export const decimalToIcp = (
+export const decimalToE8s = (
     value: string
 ): bigint => {
     const dot = value.indexOf('.');

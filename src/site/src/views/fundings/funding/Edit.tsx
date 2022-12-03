@@ -37,6 +37,7 @@ const EditForm = (props: Props) => {
         body: props.funding.body,
         tier: props.funding.tier,
         amount: props.funding.amount,
+        currency: props.funding.currency,
         value: props.funding.value,
         anonymous: props.funding.anonymous,
     });
@@ -94,6 +95,7 @@ const EditForm = (props: Props) => {
                 body: form.body,
                 tier: form.tier,
                 amount: form.amount,
+                currency: form.currency,
                 value: BigInt(form.value),
                 anonymous: form.anonymous,
             };
@@ -139,6 +141,7 @@ const EditForm = (props: Props) => {
             body: props.funding.body,
             tier: props.funding.tier,
             amount: props.funding.amount,
+            currency: props.funding.currency,
             value: props.funding.value,
             anonymous: props.funding.anonymous,
         });

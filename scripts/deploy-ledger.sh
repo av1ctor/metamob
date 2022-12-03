@@ -8,8 +8,6 @@ gunzip ./canisters-dev/ledger.wasm.gz
 curl -o ./canisters-dev/ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger.did
 curl -o ./canisters-dev/ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger_canister/ledger.did
 
-dfx stop
-dfx start --background
 dfx identity new minter
 dfx identity use minter
 MINT_ACC=$(dfx ledger account-id)

@@ -3,7 +3,7 @@ import Array "mo:base/Array";
 import D "mo:base/Debug";
 import DaoService "../dao/service";
 import EntityTypes "../common/entities";
-import LedgerUtils "../common/ledger";
+import LedgerHelper "../common/ledger";
 import ModerationTypes "../moderations/types";
 import ModerationService "../moderations/service";
 import Nat32 "mo:base/Nat32";
@@ -26,7 +26,7 @@ module {
         daoService: DaoService.Service,
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
-        ledgerUtils: LedgerUtils.LedgerUtils,
+        ledgerHelper: LedgerHelper.LedgerHelper,
         logger: Logger.Logger
     ) {
         var hasAdmin: Bool = false;
@@ -319,7 +319,7 @@ module {
             invoker: Principal,
             this: actor {}
         ): AccountTypes.AccountIdentifier {
-            ledgerUtils.getAccountId(invoker, this);
+            ledgerHelper.getAccountId(invoker, this);
         };
 
         public func backup(

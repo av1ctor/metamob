@@ -1,5 +1,6 @@
 import AccountTypes "../accounts/types";
 import ModerationTypes "../moderations/types";
+import PaymentTypes "../payments/types";
 
 module {
     public type FundingState = Nat32;
@@ -15,6 +16,7 @@ module {
         body: Text;
         tier: Nat32;
         amount: Nat32;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;
@@ -29,6 +31,7 @@ module {
         body: Text;
         tier: Nat32;
         amount: Nat32;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
     };
 
@@ -41,6 +44,7 @@ module {
         body: Text;
         tier: Nat32;
         amount: Nat32;
+        currency: PaymentTypes.CurrencyType;
         value: Nat;
         moderated: ModerationTypes.ModerationReason;
         createdAt: Int;

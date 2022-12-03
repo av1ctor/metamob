@@ -102,4 +102,10 @@ module Types {
         transaction : [Nat8];
         network : Network;
     };
+
+    public type Callback = {
+        act: Principal;
+        method: Text;
+        args: Blob;
+    };
 }
