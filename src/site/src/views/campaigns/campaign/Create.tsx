@@ -24,7 +24,6 @@ import ArrayField from "../../../components/ArrayField";
 import VariantField from "../../../components/VariantField";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
-import { number } from "yup/lib/locale";
 
 interface Props {
     mutation: any;

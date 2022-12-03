@@ -1,5 +1,6 @@
 import React, {useState, useCallback} from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "react-query";
 import * as yup from 'yup';
 import {useCompleteDonation, useCreateDonation, useDeleteDonation} from "../../../../../hooks/donations";
 import {DonationRequest, Campaign, DonationResponse} from "../../../../../../../declarations/metamob/metamob.did";
@@ -16,14 +17,15 @@ import { useWallet } from "../../../../../hooks/wallet";
 import { CurrencyType } from "../../../../../libs/payment";
 import CurrencyField from "../../../../../components/CurrencyField";
 import Modal from "../../../../../components/Modal";
-import BtcDialog from "../../../../payment/BtcDialog";
+import Dialog from "../../../../payment/Dialog";
 import { DonationState, findById } from "../../../../../libs/donations";
 import { useActors } from "../../../../../hooks/actors";
-import { useQueryClient } from "react-query";
 
 interface Props {
     campaign: Campaign;
 };
+
+const icpFees = LEDGER_TRANSFER_FEE * BigInt(2);
 
 const formSchema = yup.object().shape({
     body: yup.string(),
@@ -35,7 +37,7 @@ const DonationForm = (props: Props) => {
     const {metamob} = useActors();
     const {principal, isLogged} = useAuth();
     const {balances, depositICP} = useWallet();
-    const {showSuccess, showError, toggleLoading, isLoading} = useUI();
+    const {showSuccess, showError, isLoading} = useUI();
 
     const [form, setForm] = useState<DonationRequest>({
         campaignId: props.campaign._id,
@@ -45,9 +47,8 @@ const DonationForm = (props: Props) => {
         value: BigInt(0)
     });
     const [modals, setModals] = useState({
-        btcpay: false,
+        payment: false,
     });
-    const [donation, setDonation] = useState<DonationResponse>();
     
     const createMut = useCreateDonation();
     const completeMut = useCompleteDonation();
@@ -77,41 +78,35 @@ const DonationForm = (props: Props) => {
         }
     };
 
-    const handleDonation = useCallback(async (e: any) => {
-        e.preventDefault();
-
-        const errors = validate(form);
-        if(errors.length > 0) {
-            showError(errors);
-            return;
-        }
-
+    const handleCreate = useCallback(async (
+    ): Promise<DonationResponse | undefined> => {
         try {
-            toggleLoading(true);
-
-            const currency = Number(form.currency);
-            const value = decimalToE8s(form.value.toString());
-            const icpFees = LEDGER_TRANSFER_FEE * BigInt(2);
-
-            if(currency == CurrencyType.ICP) {
-                if(balances.icp < value + icpFees) {
-                    throw Error(`Insufficient funds! Needed: ${e8sToDecimal(value + icpFees)} ICP.`)
-                }
-            }
-
             const donation = await createMut.mutateAsync({
                 req: {
                     campaignId: props.campaign._id,
                     body: form.body,
                     currency: Number(form.currency),
-                    value: value,
+                    value: decimalToE8s(form.value.toString()),
                     anonymous: form.anonymous,
                 }
             });
 
-            switch(currency) {
+            return donation;
+        }
+        catch(e) {
+            showError(e);
+            return;
+        }
+    }, [form]);
+
+    const handlePay = useCallback(async (
+        donation: DonationResponse
+    ): Promise<boolean> => {
+        try {
+            switch(form.currency) {
                 case CurrencyType.ICP:
                     try {
+                        const value = decimalToE8s(form.value.toString());
                         await depositICP(value + icpFees);
                     }
                     catch(e) {
@@ -127,43 +122,26 @@ const DonationForm = (props: Props) => {
                         campaignPubId: props.campaign.pubId,
                     });
         
-                    showSuccess('Your donation has been sent!');
+                    showSuccess('Your donation has been paid!');
                     break;
 
                 case CurrencyType.BTC:
-                    openBtcPay(donation);
                     break;
             }
+
+            return true;
         }
         catch(e) {
             showError(e);
+            return false;
         }
-        finally {
-            toggleLoading(false);
-        }
-    }, [form, balances, depositICP]);
+    }, [form, props.campaign]);
 
-    const openBtcPay = useCallback((donation: DonationResponse) => {
-        setDonation(donation);
-        setModals(modals => ({
-            ...modals,
-            btcpay: true
-        }));
-    }, []);
-
-    const closeBtcPay = useCallback(() => {
-        setDonation(undefined);
-        setModals(modals => ({
-            ...modals,
-            btcpay: false
-        }));
-    }, []);
-
-    const handleVerifyComplete = useCallback(async (
-        id: number
+    const handleVerify = useCallback(async (
+        donation: DonationResponse
     ): Promise<boolean> => {
         try {
-            const res = await findById(id, metamob);
+            const res = await findById(donation._id, metamob);
             if(res.state !== DonationState.COMPLETED) {
                 return false;
             }
@@ -175,6 +153,41 @@ const DonationForm = (props: Props) => {
             return false;
         }
     }, [metamob, queryClient]);
+
+    const handleDonation = useCallback(async (e: any) => {
+        e.preventDefault();
+
+        const errors = validate(form);
+        if(errors.length > 0) {
+            showError(errors);
+            return;
+        }
+
+        const currency = Number(form.currency);
+        if(currency == CurrencyType.ICP) {
+            const value = decimalToE8s(form.value.toString());
+            if(balances.icp < value + icpFees) {
+                showError(`Insufficient funds! Needed: ${e8sToDecimal(value + icpFees)} ICP.`)
+                return;
+            }
+        }
+
+        openPayment();
+    }, [form, balances]);
+
+    const openPayment = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            payment: true
+        }));
+    }, []);
+
+    const closePayment = useCallback(() => {
+        setModals(modals => ({
+            ...modals,
+            payment: false
+        }));
+    }, []);
 
     const redirectToLogon = useCallback(() => {
         navigate(`/user/login?return=/c/${props.campaign.pubId}`);
@@ -241,20 +254,20 @@ const DonationForm = (props: Props) => {
             </form>
 
             <Modal
-                header={<span><FormattedMessage defaultMessage="BTC Payment"/></span>}
-                isOpen={modals.btcpay}
-                onClose={closeBtcPay}
+                header={<span><FormattedMessage defaultMessage="Make a donation"/></span>}
+                isOpen={modals.payment}
+                onClose={closePayment}
             >
-                {donation &&
-                    <BtcDialog
-                        categoryId={donation.campaignId}
-                        entityId={donation._id}
-                        kind="donation"
-                        value={e8sToDecimal(donation.value)}
-                        onClose={closeBtcPay}
-                        onVerify={handleVerifyComplete}
-                    />
-                }
+                <Dialog
+                    categoryId={props.campaign._id}
+                    kind="donation"
+                    currency={Number(form.currency)}
+                    value={typeof form.value === "string"? form.value: e8sToDecimal(form.value)}
+                    onCreate={handleCreate}
+                    onPay={handlePay}
+                    onVerify={handleVerify}
+                    onClose={closePayment}
+                />
             </Modal>
         </>
     );
