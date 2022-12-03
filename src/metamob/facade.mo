@@ -95,7 +95,7 @@ shared({caller = owner}) actor class Metamob(
         userRepo, daoService, moderationService, reportRepo, ledgerHelper, logger
     );
     let paymentService = PaymentService.Service(
-        userService, btcHelper
+        daoService, userService, btcHelper
     );
     let placeService = PlaceService.Service(
         userService, moderationService, reportRepo

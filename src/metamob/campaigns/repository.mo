@@ -521,41 +521,43 @@ module {
 
         public func onFundingInserted(
             campaign: Types.Campaign,
-            funding: FundingTypes.Funding
+            funding: FundingTypes.Funding,
+            valueInIcp: Nat
         ) {
             ignore campaigns.replace(
                 campaign._id, 
-                _updateEntityWhenFundingInserted(campaign, funding)
+                _updateEntityWhenFundingInserted(campaign, funding, valueInIcp)
             );
         };
 
         public func onFundingDeleted(
             campaign: Types.Campaign,
-            funding: FundingTypes.Funding
+            funding: FundingTypes.Funding,
+            valueInIcp: Nat
         ) {
             ignore campaigns.replace(
                 campaign._id, 
-                _updateEntityWhenFundingDeleted(campaign, funding)
+                _updateEntityWhenFundingDeleted(campaign, funding, valueInIcp)
             );
         };
 
         public func onDonationInserted(
             campaign: Types.Campaign,
-            donation: DonationTypes.Donation
+            value: Nat
         ) {
             ignore campaigns.replace(
                 campaign._id, 
-                _updateEntityWhenDonationInserted(campaign, donation)
+                _updateEntityWhenDonationInserted(campaign, value)
             );
         };
 
         public func onDonationDeleted(
             campaign: Types.Campaign,
-            donation: DonationTypes.Donation
+            value: Nat
         ) {
             ignore campaigns.replace(
                 campaign._id, 
-                _updateEntityWhenDonationDeleted(campaign, donation)
+                _updateEntityWhenDonationDeleted(campaign, value)
             );
         };
 
@@ -887,31 +889,32 @@ module {
 
         func _updateEntityWhenDonationInserted(
             e: Types.Campaign, 
-            donation: DonationTypes.Donation
+            valueInIcp: Nat
         ): Types.Campaign {
             {
                 e
                 with
-                total = e.total + donation.value;
+                total = e.total + valueInIcp;
                 interactions = e.interactions + 1;
             }  
         };        
 
         func _updateEntityWhenDonationDeleted(
             e: Types.Campaign, 
-            donation: DonationTypes.Donation
+            valueInIcp: Nat
         ): Types.Campaign {
             {
                 e
                 with
-                total = if(e.total > donation.value) e.total - donation.value else 0;
+                total = if(e.total > valueInIcp) e.total - valueInIcp else 0;
                 interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             };
         };
 
         func _updateEntityWhenFundingInserted(
             e: Types.Campaign, 
-            funding: FundingTypes.Funding
+            funding: FundingTypes.Funding,
+            valueInIcp: Nat
         ): Types.Campaign {
             {
                 e
@@ -926,7 +929,7 @@ module {
                                         {
                                             tier
                                             with
-                                            total = tier.total + funding.amount;
+                                            total = tier.total + Nat32.fromNat(valueInIcp);
                                         };
                                     }
                                     else {
@@ -941,14 +944,15 @@ module {
                     };
                 };
                 goal = e.goal;
-                total = e.total + funding.value;
+                total = e.total + valueInIcp;
                 interactions = e.interactions + 1;
             }  
         };        
 
         func _updateEntityWhenFundingDeleted(
             e: Types.Campaign, 
-            funding: FundingTypes.Funding
+            funding: FundingTypes.Funding,
+            valueInIcp: Nat
         ): Types.Campaign {
             {
                 e
@@ -963,7 +967,7 @@ module {
                                         {
                                             tier
                                             with
-                                            total = if(tier.total >= funding.amount) tier.total - funding.amount else Nat32.fromNat(0);
+                                            total = if(tier.total >= Nat32.fromNat(valueInIcp)) tier.total - Nat32.fromNat(valueInIcp) else Nat32.fromNat(0);
                                         };
                                     }
                                     else {
@@ -977,7 +981,7 @@ module {
                         other;
                     };
                 };
-                total = if(e.total > funding.value) e.total - funding.value else 0;
+                total = if(e.total > valueInIcp) e.total - valueInIcp else 0;
                 interactions = if(e.interactions > 0) e.interactions - 1 else Nat32.fromNat(0);
             };
         };

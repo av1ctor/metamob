@@ -43,7 +43,16 @@ export const SignFrame = (props: Props) => {
     return (
         <>
             <progress className="progress mb-0 pb-0 is-success" value={total} max={goal}>{total}</progress>
-            <div><small><b>{total}</b> <FormattedMessage defaultMessage="have signed."/> {campaign.state === CampaignState.PUBLISHED? <span><FormattedMessage defaultMessage="Let's get to"/> {goal}!</span>: null}</small></div>
+            <div>
+                <small>
+                    <b>{total}</b> <FormattedMessage defaultMessage="have signed."/>&nbsp;
+                    {campaign.state === CampaignState.PUBLISHED? 
+                        <span><FormattedMessage defaultMessage="Let's get to"/> {goal}!</span>
+                    : 
+                        <FormattedMessage defaultMessage="Thank you to all signers!"/>
+                    }
+                </small>
+            </div>
             <Action campaign={campaign} />
             <br/>
             {campaign.state === CampaignState.PUBLISHED &&

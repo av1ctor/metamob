@@ -28,7 +28,11 @@ export const VoteFrame = (props: Props) => {
             <div className="voting">
                 <progress className="progress voting mb-0 pb-0 is-success" value={Number(proVotes)} max={Number(totalVotes)}>{proVotes.toString()}</progress>
             </div>
-            <div><small><b>{proVotes.toString()}</b> <FormattedMessage defaultMessage="in favor"/>/<b>{againstVotes.toString()}</b> <FormattedMessage defaultMessage="against of"/> {totalVotes.toString()} votes in total.</small></div>
+            <div>
+                <small>
+                    <b>{proVotes.toString()}</b> <FormattedMessage defaultMessage="in favor"/>/<b>{againstVotes.toString()}</b> <FormattedMessage defaultMessage="against of"/> {totalVotes.toString()} votes in total.
+                </small>
+            </div>
             <Action campaign={campaign} />
             <br/>
             {campaign.state === CampaignState.PUBLISHED &&

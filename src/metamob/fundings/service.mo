@@ -171,7 +171,7 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                await _completeAndCheckCampaign(entity, campaign, Nat64.toNat(amount), caller, this);
+                                                await _completeAndCheckCampaign(entity, campaign, caller, this);
                                             };
                                         };
                                     };
@@ -181,6 +181,12 @@ module {
                     };
                 };
             };
+        };
+
+        func _calcValueInIcp(
+            entity: Types.Funding
+        ): Nat {
+            paymentService.calcValueInIcp(entity.currency, entity.value);
         };
 
         public func onBtcDepositConfirmed(
@@ -213,7 +219,7 @@ module {
                                     return;
                                 };
                                 case (#ok(caller)) {
-                                    ignore await _completeAndCheckCampaign(entity, campaign, entity.value, caller, this);
+                                    ignore await _completeAndCheckCampaign(entity, campaign, caller, this);
                                     return;
                                 };
                             };
@@ -226,11 +232,10 @@ module {
         func _completeAndCheckCampaign(
             entity: Types.Funding,
             campaign: CampaignTypes.Campaign,
-            amountTransfered: Nat,
             caller: UserTypes.Profile,
             this: actor {}
         ): async Result.Result<Types.Funding, Text> {
-            let res = repo.complete(entity, amountTransfered, caller._id);
+            let res = repo.complete(entity, _calcValueInIcp(entity), caller._id);
             if(campaign.goal != 0) {
                 switch(campaignRepo.findById(campaign._id)) {
                     case (#ok(campaign)) {
@@ -425,13 +430,14 @@ module {
                                                 #err(msg);
                                             };
                                             case _ {
+                                                let valueInIcp = _calcValueInIcp(entity);
                                                 let res = if(entity.state == Types.STATE_COMPLETED) {
                                                     if(entity.currency != PaymentTypes.CURRENCY_ICP) {
                                                         return #err("At the moment, only ICP fundraisings can be reimbursed. Sorry!");
                                                     };
 
                                                     let amount = Nat64.fromNat(entity.value - (LedgerHelper.icp_fee * 2));
-                                                    switch(repo.delete(entity, caller._id)) {
+                                                    switch(repo.delete(entity, valueInIcp, caller._id)) {
                                                         case (#err(msg)) {
                                                             #err(msg);
                                                         };
@@ -451,7 +457,7 @@ module {
                                                                     .withdrawFromCampaignSubaccountLessTax(
                                                                         campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
                                                                 case (#err(msg)) {
-                                                                    ignore repo.insert(entity);
+                                                                    ignore repo.insert(entity, valueInIcp);
                                                                     #err(msg);
                                                                 };
                                                                 case _ {
@@ -462,7 +468,7 @@ module {
                                                     };
                                                 }
                                                 else {
-                                                    repo.delete(entity, caller._id);
+                                                    repo.delete(entity, valueInIcp, caller._id);
                                                 };
 
                                                 switch(res) {

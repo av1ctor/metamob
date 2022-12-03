@@ -49,17 +49,17 @@ module {
 
         public func complete(
             funding: Types.Funding, 
-            value: Nat,
+            valueInIcp: Nat,
             callerId: Nat32
         ): Result.Result<Types.Funding, Text> {
-            let e = _updateEntityWhenCompleted(funding, value, callerId);
+            let e = _updateEntityWhenCompleted(funding, callerId);
 
             switch(fundings.replace(funding._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(e, true);
+                    _updateCampaign(e, true, valueInIcp);
                     return #ok(e);
                 };
             };
@@ -128,6 +128,7 @@ module {
 
         public func delete(
             funding: Types.Funding,
+            valueInIcp: Nat,
             callerId: Nat32
         ): Result.Result<(), Text> {
             switch(fundings.delete(funding._id)) {
@@ -136,7 +137,7 @@ module {
                 };
                 case _ {
                     if(funding.state == Types.STATE_COMPLETED) {
-                        _updateCampaign(funding, false);
+                        _updateCampaign(funding, false, valueInIcp);
                     };
                     #ok();
                 }
@@ -144,7 +145,8 @@ module {
         };
 
         public func insert(
-            e: Types.Funding
+            e: Types.Funding,
+            valueInIcp: Nat
         ): Result.Result<Types.Funding, Text> {
             switch(fundings.insert(e._id, e)) {
                 case (#err(msg)) {
@@ -152,7 +154,7 @@ module {
                 };
                 case _ {
                     if(e.state == Types.STATE_COMPLETED) {
-                        _updateCampaign(e, true);
+                        _updateCampaign(e, true, valueInIcp);
                     };
                     return #ok(e);
                 };
@@ -161,16 +163,17 @@ module {
 
         func _updateCampaign(
             funding: Types.Funding,
-            inserted: Bool
+            inserted: Bool,
+            valueInIcp: Nat
         ) {
             switch(campaignRepository.findById(funding.campaignId))
             {
                 case (#ok(campaign)) {
                     if(inserted) {
-                        campaignRepository.onFundingInserted(campaign, funding);
+                        campaignRepository.onFundingInserted(campaign, funding, valueInIcp);
                     }
                     else {
-                        campaignRepository.onFundingDeleted(campaign, funding);
+                        campaignRepository.onFundingDeleted(campaign, funding, valueInIcp);
                     };
                 };
                 case _ {
@@ -456,14 +459,12 @@ module {
 
         func _updateEntityWhenCompleted(
             e: Types.Funding, 
-            value: Nat,
             callerId: Nat32
         ): Types.Funding {
             {
                 e
                 with
                 state = Types.STATE_COMPLETED;
-                value = value;
             }  
         };
 

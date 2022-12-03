@@ -40,6 +40,7 @@ module {
         config.set("POAP_DEPLOYING_CYCLES",         #nat64(300_000_000_000)); // 300B cycles
         config.set("POAP_MINTING_MIN_PRICE",        #nat64(   1_00000000)); // 1 ICP
         config.set("POAP_MINTING_TAX",              #nat64(30));            // 30%
+        config.set("RATE_BTC_ICP",                  #nat64(4028_4360));     // 17000 / 4.22 usd in e4s
 
         func _setConfigVar(
             key: Text,

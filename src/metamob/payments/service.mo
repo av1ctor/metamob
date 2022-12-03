@@ -1,7 +1,9 @@
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
+import Nat64 "mo:base/Nat64";
 import Variant "mo:mo-table/variant";
 import Utils "../common/utils";
+import DaoService "../dao/service";
 import UserService "../users/service";
 import UserTypes "../users/types";
 import UserUtils "../users/utils";
@@ -10,9 +12,26 @@ import Types "types";
 
 module {
     public class Service(
+        daoService: DaoService.Service,
         userService: UserService.Service,
         btcHelper: BtcHelper.BtcHelper
     ) {
+        
+        public func calcValueInIcp(
+            currency: Types.CurrencyType,
+            value: Nat
+        ): Nat {
+            if(currency == Types.CURRENCY_ICP) {
+                return value;
+            } 
+            else if(currency == Types.CURRENCY_BTC) {
+                let rate = Nat64.toNat(daoService.config.getAsNat64("RATE_BTC_ICP"));
+                return (value * rate) / 10000;
+            };
+
+            value
+        };
+        
         public func getBtcAddressOfCampaignAndUser(
             campaignId: Nat32,
             invoker: Principal

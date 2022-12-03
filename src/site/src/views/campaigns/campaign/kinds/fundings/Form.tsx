@@ -174,12 +174,13 @@ const FundingForm = (props: Props) => {
             }
 
             queryClient.invalidateQueries(['fundings']);
+            queryClient.invalidateQueries(['campaigns', props.campaign.pubId]);
             return true;
         }
         catch(e) {
             return false;
         }
-    }, [metamob, queryClient]);
+    }, [props.campaign, metamob, queryClient]);
 
     const handleFunding = useCallback(async (e: any) => {
         e.preventDefault();

@@ -49,17 +49,17 @@ module {
 
         public func complete(
             donation: Types.Donation, 
-            value: Nat,
+            valueInIcp: Nat,
             callerId: Nat32
         ): Result.Result<Types.Donation, Text> {
-            let e = _updateEntityWhenCompleted(donation, value, callerId);
+            let e = _updateEntityWhenCompleted(donation, callerId);
 
             switch(donations.replace(donation._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
                 case _ {
-                    _updateCampaign(e, true);
+                    _updateCampaign(e, true, valueInIcp);
                     return #ok(e);
                 };
             };
@@ -122,6 +122,7 @@ module {
 
         public func delete(
             donation: Types.Donation,
+            valueInIcp: Nat,
             callerId: Nat32
         ): Result.Result<(), Text> {
             switch(donations.delete(donation._id)) {
@@ -130,7 +131,7 @@ module {
                 };
                 case _ {
                     if(donation.state == Types.STATE_COMPLETED) {
-                        _updateCampaign(donation, false);
+                        _updateCampaign(donation, false, valueInIcp);
                     };
                     #ok();
                 }
@@ -138,7 +139,8 @@ module {
         };
 
         public func insert(
-            e: Types.Donation
+            e: Types.Donation,
+            value: Nat
         ): Result.Result<Types.Donation, Text> {
             switch(donations.insert(e._id, e)) {
                 case (#err(msg)) {
@@ -146,7 +148,7 @@ module {
                 };
                 case _ {
                     if(e.state == Types.STATE_COMPLETED) {
-                        _updateCampaign(e, true);
+                        _updateCampaign(e, true, value);
                     };
                     return #ok(e);
                 };
@@ -155,16 +157,17 @@ module {
 
         func _updateCampaign(
             donation: Types.Donation,
-            inc: Bool
+            inc: Bool,
+            valueInIcp: Nat
         ) {
             switch(campaignRepository.findById(donation.campaignId))
             {
                 case (#ok(campaign)) {
                     if(inc) {
-                        campaignRepository.onDonationInserted(campaign, donation);
+                        campaignRepository.onDonationInserted(campaign, valueInIcp);
                     }
                     else {
-                        campaignRepository.onDonationDeleted(campaign, donation);
+                        campaignRepository.onDonationDeleted(campaign, valueInIcp);
                     };
                 };
                 case _ {
@@ -448,14 +451,12 @@ module {
 
         func _updateEntityWhenCompleted(
             e: Types.Donation, 
-            value: Nat,
             callerId: Nat32
         ): Types.Donation {
             {
                 e
                 with
                 state = Types.STATE_COMPLETED;
-                value = value;
             }  
         };
 

@@ -19,7 +19,16 @@ export const FundingFrame = (props: Props) => {
     return (
         <>
             <progress className="progress mb-0 pb-0 is-success" value={Number(funded / 100000000n)} max={Number(campaign.goal / 100000000n)}>{funded.toString()}</progress>
-            <div><small><b>{e8sToDecimal(funded, 2)} ICP</b> <FormattedMessage defaultMessage="funded"/>. <FormattedMessage defaultMessage="More"/> <b>{e8sToDecimal(campaign.goal - funded, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></small></div>
+            <div>
+                <small>
+                    <b>{e8sToDecimal(funded, 2)} ICP</b> <FormattedMessage defaultMessage="funded"/>.&nbsp;
+                    {campaign.state === CampaignState.PUBLISHED?
+                        <span><FormattedMessage defaultMessage="More"/> <b>{e8sToDecimal(campaign.goal - funded, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></span>
+                    :
+                        <FormattedMessage defaultMessage="Thank you to all fundraisers!"/>
+                    }
+                </small>
+            </div>
             <Action campaign={campaign} />
             <br/>
             {(campaign.state === CampaignState.PUBLISHED || campaign.state === CampaignState.BUILDING) &&

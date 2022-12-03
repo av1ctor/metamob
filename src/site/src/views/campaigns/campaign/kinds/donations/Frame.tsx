@@ -19,7 +19,16 @@ export const DonationFrame = (props: Props) => {
     return (
         <>
             <progress className="progress mb-0 pb-0 is-success" value={Number(donated / 100000000n)} max={Number(campaign.goal / 100000000n)}>{donated.toString()}</progress>
-            <div><small><b>{e8sToDecimal(donated, 2)} ICP</b> <FormattedMessage defaultMessage="donated"/>. <FormattedMessage defaultMessage="More"/> <b>{e8sToDecimal(campaign.goal - donated, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></small></div>
+            <div>
+                <small>
+                    <b>{e8sToDecimal(donated, 2)} ICP</b> <FormattedMessage defaultMessage="donated"/>.&nbsp;
+                    {campaign.state === CampaignState.PUBLISHED?
+                        <span><FormattedMessage defaultMessage="More"/> <b>{e8sToDecimal(campaign.goal - donated, 2)} ICP</b> <FormattedMessage defaultMessage="to goal. Keep going!"/></span>
+                    :
+                        <FormattedMessage defaultMessage="Thank you to all donators!"/>
+                    }
+                </small>
+            </div>
             <Action campaign={campaign} />
             <br/>
             {campaign.state === CampaignState.PUBLISHED &&
