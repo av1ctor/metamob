@@ -838,57 +838,6 @@ module {
             };
         };
 
-        public func boost(
-            pubId: Text, 
-            value: Nat64,
-            invoker: Principal,
-            this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            switch(userService.findByPrincipal(invoker)) {
-                case (#err(msg)) {
-                    #err(msg);
-                };
-                case (#ok(caller)) {
-                    switch(repo.findByPubId(pubId)) {
-                        case (#err(msg)) {
-                            #err(msg);
-                        };
-                        case (#ok(campaign)) {
-                            let balance = await ledgerHelper.getUserBalance(invoker, this);
-                            if(balance < value + Nat64.fromNat(LedgerHelper.icp_fee)) {
-                                return #err("Insufficient balance");
-                            };
-                            
-                            switch(await ledgerHelper
-                                .transferFromUserSubaccountToCampaignSubaccountEx(
-                                    campaign, caller._id, value, invoker, this)) {
-                                case (#err(msg)) {
-                                    #err(msg);
-                                };
-                                case (#ok(_)) {
-                                    switch(repo.boost(campaign, Nat64.toNat(value))) {
-                                        case (#ok(e)) {
-                                            ignore logger.info(this, "Campaign " # campaign.pubId # " promoted by with " # Utils.e8sToDecimal(value) # " ICP by " # caller.pubId);
-                                            
-                                            ignore notificationService.create({
-                                                title = "Campaign promoted";
-                                                body = "Your Campaign [" # campaign.pubId # "](/#/c/" # campaign.pubId # ") was promoted with **" # Utils.e8sToDecimal(value) # " ICP**!";
-                                            }, campaign.createdBy);
-                                            
-                                            #ok(e);
-                                        };
-                                        case (#err(msg)) {
-                                            #err(msg);
-                                        };
-                                    };
-                                };
-                            };
-                        };
-                    };
-                };
-            };
-        };
-
         public func findById(
             _id: Nat32
         ): Result.Result<Types.Campaign, Text> {

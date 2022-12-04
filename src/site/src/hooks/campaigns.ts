@@ -163,30 +163,6 @@ export const useModerateCampaign = () => {
     );
 };
 
-export const useBoostCampaign = () => {
-    const queryClient = useQueryClient();
-    const {metamob} = useActors();
-
-    return useMutation(
-        async (options: {pubId: string, value: bigint}) => {
-            if(!metamob) {
-                throw Error('Main actor undefined');
-            }
-
-            const res = await metamob.campaignBoost(options.pubId, options.value);
-            if('err' in res) {
-                throw new Error(res.err);
-            }
-            return res.ok;
-        },
-        {
-            onSuccess: () => {
-                queryClient.invalidateQueries(['campaigns']);
-            }   
-        }
-    );
-};
-
 export const useDeleteCampaign = () => {
     const queryClient = useQueryClient();
     const {metamob} = useActors();

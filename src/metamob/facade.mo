@@ -2,6 +2,8 @@
 // Released under the GPL-3.0 license
 
 import Array "mo:base/Array";
+import BoostService "./boosts/service";
+import BoostTypes "./boosts/types";
 import CampaignService "./campaigns/service";
 import CampaignTypes "./campaigns/types";
 import CategoryService "./categories/service";
@@ -129,6 +131,10 @@ shared({caller = owner}) actor class Metamob(
     );
     let updateService = UpdateService.Service(
         userService, campaignService, placeService, moderationService, reportRepo, logger
+    );
+    let boostService = BoostService.Service(
+        userService, campaignService, placeService, reportRepo, 
+        notificationService, paymentService, ledgerHelper, logger
     );
     let poapService = PoapService.Service(
         daoService, userService, campaignService, signatureService, voteService, fundingService, 
@@ -415,13 +421,6 @@ shared({caller = owner}) actor class Metamob(
         mod: ModerationTypes.ModerationRequest
     ): async Result.Result<CampaignTypes.Campaign, Text> {
         await campaignService.moderateWithFile(pubId, req, file, mod, msg.caller, this);
-    };
-
-    public shared(msg) func campaignBoost(
-        pubId: Text, 
-        value: Nat64
-    ): async Result.Result<CampaignTypes.Campaign, Text> {
-        await campaignService.boost(pubId, value, msg.caller, this);
     };
 
     public query func campaignFindById(
@@ -1089,6 +1088,150 @@ shared({caller = owner}) actor class Metamob(
                     entities, 
                     func (e: FundingTypes.Funding): FundingTypes.FundingResponse = 
                         _redactFunding(e, checkAnonymous)
+                ));
+            };
+        };
+    };
+
+    //
+    // boosting facade
+    //
+    public shared(msg) func boostCreate(
+        req: BoostTypes.BoostRequest
+    ): async Result.Result<BoostTypes.BoostResponse, Text> {
+        _transformBoostResponse(await boostService.create(req, msg.caller, this), false);
+    };
+
+    public shared(msg) func boostComplete(
+        pubId: Text
+    ): async Result.Result<BoostTypes.BoostResponse, Text> {
+        _transformBoostResponse(await boostService.complete(pubId, msg.caller, this), false);
+    };
+
+    public shared(msg) func boostOnBtcDepositConfirmed(
+        params: [Variant.MapEntry]
+    ): async () {
+        ignore boostService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
+    };
+
+    public shared(msg) func boostUpdate(
+        id: Text, 
+        req: BoostTypes.BoostRequest
+    ): async Result.Result<BoostTypes.BoostResponse, Text> {
+        _transformBoostResponse(await boostService.update(id, req, msg.caller, this), false);
+    };
+
+    public shared query(msg) func boostFindById(
+        _id: Nat32
+    ): async Result.Result<BoostTypes.Boost, Text> {
+        boostService.findById(_id, msg.caller);
+    };
+
+    public query func boostFindByPubId(
+        pubId: Text
+    ): async Result.Result<BoostTypes.BoostResponse, Text> {
+        _transformBoostResponse(boostService.findByPubId(pubId), true);
+    };
+
+    public shared query(msg) func boostFind(
+        criterias: ?[(Text, Text, Variant.Variant)],
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[BoostTypes.BoostResponse], Text> {
+        _transformBoostResponses(boostService.find(criterias, sortBy, limit), true);
+    };
+
+    public query func boostFindByCampaign(
+        campaignId: Nat32,
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[BoostTypes.BoostResponse], Text> {
+        _transformBoostResponses(boostService.findByCampaign(campaignId, sortBy, limit), true);
+    };
+
+    public query func boostCountByCampaign(
+        campaignId: Nat32
+    ): async Result.Result<Nat, Text> {
+        boostService.countByCampaign(campaignId);
+    };
+
+    public shared query(msg) func boostFindByUser(
+        sortBy: ?[(Text, Text)],
+        limit: ?(Nat, Nat)
+    ): async Result.Result<[BoostTypes.BoostResponse], Text> {
+        _transformBoostResponses(boostService.findByUser(sortBy, limit, msg.caller), false);
+    };
+
+    public query func boostFindByCampaignAndUser(
+        campaignId: Nat32,
+        userId: Nat32
+    ): async Result.Result<BoostTypes.BoostResponse, Text> {
+        _transformBoostResponse(boostService.findByCampaignAndUser(campaignId, userId), true);
+    };
+
+    func _redactBoost(
+        e: BoostTypes.Boost,
+        checkAnonymous: Bool
+    ): BoostTypes.BoostResponse {
+        if(not checkAnonymous or not e.anonymous) {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                anonymous = e.anonymous;
+                currency = e.currency;
+                value = e.value;
+                campaignId = e.campaignId;
+                createdAt = e.createdAt;
+                createdBy = ?e.createdBy;
+                updatedAt = e.updatedAt;
+                updatedBy = e.updatedBy;
+            };
+        }
+        else {
+            {
+                _id = e._id;
+                pubId = e.pubId;
+                state = e.state;
+                anonymous = e.anonymous;
+                campaignId = e.campaignId;
+                currency = e.currency;
+                value = e.value;
+                createdAt = e.createdAt;
+                createdBy = null;
+                updatedAt = e.updatedAt;
+                updatedBy = null;
+            };
+        };
+    };
+
+    func _transformBoostResponse(
+        res: Result.Result<BoostTypes.Boost, Text>,
+        checkAnonymous: Bool
+    ): Result.Result<BoostTypes.BoostResponse, Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(e)) {
+                #ok(_redactBoost(e, checkAnonymous));
+            };
+        };
+    };
+
+    func _transformBoostResponses(
+        res: Result.Result<[BoostTypes.Boost], Text>,
+        checkAnonymous: Bool
+    ): Result.Result<[BoostTypes.BoostResponse], Text> {
+        switch(res) {
+            case (#err(msg)) {
+                #err(msg);
+            };
+            case (#ok(entities)) {
+                #ok(Array.map(
+                    entities, 
+                    func (e: BoostTypes.Boost): BoostTypes.BoostResponse = 
+                        _redactBoost(e, checkAnonymous)
                 ));
             };
         };

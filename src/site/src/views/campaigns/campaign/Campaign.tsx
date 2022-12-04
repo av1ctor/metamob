@@ -37,6 +37,7 @@ import Poaps from "../../poaps/Poaps";
 import Cover from "./Cover";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
+import Boosts from "../../boosts/Boosts";
 
 interface Props {
 }
@@ -289,6 +290,11 @@ const Campaign = (props: Props) => {
                                 icon: campaignKindToIcon(campaign.kind),
                             },
                             {
+                                title: intl.formatMessage({id: "Boosts", defaultMessage: 'Boosts'}), 
+                                icon: 'money-bill-wave-alt', 
+                                badge: ''
+                            },
+                            {
                                 title: intl.formatMessage({id: "Updates", defaultMessage: 'Updates'}), 
                                 icon: 'newspaper', 
                                 badge: campaign.updates > 0? campaign.updates.toString(): ''
@@ -317,6 +323,9 @@ const Campaign = (props: Props) => {
                                     :
                                         <div></div>
                         }
+                        <Boosts
+                            campaign={campaign}
+                        />
                         <Updates
                             campaign={campaign} 
                         />

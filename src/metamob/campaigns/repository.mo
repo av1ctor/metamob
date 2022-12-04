@@ -147,21 +147,6 @@ module {
             };
         };
 
-        public func boost(
-            campaign: Types.Campaign, 
-            value: Nat
-        ): Result.Result<Types.Campaign, Text> {
-            let e = _updateEntityWhenBoosted(campaign, value);
-            switch(campaigns.replace(campaign._id, e)) {
-                case (#err(msg)) {
-                    return #err(msg);
-                };
-                case _ {
-                    return #ok(e);
-                };
-            };
-        };
-
         public func moderate(
             campaign: Types.Campaign,
             req: Types.CampaignRequest, 
@@ -578,6 +563,16 @@ module {
             ignore campaigns.replace(
                 campaign._id, 
                 _updateEntityWhenUpdateDeleted(campaign, update)
+            );
+        };
+
+        public func onBoostInserted(
+            campaign: Types.Campaign,
+            value: Nat
+        ) {
+            ignore campaigns.replace(
+                campaign._id, 
+                _updateEntityWhenBoostInserted(campaign, value)
             );
         };
 
@@ -1048,16 +1043,16 @@ module {
             }  
         };  
 
-        func _updateEntityWhenBoosted(
+        func _updateEntityWhenBoostInserted(
             e: Types.Campaign, 
-            value: Nat
+            valueInIcp: Nat
         ): Types.Campaign {
             {
                 e
                 with
-                boosting = e.boosting + value;
+                boosting = e.boosting + valueInIcp;
             }  
-        };  
+        };
 
         func _updateEntityWhenModeratedAndRedacted(
             e: Types.Campaign, 
