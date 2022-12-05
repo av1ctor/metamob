@@ -52,6 +52,15 @@ module Types {
         #Regtest;
     };
 
+    public type Method = {
+        #bitcoin_get_utxos;
+        #bitcoin_get_current_fee_percentiles;
+        #bitcoin_get_balance;
+        #bitcoin_send_transaction;
+    };
+
+    public let SEND_TRANSACTION_COST_CYCLES_PER_BYTE: Cycles = 20_000_000;
+
     /// A reference to a transaction output.
     public type OutPoint = {
         txid : Blob;

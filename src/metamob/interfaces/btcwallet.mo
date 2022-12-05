@@ -10,7 +10,16 @@ module {
         args: Blob;
     };
 
+    public type Method = {
+        #addPendingDeposit;
+        #transferToMainAccount;
+    };
+
     public type Interface = actor {
+        getCost: query (
+            method: Method
+        ) -> async Nat;
+        
         getAddress: (
             path: [[Nat8]]
         ) -> async BitcoinAddress;

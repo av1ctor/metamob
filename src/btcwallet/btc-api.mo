@@ -1,42 +1,63 @@
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-
+import ExCycles "mo:base/ExperimentalCycles";
 import Types "types";
 
 module {
-    type Cycles = Types.Cycles;
-    type Satoshi = Types.Satoshi;
-    type Network = Types.Network;
-    type BitcoinAddress = Types.BitcoinAddress;
-    type GetUtxosResponse = Types.GetUtxosResponse;
-    type MillisatoshiPerByte = Types.MillisatoshiPerByte;
-    type GetBalanceRequest = Types.GetBalanceRequest;
-    type GetUtxosRequest = Types.GetUtxosRequest;
-    type GetCurrentFeePercentilesRequest = Types.GetCurrentFeePercentilesRequest;
-    type SendTransactionRequest = Types.SendTransactionRequest;
-
-    // The fees for the various Bitcoin endpoints.
-    let GET_BALANCE_COST_CYCLES : Cycles = 100_000_000;
-    let GET_UTXOS_COST_CYCLES : Cycles = 100_000_000;
-    let GET_CURRENT_FEE_PERCENTILES_COST_CYCLES : Cycles = 100_000_000;
-    let SEND_TRANSACTION_BASE_COST_CYCLES : Cycles = 5_000_000_000;
-    let SEND_TRANSACTION_COST_CYCLES_PER_BYTE : Cycles = 20_000_000;
+    public func getCost(
+        network: Types.Network,
+        method: Types.Method
+    ): Types.Cycles {
+        switch(network) {
+            case (#Regtest or #Testnet) {
+                switch(method) {
+                    case(#bitcoin_get_utxos) {
+                        100_000_000;
+                    };
+                    case(#bitcoin_get_current_fee_percentiles) {
+                        100_000_000;
+                    };
+                    case(#bitcoin_get_balance) {
+                        100_000_000;
+                    };
+                    case(#bitcoin_send_transaction) {
+                        5_000_000_000
+                    };
+                };
+            };
+            case (#Mainnet) {
+                switch(method) {
+                    case(#bitcoin_get_utxos) {
+                        50_000_000 + 25_000_000;
+                    };
+                    case(#bitcoin_get_current_fee_percentiles) {
+                        10_000_000;
+                    };
+                    case(#bitcoin_get_balance) {
+                        10_000_000;
+                    };
+                    case(#bitcoin_send_transaction) {
+                        5_000_000_000
+                    };
+                };
+            };
+        };
+    };
 
     /// Actor definition to handle interactions with the management canister.
     type ManagementCanisterActor = actor {
-        bitcoin_get_balance : GetBalanceRequest -> async Satoshi;
-        bitcoin_get_utxos : GetUtxosRequest -> async GetUtxosResponse;
-        bitcoin_get_current_fee_percentiles : GetCurrentFeePercentilesRequest -> async [MillisatoshiPerByte];
-        bitcoin_send_transaction : SendTransactionRequest -> async ();
+        bitcoin_get_balance : Types.GetBalanceRequest -> async Types.Satoshi;
+        bitcoin_get_utxos : Types.GetUtxosRequest -> async Types.GetUtxosResponse;
+        bitcoin_get_current_fee_percentiles : Types.GetCurrentFeePercentilesRequest -> async [Types.MillisatoshiPerByte];
+        bitcoin_send_transaction : Types.SendTransactionRequest -> async ();
     };
 
     let management_canister_actor : ManagementCanisterActor = actor("aaaaa-aa");
 
     public func get_balance(
-        network: Network, 
-        address: BitcoinAddress,
+        network: Types.Network, 
+        address: Types.BitcoinAddress,
         min_confirmations : ?Nat32
-    ): async Satoshi {
-        ExperimentalCycles.add(GET_BALANCE_COST_CYCLES);
+    ): async Types.Satoshi {
+        ExCycles.add(getCost(network, #bitcoin_get_balance));
         await management_canister_actor.bitcoin_get_balance({
             address;
             network;
@@ -45,31 +66,28 @@ module {
     };
 
     public func get_utxos(
-        network: Network, 
-        address: BitcoinAddress,
+        network: Types.Network, 
+        address: Types.BitcoinAddress,
         filter: ?Types.UtxosFilter
-    ): async GetUtxosResponse {
-        ExperimentalCycles.add(GET_UTXOS_COST_CYCLES);
+    ): async Types.GetUtxosResponse {
+        ExCycles.add(getCost(network, #bitcoin_get_utxos));
         await management_canister_actor.bitcoin_get_utxos({address; network; filter;})
     };
 
     public func get_current_fee_percentiles(
-        network: Network
-    ): async [MillisatoshiPerByte] {
-        ExperimentalCycles.add(GET_CURRENT_FEE_PERCENTILES_COST_CYCLES);
+        network: Types.Network
+    ): async [Types.MillisatoshiPerByte] {
+        ExCycles.add(getCost(network, #bitcoin_get_current_fee_percentiles));
         await management_canister_actor.bitcoin_get_current_fee_percentiles({
             network;
         })
     };
 
     public func send_transaction(
-        network: Network, 
+        network: Types.Network, 
         transaction: [Nat8]
     ): async () {
-        let transaction_fee =
-            SEND_TRANSACTION_BASE_COST_CYCLES + transaction.size() * SEND_TRANSACTION_COST_CYCLES_PER_BYTE;
-
-        ExperimentalCycles.add(transaction_fee);
+        ExCycles.add(getCost(network, #bitcoin_send_transaction) + transaction.size() * Types.SEND_TRANSACTION_COST_CYCLES_PER_BYTE);
         await management_canister_actor.bitcoin_send_transaction({
             network;
             transaction;
