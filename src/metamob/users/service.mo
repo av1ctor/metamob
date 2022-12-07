@@ -2,6 +2,7 @@ import AccountTypes "../accounts/types";
 import Array "mo:base/Array";
 import D "mo:base/Debug";
 import DaoService "../dao/service";
+import EmailerHelper "../common/emailer";
 import EntityTypes "../common/entities";
 import LedgerHelper "../common/ledger";
 import ModerationTypes "../moderations/types";
@@ -27,6 +28,7 @@ module {
         moderationService: ModerationService.Service,
         reportRepo: ReportRepository.Repository,
         ledgerHelper: LedgerHelper.LedgerHelper,
+        emailerHelper: EmailerHelper.EmailerHelper,
         logger: Logger.Logger
     ) {
         var hasAdmin: Bool = false;
@@ -35,7 +37,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             owner: Principal
-        ): Result.Result<Types.Profile, Text> {
+        ): async Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -51,7 +53,19 @@ module {
                 };
             };
 
-            repo.create(invoker, req);
+            switch(repo.create(invoker, req)) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(e)) {
+                    ignore emailerHelper.send(
+                        [{email = e.email; name = ?e.name;}],
+                        EmailerHelper.TEMPLATE_VERIFY,
+                        [("verify_link", daoService.config.getAsText("BASE_APP_URL") # "/#/user/verify/" # e.pubId # "/" # e.verifySecret)]
+                    );
+                    #ok(e);
+                };
+            };
         };
 
         public func updateMe(
@@ -82,6 +96,30 @@ module {
                     
                     ignore logger.info(this, "User " # caller.pubId # " updated");
                     repo.update(caller, req, caller._id);
+                };
+            };
+        };
+
+        public func verifyMe(
+            req: Types.VerifyRequest,
+            invoker: Principal,
+            this: actor {}
+        ): async Result.Result<Types.Profile, Text> {
+            switch(repo.findByPrincipal(Principal.toText(invoker))) {
+                case (#err(msg)) {
+                    #err(msg);
+                };
+                case (#ok(caller)) {
+                    if(caller.active) {
+                        return #err("Already verified");
+                    };
+                    
+                    if(req.secret != caller.verifySecret) {
+                        return #err("Invalid secret");
+                    };
+                    
+                    ignore logger.info(this, "User " # caller.pubId # " verified");
+                    repo.verify(caller);
                 };
             };
         };

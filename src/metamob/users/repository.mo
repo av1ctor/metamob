@@ -25,12 +25,13 @@ module {
     public class Repository() {
         let users = Table.Table<Types.Profile>(Schema.schema, serialize, deserialize);
         let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("users")));
+        let verifyId = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("verify")));
 
         public func create(
             principal: Principal, 
             req: Types.ProfileRequest
         ): Result.Result<Types.Profile, Text> {
-            let e = _createEntity(principal, req);
+            let e = _createEntity(principal, req, verifyId.next());
             switch(users.insert(e._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -47,6 +48,20 @@ module {
             callerId: Nat32,
         ): Result.Result<Types.Profile, Text> {
             let e = _updateEntity(prof, req, callerId);
+            switch(users.replace(prof._id, e)) {
+                case (#err(msg)) {
+                    return #err(msg);
+                };
+                case _ {
+                    return #ok(e);
+                };
+            };
+        };
+
+        public func verify(
+            prof: Types.Profile
+        ): Result.Result<Types.Profile, Text> {
+            let e = _updateEntityWhenVerified(prof);
             switch(users.replace(prof._id, e)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -224,13 +239,15 @@ module {
 
         func _createEntity(
             principal: Principal, 
-            req: Types.ProfileRequest
+            req: Types.ProfileRequest,
+            verifySecret: Text
         ): Types.Profile {
             let _id = users.nextId();
             {
                 _id = _id;
                 pubId = ulid.next();
                 principal = Principal.toText(principal);
+                verifySecret = verifySecret;
                 name = req.name;
                 email = req.email;
                 avatar = req.avatar;
@@ -238,10 +255,7 @@ module {
                     case null [#user];
                     case (?val) val;
                 };
-                active = switch(req.active) {
-                    case null true;
-                    case (?val) val;
-                };
+                active = false;
                 banned = Types.BANNED_NONE;
                 country = req.country;
                 moderated = ModerationTypes.REASON_NONE;
@@ -251,6 +265,18 @@ module {
                 updatedBy = null;
             }
         };
+
+        func _updateEntityWhenVerified(
+            e: Types.Profile, 
+        ): Types.Profile {
+            {
+                e
+                with
+                active = true;
+                verifySecret = "";
+            }  
+        };
+
 
         func _updateEntity(
             e: Types.Profile, 
@@ -334,6 +360,7 @@ module {
         res.put("_id", #nat32(e._id));
         res.put("pubId", #text(if ignoreCase Utils.toLower(e.pubId) else e.pubId));
         res.put("principal", #text(if ignoreCase Utils.toLower(e.principal) else e.principal));
+        res.put("verifySecret", #text(e.verifySecret));
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
         res.put("email", #text(if ignoreCase Utils.toLower(e.email) else e.email));
         res.put("avatar", switch(e.avatar) {case null #nil; case (?avatar) #text(avatar);});
@@ -357,6 +384,7 @@ module {
             _id = Variant.getOptNat32(map.get("_id"));
             pubId = Variant.getOptText(map.get("pubId"));
             principal = Variant.getOptText(map.get("principal"));
+            verifySecret = Variant.getOptText(map.get("verifySecret"));
             name = Variant.getOptText(map.get("name"));
             email = Variant.getOptText(map.get("email"));
             avatar = Variant.getOptTextOpt(map.get("avatar"));

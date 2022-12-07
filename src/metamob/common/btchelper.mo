@@ -1,5 +1,5 @@
 import Result "mo:base/Result";
-import BtcWallet "../interfaces/btcwallet";
+import BtcWallet "../../btcwallet/types";
 import ExCycles "mo:base/ExperimentalCycles";
 
 module {

@@ -16,7 +16,7 @@ If you want to test your project locally, you can use the following commands:
 
 ```bash
 # Starts the replica, running in the background
-dfx start --enable-bitcoin
+dfx start --enable-bitcoin --enable-canister-http
 
 # Deploys your canisters to the replica and generates your candid interface
 npm run dev:back
@@ -51,11 +51,14 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 - Run: ./scripts/deploy-ledger.sh
 - Do steps 11 and above
 
+### create the metamob canister
+- Run: dfx canister create metamob
+
 ### create the btcwallet canister
 - Run: dfx canister create btcwallet
 
-### create the metamob canister
-- Run: dfx canister create metamob
+### create the emailer canister
+- Run: dfx canister create emailer
 
 ### deploy the metamob token:
 - Run: ./scripts/deploy-mmt.sh
@@ -65,6 +68,9 @@ If you are hosting frontend code somewhere without using DFX, you may need to ma
 
 ### deploy the btcwallet:
 - Run: ./scripts/deploy-btcwallet.sh
+
+### deploy the emailer:
+- Run: ./scripts/deploy-emailer.sh
 
 ### deploy the file store:
 - Run: ./scripts/deploy-filestore.sh

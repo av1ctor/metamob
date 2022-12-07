@@ -13,6 +13,7 @@ export enum Banned {
 const anonymous: ProfileResponse = {
     _id: 0,
     pubId: '',
+    active: false,
     name: 'Anonymous',
     email: '',
     avatar: ['rapper2'],

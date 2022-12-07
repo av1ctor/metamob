@@ -4,12 +4,6 @@ let Package =
 
 let additions = [
     { 
-      name = "mo-table", 
-      repo = "file:///home/v1ctor/mo-table", 
-      version = "v0.1.0", 
-      dependencies = ["base"]
-   },
-    { 
         name = "json", 
         repo = "https://github.com/aviate-labs/json.mo", 
         version = "master", 

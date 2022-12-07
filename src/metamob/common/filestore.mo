@@ -2,7 +2,7 @@ import Iter "mo:base/Iter";
 import Text "mo:base/Text";
 import TrieSet "mo:base/TrieSet";
 import Result "mo:base/Result";
-import FileStore "../interfaces/filestore";
+import FileStore "../../filestore/types";
 import D "mo:base/Debug";
 
 module FileStoreHelper {

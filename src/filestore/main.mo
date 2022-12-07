@@ -18,29 +18,16 @@ import Random "random";
 import Salloc "salloc";
 import ULID "ulid";
 import HTTP "http";
+import Types "types";
 
 shared(creator) actor class FileStore(
     _custodians: [Principal],
     _origins: [Text]
 ) = this {
-    type SizedBlob = {
-        size: Nat32;
-        blob: Blob;
-    };
-
-    type StoredFile = {
-        data: SizedBlob;
-        date: Int64;
-    };
-
-    type FileInfo = {
-        offset: Nat64;
-        contentType: Text;
-    };
 
     stable let custodians: TrieSet.Set<Principal> = TrieSet.fromArray<Principal>(_custodians, Principal.hash, Principal.equal);
     stable let origins: TrieSet.Set<Text> = TrieSet.fromArray<Text>(_origins, Text.hash, Text.equal);
-    let files: TrieMap.TrieMap<Text, FileInfo> = TrieMap.TrieMap<Text, FileInfo>(Text.equal, Text.hash);
+    let files: TrieMap.TrieMap<Text, Types.FileInfo> = TrieMap.TrieMap<Text, Types.FileInfo>(Text.equal, Text.hash);
     let salloc = Salloc.Salloc();
     let ulid = ULID.ULID(Random.Xoshiro256ss(Utils.genRandomSeed("files")));
 
@@ -230,7 +217,7 @@ shared(creator) actor class FileStore(
         id: Text,
         data: Blob
     ): Result.Result<Nat64, Text> {
-        let sf: StoredFile = {
+        let sf: Types.StoredFile = {
             data = {
                 size = Nat32.fromNat(data.size());
                 blob = data;
@@ -265,7 +252,7 @@ shared(creator) actor class FileStore(
         offset: Nat64,
         skip: Nat64,
         limit: Nat64
-    ): StoredFile {
+    ): Types.StoredFile {
         var ofs = offset;
         // date
         let date = SM.loadInt64(ofs);
@@ -298,7 +285,7 @@ shared(creator) actor class FileStore(
         };
     };
 
-    stable var fileEntries: [(Text, FileInfo)] = [];
+    stable var fileEntries: [(Text, Types.FileInfo)] = [];
     stable var sallocState: ?Salloc.State = null;
     
     system func preupgrade() {

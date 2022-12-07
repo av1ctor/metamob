@@ -13,6 +13,7 @@ import DaoService "./dao/service";
 import DaoTypes "./dao/types";
 import DonationService "./donations/service";
 import DonationTypes "./donations/types";
+import EmailerHelper "./common/emailer";
 import Error "mo:base/Error";
 import EntityTypes "common/entities";
 import FundingService "./fundings/service";
@@ -58,6 +59,7 @@ import Logger "../logger/main";
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
     btcWalletCanisterId: Text,
+    emailerCanisterId: Text,
     mmtCanisterId: Text,
     fileStoreCanisterId: Text,
     loggerCanisterId: Text
@@ -68,6 +70,7 @@ shared({caller = owner}) actor class Metamob(
     // helpers
     let ledgerHelper = LedgerHelper.LedgerHelper(ledgerCanisterId);
     let btcHelper = BtcHelper.BtcHelper(btcWalletCanisterId);
+    let emailerHelper = EmailerHelper.EmailerHelper(emailerCanisterId, {email = "noreply@metamob.io"; name = ?"metamob";});
     let logger = actor (loggerCanisterId) : Logger.Logger;
     let fileStoreHelper = FileStoreHelper.FileStoreHelper(
         fileStoreCanisterId, 
@@ -94,7 +97,7 @@ shared({caller = owner}) actor class Metamob(
         daoService, userRepo, reportRepo, notificationService
     );
     let userService = UserService.Service(
-        userRepo, daoService, moderationService, reportRepo, ledgerHelper, logger
+        userRepo, daoService, moderationService, reportRepo, ledgerHelper, emailerHelper, logger
     );
     let paymentService = PaymentService.Service(
         daoService, userService, btcHelper
@@ -224,7 +227,13 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func userCreate(
         req: UserTypes.ProfileRequest
     ): async Result.Result<UserTypes.ProfileResponse, Text> {
-        _transformUserReponse(userService.create(req, msg.caller, owner));
+        _transformUserReponse(await userService.create(req, msg.caller, owner));
+    };
+
+    public shared(msg) func userVerifyMe(
+        req: UserTypes.VerifyRequest
+    ): async Result.Result<UserTypes.ProfileResponse, Text> {
+        _transformUserReponse(await userService.verifyMe(req, msg.caller, this));
     };
 
     public shared(msg) func userUpdateMe(
@@ -295,6 +304,7 @@ shared({caller = owner}) actor class Metamob(
         {
             _id = prof._id;
             pubId = prof.pubId;
+            active = prof.active;
             name = prof.name;
             email = "";
             avatar = prof.avatar;
@@ -1832,6 +1842,7 @@ shared({caller = owner}) actor class Metamob(
     stable var donationEntities: [[(Text, Variant.Variant)]] = [];
     stable var fundingEntities: [[(Text, Variant.Variant)]] = [];
     stable var updateEntities: [[(Text, Variant.Variant)]] = [];
+    stable var boostEntities: [[(Text, Variant.Variant)]] = [];
     stable var reportEntities: [[(Text, Variant.Variant)]] = [];
     stable var moderationEntities: [[(Text, Variant.Variant)]] = [];
     stable var challengeEntities: [[(Text, Variant.Variant)]] = [];
@@ -1851,6 +1862,7 @@ shared({caller = owner}) actor class Metamob(
         donationEntities := donationService.backup();
         fundingEntities := fundingService.backup();
         updateEntities := updateService.backup();
+        boostEntities := boostService.backup();
         reportEntities := reportService.backup();
         moderationEntities := moderationService.backup();
         challengeEntities := challengeService.backup();
@@ -1892,6 +1904,9 @@ shared({caller = owner}) actor class Metamob(
         
         updateService.restore(updateEntities);
         updateEntities := [];
+        
+        boostService.restore(boostEntities);
+        boostEntities := [];
         
         reportService.restore(reportEntities);
         reportEntities := [];

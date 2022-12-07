@@ -17,6 +17,7 @@ module {
         _id: Nat32;
         pubId: Text;
         principal: Text;
+        verifySecret: Text;
         name: Text;
         email: Text;
         avatar: ?Text;
@@ -44,11 +45,16 @@ module {
     public type ProfileResponse = {
         _id: Nat32;
         pubId: Text;
+        active: Bool;
         name: Text;
         email: Text;
         avatar: ?Text;
         roles: [Role];
         country: Text;
         moderated: ModerationTypes.ModerationReason;
+    };
+
+    public type VerifyRequest = {
+        secret: Text;
     };
 };

@@ -31,6 +31,12 @@ module {
         ): Int {
             Variant.getOptInt(vars.get(key));
         };
+
+        public func getAsText(
+            key: Text
+        ): Text {
+            Variant.getOptText(vars.get(key));
+        };
         
         public func set(
             key: Text,

@@ -1,3 +1,4 @@
+import Result "mo:base/Result";
 import Curves "./mo-btc/src/ec/Curves";
 
 module Types {
@@ -116,5 +117,17 @@ module Types {
         act: Principal;
         method: Text;
         args: Blob;
+    };
+
+    public type PublicMethod = {
+        #addPendingDeposit;
+        #transferToMainAccount;
+    };
+
+    public type Interface = actor {
+        getCost: query (method: PublicMethod) -> async Nat;
+        getAddress: (path: [[Nat8]]) -> async BitcoinAddress;
+        addPendingDeposit: (id: Text, address: BitcoinAddress, value: Satoshi, callback: Callback) -> async Result.Result<(), Text>;
+        transferToMainAccount: (path: [[Nat8]]) -> async Text;
     };
 }

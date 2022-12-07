@@ -41,12 +41,19 @@
     "btcwallet": {
       "main": "src/btcwallet/main.mo",
       "type": "motoko"
+    },
+    "emailer": {
+      "main": "src/emailer/main.mo",
+      "type": "motoko"
     }
   },
   "defaults": {
     "bitcoin": {
       "enabled": true,
       "nodes": ["127.0.0.1:18444"]
+    },
+    "canister_http": {
+      "enabled": true
     },
     "build": {
       "args": "--max-stable-pages=524288",

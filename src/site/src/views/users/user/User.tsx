@@ -16,6 +16,7 @@ import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
 import { useWallet } from "../../../hooks/wallet";
+import CheckboxField from "../../../components/CheckboxField";
 
 interface Props {
 }
@@ -168,6 +169,24 @@ const User = (props: Props) => {
             </div>
             
             <form onSubmit={handleUpdate}>
+                <div className="columns">
+                    <div className="column is-12">
+                        <TextField 
+                            label="Id"
+                            value={user.pubId}
+                            disabled
+                        />
+                    </div>
+                </div>
+                <div className="columns">
+                    <div className="column is-12">
+                        <CheckboxField 
+                            label="Active"
+                            value={user.active}
+                            disabled
+                        />
+                    </div>
+                </div>
                 <div className="columns">
                     <div className="column is-12">
                         <TextField 

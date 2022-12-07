@@ -41,6 +41,7 @@ module {
         config.set("POAP_MINTING_MIN_PRICE",        #nat64(   1_00000000)); // 1 ICP
         config.set("POAP_MINTING_TAX",              #nat64(30));            // 30%
         config.set("RATE_BTC_ICP",                  #nat64(4028_4360));     // 17000 / 4.22 usd in e4s
+        config.set("BASE_APP_URL",                  #text("http://localhost:8080"));
 
         func _setConfigVar(
             key: Text,
@@ -149,6 +150,12 @@ module {
             key: Text
         ): Int {
             config.getAsInt(key);
+        };
+
+        public func configGetAsText(
+            key: Text
+        ): Text {
+            config.getAsText(key);
         };
 
         public func transferFromTreasury(

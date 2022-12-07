@@ -15,6 +15,7 @@ import UserPlaces from "../users/user/Places";
 import UserReports from "../users/user/Reports";
 import UserChallenges from "../users/user/Challenges";
 import UserNotifications from "../users/user/Notifications";
+import UserVerification from "../users/user/Verification";
 import Logon from "../auth/Logon";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -70,6 +71,7 @@ export const Home = () => {
                         <Route path="/user/reports" element={<UserReports />} />
                         <Route path="/user/challenges" element={<UserChallenges />} />
                         <Route path="/user/notifications" element={<UserNotifications />} />
+                        <Route path="/user/verify/:id/:secret" element={<UserVerification />} />
                         <Route path="/c/:id" element={<Campaign />} />
                         <Route path="/p/:id" element={<Place />} />
                         <Route path="/u/:id" element={<PublicProfile />} />
