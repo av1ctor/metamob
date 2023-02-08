@@ -2,7 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
+//const CopyPlugin = require("copy-webpack-plugin");
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const {transform} = require('@formatjs/ts-transformer');
@@ -120,14 +120,14 @@ module.exports = /*smp.wrap(*/{
     new MiniCssExtractPlugin({
       filename: "src/site/assets/mystyles.css"
     }),
-    new CopyPlugin({
+    /*new CopyPlugin({
       patterns: [
         {
           from: path.join(__dirname, "src", frontendDirectory, "assets"),
           to: path.join(__dirname, "dist", frontendDirectory),
         },
       ],
-    }),
+    }),*/
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       ...canisterEnvVariables,
