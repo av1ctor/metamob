@@ -10,6 +10,10 @@ export const languages: Lang[] = [
 ];
 
 export const loadMessages = async (locale: string) => {
+    if(locale === 'en') {
+        return {};
+    }
+
     const res = await fetch(`/lang/${locale}.json`);
     if(!res.ok) {
         return {};
