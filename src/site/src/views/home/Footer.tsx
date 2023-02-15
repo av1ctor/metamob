@@ -3,6 +3,9 @@ import { FormattedMessage } from "react-intl";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+
+    const year = new Date().getFullYear();
+
     return (
         <footer className="footer has-background-dark has-text-white is-size-7">
             <div className="container">
@@ -26,11 +29,6 @@ const Footer = () => {
                                     <FormattedMessage id="Jobs" defaultMessage="Jobs" />
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/team">
-                                    <FormattedMessage id="Team" defaultMessage="Team" />
-                                </Link>
-                            </li>
                         </ul>
                     </div>
                     <div className="column is-4">
@@ -45,20 +43,9 @@ const Footer = () => {
                                     <FormattedMessage id="Privacy" defaultMessage="Privacy" />
                                 </Link>
                             </li>
-                            <li>
-                                <Link to="/contact">
-                                    <FormattedMessage id="Contact" defaultMessage="Contact" />
-                                </Link>
-                            </li>
                         </ul>
                     </div>
                     <div className="column is-4">
-                        <a 
-                            href="https://facebook.com/metamobdotorg"
-                            target="_blank"
-                        >
-                            <div className="icon is-size-4"><i className="la la-facebook"/></div>
-                        </a>
                         <a 
                             href="https://twitter.com/metamobdotorg"
                             target="_blank"
@@ -66,17 +53,17 @@ const Footer = () => {
                             <div className="icon is-size-4"><i className="la la-twitter"/></div>
                         </a>
                         <a 
-                            href="https://instagram.com/metamobdotorg"
+                            href="https://github.com/av1ctor/metamob"
                             target="_blank"
                         >
-                            <div className="icon is-size-4"><i className="la la-instagram"/></div>
+                            <div className="icon is-size-4"><i className="la la-github"/></div>
                         </a>
                     </div>
                 </div>
                 <div className="divider">
                 </div>
                 <div>
-                    © 2022 metamob
+                    © 2022-{year} metamob
                 </div>
             </div>
         </footer>
