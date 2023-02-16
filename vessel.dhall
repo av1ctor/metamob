@@ -1,4 +1,4 @@
 {
-  dependencies = [ "base", "matchers", "mo-table", "sha256", "json"],
+  dependencies = [ "base", "mo-table", "json", "sha256"],
   compiler = None Text
 }

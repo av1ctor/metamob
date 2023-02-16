@@ -1,16 +1,22 @@
-let upstream = https://github.com/dfinity/vessel-package-set/releases/download/mo-0.6.21-20220215/package-set.dhall sha256:b46f30e811fe5085741be01e126629c2a55d4c3d6ebf49408fb3b4a98e37589b
-let Package =
-    { name : Text, version : Text, repo : Text, dependencies : List Text }
+let base = https://github.com/internet-computer/base-package-set/releases/download/moc-0.7.4/package-set.dhall sha256:3a20693fc597b96a8c7cf8645fda7a3534d13e5fbda28c00d01f0b7641efe494
+let Package = { name : Text, version : Text, repo : Text, dependencies : List Text }
 
-let additions = [] : List Package
+let additions = [
+    {
+        name = "sha256",
+        repo = "https://github.com/enzoh/motoko-sha",
+        version = "master",
+        dependencies = ["base"]
+    }
+] : List Package
 
 let overrides = [
     {
         name = "base",
         repo = "https://github.com/dfinity/motoko-base",
         version = "master",
-        dependencies = [] : List Text
+        dependencies = []
     }
 ] : List Package
 
-in  upstream # additions # overrides
+in  base # additions # overrides

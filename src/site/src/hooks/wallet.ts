@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { canisterId as metamobCanisterId } from "../../../declarations/metamob";
-import { idlFactory as Ledger } from "../../../declarations/ledger";
+import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { ActorContext } from "../stores/actor";
 import { AuthContext } from "../stores/auth";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
@@ -52,6 +52,7 @@ export const useWallet = (
                 }
             });
         }).catch(e => {
+            console.error(e)
         });
     };
 
@@ -212,7 +213,7 @@ const _getIcpBalance = async (
     }
     
     const res = await ledger.account_balance({
-        account: Array.from(principalToAccountDefaultIdentifier(principal))
+        account: Array.from(principalToAccountDefaultIdentifier(principal)) as any
     });
 
     return res.e8s;

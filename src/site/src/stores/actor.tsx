@@ -1,6 +1,6 @@
 import React, {createContext, useReducer} from "react";
 import { Metamob } from "../../../declarations/metamob/metamob.did";
-import { idlFactory as Ledger } from "../../../declarations/ledger";
+import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
 
 export interface ActorState {

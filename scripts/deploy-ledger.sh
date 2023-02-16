@@ -2,11 +2,11 @@
 
 #NOTE: assuming dfx.json is configured as shown at https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup (until step 7)
 
-export IC_VERSION=dd3a710b03bd3ae10368a91b255571d012d1ec2f
-curl -o ./canisters-dev/ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister_notify-method.wasm.gz
-gunzip ./canisters-dev/ledger.wasm.gz
-curl -o ./canisters-dev/ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger.did
-curl -o ./canisters-dev/ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger_canister/ledger.did
+#export IC_VERSION=dd3a710b03bd3ae10368a91b255571d012d1ec2f
+#curl -o ./canisters-dev/ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister_notify-method.wasm.gz
+#gunzip ./canisters-dev/ledger.wasm.gz
+#curl -o ./canisters-dev/ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger.did
+#curl -o ./canisters-dev/ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger_canister/ledger.did
 
 dfx identity new minter
 dfx identity use minter

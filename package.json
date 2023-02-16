@@ -16,7 +16,7 @@
     "prod:back": "./scripts/deploy-backend-prod.sh",
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
     "prestart": "npm run generate",
-    "generate": "dfx generate metamob",
+    "generate": "dfx generate metamob & dfx generate logger & dfx generate emailer & dfx generate btcwallet & dfx generate mmt & dfx generate ledger",
     "i18n:extract": "formatjs extract -- \"src/site/src/**/*.ts*\" --ignore=\"**/*.d.ts\" --out-file \"src/site/assets/lang/en.json\" --id-interpolation-pattern \"[sha512:contenthash:base64:6]\""
   },
   "devDependencies": {
@@ -48,9 +48,9 @@
     "fork-ts-checker-webpack-plugin": "^7.2.11",
     "html-webpack-plugin": "5.5.0",
     "mini-css-extract-plugin": "^2.6.0",
-    "node-sass": "^7.0.1",
+    "node-sass": "8.0.0",
     "process": "0.11.10",
-    "sass-loader": "^12.6.0",
+    "sass-loader": "13.2.0",
     "speed-measure-webpack-plugin": "^1.5.0",
     "stream-browserify": "3.0.0",
     "style-loader": "^3.3.1",

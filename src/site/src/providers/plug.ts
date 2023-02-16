@@ -161,7 +161,7 @@ class PlugProvider implements ICProvider {
         }
         
         const res = await this.ledger?.transfer({
-            to: to,
+            to: to as any,
             amount: {e8s: amount},
             fee: {e8s: LEDGER_TRANSFER_FEE},
             memo: memo,
