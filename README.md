@@ -2,10 +2,10 @@
 
 https://wbpm2-ciaaa-aaaan-qajta-cai.ic0.app/
 
-## install a local Bitcoin network
+### install a local Bitcoin network
 - Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development
 
-## start dfx
+### start dfx
 - Run: dfx start --enable-bitcoin
 
 ### deploy the local internet_identity canister:
