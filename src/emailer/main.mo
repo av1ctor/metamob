@@ -103,6 +103,9 @@ shared(owner) actor class Emailer(
                     #Object([("email", #String(to.email))])
                 })
             )),
+            ("headers", #Object([
+                ("idempotencyKey", #String(item.id))
+            ])),
             switch(req.content) {
                 case (#templateId(id)) {
                     ("templateId", #Number(Nat32.toNat(id)));
@@ -140,7 +143,6 @@ shared(owner) actor class Emailer(
             {name = "User-Agent"; value = "IC emailer"},
             {name = "Accept"; value = "application/json"},
             {name = "Content-Type"; value = "application/json";},
-            {name = "idempotencyKey"; value = item.id;},
             {name = "api-key"; value = apiKey},
         ];
 
