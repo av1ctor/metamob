@@ -50,7 +50,7 @@ https://wbpm2-ciaaa-aaaan-qajta-cai.ic0.app/
 
 ### configure the frontend
 - Change the "const [form, setForm] = useState<ProfileRequest>({" at site/src/views/users/user/Create.tsx to include "roles: [[{admin: null}]], active: [true],"
-- Run: npm run generate
+- Run: npm run dev:generate
 - Run: npm run dev:front
 - Go to the login page and create a new Internet Identity anchor: http://localhost:8080/
 - Create a new account with the admin role

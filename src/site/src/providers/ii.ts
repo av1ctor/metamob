@@ -2,6 +2,7 @@ import { ActorSubclass, Identity } from "@dfinity/agent";
 import { createActor as metamobCreateActor, canisterId as metamobCanisterId } from "../../../declarations/metamob";
 import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
 import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt";
+import { canisterId as siteCanisterId } from "../../../declarations/site";
 import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
 import { AuthClient } from "@dfinity/auth-client";
 import { ICProvider } from "../interfaces/icprovider";
@@ -74,7 +75,7 @@ class InternetIdentityProvider implements ICProvider {
             this.client?.login({
                 identityProvider: config.II_URL,
                 derivationOrigin: config.isProduction?
-                     `https://${metamobCanisterId}.ic0.app`: 
+                     `https://${siteCanisterId}.ic0.app`: 
                      undefined,
                 maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
                 windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
