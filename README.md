@@ -1,6 +1,6 @@
 # metamob
 
-https://wbpm2-ciaaa-aaaan-qajta-cai.ic0.app/
+https://site.metamob.app/
 
 ### install a local Bitcoin network
 - Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development
