@@ -73,6 +73,9 @@ class InternetIdentityProvider implements ICProvider {
         return new Promise((resolve) => {
             this.client?.login({
                 identityProvider: config.II_URL,
+                derivationOrigin: config.isProduction?
+                     `https://${metamobCanisterId}.ic0.app`: 
+                     undefined,
                 maxTimeToLive: BigInt(7 * 24) * BigInt(3_600_000_000_000), // 1 week
                 windowOpenerFeatures: `toolbar=0,location=0,menubar=0,width=${width},height=${height},top=${top},left=${left}`,
                 onSuccess: () => {
