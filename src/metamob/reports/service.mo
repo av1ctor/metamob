@@ -133,7 +133,7 @@ module {
             req: Types.ReportRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Report, Text> {
+        ): async* Result.Result<Types.Report, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -178,7 +178,7 @@ module {
             req: Types.ReportCloseRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Report, Text> {
+        ): async* Result.Result<Types.Report, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -223,7 +223,7 @@ module {
                                     };
                                     case (#ok(reporter)) {
                                         let reportReward = daoService.config.getAsNat64("REPORTER_REWARD");
-                                        ignore await daoService.rewardUser(Principal.fromText(reporter.principal), reportReward, this);
+                                        ignore await* daoService.rewardUser(Principal.fromText(reporter.principal), reportReward, this);
 
                                         ignore logger.info(this, "User " # reporter.pubId # " received a reward because his report was accepted");
                                         ignore notificationService.create({
@@ -241,7 +241,7 @@ module {
                             };
 
                             let modReward = daoService.config.getAsNat64("MODERATOR_REWARD");
-                            ignore await daoService.rewardUser(invoker, modReward, this);
+                            ignore await* daoService.rewardUser(invoker, modReward, this);
 
                             ignore logger.info(this, "Moderator " # caller.pubId # " received a reward because he moderated a report");
                             ignore notificationService.create({
@@ -345,7 +345,7 @@ module {
 
         public func verify(
             this: actor {}
-        ): async () {
+        ): async* () {
             let dueAt = Time.now() + daoService.config.getAsInt("REPORT_MODERATING_SPAN");
 
             switch(repo.findDue(100)) {

@@ -19,7 +19,7 @@ module EmailerHelper {
         var sendCost = 0;
 
         func _getSendCost(
-        ): async Nat {
+        ): async* Nat {
             if(sendCost == 0) {
                 sendCost := await emailer.getCost(#send);
             };
@@ -30,9 +30,9 @@ module EmailerHelper {
             to: [Address],
             templateId: Nat32,
             params: [Param]
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
-                ExCycles.add(await _getSendCost());
+                ExCycles.add(await* _getSendCost());
                 await emailer.send({
                         sender = sender;
                         to = to;

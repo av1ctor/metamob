@@ -64,7 +64,7 @@ module {
             req: Types.ChallengeRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Challenge, Text> {
+        ): async* Result.Result<Types.Challenge, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -98,7 +98,7 @@ module {
                                     #err("Report not found");
                                 };
                                 case (#ok(report)) {
-                                    switch(await daoService.deposit(
+                                    switch(await* daoService.deposit(
                                         Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
                                         Principal.fromText(caller.principal), 
                                         this
@@ -116,7 +116,7 @@ module {
 
                                     switch(repo.create(req, moderation.entityId, moderation.entityType, judges, dueAt, caller._id)) {
                                         case (#err(msg)) {
-                                            ignore await daoService.reimburse(
+                                            ignore await* daoService.reimburse(
                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
                                                 Principal.fromText(caller.principal), 
                                                 this);
@@ -195,7 +195,7 @@ module {
             req: Types.ChallengeRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Challenge, Text> {
+        ): async* Result.Result<Types.Challenge, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -236,7 +236,7 @@ module {
             req: Types.ChallengeVoteRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Challenge, Text> {
+        ): async* Result.Result<Types.Challenge, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -298,7 +298,7 @@ module {
                                                         case (#ok(challenger)) {
                                                             ignore _revertModeration(moderation);
 
-                                                            ignore await daoService.reimburse(
+                                                            ignore await* daoService.reimburse(
                                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
                                                                 Principal.fromText(challenger.principal), 
                                                                 this
@@ -310,7 +310,7 @@ module {
                                                                 body = "Your challenge with id " # e.pubId # " was accepted and the MMT you deposited was reimbursed!";
                                                             }, challenger._id);
 
-                                                            await _punishModerator(moderation.createdBy, e, "reverted", this);
+                                                            await* _punishModerator(moderation.createdBy, e, "reverted", this);
                                                         };
                                                     };
                                                 }
@@ -353,7 +353,7 @@ module {
             challenge: Types.Challenge,
             reason: Text,
             this: actor {}
-        ): async () {
+        ): async* () {
             switch(userService.findById(userId)) {
                 case (#err(_)) {
                 };
@@ -383,9 +383,9 @@ module {
 
         func _revertModeration(
             moderation: ModerationTypes.Moderation
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             if(moderation.entityType == EntityTypes.TYPE_CAMPAIGNS) {
-                await campaignService.revertModeration(moderation);
+                await* campaignService.revertModeration(moderation);
             }
             else if(moderation.entityType == EntityTypes.TYPE_DONATIONS) {
                 donationService.revertModeration(moderation);
@@ -573,7 +573,7 @@ module {
 
         public func verify(
             this: actor {}
-        ): async () {
+        ): async* () {
             let dueAt = Time.now() + daoService.config.getAsInt("CHALLENGE_VOTING_SPAN");
 
             switch(repo.findDue(100)) {
@@ -583,7 +583,7 @@ module {
                         for(challenge in challenges.vals()) {
                             let toPunish = _selectNewJury(challenge, dueAt);
                             for(userId in toPunish.vals()) {
-                                await _punishModerator(userId, challenge, "expired", this);
+                                await* _punishModerator(userId, challenge, "expired", this);
                             };
                         };
                     };

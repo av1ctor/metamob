@@ -58,8 +58,8 @@ module {
             cb: (
                 req: Types.CampaignRequest, 
                 caller: UserTypes.Profile
-            ) -> async Result.Result<Types.Campaign, Text>
-        ): async Result.Result<Types.Campaign, Text> {
+            ) -> async* Result.Result<Types.Campaign, Text>
+        ): async* Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -73,7 +73,7 @@ module {
                             return #err("Invalid field: state");
                         };
                         
-                        switch(await placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
+                        switch(await* placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
@@ -114,9 +114,9 @@ module {
                                     };
                                 };
 
-                                let goal = await _calcGoal(req, place);
+                                let goal = await* _calcGoal(req, place);
                                 
-                                await cb({req with goal = goal;}, caller);
+                                await* cb({req with goal = goal;}, caller);
                             };
                         };
                     };
@@ -127,14 +127,14 @@ module {
         func _calcGoal(
             req: Types.CampaignRequest,
             place: PlaceTypes.Place
-        ): async Nat {
+        ): async* Nat {
             if(req.kind == Types.KIND_VOTES or req.kind == Types.KIND_WEIGHTED_VOTES) {
                 switch(place.auth) {
                     case (#dip20(dip)) {
-                        (await DIP20.totalSupply(dip.canisterId)) / 2 + 1;
+                        (await* DIP20.totalSupply(dip.canisterId)) / 2 + 1;
                     };
                     case (#dip721(dip)) {
-                        (await DIP721.totalSupply(dip.canisterId)) / 2 + 1;
+                        (await* DIP721.totalSupply(dip.canisterId)) / 2 + 1;
                     };
                     case _ {
                         req.goal;
@@ -150,15 +150,15 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            await _create(
+        ): async* Result.Result<Types.Campaign, Text> {
+            await* _create(
                 req,
                 invoker,
                 this,
                 func(
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
+                ): async* Result.Result<Types.Campaign, Text> {
                     switch(repo.create(req, caller._id)) {
                         case (#ok(e)) {
                             ignore logger.info(this, "Campaign " # e.pubId # " created by " # caller.pubId);
@@ -177,7 +177,7 @@ module {
             file: FileStoreHelper.FileRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
+        ): async* Result.Result<Types.Campaign, Text> {
             switch(fileStoreHelper.checkFileRequest(file)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -186,15 +186,15 @@ module {
                 };
             };
             
-            await _create(
+            await* _create(
                 req,
                 invoker,
                 this,
                 func(
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
-                    switch(await fileStoreHelper.create(file)) {
+                ): async* Result.Result<Types.Campaign, Text> {
+                    switch(await* fileStoreHelper.create(file)) {
                         case (#err(msg)) {
                             #err(msg);
                         };
@@ -225,8 +225,8 @@ module {
                 place: PlaceTypes.Place,
                 req: Types.CampaignRequest, 
                 caller: UserTypes.Profile
-            ) -> async Result.Result<Types.Campaign, Text>
-        ): async Result.Result<Types.Campaign, Text> {
+            ) -> async* Result.Result<Types.Campaign, Text>
+        ): async* Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -273,12 +273,12 @@ module {
                                     };
                                 };
 
-                                switch(await placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
+                                switch(await* placeService.checkAccess(caller, req.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
                                     case (#ok(place)) {
-                                        await cb(campaign, place, req, caller);
+                                        await* cb(campaign, place, req, caller);
                                     };
                                 };
                             };
@@ -295,10 +295,10 @@ module {
             updated: Types.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             if(campaign.total >= req.goal) {
                 if(updated.kind != Types.KIND_FUNDING) {
-                    switch(await finishAndRunAction(
+                    switch(await* finishAndRunAction(
                             updated, Types.RESULT_OK, caller, this)) {
                         case (#err(msg)) {
                             return #err(msg);
@@ -308,7 +308,7 @@ module {
                     };
                 }
                 else {
-                    switch(await startBuildingAndRunAction(updated, caller, this)) {
+                    switch(await* startBuildingAndRunAction(updated, caller, this)) {
                         case (#err(msg)) {
                             return #err(msg);
                         };
@@ -326,8 +326,8 @@ module {
             req: Types.CampaignRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            await _update(
+        ): async* Result.Result<Types.Campaign, Text> {
+            await* _update(
                 id,
                 req,
                 invoker,
@@ -337,7 +337,7 @@ module {
                     place: PlaceTypes.Place,
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
+                ): async* Result.Result<Types.Campaign, Text> {
                     switch(repo.update(campaign, req, caller._id)) {
                         case (#err(msg)) {
                             return #err(msg);
@@ -345,7 +345,7 @@ module {
                         case(#ok(e)) {
                             if(campaign.goal != req.goal) {
                                 if(req.goal > 0) {
-                                    switch(await _checkGoal(req, campaign, place, e, caller, this)) {
+                                    switch(await* _checkGoal(req, campaign, place, e, caller, this)) {
                                         case (#err(msg)) {
                                             return #err(msg);
                                         };
@@ -369,8 +369,8 @@ module {
             file: FileStoreHelper.FileRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            await _update(
+        ): async* Result.Result<Types.Campaign, Text> {
+            await* _update(
                 id,
                 req,
                 invoker,
@@ -380,8 +380,8 @@ module {
                     place: PlaceTypes.Place,
                     req: Types.CampaignRequest, 
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
-                    switch(await fileStoreHelper.create(file)) {
+                ): async* Result.Result<Types.Campaign, Text> {
+                    switch(await* fileStoreHelper.create(file)) {
                         case (#err(msg)) {
                             #err(msg);
                         };
@@ -397,7 +397,7 @@ module {
 
                                     if(campaign.goal != req.goal) {
                                         if(req.goal > 0) {
-                                            switch(await _checkGoal(req, campaign, place, e, caller, this)) {
+                                            switch(await* _checkGoal(req, campaign, place, e, caller, this)) {
                                                 case (#err(msg)) {
                                                     return #err(msg);
                                                 };
@@ -423,8 +423,8 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {},
-            cb: (campaign: Types.Campaign, req: Types.CampaignRequest, mod: ModerationTypes.Moderation, caller: UserTypes.Profile) -> async Result.Result<Types.Campaign, Text>
-        ): async Result.Result<Types.Campaign, Text> {
+            cb: (campaign: Types.Campaign, req: Types.CampaignRequest, mod: ModerationTypes.Moderation, caller: UserTypes.Profile) -> async* Result.Result<Types.Campaign, Text>
+        ): async* Result.Result<Types.Campaign, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -468,7 +468,7 @@ module {
                                             };
                                             case (#ok(moderation)) {
                                                 ignore logger.info(this, "Campaign " # campaign.pubId # " moderated by " # caller.pubId);
-                                                await cb(campaign, req, moderation, caller);
+                                                await* cb(campaign, req, moderation, caller);
                                             };
                                         };
                                     };
@@ -486,8 +486,8 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            await _moderate(
+        ): async* Result.Result<Types.Campaign, Text> {
+            await* _moderate(
                 id,
                 req,
                 mod,
@@ -498,7 +498,7 @@ module {
                     req: Types.CampaignRequest, 
                     mod: ModerationTypes.Moderation,
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
+                ): async* Result.Result<Types.Campaign, Text> {
                     repo.moderate(campaign, req, mod, caller._id);
                 }
             );
@@ -511,8 +511,8 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
-            await _moderate(
+        ): async* Result.Result<Types.Campaign, Text> {
+            await* _moderate(
                 id,
                 req,
                 mod,
@@ -523,8 +523,8 @@ module {
                     req: Types.CampaignRequest, 
                     mod: ModerationTypes.Moderation,
                     caller: UserTypes.Profile
-                ): async Result.Result<Types.Campaign, Text> {
-                    switch(await fileStoreHelper.create(file)) {
+                ): async* Result.Result<Types.Campaign, Text> {
+                    switch(await* fileStoreHelper.create(file)) {
                         case (#err(msg)) {
                             #err(msg);
                         };
@@ -538,7 +538,7 @@ module {
 
         public func revertModeration(
             mod: ModerationTypes.Moderation
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(repo.findById(mod.entityId)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -616,8 +616,8 @@ module {
             action: Types.CampaignTransferFundsAction,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<(), Text> {
-            let balance = await ledgerHelper.getCampaignBalance(campaign, this);
+        ): async* Result.Result<(), Text> {
+            let balance = await* ledgerHelper.getCampaignBalance(campaign, this);
             if(balance <= Types.MIN_WITHDRAW_VALUE) {
                 return #err("Nothing to withdraw");
             };
@@ -639,7 +639,7 @@ module {
             );
 
             try {
-                ignore await ledgerHelper.withdrawFromCampaignSubaccountLessTax(
+                ignore await* ledgerHelper.withdrawFromCampaignSubaccountLessTax(
                     campaign, 
                     balance, 
                     tax,
@@ -661,7 +661,7 @@ module {
             action: Types.CampaignInvokeMethodAction,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             if(action.canisterId.size() == 0) {
                 return #ok();
             };
@@ -685,13 +685,13 @@ module {
             campaign: Types.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(campaign.action) {
                 case (#transfer(action)) {
-                    await _transferFunds(campaign, action, caller, this);
+                    await* _transferFunds(campaign, action, caller, this);
                 };
                 case (#invoke(action)) {
-                    await _invokeMethod(campaign, action, caller, this);
+                    await* _invokeMethod(campaign, action, caller, this);
                 };
                 case _ {
                     #ok();
@@ -704,11 +704,11 @@ module {
             result: Types.CampaignResult,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
+        ): async* Result.Result<Types.Campaign, Text> {
             let res = repo.finish(campaign, result, caller._id);
 
             if(result == Types.RESULT_OK) {
-                switch(await _runAction(campaign, caller, this)) {
+                switch(await* _runAction(campaign, caller, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -729,7 +729,7 @@ module {
         func _refundFunders(
             campaign: Types.Campaign,
             this: actor {}
-        ): async () {
+        ): async* () {
             let app = Account.accountIdentifier(
                 Principal.fromActor(this), 
                 Account.defaultSubaccount()
@@ -759,7 +759,7 @@ module {
                                                     Account.defaultSubaccount()
                                                 );
 
-                                                switch(await ledgerHelper.withdrawFromCampaignSubaccountLessTax(
+                                                switch(await* ledgerHelper.withdrawFromCampaignSubaccountLessTax(
                                                     campaign, amount, Types.REFUND_TAX, to, app, 1
                                                 )) {
                                                     case (#err(msg)) {
@@ -791,10 +791,10 @@ module {
             campaign: Types.Campaign, 
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
+        ): async* Result.Result<Types.Campaign, Text> {
             let res = repo.startBuilding(campaign, caller._id);
 
-            switch(await _runAction(campaign, caller, this)) {
+            switch(await* _runAction(campaign, caller, this)) {
                 case (#err(msg)) {
                     return #err(msg);
                 };
@@ -810,7 +810,7 @@ module {
             result: Types.CampaignResult,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Types.Campaign, Text> {
+        ): async* Result.Result<Types.Campaign, Text> {
             if(not hasAuth(caller)) {
                 #err("Forbidden");
             }
@@ -819,7 +819,7 @@ module {
                     return #err("Forbidden");
                 };
 
-                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
+                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                     case (#err(msg)) {
                         #err(msg);
                     };
@@ -828,7 +828,7 @@ module {
                             if(result == Types.RESULT_OK and campaign.goal != 0) {
                                 return #err("Result will be automatically set when the goal is reached");
                             };
-                            await finishAndRunAction(campaign, result, caller, this);
+                            await* finishAndRunAction(campaign, result, caller, this);
                         }
                         else {
                             repo.finish(campaign, result, caller._id);
@@ -912,7 +912,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -933,7 +933,7 @@ module {
                                     };
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_CREATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -965,7 +965,7 @@ module {
 
         public func verify(
             this: actor {}
-        ): async () {
+        ): async* () {
             switch(repo.findExpired(100)) {
                 case (#ok(campaigns)) {
                     if(campaigns.size() > 0) {
@@ -975,7 +975,7 @@ module {
                             ignore repo.finish(campaign, Types.RESULT_NOK, 1);
                             
                             if(campaign.kind == Types.KIND_FUNDING) {
-                                await _refundFunders(campaign, this);
+                                await* _refundFunders(campaign, this);
                             };
                             
                             ignore notificationService.create({

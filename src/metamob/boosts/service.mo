@@ -46,7 +46,7 @@ module {
             req: Types.BoostRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Boost, Text> {
+        ): async* Result.Result<Types.Boost, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -61,7 +61,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -74,7 +74,7 @@ module {
                                                 if(e.currency == PaymentTypes.CURRENCY_BTC) {
                                                     ignore paymentService.addPendingBtcDeposit(
                                                         "boost-" # e.pubId,
-                                                        await paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
+                                                        await* paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
                                                         Nat64.fromNat(e.value),
                                                         "boostOnBtcDepositConfirmed",
                                                         [{key = "id"; value = #nat32(e._id);}],
@@ -98,7 +98,7 @@ module {
             id: Text, 
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Boost, Text> {
+        ): async* Result.Result<Types.Boost, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -127,19 +127,19 @@ module {
                                         };
 
                                         let value = Nat64.fromNat(entity.value);
-                                        let balance = await ledgerHelper.getUserBalance(invoker, this);
+                                        let balance = await* ledgerHelper.getUserBalance(invoker, this);
                                         if(balance < value + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                             return #err("Insufficient balance");
                                         };
                                         
-                                        switch(await ledgerHelper
+                                        switch(await* ledgerHelper
                                             .transferFromUserSubaccountToCampaignSubaccountEx(
                                                 campaign, caller._id, value, invoker, this)) {
                                             case (#err(msg)) {
                                                 return #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                await _complete(entity, campaign, caller, this);
+                                                await* _complete(entity, campaign, caller, this);
                                             };
                                         };
                                     };
@@ -162,7 +162,7 @@ module {
             btcWalletCanisterId: Text,
             invoker: Principal,
             this: actor {}
-        ): async () {
+        ): async* () {
             if(Principal.toText(invoker) != btcWalletCanisterId) {
                 return;
             };
@@ -187,7 +187,7 @@ module {
                                     return;
                                 };
                                 case (#ok(caller)) {
-                                    ignore await _complete(entity, campaign, caller, this);
+                                    ignore await* _complete(entity, campaign, caller, this);
                                     return;
                                 };
                             };
@@ -202,7 +202,7 @@ module {
             campaign: CampaignTypes.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Types.Boost, Text> {
+        ): async* Result.Result<Types.Boost, Text> {
             switch(repo.complete(entity, _calcValueInIcp(entity), caller._id)) {
                 case(#ok(e)) {
                     let value = Nat64.fromNat(entity.value);
@@ -227,7 +227,7 @@ module {
             req: Types.BoostRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Boost, Text> {
+        ): async* Result.Result<Types.Boost, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -251,7 +251,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

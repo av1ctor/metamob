@@ -34,7 +34,7 @@ module {
         public func getCampaignBalance(
             campaign: CampaignTypes.Campaign,
             this: actor {}
-        ): async Nat64 {
+        ): async* Nat64 {
             let accountId = Account.accountIdentifier(
                 Principal.fromActor(this), 
                 Account.textToSubaccount(campaign.pubId)
@@ -46,7 +46,7 @@ module {
         public func getUserBalance(
             invoker: Principal,
             this: actor {}
-        ): async Nat64 {
+        ): async* Nat64 {
             let userAccountId = getAccountId(invoker, this);
             let balance = await ledger.account_balance({ account = userAccountId });
             return balance.e8s;
@@ -58,7 +58,7 @@ module {
             to: AccountTypes.AccountIdentifier,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Nat64, Text> {
+        ): async* Result.Result<Nat64, Text> {
             
             let receipt = await ledger.transfer({
                 memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
@@ -85,7 +85,7 @@ module {
             amount: Nat64,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Nat64, Text> {
+        ): async* Result.Result<Nat64, Text> {
             
             let receipt = await ledger.transfer({
                 memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
@@ -114,11 +114,11 @@ module {
             callerId: Nat32,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Nat64, Text> {
-            await transferFromUserSubaccountToCampaignSubaccountEx(
+        ): async* Result.Result<Nat64, Text> {
+            await* transferFromUserSubaccountToCampaignSubaccountEx(
                 campaign, 
                 callerId, 
-                await getUserBalance(invoker, this), 
+                await* getUserBalance(invoker, this), 
                 invoker, 
                 this
             );
@@ -129,7 +129,7 @@ module {
             amount: Nat64,
             to: AccountTypes.AccountIdentifier,
             callerId: Nat32
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             
             let receipt = await ledger.transfer({
                 memo: Nat64 = Nat64.fromNat(Nat32.toNat(callerId));
@@ -157,10 +157,10 @@ module {
             to: AccountTypes.AccountIdentifier,
             appAccountId: AccountTypes.AccountIdentifier,
             callerId: Nat32
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             let cut = (amount * (100 - tax)) / 100;
             
-            switch(await withdrawFromCampaignSubaccount(
+            switch(await* withdrawFromCampaignSubaccount(
                 campaign, 
                 amount - cut, 
                 to, 
@@ -171,7 +171,7 @@ module {
                 };
                 case _ {
                     if(cut > Nat64.fromNat(icp_fee)) {
-                        await withdrawFromCampaignSubaccount(
+                        await* withdrawFromCampaignSubaccount(
                             campaign, 
                             cut, 
                             appAccountId, 

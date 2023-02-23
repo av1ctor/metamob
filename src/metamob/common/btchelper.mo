@@ -11,7 +11,7 @@ module {
         var transferToMainAccountCost = 0;
                 
         func _getAddPendingDepositCost(
-        ): async Nat {
+        ): async* Nat {
             if(addPendingDepositCost == 0) {
                 addPendingDepositCost := await wallet.getCost(#addPendingDeposit);
             };
@@ -19,7 +19,7 @@ module {
         };
 
         func _getTransferToMainAccountCost(
-        ): async Nat {
+        ): async* Nat {
             if(transferToMainAccountCost == 0) {
                 transferToMainAccountCost := await wallet.getCost(#transferToMainAccount);
             };
@@ -28,7 +28,7 @@ module {
 
         public func getAddress(
             path: [[Nat8]]
-        ): async Text {
+        ): async* Text {
             await wallet.getAddress(path);
         };
 
@@ -37,15 +37,15 @@ module {
             address: Text,
             value: Nat64,
             callback: BtcWallet.Callback
-        ): async Result.Result<(), Text> {
-            ExCycles.add(await _getAddPendingDepositCost());
+        ): async* Result.Result<(), Text> {
+            ExCycles.add(await* _getAddPendingDepositCost());
             await wallet.addPendingDeposit(id, address, value, callback);
         };
 
         public func transferToMainAccount(
             path: [[Nat8]]
-        ): async Text {
-            ExCycles.add(await _getTransferToMainAccountCost());
+        ): async* Text {
+            ExCycles.add(await* _getTransferToMainAccountCost());
             await wallet.transferToMainAccount(path);
         };
     };

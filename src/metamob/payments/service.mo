@@ -35,7 +35,7 @@ module {
         public func getBtcAddressOfCampaignAndUser(
             campaignId: Nat32,
             invoker: Principal
-        ): async Result.Result<Text, Text> {
+        ): async* Result.Result<Text, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -45,7 +45,7 @@ module {
                         return #err("Forbidden");
                     };
                     
-                    #ok(await getBtcAddressOfCampaignAndUserEx(campaignId, caller._id));
+                    #ok(await* getBtcAddressOfCampaignAndUserEx(campaignId, caller._id));
                 };
             };
         };
@@ -53,9 +53,9 @@ module {
         public func getBtcAddressOfCampaignAndUserEx(
             campaignId: Nat32,
             userId: Nat32
-        ): async Text {
+        ): async* Text {
             let path = [Utils.nat32ToArrayBE(campaignId), Utils.nat32ToArrayBE(userId)];
-            await btcHelper.getAddress(path);
+            await* btcHelper.getAddress(path);
         };
 
         public func addPendingBtcDeposit(
@@ -65,8 +65,8 @@ module {
             method: Text,
             args: [Variant.MapEntry],
             this: actor {}
-        ): async Result.Result<(), Text> {
-            await btcHelper.addPendingDeposit(
+        ): async* Result.Result<(), Text> {
+            await* btcHelper.addPendingDeposit(
                 id,
                 address,
                 value,

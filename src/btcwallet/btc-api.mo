@@ -56,7 +56,7 @@ module {
         network: Types.Network, 
         address: Types.BitcoinAddress,
         min_confirmations : ?Nat32
-    ): async Types.Satoshi {
+    ): async* Types.Satoshi {
         ExCycles.add(getCost(network, #bitcoin_get_balance));
         await management_canister_actor.bitcoin_get_balance({
             address;
@@ -69,14 +69,14 @@ module {
         network: Types.Network, 
         address: Types.BitcoinAddress,
         filter: ?Types.UtxosFilter
-    ): async Types.GetUtxosResponse {
+    ): async* Types.GetUtxosResponse {
         ExCycles.add(getCost(network, #bitcoin_get_utxos));
         await management_canister_actor.bitcoin_get_utxos({address; network; filter;})
     };
 
     public func get_current_fee_percentiles(
         network: Types.Network
-    ): async [Types.MillisatoshiPerByte] {
+    ): async* [Types.MillisatoshiPerByte] {
         ExCycles.add(getCost(network, #bitcoin_get_current_fee_percentiles));
         await management_canister_actor.bitcoin_get_current_fee_percentiles({
             network;
@@ -86,7 +86,7 @@ module {
     public func send_transaction(
         network: Types.Network, 
         transaction: [Nat8]
-    ): async () {
+    ): async* () {
         ExCycles.add(getCost(network, #bitcoin_send_transaction) + transaction.size() * Types.SEND_TRANSACTION_COST_CYCLES_PER_BYTE);
         await management_canister_actor.bitcoin_send_transaction({
             network;

@@ -69,7 +69,7 @@ module {
             req: Types.PoapRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Poap, Text> {
+        ): async* Result.Result<Types.Poap, Text> {
             let caller = switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     return #err(msg);
@@ -93,7 +93,7 @@ module {
             };
 
             try {
-                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -102,7 +102,7 @@ module {
                 };
             
                 let price = daoService.configGetAsNat64("POAP_DEPLOYING_PRICE");
-                let balance = await ledgerHelper.getUserBalance(invoker, this);
+                let balance = await* ledgerHelper.getUserBalance(invoker, this);
                 if(balance < price + Nat64.fromNat(LedgerHelper.icp_fee)) {
                     return #err("Insufficient ICP balance");
                 };
@@ -116,7 +116,7 @@ module {
                     Account.defaultSubaccount()
                 );
 
-                switch(await ledgerHelper.transferFromUserSubaccount(caller._id, price, app, invoker, this)) {
+                switch(await* ledgerHelper.transferFromUserSubaccount(caller._id, price, app, invoker, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -159,7 +159,7 @@ module {
             req: Types.PoapRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Poap, Text> {
+        ): async* Result.Result<Types.Poap, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -183,7 +183,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -216,7 +216,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Nat32, Text> {
+        ): async* Result.Result<Nat32, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -259,12 +259,12 @@ module {
                                     };
 
                                     try {
-                                        let balance = await ledgerHelper.getUserBalance(Principal.fromText(caller.principal), this);
+                                        let balance = await* ledgerHelper.getUserBalance(Principal.fromText(caller.principal), this);
                                         if(balance < entity.price + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                             return #err("Insufficient ICP balance");
                                         };
                                         
-                                        switch(await ledgerHelper
+                                        switch(await* ledgerHelper
                                             .transferFromUserSubaccountToCampaignSubaccountEx(
                                                 campaign, caller._id, entity.price, invoker, this)) {
                                             case (#err(msg)) {
@@ -278,7 +278,7 @@ module {
 
                                                 let cut = daoService.configGetAsNat64("POAP_MINTING_TAX");
 
-                                                switch(await ledgerHelper.withdrawFromCampaignSubaccount(campaign, (entity.price * cut) / 100, app, caller._id)) {
+                                                switch(await* ledgerHelper.withdrawFromCampaignSubaccount(campaign, (entity.price * cut) / 100, app, caller._id)) {
                                                     case (#err(msg)) {
                                                         return #err(msg);
                                                     };
@@ -286,7 +286,7 @@ module {
                                                     };
                                                 };
 
-                                                return await _mintNFT(entity, campaign, caller, this);
+                                                return await* _mintNFT(entity, campaign, caller, this);
                                             };
                                         };
                                     }
@@ -406,7 +406,7 @@ module {
             campaign: CampaignTypes.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Nat32, Text> {
+        ): async* Result.Result<Nat32, Text> {
             try {
                 let id = Nat32.toNat(poap.totalSupply);
                 let bgColor = _generateColor();
@@ -422,7 +422,7 @@ module {
 
                 ignore repo.changeSupply(poap, 1);
                 
-                switch(await Dip721.mint(poap.canisterId, Principal.fromText(caller.principal), id, props)) {
+                switch(await* Dip721.mint(poap.canisterId, Principal.fromText(caller.principal), id, props)) {
                     case (#Err(msg)) {
                         _revertSupplyChange(poap._id);
                         #err(debug_show(msg));
@@ -445,7 +445,7 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Poap, Text> {
+        ): async* Result.Result<Types.Poap, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -595,7 +595,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -623,7 +623,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

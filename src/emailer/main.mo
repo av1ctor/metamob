@@ -137,7 +137,7 @@ shared(owner) actor class Emailer(
 
     func _send(
         item: Types.Item
-    ): async Bool {
+    ): async* Bool {
         let headers = [
             {name = "Host"; value = host},
             {name = "User-Agent"; value = "IC emailer"},
@@ -182,7 +182,7 @@ shared(owner) actor class Emailer(
     // processing
     //
     func _process(
-    ): async () {
+    ): async* () {
         let now = Time.now();
         label L while(true) {
             switch(Deque.popFront(queue)){
@@ -193,7 +193,7 @@ shared(owner) actor class Emailer(
                         Debug.print("emailer.process(): item expired");
                     }
                     else {
-                        if(await _send(item)) {
+                        if(await* _send(item)) {
                             Debug.print("emailer.process(): email sent");
                             switch(item.callback) {
                                 case (?cb) {
@@ -243,7 +243,7 @@ shared(owner) actor class Emailer(
             lastExec := now;
             Debug.print("emailer.heartbeat(): Verifying...");
             try {
-                await _process();
+                await* _process();
             }
             catch(e) {
                 Debug.print("emailer.heartbeat() exception: " # Error.message(e));

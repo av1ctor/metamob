@@ -6,7 +6,7 @@ module {
     public func balanceOf(
         canisterId: Text,
         who: Principal
-    ): async Nat {
+    ): async* Nat {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.balanceOf(who);
     };
@@ -15,7 +15,7 @@ module {
         canisterId: Text,
         to: Principal, 
         value: Nat
-    ): async Dip20.TxReceipt {
+    ): async* Dip20.TxReceipt {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.transfer(to, value);
     };
@@ -25,7 +25,7 @@ module {
         from: Principal, 
         to: Principal, 
         value: Nat
-    ): async Dip20.TxReceipt {
+    ): async* Dip20.TxReceipt {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.transferFrom(from, to, value);
     };
@@ -34,14 +34,14 @@ module {
         canisterId: Text,
         spender: Principal, 
         value: Nat
-    ): async Dip20.TxReceipt {
+    ): async* Dip20.TxReceipt {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.approve(spender, value);
     };
 
     public func totalSupply(
         canisterId: Text
-    ): async Nat {
+    ): async* Nat {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.totalSupply();
     };

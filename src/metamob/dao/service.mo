@@ -48,7 +48,7 @@ module {
             value: Variant.Variant,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(config.get(key)) {
                 case (?oldValue) {
                     if(Variant.isTypeOfEqual(oldValue, value)) {
@@ -72,7 +72,7 @@ module {
             value: Variant.Variant,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     if(not Principal.equal(invoker, Principal.fromActor(this))) {
@@ -86,7 +86,7 @@ module {
                 };
             };
 
-            switch(await _setConfigVar(key, value, invoker, this)) {
+            switch(await* _setConfigVar(key, value, invoker, this)) {
                 case (#err(msg)) {
                     #err(msg);
                 };
@@ -100,7 +100,7 @@ module {
             params: [Variant.MapEntry],
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     if(not Principal.equal(invoker, Principal.fromActor(this))) {
@@ -115,7 +115,7 @@ module {
             };
 
             for(param in params.vals()) {
-                switch(await _setConfigVar(param.key, param.value, invoker, this)) {
+                switch(await* _setConfigVar(param.key, param.value, invoker, this)) {
                     case (#err(msg)) {
                         return #err(msg);
                     };
@@ -163,7 +163,7 @@ module {
             to: Principal,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userRepo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     if(not Principal.equal(invoker, Principal.fromActor(this))) {
@@ -199,7 +199,7 @@ module {
             principal: Principal,
             value: Nat64, 
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
                 switch(await mmt.transfer(
                     principal,
@@ -222,7 +222,7 @@ module {
 
         public func balanceOf(
             caller: UserTypes.Profile
-        ): async Nat {
+        ): async* Nat {
             await mmt.balanceOf(Principal.fromText(caller.principal));
         };
 
@@ -230,7 +230,7 @@ module {
             value: Nat,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
                 let fee = await mmt.getTokenFee();
                 if(value <= fee) {
@@ -270,7 +270,7 @@ module {
             value: Nat,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
                 let fee = await mmt.getTokenFee();
                 if(value == 0) {
@@ -336,7 +336,7 @@ module {
             value: Nat,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
                 let fee = await mmt.getTokenFee();
                 if(value <= fee) {
@@ -376,7 +376,7 @@ module {
             value: Nat,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             try {
                 let fee = await mmt.getTokenFee();
                 if(value == 0) {

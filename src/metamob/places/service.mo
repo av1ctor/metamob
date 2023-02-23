@@ -223,8 +223,8 @@ module {
             caller: UserTypes.Profile,
             auth: Types.PlaceDip20Auth,
             kind: Types.ACCESS_TYPE,
-        ): async Result.Result<(), Text> {
-            let balance = await DIP20.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
+        ): async* Result.Result<(), Text> {
+            let balance = await* DIP20.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
             if(balance < (if(kind == Types.ACCESS_TYPE_CREATE) auth.createMin else auth.cooperateMin)) {
                 #err("Forbidden: DIP20 balance too low");
             }
@@ -237,8 +237,8 @@ module {
             caller: UserTypes.Profile,
             auth: Types.PlaceDip20Auth,
             kind: Types.ACCESS_TYPE,
-        ): async Result.Result<(), Text> {
-            let balance = await DIP721.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
+        ): async* Result.Result<(), Text> {
+            let balance = await* DIP721.balanceOf(auth.canisterId, Principal.fromText(caller.principal));
             if(balance < (if(kind == Types.ACCESS_TYPE_CREATE) auth.createMin else auth.cooperateMin)) {
                 #err("Forbidden: DIP721 balance too low");
             }
@@ -278,7 +278,7 @@ module {
             kind: Types.ACCESS_TYPE,
             _id: Nat32,
             caller: UserTypes.Profile
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(auth) {
                 case (#none_) {
                     #ok();
@@ -287,10 +287,10 @@ module {
                     _checkEmail(caller, _id);
                 };
                 case (#dip20(auth)) {
-                    await _checkDip20(caller, auth, kind);
+                    await* _checkDip20(caller, auth, kind);
                 };
                 case (#dip721(auth)) {
-                    await _checkDip721(caller, auth, kind);
+                    await* _checkDip721(caller, auth, kind);
                 };
             };
         };
@@ -300,7 +300,7 @@ module {
             _id: Nat32,
             kind: Types.ACCESS_TYPE,
             checkTerms: Bool
-        ): async Result.Result<Types.Place, Text> {
+        ): async* Result.Result<Types.Place, Text> {
             switch(repo.findById(_id)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -324,7 +324,7 @@ module {
                             };
                         };
 
-                        switch(await _checkAuth(place.auth, kind, _id, caller)) {
+                        switch(await* _checkAuth(place.auth, kind, _id, caller)) {
                             case (#err(msg)) {
                                 #err(msg);
                             };
@@ -341,8 +341,8 @@ module {
             caller: UserTypes.Profile,
             _id: Nat32,
             kind: Types.ACCESS_TYPE
-        ): async Result.Result<Types.Place, Text> {
-            await checkAccessEx(caller, _id, kind, true);
+        ): async* Result.Result<Types.Place, Text> {
+            await* checkAccessEx(caller, _id, kind, true);
         };
 
         public func backup(

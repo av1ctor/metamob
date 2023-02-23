@@ -21,20 +21,20 @@ module FileStoreHelper {
         
         public func create(
             file: FileRequest
-        ): async Result.Result<Text, Text> {
+        ): async* Result.Result<Text, Text> {
             await fs.create(file.contentType, file.data);
         };
 
         public func update(
             id: Text,
             file: FileRequest
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             await fs.update(id, file.contentType, file.data);
         };
 
         public func delete(
             id: Text
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             await fs.delete(id);
         };
 

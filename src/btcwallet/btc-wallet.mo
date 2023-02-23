@@ -40,9 +40,9 @@ module {
         network: Network, 
         key_name: Text, 
         derivation_path: [[Nat8]]
-    ): async BitcoinAddress {
+    ): async* BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let public_key = await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
+        let public_key = await* EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
 
         // Compute the address.
         public_key_to_p2pkh_address(network, Blob.toArray(public_key))
@@ -57,9 +57,9 @@ module {
         key_name: Text, 
         dst_address: BitcoinAddress, 
         amount: Satoshi
-    ): async [Nat8] {
+    ): async* [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
-        let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
+        let fee_percentiles = await* BitcoinApi.get_current_fee_percentiles(network);
 
         let fee_per_byte : MillisatoshiPerByte = if(fee_percentiles.size() == 0) {
             // There are no fee percentiles. This case can only happen on a regtest
@@ -72,21 +72,21 @@ module {
         };
 
         // Fetch our public key, P2PKH address, and UTXOs.
-        let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
+        let own_public_key = Blob.toArray(await* EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
         let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
-        let own_utxos = (await BitcoinApi.get_utxos(network, own_address, null)).utxos;
+        let own_utxos = (await* BitcoinApi.get_utxos(network, own_address, null)).utxos;
 
         // Build the transaction that sends `amount` to the destination address.
-        let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_byte);
+        let tx_bytes = await* build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_byte);
         let transaction =
             Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
+        let signed_transaction_bytes = await* sign_transaction(own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
 
-        await BitcoinApi.send_transaction(network, signed_transaction_bytes);
+        await* BitcoinApi.send_transaction(network, signed_transaction_bytes);
 
         signed_transaction.id()
     };
@@ -101,7 +101,7 @@ module {
         dst_address : BitcoinAddress,
         amount : Satoshi,
         fee_per_byte : MillisatoshiPerByte,
-    ) : async [Nat8] {
+    ) : async* [Nat8] {
         // We have a chicken-and-egg problem where we need to know the length
         // of the transaction in order to compute its proper fee, but we need
         // to know the proper fee in order to figure out the inputs needed for
@@ -127,7 +127,7 @@ module {
 
             // Sign the transaction. In this case, we only care about the size
             // of the signed transaction, so we use a mock signer here for efficiency.
-            let signed_transaction_bytes = await sign_transaction(
+            let signed_transaction_bytes = await* sign_transaction(
                 own_public_key,
                 own_address,
                 transaction,
@@ -146,7 +146,7 @@ module {
         }
     };
 
-    type SignFun = (Text, [Blob], Blob) -> async Blob;
+    type SignFun = (Text, [Blob], Blob) -> async* Blob;
 
     // Sign a bitcoin transaction.
     //
@@ -162,7 +162,7 @@ module {
         key_name : Text,
         derivation_path : [Blob],
         signer : SignFun,
-    ) : async [Nat8] {
+    ) : async* [Nat8] {
         // Obtain the scriptPubKey of the source address which is also the
         // scriptPubKey of the Tx output being spent.
         switch (Address.scriptPubKey(#p2pkh own_address)) {
@@ -174,7 +174,7 @@ module {
             let sighash = transaction.createSignatureHash(
                 scriptPubKey, Nat32.fromIntWrap(i), SIGHASH_ALL);
 
-            let signature_sec = await signer(key_name, derivation_path, Blob.fromArray(sighash));
+            let signature_sec = await* signer(key_name, derivation_path, Blob.fromArray(sighash));
             let signature_der = Blob.toArray(Der.encodeSignature(signature_sec));
 
             // Append the sighash type.
@@ -220,7 +220,11 @@ module {
     };
 
     // A mock for rubber-stamping ECDSA signatures.
-    func mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+    func mock_signer(
+        _key_name : Text, 
+        _derivation_path : [Blob], 
+        _message_hash : Blob
+    ) : async* Blob {
         Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)))
     };
 

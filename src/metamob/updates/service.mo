@@ -34,7 +34,7 @@ module {
         public func create(
             req: Types.UpdateRequest,
             invoker: Principal
-        ): async Result.Result<Types.Update, Text> {
+        ): async* Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -53,7 +53,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -73,7 +73,7 @@ module {
             result: CampaignTypes.CampaignResult,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Update, Text> {
+        ): async* Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -92,7 +92,7 @@ module {
                                     return #err("Forbidden");
                                 };
 
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -103,7 +103,7 @@ module {
                                                 #err(msg);
                                             };
                                             case (#ok(upd)) {
-                                                switch(await campaignService.finish(campaign, result, caller, this)) {
+                                                switch(await* campaignService.finish(campaign, result, caller, this)) {
                                                     case (#err(msg)) {
                                                         #err(msg);
                                                     };
@@ -127,7 +127,7 @@ module {
             req: Types.UpdateRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Update, Text> {
+        ): async* Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -151,7 +151,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -175,7 +175,7 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Update, Text> {
+        ): async* Result.Result<Types.Update, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -311,7 +311,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -335,7 +335,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

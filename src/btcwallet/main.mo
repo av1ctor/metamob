@@ -58,7 +58,7 @@ shared(owner) actor class BtcWallet(
         path: [[Nat8]]
     ): async Types.BitcoinAddress {
 	    assert _isCustodian(msg.caller);
-        await BitcoinWallet.get_p2pkh_address(network, keyName, path);
+        await* BitcoinWallet.get_p2pkh_address(network, keyName, path);
     };
 
     func _calcCost(
@@ -105,8 +105,8 @@ shared(owner) actor class BtcWallet(
             value = value;
             account = {
                 address = address;
-                height = await _getAccountHeight(address);
-                balance = await _getAccountBalance(address);
+                height = await* _getAccountHeight(address);
+                balance = await* _getAccountBalance(address);
             };
             expiresAt = Time.now() + maxQueueTime;
             callback = callback;
@@ -124,16 +124,16 @@ shared(owner) actor class BtcWallet(
         assert ExCycles.available() >= cost;
         ignore ExCycles.accept(cost);
 
-        let from = await BitcoinWallet.get_p2pkh_address(network, keyName, path);
-        let to = await _getMainAccount();
-        let balance = await BitcoinApi.get_balance(network, from, ?minConfirmations);
-        Utils.bytesToText(await BitcoinWallet.send(network, path, keyName, to, balance))
+        let from = await* BitcoinWallet.get_p2pkh_address(network, keyName, path);
+        let to = await* _getMainAccount();
+        let balance = await* BitcoinApi.get_balance(network, from, ?minConfirmations);
+        Utils.bytesToText(await* BitcoinWallet.send(network, path, keyName, to, balance))
     };
 
     func _getAccountHeight(
         address: Types.BitcoinAddress
-    ): async Nat32 {
-        let utxos = (await BitcoinApi.get_utxos(network, address, null)).utxos;
+    ): async* Nat32 {
+        let utxos = (await* BitcoinApi.get_utxos(network, address, null)).utxos;
         if(utxos.size() == 0) {
             0;
         }
@@ -144,20 +144,20 @@ shared(owner) actor class BtcWallet(
 
     func _getAccountBalance(
         address: Types.BitcoinAddress
-    ): async Nat64 {
-        await BitcoinApi.get_balance(network, address, ?minConfirmations);
+    ): async* Nat64 {
+        await* BitcoinApi.get_balance(network, address, ?minConfirmations);
     };
 
     func _getMainAccount(
-    ): async Types.BitcoinAddress {
-        await BitcoinWallet.get_p2pkh_address(network, keyName, []);
+    ): async* Types.BitcoinAddress {
+        await* BitcoinWallet.get_p2pkh_address(network, keyName, []);
     };
 
     //
     // processing
     //
     func _processPendingDeposits(
-    ): async () {
+    ): async* () {
         let now = Time.now();
         for(e in pendingDeposits.entries()) {
             let key = e.0;
@@ -168,10 +168,10 @@ shared(owner) actor class BtcWallet(
             }
             else {
                 // first check if balance changed
-                let balance = await _getAccountBalance(deposit.account.address);
+                let balance = await* _getAccountBalance(deposit.account.address);
                 if(balance != deposit.account.balance) {
                     // then check utxos
-                    let utxos = (await BitcoinApi.get_utxos(
+                    let utxos = (await* BitcoinApi.get_utxos(
                         network, 
                         deposit.account.address, 
                         ?#MinConfirmations(minConfirmations)
@@ -211,7 +211,7 @@ shared(owner) actor class BtcWallet(
             lastExec := now;
             Debug.print("btcwallet.heartbeat(): Verifying...");
             try {
-                await _processPendingDeposits();
+                await* _processPendingDeposits();
             }
             catch(e) {
                 Debug.print("btcwallet.heartbeat() exception: " # Error.message(e));

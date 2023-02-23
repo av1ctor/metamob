@@ -37,7 +37,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             owner: Principal
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -72,7 +72,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -104,7 +104,7 @@ module {
             req: Types.VerifyRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
@@ -129,7 +129,7 @@ module {
             req: Types.ProfileRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -165,7 +165,7 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             if(Principal.isAnonymous(invoker)) {
                 return #err("Forbidden: anonymous user");
             };
@@ -235,7 +235,7 @@ module {
         public func signupAsModerator(
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Profile, Text> {
+        ): async* Result.Result<Types.Profile, Text> {
             switch(repo.findByPrincipal(Principal.toText(invoker))) {
                 case (#err(msg)) {
                     #err(msg);
@@ -408,7 +408,7 @@ module {
 
         public func verify(
             this: actor {}
-        ): async () {
+        ): async* () {
             let minStaked = Nat64.toNat(daoService.config.getAsNat64("MODERATOR_MIN_STAKE"));
             
             switch(repo.findByRole(#moderator)) {

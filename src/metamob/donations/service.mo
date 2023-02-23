@@ -51,7 +51,7 @@ module {
             req: Types.DonationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Donation, Text> {
+        ): async* Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -66,7 +66,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -79,7 +79,7 @@ module {
                                                 if(e.currency == PaymentTypes.CURRENCY_BTC) {
                                                     ignore paymentService.addPendingBtcDeposit(
                                                         "donation-" # e.pubId,
-                                                        await paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
+                                                        await* paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
                                                         Nat64.fromNat(e.value),
                                                         "donationOnBtcDepositConfirmed",
                                                         [{key = "id"; value = #nat32(e._id);}],
@@ -103,7 +103,7 @@ module {
             id: Text, 
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Donation, Text> {
+        ): async* Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -132,19 +132,19 @@ module {
                                         };
 
                                         let value = Nat64.fromNat(entity.value);
-                                        let balance = await ledgerHelper.getUserBalance(invoker, this);
+                                        let balance = await* ledgerHelper.getUserBalance(invoker, this);
                                         if(balance < value + Nat64.fromNat(LedgerHelper.icp_fee)) {
                                             return #err("Insufficient balance");
                                         };
                                         
-                                        switch(await ledgerHelper
+                                        switch(await* ledgerHelper
                                             .transferFromUserSubaccountToCampaignSubaccountEx(
                                                 campaign, caller._id, value, invoker, this)) {
                                             case (#err(msg)) {
                                                 return #err(msg);
                                             };
                                             case (#ok(amount)) {
-                                                await _completeAndCheckCampaign(entity, campaign, caller, this);
+                                                await* _completeAndCheckCampaign(entity, campaign, caller, this);
                                             };
                                         };
                                     };
@@ -167,7 +167,7 @@ module {
             btcWalletCanisterId: Text,
             invoker: Principal,
             this: actor {}
-        ): async () {
+        ): async* () {
             if(Principal.toText(invoker) != btcWalletCanisterId) {
                 return;
             };
@@ -192,7 +192,7 @@ module {
                                     return;
                                 };
                                 case (#ok(caller)) {
-                                    ignore await _completeAndCheckCampaign(entity, campaign, caller, this);
+                                    ignore await* _completeAndCheckCampaign(entity, campaign, caller, this);
                                     return;
                                 };
                             };
@@ -207,13 +207,13 @@ module {
             campaign: CampaignTypes.Campaign,
             caller: UserTypes.Profile,
             this: actor {}
-        ): async Result.Result<Types.Donation, Text> {
+        ): async* Result.Result<Types.Donation, Text> {
             let res = repo.complete(entity, _calcValueInIcp(entity), caller._id);
             if(campaign.goal != 0) {
                 switch(campaignRepo.findById(campaign._id)) {
                     case (#ok(campaign)) {
                         if(campaign.total >= campaign.goal) {
-                            switch(await campaignService.finishAndRunAction(
+                            switch(await* campaignService.finishAndRunAction(
                                     campaign, CampaignTypes.RESULT_OK, caller, this)) {
                                 case (#err(msg)) {
                                     return #err(msg);
@@ -252,7 +252,7 @@ module {
             req: Types.DonationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Donation, Text> {
+        ): async* Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -276,7 +276,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -304,7 +304,7 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Donation, Text> {
+        ): async* Result.Result<Types.Donation, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -451,7 +451,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -475,7 +475,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -504,7 +504,7 @@ module {
                                                             );
 
                                                             switch(
-                                                                await ledgerHelper
+                                                                await* ledgerHelper
                                                                     .withdrawFromCampaignSubaccountLessTax(
                                                                         campaign, amount, CampaignTypes.REFUND_TAX, to, app, caller._id)) {
                                                                 case (#err(msg)) {

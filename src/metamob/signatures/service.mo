@@ -35,7 +35,7 @@ module {
             req: Types.SignatureRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Signature, Text> {
+        ): async* Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -50,7 +50,7 @@ module {
                                 #err(msg);
                             };
                             case (#ok(campaign)) {
-                                switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                     case (#err(msg)) {
                                         #err(msg);
                                     };
@@ -65,7 +65,7 @@ module {
                                                     switch(campaignRepo.findById(campaign._id)) {
                                                         case (#ok(campaign)) {
                                                             if(campaign.total >= campaign.goal) {
-                                                                switch(await campaignService.finishAndRunAction(
+                                                                switch(await* campaignService.finishAndRunAction(
                                                                         campaign, CampaignTypes.RESULT_OK, caller, this)) {
                                                                     case (#err(msg)) {
                                                                         return #err(msg);
@@ -96,7 +96,7 @@ module {
             req: Types.SignatureRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Signature, Text> {
+        ): async* Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -120,7 +120,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };
@@ -144,7 +144,7 @@ module {
             mod: ModerationTypes.ModerationRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Signature, Text> {
+        ): async* Result.Result<Types.Signature, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -287,7 +287,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -311,7 +311,7 @@ module {
                                         #err(msg);
                                     };
                                     case (#ok(campaign)) {
-                                        switch(await placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
+                                        switch(await* placeService.checkAccess(caller, campaign.placeId, PlaceTypes.ACCESS_TYPE_COOPERATE)) {
                                             case (#err(msg)) {
                                                 #err(msg);
                                             };

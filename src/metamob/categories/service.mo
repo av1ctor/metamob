@@ -40,7 +40,7 @@ module {
             req: Types.CategoryRequest,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<Types.Category, Text> {
+        ): async* Result.Result<Types.Category, Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
@@ -109,7 +109,7 @@ module {
             id: Text,
             invoker: Principal,
             this: actor {}
-        ): async Result.Result<(), Text> {
+        ): async* Result.Result<(), Text> {
             switch(userService.findByPrincipal(invoker)) {
                 case (#err(msg)) {
                     #err(msg);
