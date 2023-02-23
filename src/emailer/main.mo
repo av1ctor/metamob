@@ -22,6 +22,7 @@ import Utils "utils";
 import Random "random";
 import ULID "ulid";
 import Types "./types";
+import Timer "mo:base/Timer";
 
 shared(owner) actor class Emailer(
     host: Text,
@@ -232,24 +233,17 @@ shared(owner) actor class Emailer(
         TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
-    var lastExec: Nat = Int.abs(Time.now());
-    var running: Bool = false;
-
-    system func heartbeat(
+    func _heartbeat(
     ): async () {
-        let now = Int.abs(Time.now());
-        if(now >= lastExec + HEARTBEAT_INTERVAL and not running) {
-            running := true;
-            lastExec := now;
-            Debug.print("emailer.heartbeat(): Verifying...");
-            try {
-                await* _process();
-            }
-            catch(e) {
-                Debug.print("emailer.heartbeat() exception: " # Error.message(e));
-            };
-            running := false;
+        Debug.print("emailer.heartbeat(): Verifying...");
+        try {
+            await* _process();
+        }
+        catch(e) {
+            Debug.print("emailer.heartbeat() exception: " # Error.message(e));
         };
+
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 
     //
@@ -259,6 +253,7 @@ shared(owner) actor class Emailer(
     };
 
     system func postupgrade() {
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 };
 

@@ -55,6 +55,7 @@ import PoapTypes "./poap/types";
 import PaymentService "./payments/service";
 import FileStoreHelper "./common/filestore";
 import Logger "../logger/main";
+import Timer "mo:base/Timer";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
@@ -1827,6 +1828,27 @@ shared({caller = owner}) actor class Metamob(
     };   
 
     //
+    // verifications
+    //
+    let HEARTBEAT_INTERVAL: Nat = 60 * 1000_000_000; // 1 minute
+
+    func _heartbeat(
+    ): async () {
+        D.print("metamob.heartbeat(): Verifying...");
+        try {
+            await* userService.verify(this);
+            await* campaignService.verify(this);
+            await* reportService.verify(this);
+            await* challengeService.verify(this);
+        }
+        catch(e) {
+            D.print("metamob.heartbeat() exception: " # Error.message(e));
+        };
+
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
+    };
+
+    //
     // migration
     //
     stable var daoEntities: DaoTypes.BackupEntity = {
@@ -1931,29 +1953,8 @@ shared({caller = owner}) actor class Metamob(
 
         notificationService.restore(notificationEntities);
         notificationEntities := [];
+
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 
-    let HEARTBEAT_INTERVAL: Nat = 60 * 1000_000_000; // 1 minute
-    var lastExec: Nat = Int.abs(Time.now());
-    var running: Bool = false;
-
-    system func heartbeat(
-    ): async () {
-        let now = Int.abs(Time.now());
-        if(now >= lastExec + HEARTBEAT_INTERVAL and not running) {
-            running := true;
-            lastExec := now;
-            D.print("metamob.heartbeat(): Verifying...");
-            try {
-                await* userService.verify(this);
-                await* campaignService.verify(this);
-                await* reportService.verify(this);
-                await* challengeService.verify(this);
-            }
-            catch(e) {
-                D.print("metamob.heartbeat() exception: " # Error.message(e));
-            };
-            running := false;
-        };
-    };
 };

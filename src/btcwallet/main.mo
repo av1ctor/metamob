@@ -18,6 +18,7 @@ import BitcoinWallet "btc-wallet";
 import BitcoinApi "btc-api";
 import Types "types";
 import Utils "utils";
+import Timer "mo:base/Timer";
 
 shared(owner) actor class BtcWallet(
     network: Types.Network,
@@ -200,24 +201,17 @@ shared(owner) actor class BtcWallet(
         TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
-    var lastExec: Nat = Int.abs(Time.now());
-    var running: Bool = false;
-
-    system func heartbeat(
+    func _heartbeat(
     ): async () {
-        let now = Int.abs(Time.now());
-        if(now >= lastExec + HEARTBEAT_INTERVAL and not running) {
-            running := true;
-            lastExec := now;
-            Debug.print("btcwallet.heartbeat(): Verifying...");
-            try {
-                await* _processPendingDeposits();
-            }
-            catch(e) {
-                Debug.print("btcwallet.heartbeat() exception: " # Error.message(e));
-            };
-            running := false;
+        Debug.print("btcwallet.heartbeat(): Verifying...");
+        try {
+            await* _processPendingDeposits();
+        }
+        catch(e) {
+            Debug.print("btcwallet.heartbeat() exception: " # Error.message(e));
         };
+        
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 
     //
@@ -234,6 +228,8 @@ shared(owner) actor class BtcWallet(
             pendingDeposits.put(e.0, e.1);
         };
         pendingDepositsEntries := [];
+        
+        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 };
 
