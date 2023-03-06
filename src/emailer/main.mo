@@ -22,7 +22,7 @@ import Utils "utils";
 import Random "random";
 import ULID "ulid";
 import Types "./types";
-import Timer "mo:base/Timer";
+import Nat64 "mo:base/Nat64";
 
 shared(owner) actor class Emailer(
     host: Text,
@@ -233,8 +233,9 @@ shared(owner) actor class Emailer(
         TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
-    func _heartbeat(
-    ): async () {
+    system func timer(
+        setGlobalTimer : Nat64 -> ()
+    ) : async () {
         Debug.print("emailer.heartbeat(): Verifying...");
         try {
             await* _process();
@@ -243,7 +244,7 @@ shared(owner) actor class Emailer(
             Debug.print("emailer.heartbeat() exception: " # Error.message(e));
         };
 
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
+        setGlobalTimer(Nat64.fromIntWrap(Time.now() + HEARTBEAT_INTERVAL));
     };
 
     //
@@ -253,7 +254,6 @@ shared(owner) actor class Emailer(
     };
 
     system func postupgrade() {
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 };
 

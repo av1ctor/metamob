@@ -18,7 +18,7 @@ import BitcoinWallet "btc-wallet";
 import BitcoinApi "btc-api";
 import Types "types";
 import Utils "utils";
-import Timer "mo:base/Timer";
+import Nat64 "mo:base/Nat64";
 
 shared(owner) actor class BtcWallet(
     network: Types.Network,
@@ -201,8 +201,9 @@ shared(owner) actor class BtcWallet(
         TrieSet.mem<Principal>(custodians, caller, Principal.hash(caller), Principal.equal);
     };
 
-    func _heartbeat(
-    ): async () {
+    system func timer(
+        setGlobalTimer : Nat64 -> ()
+    ) : async () {
         Debug.print("btcwallet.heartbeat(): Verifying...");
         try {
             await* _processPendingDeposits();
@@ -211,7 +212,7 @@ shared(owner) actor class BtcWallet(
             Debug.print("btcwallet.heartbeat() exception: " # Error.message(e));
         };
         
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
+        setGlobalTimer(Nat64.fromIntWrap(Time.now() + HEARTBEAT_INTERVAL));
     };
 
     //
@@ -228,8 +229,6 @@ shared(owner) actor class BtcWallet(
             pendingDeposits.put(e.0, e.1);
         };
         pendingDepositsEntries := [];
-        
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 };
 

@@ -255,7 +255,10 @@ module {
                     case null [#user];
                     case (?val) val;
                 };
-                active = false;
+                active = switch(req.active) {
+                    case null false;
+                    case (?val) val;
+                };
                 banned = Types.BANNED_NONE;
                 country = req.country;
                 moderated = ModerationTypes.REASON_NONE;
@@ -276,7 +279,6 @@ module {
                 verifySecret = "";
             }  
         };
-
 
         func _updateEntity(
             e: Types.Profile, 

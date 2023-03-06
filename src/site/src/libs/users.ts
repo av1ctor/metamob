@@ -153,5 +153,5 @@ export const isModerator = (
 export const getAccountId = async (
     metamob: Metamob
 ): Promise<Uint8Array> => {
-    return await metamob.userGetAccountId();
+    return await metamob.userGetAccountId() as any;
 }

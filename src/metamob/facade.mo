@@ -55,7 +55,6 @@ import PoapTypes "./poap/types";
 import PaymentService "./payments/service";
 import FileStoreHelper "./common/filestore";
 import Logger "../logger/main";
-import Timer "mo:base/Timer";
 
 shared({caller = owner}) actor class Metamob(
     ledgerCanisterId: Text,
@@ -1832,8 +1831,9 @@ shared({caller = owner}) actor class Metamob(
     //
     let HEARTBEAT_INTERVAL: Nat = 60 * 1000_000_000; // 1 minute
 
-    func _heartbeat(
-    ): async () {
+    system func timer(
+        setGlobalTimer : Nat64 -> ()
+    ) : async () {
         D.print("metamob.heartbeat(): Verifying...");
         try {
             await* userService.verify(this);
@@ -1845,7 +1845,7 @@ shared({caller = owner}) actor class Metamob(
             D.print("metamob.heartbeat() exception: " # Error.message(e));
         };
 
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
+        setGlobalTimer(Nat64.fromIntWrap(Time.now() + HEARTBEAT_INTERVAL));
     };
 
     //
@@ -1953,8 +1953,6 @@ shared({caller = owner}) actor class Metamob(
 
         notificationService.restore(notificationEntities);
         notificationEntities := [];
-
-        ignore Timer.setTimer(#nanoseconds(HEARTBEAT_INTERVAL), _heartbeat);
     };
 
 };
