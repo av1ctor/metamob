@@ -392,7 +392,7 @@ module {
                                 };
                                 case(#ok(e)) {
                                     if(fileStoreHelper.isId(campaign.cover)) {
-                                        ignore fileStoreHelper.delete(campaign.cover);
+                                        ignore await* fileStoreHelper.delete(campaign.cover);
                                     };
 
                                     if(campaign.goal != req.goal) {
@@ -550,7 +550,7 @@ module {
                         };
                         case _ {
                             if(fileStoreHelper.isId(entity.cover)) {
-                                ignore fileStoreHelper.delete(entity.cover);
+                                ignore await* fileStoreHelper.delete(entity.cover);
                             };
 
                             #ok()
@@ -940,7 +940,7 @@ module {
                                     case _ {
                                         ignore logger.info(this, "Campaign " # campaign.pubId # " deleted by " # caller.pubId);
                                         if(fileStoreHelper.isId(campaign.cover)) {
-                                            ignore fileStoreHelper.delete(campaign.cover);
+                                            ignore await* fileStoreHelper.delete(campaign.cover);
                                         };
                                         repo.delete(campaign, caller._id);
                                     };

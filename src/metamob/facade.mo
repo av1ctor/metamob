@@ -793,7 +793,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func donationOnBtcDepositConfirmed(
         params: [Variant.MapEntry]
     ): async () {
-        ignore donationService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
+        await* donationService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
     };
 
     public shared(msg) func donationUpdate(
@@ -955,7 +955,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func fundingOnBtcDepositConfirmed(
         params: [Variant.MapEntry]
     ): async () {
-        ignore fundingService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
+        await* fundingService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
     };
 
     public shared(msg) func fundingUpdate(
@@ -1121,7 +1121,7 @@ shared({caller = owner}) actor class Metamob(
     public shared(msg) func boostOnBtcDepositConfirmed(
         params: [Variant.MapEntry]
     ): async () {
-        ignore boostService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
+        await* boostService.onBtcDepositConfirmed(params, btcWalletCanisterId, msg.caller, this);
     };
 
     public shared(msg) func boostUpdate(

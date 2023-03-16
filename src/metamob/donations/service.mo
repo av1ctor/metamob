@@ -77,7 +77,7 @@ module {
                                             };
                                             case (#ok(e)) {
                                                 if(e.currency == PaymentTypes.CURRENCY_BTC) {
-                                                    ignore paymentService.addPendingBtcDeposit(
+                                                    ignore await* paymentService.addPendingBtcDeposit(
                                                         "donation-" # e.pubId,
                                                         await* paymentService.getBtcAddressOfCampaignAndUserEx(campaign._id, caller._id),
                                                         Nat64.fromNat(e.value),

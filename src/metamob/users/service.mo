@@ -58,7 +58,7 @@ module {
                     #err(msg);
                 };
                 case (#ok(e)) {
-                    ignore emailerHelper.send(
+                    ignore await* emailerHelper.send(
                         [{email = e.email; name = ?e.name;}],
                         EmailerHelper.TEMPLATE_VERIFY,
                         [("verify_link", daoService.config.getAsText("BASE_APP_URL") # "/#/user/verify/" # e.pubId # "/" # e.verifySecret)]
