@@ -296,7 +296,7 @@ module {
                                                         case (#err(_)) {
                                                         };
                                                         case (#ok(challenger)) {
-                                                            ignore _revertModeration(moderation);
+                                                            ignore await* _revertModeration(moderation);
 
                                                             ignore await* daoService.reimburse(
                                                                 Nat64.toNat(daoService.config.getAsNat64("CHALLENGER_DEPOSIT")),
