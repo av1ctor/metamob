@@ -56,7 +56,7 @@ const Footer = () => {
                             href="https://discord.gg/8zhj7umRpD"
                             target="_blank"
                         >
-                            <div className="icon is-size-4"><i className="la la-discord"/></div>
+                            <div className="icon is-size-4"><i className="lab la-discord"/></div>
                         </a>
                         <a 
                             href="https://github.com/av1ctor/metamob"
