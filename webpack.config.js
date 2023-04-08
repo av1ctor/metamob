@@ -111,7 +111,10 @@ module.exports = /*smp.wrap(*/{
   },  
   plugins: [
     new ForkTsCheckerWebpackPlugin(),
-    new Dotenv(),
+    new Dotenv({
+      safe: true,
+      systemvars: true,
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, asset_entry),
       cache: false,
@@ -120,17 +123,6 @@ module.exports = /*smp.wrap(*/{
     new MiniCssExtractPlugin({
       filename: "src/site/assets/mystyles.css"
     }),
-    process.env.NODE_ENV !== "production"? 
-      new CopyPlugin({
-        patterns: [
-          {
-            from: path.join(__dirname, "src", frontendDirectory, "assets"),
-            to: path.join(__dirname, "dist", frontendDirectory),
-          },
-        ],
-      })
-    :
-      () => undefined,
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       ...canisterEnvVariables,
@@ -138,7 +130,16 @@ module.exports = /*smp.wrap(*/{
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
       process: require.resolve("process/browser"),
-    })
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: `src/${frontendDirectory}/assets/.ic-assets.json*`,
+          to: ".ic-assets.json5",
+          noErrorOnMissing: true
+        },
+      ],
+    }),
   ],
   // proxy /api to port 8000 during development
   devServer: {
@@ -151,6 +152,7 @@ module.exports = /*smp.wrap(*/{
         },
       },
     },
+    static: path.resolve(__dirname, "src", frontendDirectory, "assets"),
     hot: true,
     watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
     liveReload: true,
