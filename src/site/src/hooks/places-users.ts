@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {Metamob, PlaceUser, PlaceUserRequest} from "../../../declarations/metamob/metamob.did";
+import {PlaceUser, PlaceUserRequest} from "../../../declarations/metamob/metamob.did";
 import { findByPlaceAndUser } from '../libs/places-users';
 import { useActors } from './actors';
 
@@ -7,9 +7,11 @@ export const useFindByPlaceAndUser = (
     placeId?: number, 
     userId?: number
 ): UseQueryResult<PlaceUser|undefined, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<PlaceUser|undefined, Error>(
         ['places-users', placeId, userId], 
-        () => findByPlaceAndUser(placeId, userId)
+        () => findByPlaceAndUser(placeId, userId, metamob)
     );
 };
 

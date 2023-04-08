@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {Metamob, PlaceEmail, PlaceEmailRequest} from "../../../declarations/metamob/metamob.did";
+import {PlaceEmail, PlaceEmailRequest} from "../../../declarations/metamob/metamob.did";
 import {Limit, Order} from "../libs/common";
 import { findAll } from '../libs/places-emails';
 import { useActors } from './actors';

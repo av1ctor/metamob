@@ -8,9 +8,11 @@ import { useAuth } from './auth';
 export const useFindNotificationByPubId = (
     pubId: string
 ): UseQueryResult<Notification, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Notification, Error>(
         ['notifications', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 

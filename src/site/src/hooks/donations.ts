@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {DonationRequest, Metamob, DonationResponse, Donation, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {DonationRequest, DonationResponse, Donation, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/donations';
 import { useActors } from './actors';
@@ -18,9 +18,11 @@ export const useFindDonationById = (
 export const useFindDonationByPubId = (
     pubId: string
 ): UseQueryResult<DonationResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<DonationResponse, Error>(
         ['donations', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,6 +31,8 @@ export const useFindDonations = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<DonationResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<DonationResponse[], Error>(
         ['donations', ...filters, ...orderBy, limit.offset, limit.size], 
         () => findAll(filters, orderBy, limit)
@@ -41,6 +45,8 @@ export const useFindDonationsByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<DonationResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<DonationResponse[], Error>(
         ['donations', topicId, ...orderBy], 
         ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
@@ -57,6 +63,8 @@ export const useFindDonationByCampaignAndUser = (
     topicId?: number, 
     userId?: number
 ): UseQueryResult<DonationResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<DonationResponse, Error>(
         ['donations', topicId, userId], 
         () => findByCampaignAndUser(topicId, userId)

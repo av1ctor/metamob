@@ -8,7 +8,7 @@ import { ICProvider } from "../interfaces/icprovider";
 import { Result } from "../interfaces/result";
 import { Principal } from "@dfinity/principal";
 import { LEDGER_TRANSFER_FEE } from "../libs/backend";
-import { transferErrorToText } from "../libs/icp";
+import { buildAgentJsOptions, transferErrorToText } from "../libs/icp";
 
 class StoicProvider implements ICProvider {
     identity?: StoicIdentity;
@@ -108,7 +108,7 @@ class StoicProvider implements ICProvider {
             throw Error('Metamob canister is undefined');
         }
     
-        return metamobCreateActor(metamobCanisterId, {agentOptions: {identity: this.identity}})
+        return metamobCreateActor(metamobCanisterId, {agentOptions: buildAgentJsOptions(this.identity)})
     }
     
     private _createLedgerActor(
@@ -117,7 +117,7 @@ class StoicProvider implements ICProvider {
             throw Error('Ledger canister id is undefined');
         }
     
-        this.ledger = ledgerCreateActor(ledgerCanisterId, {agentOptions: {identity: this.identity}});
+        this.ledger = ledgerCreateActor(ledgerCanisterId, {agentOptions: buildAgentJsOptions(this.identity)});
         
         return this.ledger;
     }
@@ -128,7 +128,7 @@ class StoicProvider implements ICProvider {
             throw Error('MMT canister id is undefined');
         }
         
-        return mmtCreateActor(mmtCanisterId, {agentOptions: {identity: this.identity}})
+        return mmtCreateActor(mmtCanisterId, {agentOptions: buildAgentJsOptions(this.identity)})
     }
 };
 

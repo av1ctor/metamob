@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient} from 'react-query'
-import {Challenge, ChallengeRequest, Metamob, ChallengeVoteRequest, Moderation} from "../../../declarations/metamob/metamob.did";
+import {Challenge, ChallengeRequest, ChallengeVoteRequest, Moderation} from "../../../declarations/metamob/metamob.did";
 import {Limit, Order} from "../libs/common";
 import { findByJudge, findByPubId, findByUser, getModeration } from '../libs/challenges';
 import { useActors } from './actors';

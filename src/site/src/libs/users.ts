@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Metamob, ProfileResponse, Profile, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import { Filter, Limit, Order } from "./common";
@@ -23,9 +22,10 @@ const anonymous: ProfileResponse = {
 };
 
 export const findById = async (
-    _id?: number
+    _id?: number,
+    metamob?: Metamob
 ): Promise<ProfileResponse> => {
-    if(!_id) {
+    if(!metamob || !_id) {
         return anonymous;
     }
 
@@ -52,9 +52,10 @@ export const findByIdEx = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string,
+    metamob?: Metamob
 ): Promise<ProfileResponse> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return anonymous;
     }
 

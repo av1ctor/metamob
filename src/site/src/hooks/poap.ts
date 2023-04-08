@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {PoapRequest, Metamob, Poap, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {PoapRequest, Poap, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findById, findByPubId, findByUser } from '../libs/poap';
 import { useActors } from './actors';
@@ -18,9 +18,11 @@ export const useFindPoapById = (
 export const useFindPoapByPubId = (
     pubId: string
 ): UseQueryResult<Poap, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Poap, Error>(
         ['poaps', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,9 +31,11 @@ export const useFindPoaps = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Poap[], Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Poap[], Error>(
         ['poaps', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -41,9 +45,11 @@ export const useFindPoapsByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<Poap[], Error> => {
+    const {metamob} = useActors();
+    
     return useInfiniteQuery<Poap[], Error>(
         ['poaps', topicId, ...orderBy], 
-        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 

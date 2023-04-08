@@ -1,5 +1,5 @@
 import { useQuery, UseQueryResult } from "react-query";
-import { Metamob, ModerationResponse } from "../../../declarations/metamob/metamob.did";
+import { ModerationResponse } from "../../../declarations/metamob/metamob.did";
 import { EntityType, Limit, Order } from "../libs/common";
 import { findByEntity } from "../libs/moderations";
 import { useActors } from "./actors";

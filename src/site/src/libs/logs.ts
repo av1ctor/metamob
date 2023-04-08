@@ -1,5 +1,4 @@
-import {logger} from "../../../declarations/logger";
-import { Msg, MsgKind } from "../../../declarations/logger/logger.did";
+import { Logger, Msg, MsgKind } from "../../../declarations/logger/logger.did";
 
 export const kindToText = (
     kind: MsgKind
@@ -33,7 +32,12 @@ export const kindToColor = (
 
 export const findAll = async (
     offset: number,
-    size: number
+    size: number,
+    logger?: Logger
 ): Promise<Msg[]> => {
+    if(!logger) {
+        return [];
+    }
+
     return await logger.find(offset, size);
 };

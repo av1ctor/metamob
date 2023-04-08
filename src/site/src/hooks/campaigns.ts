@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, useInfiniteQuery, UseInfiniteQueryResult} from 'react-query'
-import {CampaignRequest, Campaign, Metamob, ModerationRequest, FileRequest} from "../../../declarations/metamob/metamob.did";
+import {CampaignRequest, Campaign, ModerationRequest, FileRequest} from "../../../declarations/metamob/metamob.did";
 import { findAll, findById, findByPlaceId, findByPubId, findByUser } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 import { useActors } from './actors';
@@ -7,18 +7,22 @@ import { useActors } from './actors';
 export const useFindCampaignById = (
     _id?: number
 ): UseQueryResult<Campaign, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Campaign, Error>(
         ['campaigns', _id], 
-        () => findById(_id)
+        () => findById(_id, metamob)
     );
 };
 
 export const useFindCampaignByPubId = (
     pubId?: string
 ): UseQueryResult<Campaign, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Campaign, Error>(
         ['campaigns', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -28,9 +32,11 @@ export const useFindCampaignsByPlaceId = (
     size: number,
     placeId?: number
 ): UseInfiniteQueryResult<Campaign[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<Campaign[], Error>(
         ['campaigns', placeId, ...filters, ...orderBy], 
-        ({ pageParam = 0 }) => findByPlaceId(placeId, filters, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findByPlaceId(placeId, filters, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 
@@ -45,9 +51,11 @@ export const useFindCampaigns = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Campaign[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Campaign[], Error>(
         ['campaigns', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit),
+        () => findAll(filters, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -57,9 +65,11 @@ export const useFindCampaignsInf = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<Campaign[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<Campaign[], Error>(
         ['campaigns', ...filters, ...orderBy],
-        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 

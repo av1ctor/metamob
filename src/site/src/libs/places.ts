@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Metamob, Place, PlaceAuth, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -73,7 +72,8 @@ export const kindToText = (
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<Place[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -86,22 +86,23 @@ export const findAll = async (
                 ])
         ]:
         [];
-    const res = await metamob.placeFind(
+    const res = await metamob?.placeFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
 };
 
 export const findById = async (
-    _id?: number
+    _id?: number,
+    metamob?: Metamob
 ): Promise<Place> => {
-    if(!_id) {
+    if(!metamob || !_id) {
        return {} as Place;
     }
     
@@ -113,9 +114,10 @@ export const findById = async (
 };
 
 export const findTreeById = async (
-    _id?: number
+    _id?: number,
+    metamob?: Metamob
 ): Promise<Place[]> => {
-    if(!_id) {
+    if(!metamob || !_id) {
         return [];
     }
     
@@ -127,9 +129,10 @@ export const findTreeById = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string,
+    metamob?: Metamob
 ): Promise<Place> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as Place;
     }
     
@@ -163,15 +166,19 @@ export const findByUser = async (
 }
 
 export const search = async (
-    value: string
+    value: string,
+    metamob?: Metamob
 ): Promise<{name: string, value: number}[]> => {
-    const places = await findAll([
-        {
+    const places = await findAll(
+        [{
             key: 'name',
             op: 'contains',
             value: value
-        }
-    ]);
+        }],
+        undefined,
+        undefined,        
+        metamob
+    );
 
     return places.map(r => ({
         name: `${r.name} (${kindToText(r.kind)})`,

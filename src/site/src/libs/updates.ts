@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Metamob, Update, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -6,7 +5,8 @@ import {Filter, Limit, Order} from "./common";
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit, 
+    metamob?: Metamob
 ): Promise<Update[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -20,13 +20,13 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await metamob.updateFind(
+    const res = await metamob?.updateFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
@@ -35,9 +35,10 @@ export const findAll = async (
 export const findByCampaign = async (
     campaignId?: number, 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit, 
+    metamob?: Metamob
 ): Promise<Update[]> => {
-    if(!campaignId) {
+    if(!metamob || !campaignId) {
         return [];
     }
 
@@ -69,9 +70,10 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string, 
+    metamob?: Metamob
 ): Promise<Update> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as Update;
     }
 

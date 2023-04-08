@@ -1,11 +1,11 @@
-import { metamob } from "../../../declarations/metamob";
-import {PlaceUser} from "../../../declarations/metamob/metamob.did";
+import {Metamob, PlaceUser} from "../../../declarations/metamob/metamob.did";
 
 export const findByPlaceAndUser = async (
     placeId?: number,
-    userId?: number
+    userId?: number,
+    metamob?: Metamob
 ): Promise<PlaceUser|undefined> => {
-    if(!placeId || !userId) {
+    if(!metamob || !placeId || !userId) {
         return undefined;
     }
 

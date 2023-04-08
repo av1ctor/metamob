@@ -131,7 +131,7 @@ module.exports = /*smp.wrap(*/{
       Buffer: [require.resolve("buffer/"), "Buffer"],
       process: require.resolve("process/browser"),
     }),
-    new CopyPlugin({
+    /*new CopyPlugin({
       patterns: [
         {
           from: `src/${frontendDirectory}/assets/.ic-assets.json*`,
@@ -139,9 +139,9 @@ module.exports = /*smp.wrap(*/{
           noErrorOnMissing: true
         },
       ],
-    }),
+    }),*/
   ],
-  // proxy /api to port 8000 during development
+  // proxy /api to port 4943 during development
   devServer: {
     proxy: {
       "/api": {

@@ -26,7 +26,7 @@ const MarkdownField = (props: Props) => {
         }
     }, [props.onChange, props.id, props.name]);
 
-    const options = useMemo(() => ({
+    const options = useMemo((): EasyMDE.Options => ({
         autofocus: false,
         spellChecker: false,
         status: false,

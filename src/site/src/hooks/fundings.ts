@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {FundingRequest, Metamob, FundingResponse, Funding, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {FundingRequest, FundingResponse, Funding, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/fundings';
 import { useActors } from './actors';
@@ -18,9 +18,11 @@ export const useFindFundingById = (
 export const useFindFundingByPubId = (
     pubId: string
 ): UseQueryResult<FundingResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<FundingResponse, Error>(
         ['fundings', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,9 +31,11 @@ export const useFindFundings = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<FundingResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<FundingResponse[], Error>(
         ['fundings', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -41,9 +45,11 @@ export const useFindFundingsByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<FundingResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<FundingResponse[], Error>(
         ['fundings', topicId, ...orderBy], 
-        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 
@@ -57,9 +63,11 @@ export const useFindFundingByCampaignAndUser = (
     topicId?: number, 
     userId?: number
 ): UseQueryResult<FundingResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<FundingResponse, Error>(
         ['fundings', topicId, userId], 
-        () => findByCampaignAndUser(topicId, userId)
+        () => findByCampaignAndUser(topicId, userId, metamob)
     );
 
 };

@@ -1,12 +1,12 @@
-import {metamob} from "../../../declarations/metamob";
-import {Category, Variant} from "../../../declarations/metamob/metamob.did";
+import {Category, Metamob, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
 
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<Category[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -20,22 +20,23 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await metamob.categoryFind(
+    const res = await metamob?.categoryFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: [[0n, 20n]]);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
 };
 
 export const findById = async (
-    _id?: number
+    _id?: number,
+    metamob?: Metamob
 ): Promise<Category> => {
-    if(!_id) {
+    if(!metamob || !_id) {
         return {} as Category;
     }
     

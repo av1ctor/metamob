@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {Place, PlaceRequest, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {Place, PlaceRequest, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findById, findByPubId, findByUser, findTreeById } from '../libs/places';
 import { useActors } from './actors';
@@ -7,27 +7,33 @@ import { useActors } from './actors';
 export const useFindPlaceById = (
     _id: number
 ): UseQueryResult<Place, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Place, Error>(
         ['places', _id], 
-        () => findById(_id)
+        () => findById(_id, metamob)
     );
 };
 
 export const useFindPlaceTreeById = (
     _id?: number
 ): UseQueryResult<Place[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Place[], Error>(
         ['places', 'tree', _id], 
-        () => findTreeById(_id)
+        () => findTreeById(_id, metamob)
     );
 };
 
 export const useFindPlaceByPubId = (
     pubId?: string
 ): UseQueryResult<Place, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Place, Error>(
         ['places', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -50,9 +56,11 @@ export const useFindPlaces = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Place [], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<Place[], Error>(
         ['places', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit),
+        () => findAll(filters, orderBy, limit, metamob),
         {keepPreviousData: limit.offset > 0}
     );
 };
@@ -62,9 +70,11 @@ export const useFindPlacesInf = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<Place [], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<Place[], Error>(
         ['places', ...filters, ...orderBy], 
-        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findAll(filters, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 

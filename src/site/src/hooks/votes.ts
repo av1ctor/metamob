@@ -18,9 +18,11 @@ export const useFindVoteById = (
 export const useFindVoteByPubId = (
     pubId: string
 ): UseQueryResult<VoteResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<VoteResponse, Error>(
         ['votes', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,9 +31,11 @@ export const useFindVotes = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<VoteResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useQuery<VoteResponse[], Error>(
         ['votes', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -41,9 +45,11 @@ export const useFindVotesByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<VoteResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<VoteResponse[], Error>(
         ['votes', topicId, ...orderBy], 
-        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) =>
                 lastPage.length < size? 
@@ -57,9 +63,11 @@ export const useFindVoteByCampaignAndUser = (
     topicId?: number, 
     userId?: number
 ): UseQueryResult<VoteResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<VoteResponse, Error>(
         ['votes', topicId, userId], 
-        () => findByCampaignAndUser(topicId, userId)
+        () => findByCampaignAndUser(topicId, userId, metamob)
     );
 
 };

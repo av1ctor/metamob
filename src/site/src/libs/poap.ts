@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Variant, Poap, Metamob} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -19,7 +18,8 @@ export enum PoapOption {
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit, 
+    metamob?: Metamob
 ): Promise<Poap[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -33,13 +33,13 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await metamob.poapFind(
+    const res = await metamob?.poapFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
@@ -48,9 +48,10 @@ export const findAll = async (
 export const findByCampaign = async (
     poapId?: number, 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit, 
+    metamob?: Metamob
 ): Promise<Poap[]> => {
-    if(!poapId) {
+    if(!metamob || !poapId) {
         return [];
     }
     
@@ -102,9 +103,10 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string, 
+    metamob?: Metamob
 ): Promise<Poap> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as Poap;
     }
 

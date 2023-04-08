@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Notification, Metamob} from "../../../declarations/metamob/metamob.did";
 import { Limit, Order } from "./common";
 
@@ -46,9 +45,10 @@ export const countUnreadByUser = async (
 }
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string,
+    metamob?: Metamob
 ): Promise<Notification> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as Notification;
     }
 

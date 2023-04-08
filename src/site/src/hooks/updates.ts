@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {UpdateRequest, Update, Metamob, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {UpdateRequest, Update, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import { CampaignResult } from '../libs/campaigns';
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findById, findByPubId } from '../libs/updates';
@@ -19,9 +19,11 @@ export const useFindUpdateById = (
 export const useFindUpdateByPubId = (
     pubId: string
 ): UseQueryResult<Update, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Update, Error>(
         ['updates', pubId],  
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -31,9 +33,11 @@ export const useFindUpdates = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<Update[], Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<Update[], Error>(
         ['updates', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -43,9 +47,11 @@ export const useFindUpdatesByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<Update[], Error> => {
+    const {metamob} = useActors();
+    
     return useInfiniteQuery<Update[], Error>(
         ['updates', topicId, ...orderBy], 
-        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({pageParam = 0}) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 

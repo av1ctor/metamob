@@ -1,12 +1,19 @@
 import React, {createContext, useReducer} from "react";
 import { Metamob } from "../../../declarations/metamob/metamob.did";
+import { createActor as metamobCreateActor, canisterId as metamobCanisterId } from "../../../declarations/metamob/index.js";
 import { _SERVICE as Ledger } from "../../../declarations/ledger/ledger.did";
+import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger/index.js";
 import { _SERVICE as MMT } from "../../../declarations/mmt/mmt.did";
+import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt/index.js";
+import { Logger } from "../../../declarations/logger/logger.did";
+import { createActor as loggerCreateActor, canisterId as loggerCanisterId } from "../../../declarations/logger/index.js";
+import { config } from "../config";
 
 export interface ActorState {
-    metamob?: Metamob;
-    ledger?: Ledger;
-    mmt?: MMT;
+    metamob: Metamob;
+    ledger: Ledger;
+    mmt: MMT;
+    logger: Logger;
 };
 
 export enum ActorActionType {
@@ -20,10 +27,13 @@ export interface ActorAction {
     payload: any;
 };
 
+const options = {agentOptions: {host: config.IC_GATEWAY}};
+
 const initialState: ActorState = {
-    metamob: undefined,
-    ledger: undefined,
-    mmt: undefined,
+    metamob: metamobCreateActor(metamobCanisterId, options),
+    ledger: ledgerCreateActor(ledgerCanisterId, options),
+    mmt: mmtCreateActor(mmtCanisterId, options),
+    logger: loggerCreateActor(mmtCanisterId, options),
 };
 
 export const ActorContext = createContext<[ActorState, (action: ActorAction) => void]>([

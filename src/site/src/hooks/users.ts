@@ -7,6 +7,8 @@ import { useActors } from './actors';
 export const useFindUserById = (
     id?: number | [] | [number]
 ): UseQueryResult<ProfileResponse|Profile, Error> => {
+    const {metamob} = useActors();
+    
     const _id = Array.isArray(id)?
         id.length > 0?
             id[0]
@@ -16,7 +18,7 @@ export const useFindUserById = (
         id;
     return useQuery<ProfileResponse|Profile, Error>(
         ['users', 'redacted', _id],
-        () => findById(_id)
+        () => findById(_id, metamob)
     );
 };
 
@@ -41,9 +43,11 @@ export const useFindUserByIdEx = (
 export const useFindUserByPubId = (
     pubId?: string,
 ): UseQueryResult<ProfileResponse, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<ProfileResponse|Profile, Error>(
         ['users', 'redacted', pubId],
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 

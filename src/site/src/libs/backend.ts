@@ -3,6 +3,7 @@ import { createActor as metamobCreateActor, canisterId as metamobCanisterId } fr
 import { createActor as ledgerCreateActor, canisterId as ledgerCanisterId } from "../../../declarations/ledger";
 import { createActor as mmtCreateActor, canisterId as mmtCanisterId } from "../../../declarations/mmt";
 import { Variant } from "../../../declarations/metamob/metamob.did";
+import { buildAgentJsOptions } from "./icp";
 
 export const LEDGER_TRANSFER_FEE = BigInt(10000);
 
@@ -22,7 +23,7 @@ export const createMainActor = (
         throw Error('Metamob canister is undefined');
     }
 
-    return metamobCreateActor(metamobCanisterId, {agentOptions: {identity}})
+    return metamobCreateActor(metamobCanisterId, {agentOptions: buildAgentJsOptions(identity)})
 };
 
 export const createLedgerActor = (
@@ -32,7 +33,7 @@ export const createLedgerActor = (
         throw Error('Ledger canister id is undefined');
     }
 
-    return ledgerCreateActor(ledgerCanisterId, {agentOptions: {identity}})
+    return ledgerCreateActor(ledgerCanisterId, {agentOptions: buildAgentJsOptions(identity)})
 };
 
 export const createMmtActor = (
@@ -42,7 +43,7 @@ export const createMmtActor = (
         throw Error('MMT canister id is undefined');
     }
     
-    return mmtCreateActor(mmtCanisterId, {agentOptions: {identity}})
+    return mmtCreateActor(mmtCanisterId, {agentOptions: buildAgentJsOptions(identity)})
 };
 
 export const valueToVariant = (

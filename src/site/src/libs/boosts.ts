@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Variant, BoostResponse, Boost, Metamob} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -11,7 +10,8 @@ export enum BoostState {
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<BoostResponse[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -25,13 +25,13 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await metamob.boostFind(
+    const res = await metamob?.boostFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
@@ -40,9 +40,10 @@ export const findAll = async (
 export const findByCampaign = async (
     boostId?: number, 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<BoostResponse[]> => {
-    if(!boostId) {
+    if(!metamob || !boostId) {
         return [];
     }
     
@@ -60,9 +61,10 @@ export const findByCampaign = async (
 
 export const findByCampaignAndUser = async (
     boostId?: number, 
-    userId?: number
+    userId?: number,
+    metamob?: Metamob
 ): Promise<BoostResponse> => {
-    if(!boostId || !userId) {
+    if(!metamob || !boostId || !userId) {
         return {} as BoostResponse;
     }
     
@@ -116,9 +118,10 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string, 
+    metamob?: Metamob
 ): Promise<BoostResponse> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as BoostResponse;
     }
 

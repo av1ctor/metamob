@@ -1,4 +1,3 @@
-import {metamob} from "../../../declarations/metamob";
 import {Campaign, Metamob, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
@@ -165,7 +164,8 @@ export const getAgainstVotes = (
 export const findAll = async (
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<Campaign[]> => {
     const criterias: [] | [Array<[string, string, Variant]>] = filters?
         [
@@ -179,13 +179,13 @@ export const findAll = async (
         ]:
         [];
 
-    const res = await metamob.campaignFind(
+    const res = await metamob?.campaignFind(
         criterias, 
         orderBy? [orderBy.map(o => [o.key, o.dir])]: [], 
         limit? [[BigInt(limit.offset), BigInt(limit.size)]]: []);
     
-    if('err' in res) {
-        throw new Error(res.err);
+    if(!res || 'err' in res) {
+        throw new Error(res?.err);
     }
 
     return res.ok; 
@@ -214,9 +214,10 @@ export const findByUser = async (
 }
 
 export const findById = async (
-    _id?: number
+    _id?: number,
+    metamob?: Metamob
 ): Promise<Campaign> => {
-    if(!_id) {
+    if(!metamob || !_id) {
         return {} as Campaign;
     }
 
@@ -228,9 +229,10 @@ export const findById = async (
 };
 
 export const findByPubId = async (
-    pubId?: string
+    pubId?: string,
+    metamob?: Metamob
 ): Promise<Campaign> => {
-    if(!pubId) {
+    if(!metamob || !pubId) {
         return {} as Campaign;
     }
     
@@ -245,11 +247,12 @@ export const findByPlaceId = async (
     placeId?: number,
     filters?: Filter[], 
     orderBy?: Order[], 
-    limit?: Limit
+    limit?: Limit,
+    metamob?: Metamob
 ): Promise<Campaign[]> => {
     if(!placeId) {
         return [];
     }
 
-    return findAll(filters?.concat({key: 'placeId', op: 'eq', value: placeId}), orderBy, limit);
+    return findAll(filters?.concat({key: 'placeId', op: 'eq', value: placeId}), orderBy, limit, metamob);
 }

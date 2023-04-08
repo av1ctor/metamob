@@ -3,6 +3,17 @@ import { Buffer } from "buffer";
 import crc from "crc";
 import { Principal } from "@dfinity/principal";
 import { TransferError } from "../../../declarations/ledger/ledger.did";
+import { HttpAgentOptions, Identity } from "@dfinity/agent";
+import { config } from "../config";
+
+export const buildAgentJsOptions = (
+    identity?: Identity
+): HttpAgentOptions => {
+    return {
+        identity, 
+        host: config.IC_GATEWAY
+    };
+};
 
 export const toHexString = (
     byteArray: Uint8Array

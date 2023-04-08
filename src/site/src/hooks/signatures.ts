@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {SignatureRequest, Metamob, SignatureResponse, Signature, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {SignatureRequest, SignatureResponse, Signature, ModerationRequest} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/signatures';
 import { useActors } from './actors';
@@ -18,9 +18,11 @@ export const useFindSignatureById = (
 export const useFindSignatureByPubId = (
     pubId: string
 ): UseQueryResult<SignatureResponse, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<SignatureResponse, Error>(
         ['signatures', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,9 +31,11 @@ export const useFindSignatures = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<SignatureResponse[], Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<SignatureResponse[], Error>(
         ['signatures', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -41,9 +45,11 @@ export const useFindSignaturesByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<SignatureResponse[], Error> => {
+    const {metamob} = useActors();
+    
     return useInfiniteQuery<SignatureResponse[], Error>(
         ['signatures', signatureId, ...orderBy], 
-        ({pageParam = 0}) => findByCampaign(signatureId, orderBy, {offset: pageParam, size: size}),
+        ({pageParam = 0}) => findByCampaign(signatureId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size?
@@ -58,9 +64,11 @@ export const useFindSignatureByCampaignAndUser = (
     signatureId?: number, 
     userId?: number
 ): UseQueryResult<SignatureResponse, Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<SignatureResponse, Error>(
         ['signatures', signatureId, userId], 
-        () => findByCampaignAndUser(signatureId, userId)
+        () => findByCampaignAndUser(signatureId, userId, metamob)
     );
 
 };

@@ -1,5 +1,5 @@
 import {useQuery, UseQueryResult, useMutation, useQueryClient, UseInfiniteQueryResult, useInfiniteQuery} from 'react-query'
-import {BoostRequest, Metamob, BoostResponse, Boost, ModerationRequest} from "../../../declarations/metamob/metamob.did";
+import {BoostRequest, BoostResponse, Boost} from "../../../declarations/metamob/metamob.did";
 import {Filter, Limit, Order} from "../libs/common";
 import { findAll, findByCampaign, findByCampaignAndUser, findById, findByPubId, findByUser } from '../libs/boosts';
 import { useActors } from './actors';
@@ -18,9 +18,11 @@ export const useFindBoostById = (
 export const useFindBoostByPubId = (
     pubId: string
 ): UseQueryResult<BoostResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<BoostResponse, Error>(
         ['boosts', pubId], 
-        () => findByPubId(pubId)
+        () => findByPubId(pubId, metamob)
     );
 };
 
@@ -29,9 +31,11 @@ export const useFindBoosts = (
     orderBy: Order[], 
     limit: Limit
 ): UseQueryResult<BoostResponse[], Error> => {
+    const {metamob} = useActors();
+    
     return useQuery<BoostResponse[], Error>(
         ['boosts', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -41,9 +45,11 @@ export const useFindBoostsByCampaign = (
     orderBy: Order[], 
     size: number
 ): UseInfiniteQueryResult<BoostResponse[], Error> => {
+    const {metamob} = useActors();
+
     return useInfiniteQuery<BoostResponse[], Error>(
         ['boosts', topicId, ...orderBy], 
-        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 
@@ -57,9 +63,11 @@ export const useFindBoostByCampaignAndUser = (
     topicId?: number, 
     userId?: number
 ): UseQueryResult<BoostResponse, Error> => {
+    const {metamob} = useActors();
+
     return useQuery<BoostResponse, Error>(
         ['boosts', topicId, userId], 
-        () => findByCampaignAndUser(topicId, userId)
+        () => findByCampaignAndUser(topicId, userId, metamob)
     );
 
 };

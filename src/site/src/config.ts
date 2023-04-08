@@ -2,6 +2,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 export const config = {
     isProduction,
+    IC_GATEWAY: isProduction?
+        'https://ic0.app':
+        undefined,
     IC_URL: isProduction?
         process.env.IC_URL:
         process.env.IC_URL_LOCAL,
