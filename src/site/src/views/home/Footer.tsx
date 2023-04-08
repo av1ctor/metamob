@@ -47,10 +47,16 @@ const Footer = () => {
                     </div>
                     <div className="column is-4">
                         <a 
-                            href="https://twitter.com/metamobdotorg"
+                            href="https://twitter.com/metamob_app"
                             target="_blank"
                         >
                             <div className="icon is-size-4"><i className="la la-twitter"/></div>
+                        </a>
+                        <a 
+                            href="https://discord.gg/8zhj7umRpD"
+                            target="_blank"
+                        >
+                            <div className="icon is-size-4"><i className="la la-discord"/></div>
                         </a>
                         <a 
                             href="https://github.com/av1ctor/metamob"
