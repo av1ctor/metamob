@@ -13,6 +13,7 @@
     "prebuild": "npm run prod:generate",
     "dev:front": "npm run serve",
     "dev:back": "./scripts/deploy-backend.sh",
+    "prod:front": "./scripts/deploy-frontend-prod.sh",
     "prod:back": "./scripts/deploy-backend-prod.sh",
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
     "prestart": "npm run generate",
