@@ -7,6 +7,7 @@ import TextField from "../../components/TextField";
 import { useUI } from "../../hooks/ui";
 import {Filter} from "../../libs/common";
 import { search } from "../../libs/places";
+import { useActors } from "../../hooks/actors";
 
 interface Props {
     filters: Filter[];
@@ -15,6 +16,8 @@ interface Props {
 };
 
 const SearchForm = (props: Props) => {
+    const {metamob} = useActors();
+    
     const [form, setForm] = useState(props.filters);
     const [placeName, setPlaceName] = useState('');
 
@@ -46,7 +49,7 @@ const SearchForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);

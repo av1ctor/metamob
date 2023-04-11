@@ -25,6 +25,7 @@ import VariantField from "../../../components/VariantField";
 import ArrayField from "../../../components/ArrayField";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
+import { useActors } from "../../../hooks/actors";
 
 const fundingSchema = yup.object().shape({
     tiers: yup.array(
@@ -142,6 +143,7 @@ interface Props {
 };
 
 const EditForm = (props: Props) => {
+    const {metamob} = useActors();
     const {user} = useAuth();
     const intl = useIntl();
 
@@ -375,7 +377,7 @@ const EditForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);

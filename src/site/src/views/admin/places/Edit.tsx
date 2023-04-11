@@ -15,6 +15,7 @@ import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceAuthNum, auths, authToEnum, search, PlaceKind } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { transformAuth, validateAuth } from "../../places/place/utils";
+import { useActors } from "../../../hooks/actors";
 import Avatar from "../../users/Avatar";
 
 interface Props {
@@ -40,6 +41,7 @@ const formSchema = yup.object().shape({
 
 const EditForm = (props: Props) => {
     const {showSuccess, showError, toggleLoading} = useUI();
+    const {metamob} = useActors()
     
     const [form, setForm] = useState<PlaceRequest>({
         name: props.place.name,
@@ -162,7 +164,7 @@ const EditForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);

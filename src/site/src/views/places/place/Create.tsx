@@ -15,6 +15,7 @@ import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceKind, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
 import { setField } from "../../../libs/utils";
 import { transformAuth, validateAuth } from "./utils";
+import { useActors } from "../../../hooks/actors";
 
 interface Props {
     onClose: () => void;
@@ -53,6 +54,7 @@ const emptyForm = (): PlaceRequest => {
 };
 
 const Create = (props: Props) => {
+    const {metamob} = useActors();
     const intl = useIntl();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -163,7 +165,7 @@ const Create = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);

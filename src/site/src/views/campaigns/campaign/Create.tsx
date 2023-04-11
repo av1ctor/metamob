@@ -24,6 +24,7 @@ import ArrayField from "../../../components/ArrayField";
 import VariantField from "../../../components/VariantField";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
+import { useActors } from "../../../hooks/actors";
 
 interface Props {
     mutation: any;
@@ -209,6 +210,7 @@ export const transformInfo = (
 };
 
 const CreateForm = (props: Props) => {
+    const {metamob} = useActors();
     const {principal, user} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -389,7 +391,7 @@ const CreateForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);

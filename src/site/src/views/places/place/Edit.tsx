@@ -20,7 +20,7 @@ import CreateModerationForm, { transformModerationForm, useModerationForm, useSe
 import { FormattedMessage } from "react-intl";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
-
+import { useActors } from "../../../hooks/actors";
 
 interface Props {
     place: Place;
@@ -45,6 +45,7 @@ const formSchema = yup.object().shape({
 });
 
 const EditForm = (props: Props) => {
+    const {metamob} = useActors();
     const {user} = useAuth();
 
     const {showSuccess, showError, toggleLoading} = useUI();
@@ -201,7 +202,7 @@ const EditForm = (props: Props) => {
         value: string
     ): Promise<Option[]> => {
         try {
-            return search(value);
+            return search(value, metamob);
         }
         catch(e) {
             showError(e);
