@@ -35,7 +35,7 @@ export const useFindDonations = (
 
     return useQuery<DonationResponse[], Error>(
         ['donations', ...filters, ...orderBy, limit.offset, limit.size], 
-        () => findAll(filters, orderBy, limit)
+        () => findAll(filters, orderBy, limit, metamob)
     );
 
 };
@@ -49,7 +49,7 @@ export const useFindDonationsByCampaign = (
 
     return useInfiniteQuery<DonationResponse[], Error>(
         ['donations', topicId, ...orderBy], 
-        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}),
+        ({ pageParam = 0 }) => findByCampaign(topicId, orderBy, {offset: pageParam, size: size}, metamob),
         {
             getNextPageParam: (lastPage, pages) => 
                 lastPage.length < size? 
@@ -67,7 +67,7 @@ export const useFindDonationByCampaignAndUser = (
 
     return useQuery<DonationResponse, Error>(
         ['donations', topicId, userId], 
-        () => findByCampaignAndUser(topicId, userId)
+        () => findByCampaignAndUser(topicId, userId, metamob)
     );
 
 };
