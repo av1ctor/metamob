@@ -17,6 +17,7 @@ A decentralized web3 app, running 100% on-chain on the Internet Computer, that l
 
 ### 1. install a local Bitcoin network
 - Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development
+- Add this line to bitcoin.conf: fallbackfee=0.00000001
 
 ### 2. start dfx
 - Run: dfx start --enable-bitcoin
@@ -81,3 +82,12 @@ Note: if there's already a ~/.local/share/dfx/network/local folder, it must be D
 - Fill on ./scripts/deploy-mydaocoin.sh: **ADMIN_PRINCIPAL**
 - Run: ./scripts/deploy-mydaocoin.sh
 - Remove from dfx.json: "mydaocoin": ...
+
+### 17. (optional) send BTC locally
+- Run: 
+    1. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf createwallet "test" (or load if one exists: ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf loadwallet "test")
+    2. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf getnewaddress
+    3. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 **ADDRESS_GENERATED_BY_THE_COMMAND_ABOVE**
+    4. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 mtbZzVBwLnDmhH4pE9QynWAgh6H3aC1E6M
+    5. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf sendtoaddress **BTC_ADDRESS_SHOWN_BY_THE_DONATION_OR_BOOST_DIALOG** **VALUE_IN_DECIMAL**
+    6. ./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 mtbZzVBwLnDmhH4pE9QynWAgh6H3aC1E6M
