@@ -4,6 +4,8 @@ https://site.metamob.app/
 
 A decentralized web3 app, running 100% on-chain on the Internet Computer, that lets any user start mobilizations by creating campaigns of four different kinds: donations, votes, signatures and fundraising
 
+![alt text](./docs/metamob-frontpage.png?raw=true)
+
 ## running locally:
 
 ### 1. install a local Bitcoin network
