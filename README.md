@@ -1,4 +1,4 @@
-# metamob
+![alt text](./src/site/assets/logo.svg?raw=true)
 
 https://site.metamob.app/
 
