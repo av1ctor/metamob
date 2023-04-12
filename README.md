@@ -20,6 +20,7 @@ A decentralized web3 app, running 100% on-chain on the Internet Computer, that l
 
 ### 2. start dfx
 - Run: dfx start --enable-bitcoin
+Note: if there's already a ~/.local/share/dfx/network/local folder, it must be DELETED if dfx wasn't initialized, at the very first time, with the --enable-bitcoin option, or else the local replica will silently disable the bitcoin features
 
 ### 3. deploy the local internet_identity canister:
 - Add to dfx.json: "internet_identity": {"type": "custom", "wasm": "canisters-dev/internet_identity.wasm", "candid": "canisters-dev/internet_identity.did", "build": ""},
@@ -59,6 +60,7 @@ A decentralized web3 app, running 100% on-chain on the Internet Computer, that l
 - Update the FILESTORE_URL_LOCAL variable at .env with http://127.0.0.1:4943/{id}?canisterId=**FILESTORE_CANISTER_ID**
 
 ### 13. deploy metamob backend:
+- Run: npm install
 - Run: npm run dev:back
 
 ### 14. configure the frontend
