@@ -6,7 +6,14 @@ A decentralized web3 app, running 100% on-chain on the Internet Computer, that l
 
 ![alt text](./docs/metamob-frontpage.png?raw=true)
 
-## running locally:
+## TODO:
+- [ ] Move finished campaigns to a archive canister
+- [ ] Create neurons-like to stake/lock MMT's
+- [ ] Donations and fundraising campaigns should allow min and max values
+- [ ] Add NFid support
+- [ ] Create a fundraising campaign with tiers for metamob itself
+
+## Running locally:
 
 ### 1. install a local Bitcoin network
 - Follow: https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development
@@ -67,7 +74,7 @@ A decentralized web3 app, running 100% on-chain on the Internet Computer, that l
 ### 15. tranfer ICP from the LEDGER_ACC to the admin account:
 - Run: dfx ledger transfer --amount 10000.0 --ledger-canister-id **LEDGER_CANISTER_ID** --memo 1234 **ADMIN_ACCOUNT_IDENTIFIER_32_BYTES_IN_HEX**
 
-### optional: deploy the mydaocoin for testing:
+### 16. (optional) deploy the mydaocoin for testing:
 - Add to dfx.json: "mydaocoin": {"main": "src/mydaocoin/token.mo","type": "motoko"},
 - Fill on ./scripts/deploy-mydaocoin.sh: **ADMIN_PRINCIPAL**
 - Run: ./scripts/deploy-mydaocoin.sh
