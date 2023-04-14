@@ -12,7 +12,7 @@ interface Props {
 };
 
 const formSchema = yup.object().shape({
-    to: yup.string().required().length(63),
+    to: yup.string().required().min(27).max(63),
     value: yup.string().required()
 });
 
