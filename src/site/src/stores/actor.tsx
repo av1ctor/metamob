@@ -33,7 +33,7 @@ const initialState: ActorState = {
     metamob: metamobCreateActor(metamobCanisterId, options),
     ledger: ledgerCreateActor(ledgerCanisterId, options),
     mmt: mmtCreateActor(mmtCanisterId, options),
-    logger: loggerCreateActor(mmtCanisterId, options),
+    logger: loggerCreateActor(loggerCanisterId, options),
 };
 
 export const ActorContext = createContext<[ActorState, (action: ActorAction) => void]>([
