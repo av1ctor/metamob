@@ -103,9 +103,6 @@ const Campaign = (props: Props) => {
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
         user && user._id === campaign?.createdBy;
 
-
-    console.log(campaign)
-
     return (
         <>
             <ScrollToTop />
