@@ -17,8 +17,8 @@
     "prod:back": "./scripts/deploy-backend-prod.sh",
     "serve": "webpack serve --host 0.0.0.0 --mode development --env development",
     "prestart": "npm run generate",
-    "dev:generate": "dfx generate --identity default metamob & dfx generate --identity default logger & dfx generate --identity default emailer & dfx generate --identity default btcwallet & dfx generate --identity default mmt & dfx generate --identity default ledger & dfx generate --identity default --network ic site",
-    "prod:generate": "dfx generate --identity default --network ic metamob & dfx generate --identity default --network ic logger & dfx generate --identity default --network ic emailer & dfx generate --identity default --network ic btcwallet & dfx generate --identity default --network ic mmt & dfx generate --identity default --network ic ledger & dfx generate --identity default --network ic site",
+    "dev:generate": "dfx generate metamob & dfx generate logger & dfx generate emailer & dfx generate btcwallet & dfx generate mmt & dfx generate ledger & dfx generate --network ic site",
+    "prod:generate": "dfx generate --network ic metamob & dfx generate --network ic logger & dfx generate --network ic emailer & dfx generate --network ic btcwallet & dfx generate --network ic mmt & dfx generate --network ic ledger & dfx generate --network ic site",
     "i18n:extract": "formatjs extract -- \"src/site/src/**/*.ts*\" --ignore=\"**/*.d.ts\" --out-file \"src/site/assets/lang/en.json\" --id-interpolation-pattern \"[sha512:contenthash:base64:6]\""
   },
   "devDependencies": {
