@@ -1,3 +1,4 @@
+import { decimalToE2s } from "../../../libs/utils";
 import { PlaceAuth } from "../../../../../declarations/metamob/metamob.did";
 
 export const transformAuth = (
@@ -7,20 +8,28 @@ export const transformAuth = (
         return {email: null};
     }
     else if('dip20' in auth) {
+        const minVotes = auth.dip20.minVotesPerc;
         return {
             dip20: {
                 canisterId: auth.dip20.canisterId,
                 createMin: BigInt(auth.dip20.createMin),
                 cooperateMin: BigInt(auth.dip20.cooperateMin),
+                minVotesPerc: typeof minVotes === 'string'? 
+                    decimalToE2s(minVotes):
+                    minVotes
             }
         };
     }
     else if('dip721' in auth) {
+        const minVotes = auth.dip721.minVotesPerc;
         return {
             dip721: {
                 canisterId: auth.dip721.canisterId,
                 createMin: BigInt(auth.dip721.createMin),
                 cooperateMin: BigInt(auth.dip721.cooperateMin),
+                minVotesPerc: typeof minVotes === 'string'? 
+                    decimalToE2s(minVotes):
+                    minVotes
             }
         };
     }

@@ -1,14 +1,15 @@
 import React from "react";
 import Box from "../../../../../components/Box";
-import { CampaignState, getAgainstVotes, getProVotes } from "../../../../../libs/campaigns";
+import { CampaignState, getVotes } from "../../../../../libs/campaigns";
 import { useFindVoteByCampaignAndUser } from "../../../../../hooks/votes";
-import { Campaign } from "../../../../../../../declarations/metamob/metamob.did";
+import { Campaign, Place } from "../../../../../../../declarations/metamob/metamob.did";
 import VoteForm from "./Form";
 import { FormattedMessage } from "react-intl";
 import Action from "../Action";
 import { useAuth } from "../../../../../hooks/auth";
 
 interface Props {
+    place?: Place;
     campaign: Campaign;
 }
 
@@ -17,20 +18,18 @@ export const VoteFrame = (props: Props) => {
     
     const {campaign} = props;
     
-    const proVotes = getProVotes(campaign);
-    const againstVotes = getAgainstVotes(campaign);
-    const totalVotes = proVotes + againstVotes;
+    const votes = getVotes(campaign, props.place);
     
     const userVote = useFindVoteByCampaignAndUser(campaign?._id, user?._id);
    
     return (
         <>
             <div className="voting">
-                <progress className="progress voting mb-0 pb-0 is-success" value={Number(proVotes)} max={Number(totalVotes)}>{proVotes.toString()}</progress>
+                <progress className="progress voting mb-0 pb-0 is-success" value={Number(votes.pro.num)} max={Number(votes.goal.num)}>{votes.pro.str}</progress>
             </div>
             <div>
                 <small>
-                    <b>{proVotes.toString()}</b> <FormattedMessage defaultMessage="in favor"/>/<b>{againstVotes.toString()}</b> <FormattedMessage defaultMessage="against of"/> {totalVotes.toString()} votes in total.
+                    <b>{votes.pro.str}</b> <FormattedMessage defaultMessage="in favor"/>/<b>{votes.against.str}</b> <FormattedMessage defaultMessage="against of"/> {votes.total.str} votes in total. Goal: {votes.goal.str}
                 </small>
             </div>
             <Action campaign={campaign} />

@@ -218,7 +218,7 @@ shared({caller = owner}) actor class Metamob(
         principal: Principal,
         value: Nat64
     ): async Result.Result<(), Text> {
-        await* daoService.rewardUser(principal, value);
+        await* daoService.rewardUser(principal, value, this);
     };*/
     
     //

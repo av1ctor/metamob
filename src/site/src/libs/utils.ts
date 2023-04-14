@@ -62,6 +62,41 @@ export const limitText = (
         text.substr(0, max) + '...';
 };
 
+const removeZerosAtRight = (
+    s: string,
+    decimals: number = 2): string => {
+    let i = s.length - 1;
+    for(; i > 0; i--) {
+        if(s.charCodeAt(i) !== 48) {
+            break;
+        }
+    }
+    return s.substring(0, i+decimals);
+};
+
+export const e2sToDecimal = (
+    icp: bigint,
+    decimals?: number
+): string => {
+    const int = Number(icp / BigInt(1e2));
+    const dec = ('00' + Math.abs(Number(icp % BigInt(1e2))).toString()).substr(-2, decimals || 2);
+    return `${int}.${removeZerosAtRight(dec, decimals)}`; 
+}
+
+export const decimalToE2s = (
+    value: string
+): bigint => {
+    const dot = value.indexOf('.');
+    const int = dot > -1? 
+        BigInt(value.substring(0, dot) || '0'):
+        BigInt(value);
+    const dec = dot > -1? 
+        Number(value.substring(dot)):
+        Number(0);
+    return int * BigInt(1e2) + BigInt(Math.ceil(dec * 1e2)|0); 
+}
+
+
 export const variantUnbox = (
     value: Variant
 ): any => {

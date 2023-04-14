@@ -24,5 +24,6 @@ module {
         approve: (spender: Principal, value: Nat) -> async TxReceipt;
         getTokenFee: () -> async Nat;
         totalSupply: query () -> async Nat;
+        decimals: query () -> async Nat8;
     };
 };

@@ -163,14 +163,16 @@ export const calculateCrc32 = (
     return Buffer.from(checksumArrayBuf);
 };
 
-const removeZerosAtRight = (s: string): string => {
+const removeZerosAtRight = (
+    s: string,
+    decimals: number = 2): string => {
     let i = s.length - 1;
     for(; i > 0; i--) {
         if(s.charCodeAt(i) !== 48) {
             break;
         }
     }
-    return s.substring(0, i+1);
+    return s.substring(0, i+decimals);
 };
 
 export const e8sToDecimal = (
@@ -179,7 +181,7 @@ export const e8sToDecimal = (
 ): string => {
     const int = Number(icp / BigInt(1e8));
     const dec = ('0000000' + Math.abs(Number(icp % BigInt(1e8))).toString()).substr(-8, decimals || 8);
-    return `${int}.${removeZerosAtRight(dec)}`; 
+    return `${int}.${removeZerosAtRight(dec, decimals)}`; 
 }
 
 export const decimalToE8s = (

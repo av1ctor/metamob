@@ -124,6 +124,8 @@ module {
             };
         };
 
+        let HUNDRED_e2s = 100_00; // 100.0
+
         func _calcGoal(
             req: Types.CampaignRequest,
             place: PlaceTypes.Place
@@ -131,10 +133,10 @@ module {
             if(req.kind == Types.KIND_VOTES or req.kind == Types.KIND_WEIGHTED_VOTES) {
                 switch(place.auth) {
                     case (#dip20(dip)) {
-                        (await* DIP20.totalSupply(dip.canisterId)) / 2 + 1;
+                        ((await* DIP20.totalSupply(dip.canisterId)) * dip.minVotesPerc) / HUNDRED_e2s + 1;
                     };
                     case (#dip721(dip)) {
-                        (await* DIP721.totalSupply(dip.canisterId)) / 2 + 1;
+                        ((await* DIP721.totalSupply(dip.canisterId)) * dip.minVotesPerc) / HUNDRED_e2s + 1;
                     };
                     case _ {
                         req.goal;

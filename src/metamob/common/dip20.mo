@@ -45,4 +45,11 @@ module {
         let dip20 = actor (canisterId) : Dip20.Interface;
         await dip20.totalSupply();
     };
+
+    public func decimals(
+        canisterId: Text
+    ): async* Nat8 {
+        let dip20 = actor (canisterId) : Dip20.Interface;
+        await dip20.decimals();
+    };
 };

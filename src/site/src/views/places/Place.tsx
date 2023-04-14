@@ -75,17 +75,11 @@ const Place = (props: Props) => {
             <ScrollToTop />
             <PlaceBar
                 place={place.data}
-                
-                
-                
                 onTogglePlaces={handleTogglePlaces}
             />
             <Children
                 visible={placesVisible}
                 place={place.data}
-                
-                
-                
             />
             <Bar
                 place={place.data}
@@ -93,9 +87,6 @@ const Place = (props: Props) => {
                 orderBy={orderBy}
                 onSearch={handleChangeFilters}
                 onSort={handleChangeSort}
-                
-                
-                
             />
             <div>
                 <div className="columns is-desktop is-multiline is-align-items-center">

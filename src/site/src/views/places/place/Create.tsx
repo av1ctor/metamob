@@ -13,7 +13,7 @@ import TextField from "../../../components/TextField";
 import { useCreatePlace } from "../../../hooks/places";
 import { useUI } from "../../../hooks/ui";
 import { kinds, PlaceKind, PlaceAuthNum, auths, authToEnum, search } from "../../../libs/places";
-import { setField } from "../../../libs/utils";
+import { e2sToDecimal, setField } from "../../../libs/utils";
 import { transformAuth, validateAuth } from "./utils";
 import { useActors } from "../../../hooks/actors";
 
@@ -90,6 +90,7 @@ const Create = (props: Props) => {
                     canisterId: '',
                     createMin: BigInt(0),
                     cooperateMin: BigInt(0),
+                    minVotesPerc: BigInt(10 * 100),
                 }};
                 break;
             case PlaceAuthNum.DIP721:
@@ -97,6 +98,7 @@ const Create = (props: Props) => {
                     canisterId: '',
                     createMin: BigInt(0),
                     cooperateMin: BigInt(0),
+                    minVotesPerc: BigInt(10 * 100),
                 }};
                 break;
         }
@@ -281,6 +283,13 @@ const Create = (props: Props) => {
                             required={true}
                             onChange={changeForm}
                         />
+                        <TextField 
+                            label="Minimum votes percentage"
+                            name="auth.dip20.minVotesPerc"
+                            value={typeof form.auth.dip20.minVotesPerc === 'string'? form.auth.dip20.minVotesPerc: e2sToDecimal(form.auth.dip20.minVotesPerc)}
+                            required={true}
+                            onChange={changeForm}
+                        />
                     </div>
                 }
                 {'dip721' in form.auth &&
@@ -303,6 +312,13 @@ const Create = (props: Props) => {
                             label="Cooperate min value"
                             name="auth.dip721.cooperateMin"
                             value={String(form.auth.dip721.cooperateMin)}
+                            required={true}
+                            onChange={changeForm}
+                        />
+                        <TextField 
+                            label="Minimum votes percentage"
+                            name="auth.dip721.minVotesPerc"
+                            value={typeof form.auth.dip721.minVotesPerc === 'string'? form.auth.dip721.minVotesPerc: e2sToDecimal(form.auth.dip721.minVotesPerc)}
                             required={true}
                             onChange={changeForm}
                         />

@@ -38,6 +38,7 @@ import Cover from "./Cover";
 import { useUI } from "../../../hooks/ui";
 import { useAuth } from "../../../hooks/auth";
 import Boosts from "../../boosts/Boosts";
+import { useFindPlaceById } from "../../../hooks/places";
 
 interface Props {
 }
@@ -58,6 +59,7 @@ const Campaign = (props: Props) => {
     });
     
     const campaignReq = useFindCampaignByPubId(id);
+    const place = useFindPlaceById(campaignReq.data?.placeId);
 
     const toggleEdit = useCallback(() => {
         setModals(modals => ({
@@ -100,6 +102,9 @@ const Campaign = (props: Props) => {
 
     const canEdit = campaign?.state === CampaignState.PUBLISHED && 
         user && user._id === campaign?.createdBy;
+
+
+    console.log(campaign)
 
     return (
         <>
@@ -163,6 +168,7 @@ const Campaign = (props: Props) => {
                                 }
                                 {(campaign.kind === CampaignKind.VOTES || campaign.kind === CampaignKind.WEIGHTED_VOTES) &&
                                     <VoteFrame 
+                                        place={place.data}
                                         campaign={campaign} 
                                     />
                                 }
@@ -339,6 +345,7 @@ const Campaign = (props: Props) => {
                         <EditForm 
                             campaign={campaign} 
                             categories={categories.categories} 
+                            place={place.data}
                             onClose={toggleEdit}
                         />
                     </Modal>

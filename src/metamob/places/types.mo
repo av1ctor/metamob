@@ -28,12 +28,14 @@ module {
         canisterId: Text;
         createMin: Nat;
         cooperateMin: Nat;
+        minVotesPerc: Nat;      // e2s
     };
 
     public type PlaceDip721Auth = {
         canisterId: Text;
         createMin: Nat;
         cooperateMin: Nat;
+        minVotesPerc: Nat;      // e2s
     };
     
     public type PlaceAuth = {

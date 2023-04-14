@@ -1,6 +1,7 @@
-import {Campaign, Metamob, Variant} from "../../../declarations/metamob/metamob.did";
+import {Campaign, Metamob, Place, Variant} from "../../../declarations/metamob/metamob.did";
 import { valueToVariant } from "./backend";
 import {Filter, Limit, Order} from "./common";
+import { e8sToDecimal } from "./icp";
 
 export enum CampaignKind {
     SIGNATURES = 0,
@@ -141,24 +142,38 @@ export const campaignKindToGoal = (
     return `Goal ${suffix}`;
 };
 
-export const getProVotes = (
-    campaign: Campaign
-): bigint => {
+interface VoteResp {
+    num: bigint, 
+    str: string
+}
+
+export const getVotes = (
+    campaign: Campaign,
+    place?: Place
+): {pro: VoteResp; against: VoteResp, total: VoteResp, goal: VoteResp} => {
+    const _toString = (value: bigint) => 
+        campaign.kind === CampaignKind.WEIGHTED_VOTES && place?.auth && 'dip20' in place?.auth?
+            e8sToDecimal(value):
+            value.toString();
+
     if('votes' in campaign.info) {
-        return campaign.info.votes.pro;
+        const pro = campaign.info.votes.pro;
+        const against = campaign.info.votes.against;
+        
+        return {
+            pro: {num: pro, str: _toString(pro)},
+            against: {num: against, str: _toString(against)},
+            total: {num: pro + against, str: _toString(pro + against)},
+            goal: {num: campaign.goal, str: _toString(campaign.goal)}
+        };
     }
 
-    return BigInt(0);
-};
-
-export const getAgainstVotes = (
-    campaign: Campaign
-): bigint => {
-    if('votes' in campaign.info) {
-        return campaign.info.votes.against;
-    }
-
-    return BigInt(0);
+    return {
+        pro: {num: 0n, str: '0'},
+        against: {num: 0n, str: '0'},
+        total: {num: 0n, str: '0'},
+        goal: {num: 0n, str: '0'}
+    };
 };
 
 export const findAll = async (

@@ -27,7 +27,7 @@ interface Props {
 const Item = (props: Props) => {
     const campaign = props.campaign;
 
-    const total = campaign.kind === CampaignKind.DONATIONS || campaign.kind === CampaignKind.FUNDINGS?
+    const total = campaign.kind === CampaignKind.DONATIONS || campaign.kind === CampaignKind.FUNDINGS || (campaign.kind === CampaignKind.WEIGHTED_VOTES && campaign.total >= 100000000)?
         e8sToDecimal(campaign.total, 2):
         campaign.total.toString();
 

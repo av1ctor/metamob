@@ -350,12 +350,14 @@ module {
                 res.put("auth_canisterId", #text(dip.canisterId));
                 res.put("auth_createMin", #nat(dip.createMin));
                 res.put("auth_cooperateMin", #nat(dip.cooperateMin));
+                res.put("auth_minVotesPerc", #nat(dip.minVotesPerc));
             };
             case (#dip721(dip)) {
                 res.put("auth", #nat32(Types.RESTRICTION_DIP721));
                 res.put("auth_canisterId", #text(dip.canisterId));
                 res.put("auth_createMin", #nat(dip.createMin));
                 res.put("auth_cooperateMin", #nat(dip.cooperateMin));
+                res.put("auth_minVotesPerc", #nat(dip.minVotesPerc));
             };
         };
         res.put("name", #text(if ignoreCase Utils.toLower(e.name) else e.name));
@@ -396,6 +398,7 @@ module {
                         canisterId = Variant.getOptText(map.get("auth_canisterId"));
                         createMin = Variant.getOptNat(map.get("auth_createMin"));
                         cooperateMin = Variant.getOptNat(map.get("auth_cooperateMin"));
+                        minVotesPerc = Variant.getOptNat(map.get("auth_minVotesPerc"));
                     });
                 }
                 else /*if(auth == Types.RESTRICTION_DIP721)*/ {
@@ -403,6 +406,7 @@ module {
                         canisterId = Variant.getOptText(map.get("auth_canisterId"));
                         createMin = Variant.getOptNat(map.get("auth_createMin"));
                         cooperateMin = Variant.getOptNat(map.get("auth_cooperateMin"));
+                        minVotesPerc = Variant.getOptNat(map.get("auth_minVotesPerc"));
                     });
                 };
             name = Variant.getOptText(map.get("name"));

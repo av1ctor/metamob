@@ -5,7 +5,7 @@ import { findAll, findById, findByPubId, findByUser, findTreeById } from '../lib
 import { useActors } from './actors';
 
 export const useFindPlaceById = (
-    _id: number
+    _id?: number
 ): UseQueryResult<Place, Error> => {
     const {metamob} = useActors();
 

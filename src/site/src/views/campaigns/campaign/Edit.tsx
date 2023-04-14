@@ -1,7 +1,7 @@
 import React, {useState, useCallback, useEffect} from "react";
 import * as yup from 'yup';
 import {useModerateCampaign, useUpdateCampaign} from "../../../hooks/campaigns";
-import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry, CampaignInvokeMethodAction} from "../../../../../declarations/metamob/metamob.did";
+import {Category, Campaign, CampaignRequest, FundingTier, CampaignInfo, FileRequest, MapEntry, CampaignInvokeMethodAction, Place} from "../../../../../declarations/metamob/metamob.did";
 import TextField from "../../../components/TextField";
 import SelectField, { Option } from "../../../components/SelectField";
 import Button from "../../../components/Button";
@@ -14,7 +14,7 @@ import AutocompleteField from "../../../components/AutocompleteField";
 import { isModerator } from "../../../libs/users";
 import { CampaignKind, campaignKindToGoal, kindOptions, stateOptions } from "../../../libs/campaigns";
 import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
-import { setField } from "../../../libs/utils";
+import { e2sToDecimal, setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { transformInfo } from "./Create";
 import CreateModerationForm, { transformModerationForm, useModerationForm, useSetModerationFormField, validateModerationForm } from "../../moderations/moderation/Create";
@@ -138,6 +138,7 @@ const cloneInfo = (info: CampaignInfo): CampaignInfo => {
 interface Props {
     campaign: Campaign;
     categories: Category[];
+    place?: Place;
     reportId?: number | null;
     onClose: () => void;
 };
@@ -525,7 +526,7 @@ const EditForm = (props: Props) => {
                 :
                     <TextField 
                         label={campaignKindToGoal(form.kind)}
-                        value="50% + 1"
+                        value={`${props.place?.auth && 'dip20' in props.place.auth? e2sToDecimal(props.place.auth.dip20.minVotesPerc): '50'}% + 1`}
                         disabled
                     />
                 }

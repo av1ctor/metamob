@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useContext, useEffect} from "react";
+import React, {useState, useCallback, useEffect} from "react";
 import * as yup from 'yup';
 import Button from '../../../components/Button';
 import TextField from "../../../components/TextField";
@@ -14,7 +14,7 @@ import { decimalToE8s, e8sToDecimal } from "../../../libs/icp";
 import { useFindPlaceById } from "../../../hooks/places";
 import Steps, { Step } from "../../../components/Steps";
 import Item from "../Item";
-import { setField } from "../../../libs/utils";
+import { e2sToDecimal, setField } from "../../../libs/utils";
 import { Tiers } from "./kinds/fundings/Tiers";
 import { ModerationReason } from "../../../libs/moderations";
 import { FormattedMessage } from "react-intl";
@@ -614,7 +614,7 @@ const CreateForm = (props: Props) => {
                         :
                             <TextField 
                                 label={campaignKindToGoal(form.kind)}
-                                value="50% + 1"
+                                value={`${props.place?.auth && 'dip20' in props.place.auth? e2sToDecimal(props.place.auth.dip20.minVotesPerc): '50'}% + 1`}
                                 disabled
                             />
                         }
