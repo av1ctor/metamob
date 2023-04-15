@@ -56,7 +56,7 @@
       "enabled": true
     },
     "build": {
-      "args": "--max-stable-pages=524288",
+      "args": "--max-stable-pages=786432",
       "packtool": "vessel sources"
     },
     "replica": {
