@@ -105,7 +105,7 @@ shared(owner) actor class Emailer(
                 })
             )),
             ("headers", #Object([
-                ("idempotencyKey", #String(item.id))
+                ("idempotencyKey", #String(Utils.toLower(item.id)))
             ])),
             switch(req.content) {
                 case (#templateId(id)) {
@@ -168,13 +168,13 @@ shared(owner) actor class Emailer(
             let response = await ic.http_request(request);
             let body = _decodeResponse(response);
             if(response.status < 200 or response.status > 299) {
-                Debug.print("emailer.send() failed: " # body);
+                Debug.print("emailer.send(" # item.id # ") failed: " # body);
                 return false;
             };
-            Debug.print("emailer.send() succeeded: " # body);
+            Debug.print("emailer.send(" # item.id # ") succeeded: " # body);
             true;
         } catch (err) {
-            Debug.print("emailer.send() failed: " # Error.message(err));
+            Debug.print("emailer.send(" # item.id # ") failed: " # Error.message(err));
             false;
         };
     };
