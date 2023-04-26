@@ -17,7 +17,16 @@ module {
     public func e8sToDecimal(
         value: Nat64
     ): Text {
-        Nat64.toText(value / 100000000) # "." # Nat64.toText(value % 100000000)
+        let dec = value % 100000000;
+        var res = Nat64.toText(value / 100000000) # ".";
+        
+        var div = 10000000: Nat64;
+        while(div > 0) {
+            res #= Nat64.toText((dec / div) % 10);
+            div /= 10;
+        };
+
+        return res;
     };
 
     public func toLower(s: Text): Text {
